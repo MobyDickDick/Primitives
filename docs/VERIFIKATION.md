@@ -151,6 +151,43 @@ XOR als `c = xor(a,b)` wurden ebenfalls praktisch geprüft.
 
 ![Eigener Formeleditor mit Summe und Übertrag](eigene-formeln.png)
 
+## TinyCPU-Operationen (PRIM-04)
+
+Geprüft am 25. Oktober 2026:
+
+- `python -m unittest discover -s tests -v`: **76 Tests erfolgreich**, darunter
+  **11 HTTP-Integrationstests** und ein tatsächlicher TinyLanguage-Suchlauf.
+  Die Suite lief mit Loopback-Zugriff ausserhalb der Sandbox; innerhalb der
+  Sandbox verhindert WinError 10013 die HTTP-Verbindungen.
+- Neun neue Kerntests prüfen DIV gegen unabhängige Ganzzahldivision bei signed,
+  unsigned und ungleichen Breiten; Nullteiler, min_signed/−1, Abschneiden und
+  Fehlerüberlauf. Prädikate, alle sechs Vergleiche, SHL/SHR/SAR, INC/DEC und MUX
+  werden bei kleinen Breiten vollständig geprüft. Feste Schiebeweiten 0, 1,
+  Wortbreite, darüber und 32 sowie ein variabler 31-Bit-Schiebeeingang sind enthalten.
+- Weitere Fälle prüfen gezielte Randfälle in reproduzierbaren grossen Stichproben,
+  ungültige Parameter, Port-/Gesamtlimits, alle 29 archivierten Referenztabellen,
+  die acht vorhandenen NAND-Beispiele, tatsächliche CLI-Aufrufe und wiederholten
+  Bibliotheksimport ohne Überschreiben vorhandener Dateien.
+- Der neue HTTP-Test prüft Katalog, Variantenvorschau, Erzeugung und
+  Export-/Import-Roundtrip von DIV, MUX, SAR mit n=32 und IsZero sowie ungültige
+  Weiten und Ergebnisbreiten. Die vorhandene HTTP-Prüfung für Suche und
+  Bibliothek bleibt erfolgreich.
+- `python tools/verify_tinycpu.py ../TinyCPU`: **7424 erfolgreiche Vergleiche**
+  gegen den tatsächlichen 16-Bit-Interpreter für ADD/SUB/MUL/DIV/AND/OR/XOR
+  in allen vier Adressierungsarten und NOT. Die 1364 arithmetischen Überlauffälle
+  prüfen Status und CPU-Ungültigkeit entsprechend der dokumentierten Abweichung.
+  Commit und vollständiges Befehlsinventar stehen in [TINYCPU.md](TINYCPU.md).
+- **11 JavaScript-Tests**, `node --check web/app.js` und `git diff --check`
+  erfolgreich.
+- Browserprüfung auf leerer temporärer Bibliothek ohne Hintergrundsuche:
+  DIV mit signed Operanden und valid/div0 erzeugt; MUX mit zusätzlichem select
+  erzeugt; SAR von variabler auf feste Weite umgeschaltet, n=32 gespeichert;
+  Seite neu geladen und Funktion samt Schiebeparameter wieder geöffnet.
+  IsNegative mit unsigned Ergebnisbit erzeugt. Namen, N/M, vollständige Tabellen
+  und fehlende NAND-Implementierungen werden korrekt angezeigt; keine Konsolenfehler.
+
+![Neue Operationsbeispiele im Browser](tinycpu-prim04.png)
+
 ## Tatsächliche Suchergebnisse
 
 Alle folgenden Programme wurden vom TinyLanguage-Backend gefunden und gegen

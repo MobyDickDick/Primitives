@@ -36,6 +36,8 @@ Evolution                  Fitness / Bausteine
 | `primitives/dataset.py` | Vektoren, Konsistenz, Kodierung, Ausdrücke, Vorlagen |
 | `primitives/ports.py` | Benannte Schnittstellen, Bitoffsets, Vorzeichen, Ergebnisüberlauf |
 | `primitives/operations.py` | Operationsdefinitionen und konkrete Breitenvarianten als Referenzen |
+| `tools/export_operations.py` | Kleine importierbare Standardtabellen des Operationskatalogs |
+| `tools/verify_tinycpu.py` | Optionaler direkter Abgleich mit einem lokalen TinyCPU-Interpreter |
 | `primitives/formula.py` | Eigene arithmetische Ergebnisformeln und explizite Syntaxübersetzung |
 | `primitives/evolution.py` | Genom, Fitness, Bibliothekskomposition, Python-Backend |
 | `tiny/evolve.tiny` | TinyLanguage-Evolution |

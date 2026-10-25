@@ -287,3 +287,16 @@ müssen betragsmässig höchstens 2^128 sein. Das Endergebnis muss eine ganze Za
 zwischen 0 und 2^M−1 sein; ein Überlauf wird nicht stillschweigend abgeschnitten.
 Gewünschten Überlauf explizit formulieren, etwa `(a+b) % 16`.
 
+## TinyCPU-Operationsbeispiele
+
+Die Operationsmetadaten bleiben bei `version: 1`. SHL/SHR/SAR erlauben zusätzlich
+`parameters.shift` als ganze Zahl 0–32; ohne diesen Parameter steht b als unsigned
+Schiebeeingang in der Schnittstelle. Ein fester Parameter entfernt b, wird im
+Funktionsnamen als `[n=…]` angezeigt und bleibt bei Export/Import erhalten.
+MUX ergänzt a und b um `select` mit einem unsigned Bit. DIV hat neben c immer
+die unsigned Ein-Bit-Ausgänge valid und div0. Prädikate und Vergleiche haben genau
+ein unsigned Ergebnisbit. INC/DEC erlauben wie ADD/SUB/MUL einen optionalen
+Statusausgang. Es gelten weiterhin die Summenlimits von 32 Bits je Seite.
+Die vollständigen Rechenregeln und Unterschiede zum CPU-Zustandsmodell sind in
+[TINYCPU.md](TINYCPU.md#zahlensemantik) beschrieben.
+

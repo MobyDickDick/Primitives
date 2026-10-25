@@ -1,0 +1,96 @@
+{
+  "schema": 1,
+  "name": "IsNegative(3,1)",
+  "inputs": 3,
+  "outputs": 1,
+  "rows": [
+    [
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      1,
+      1
+    ],
+    [
+      0,
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      1,
+      1
+    ],
+    [
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      0,
+      1,
+      1
+    ],
+    [
+      1,
+      1,
+      0,
+      0
+    ],
+    [
+      1,
+      1,
+      1,
+      1
+    ]
+  ],
+  "metadata": {
+    "expression": {
+      "c": "a < 0"
+    },
+    "seed": 1,
+    "bit_order": "LSB-first",
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 3,
+          "signed": true,
+          "offset": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 1,
+          "signed": false,
+          "offset": 0,
+          "overflow": "wrap"
+        }
+      ]
+    },
+    "operation": {
+      "definition": "IsNegative",
+      "version": 1,
+      "parameters": {
+        "a_bits": 3,
+        "result_bits": 1,
+        "signed": true,
+        "overflow": "wrap",
+        "flag": false
+      }
+    }
+  },
+  "exhaustive": true
+}

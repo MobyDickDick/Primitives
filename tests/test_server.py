@@ -106,6 +106,28 @@ class ServerTests(unittest.TestCase):
             self.assertEqual(caught.exception.code, 400)
             caught.exception.close()
 
+    def test_cpu_operations_catalog_roundtrip_and_rejection(self):
+        operations = self.request("/api/catalog")["operations"]
+        self.assertTrue({"DIV", "IsZero", "IsNegative", "SHL", "SHR", "SAR", "MUX", "INC", "DEC", "LT"} <= operations.keys())
+        for name, parameters, inputs, outputs in (
+                ("DIV", {"signed": True}, 6, 5), ("MUX", {}, 5, 2),
+                ("SAR", {"signed": True, "shift": 32}, 3, 3), ("IsZero", {}, 3, 1)):
+            spec = {"definition": name, "parameters": parameters}
+            preview = self.request("/api/operations/variant", spec)
+            saved = self.request("/api/datasets", {"operation": spec})
+            ds = saved["dataset"]
+            self.assertEqual((ds["inputs"], ds["outputs"]), (inputs, outputs))
+            self.assertEqual(ds["metadata"]["interface"], preview["interface"])
+            self.assertEqual(self.request("/api/datasets/" + saved["id"]), ds)
+            self.assertEqual(self.request("/api/datasets", ds)["dataset"], ds)
+            self.assertTrue(ds["exhaustive"])
+        for name, params in (("SHL", {"shift": -1}), ("ADD", {"shift": 2}),
+                             ("DIV", {"result_bits": 31}), ("EQ", {"result_bits": 2})):
+            with self.assertRaises(HTTPError) as caught:
+                self.request("/api/datasets", {"operation": {"definition": name, "parameters": params}})
+            self.assertEqual(caught.exception.code, 400)
+            caught.exception.close()
+
     def test_defined_functions_survive_server_restart_without_search(self):
         expected = {"ADD(1,1,2)", "ADD(4,4,5)", "ADD(8,8,9)", "ADD(1,1,16)"}
         for a, b, c in ((1, 1, 2), (4, 4, 5), (8, 8, 9), (1, 1, 16)):

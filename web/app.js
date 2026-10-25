@@ -65,17 +65,27 @@ function readPorts() {
 function operationRequest() {
   const definition = $("operation").value, op = state.operations[definition];
   const params = { a_bits: int("a-bits"), result_bits: int("result-bits"), signed: $("signed").checked,
-    overflow: $("overflow").value, flag: $("result-flag").checked && ["ADD", "SUB", "MUL"].includes(definition) };
-  if (op?.operands === 2) params.b_bits = int("b-bits");
+    overflow: $("overflow").value, flag: $("result-flag").checked && Boolean(op?.flag) };
+  if (op?.shift && $("shift-mode").value === "fixed") params.shift = int("shift");
+  else if (op?.operands >= 2) params.b_bits = int("b-bits");
   return { definition, version: 1, parameters: params };
+}
+function operationLabel(definition, p) {
+  const widths = [p.a_bits];
+  if (p.b_bits) widths.push(p.b_bits);
+  if (state.operations[definition]?.operands === 3) widths.push(1);
+  widths.push(p.result_bits);
+  return `${definition}(${widths.join(",")})${p.shift !== undefined ? ` [n=${p.shift}]` : ""}`;
 }
 function chooseOperation(definition, parameters = null) {
   const op = state.operations[definition]; if (!op) return;
   $("operation").value = definition;
-  const p = parameters || { a_bits: op.defaults[0], b_bits: op.defaults[1], result_bits: op.defaults[2] };
+  const p = parameters || { a_bits: op.defaults[0], b_bits: op.operands >= 2 ? op.defaults[1] : undefined,
+    result_bits: op.defaults[2], signed: Boolean(op.default_signed) };
   $("a-bits").value = p.a_bits; $("b-bits").value = p.b_bits || 1; $("result-bits").value = p.result_bits;
   $("signed").checked = Boolean(p.signed); $("overflow").value = p.overflow || "wrap"; $("result-flag").checked = Boolean(p.flag);
-  const label = `${definition}(${p.a_bits}${op.operands === 2 ? `,${p.b_bits}` : ""},${p.result_bits})`;
+  $("shift-mode").value = p.shift !== undefined ? "fixed" : "input"; $("shift").value = p.shift ?? 1;
+  const label = operationLabel(definition, p);
   state.autoName = !parameters || [label, definition.toLowerCase(), definition].includes($("dataset-name").value);
   $("task-mode").value = "operation"; updateDefinition();
 }
@@ -94,13 +104,22 @@ function updateDefinition() {
   if (formula) for (const node of document.querySelectorAll(".port-expression")) node.hidden = true;
   let n = int("inputs"), m = int("outputs"), description = "";
   if (mode === "operation") {
-    const op = operationRequest(), p = op.parameters;
-    if (state.autoName) $("dataset-name").value = `${op.definition}(${p.a_bits}${p.b_bits ? `,${p.b_bits}` : ""},${p.result_bits})`;
-    n = p.a_bits + (p.b_bits || 0); m = p.result_bits + Number(p.flag);
-    $("b-bits-label").hidden = state.operations[op.definition]?.operands !== 2;
-    $("flag-label").hidden = !["ADD", "SUB", "MUL"].includes(op.definition);
-    description = `${op.definition}(${p.a_bits}${p.b_bits ? `,${p.b_bits}` : ""},${p.result_bits}) · ${p.signed ? "Zweierkomplement" : "unsigned"} · ${p.overflow === "wrap" ? "Ergebnis modulo 2^Breite" : "Überlauf wird abgelehnt"}.`;
-    if (p.flag) description += op.definition === "SUB" && !p.signed ? " Borrow: a < b; Abschneiden positiver hoher Bits setzt Borrow nicht." : ` Statusbit: ausserhalb des Ergebnisbereichs (${p.signed || op.definition === "MUL" ? "Overflow" : "Carry"}).`;
+    const def = state.operations[$("operation").value];
+    if (def?.predicate) $("result-bits").value = 1;
+    $("result-bits").readOnly = Boolean(def?.predicate);
+    const op = operationRequest(), p = op.parameters, label = operationLabel(op.definition, p);
+    if (state.autoName) $("dataset-name").value = label;
+    n = p.a_bits + (p.b_bits || 0) + Number(def?.operands === 3);
+    m = p.result_bits + Number(p.flag) + (op.definition === "DIV" ? 2 : 0);
+    $("b-bits-label").hidden = !p.b_bits;
+    $("shift-options").hidden = !def?.shift; $("shift-label").hidden = p.shift === undefined;
+    $("flag-label").hidden = !def?.flag;
+    $("operation-hint").textContent = def?.description || "";
+    description = `${label} · ${p.signed ? "Zweierkomplement" : "unsigned"} · ${p.overflow === "wrap" ? "Ergebnis modulo 2^Breite" : "Überlauf wird abgelehnt"}.`;
+    if (def?.predicate) description += " Ergebnis c ist ein unsigned Wahrheitsbit.";
+    if (op.definition === "IsNegative") description += " Ohne Vorzeichen ist das Ergebnis immer 0.";
+    if (op.definition === "DIV") description += " b=0: c=0, valid=0, div0=1; sonst valid=1, div0=0. Ergebnisüberlauf folgt der gewählten Regel.";
+    if (p.flag) description += ["SUB", "DEC"].includes(op.definition) && !p.signed ? " Borrow: Ergebnis < 0; Abschneiden positiver hoher Bits setzt Borrow nicht." : ` Statusbit: ausserhalb des Ergebnisbereichs (${p.signed || op.definition === "MUL" ? "Overflow" : "Carry"}).`;
   } else if (named) {
     const { spec } = readPorts();
     n = spec.inputs.reduce((v, p) => v + p.bits, 0); m = spec.outputs.reduce((v, p) => v + p.bits, 0);
@@ -113,7 +132,7 @@ function updateDefinition() {
 function restoreDefinition(ds) {
   $("dataset-name").value = ds.name; $("inputs").value = ds.inputs; $("outputs").value = ds.outputs;
   const meta = ds.metadata || {};
-  $("preset").value = meta.operation ? meta.operation.definition.toLowerCase() : "custom";
+  $("preset").value = meta.operation ? (state.presets[meta.operation.definition.toLowerCase()] ? meta.operation.definition.toLowerCase() : `op:${meta.operation.definition}`) : "custom";
   if (meta.operation && state.operations[meta.operation.definition]) chooseOperation(meta.operation.definition, meta.operation.parameters);
   else if (meta.interface) {
     state.referenceCircuit = meta.reference_circuit || null;
@@ -241,11 +260,13 @@ async function refresh() {
     for (const name of Object.keys(catalog.operations)) $("operation").add(new Option(name, name));
     editPorts({ inputs: [{ name: "a", bits: 2 }, { name: "b", bits: 2 }], outputs: [{ name: "c", bits: 3 }] }, { c: "a+b" });
     for (const name of Object.keys(catalog.presets)) $("preset").add(new Option(presetLabels[name] || name.toUpperCase(), name));
+    for (const name of Object.keys(catalog.operations)) if (!catalog.presets[name.toLowerCase()]) $("preset").add(new Option(name, `op:${name}`));
     $("preset").add(new Option("Eigener Ausdruck", "custom"));
     $("preset").value = "xor";
     $("preset").addEventListener("change", () => {
       const name = $("preset").value, p = catalog.presets[name];
       $("mul-hint").hidden = name !== "mul";
+      if (name.startsWith("op:")) { chooseOperation(name.slice(3)); return; }
       if (!p) return;
       if (catalog.operations[name.toUpperCase()]) {
         chooseOperation(name.toUpperCase()); return;
@@ -723,7 +744,7 @@ action("formula-example", () => {
 });
 $("dataset-name").addEventListener("input", () => { state.autoName = false; });
 $("operation").addEventListener("change", () => chooseOperation($("operation").value));
-for (const id of ["a-bits", "b-bits", "result-bits", "signed", "overflow", "result-flag"]) $(id).addEventListener("input", updateDefinition);
+for (const id of ["a-bits", "b-bits", "result-bits", "signed", "overflow", "result-flag", "shift-mode", "shift"]) $(id).addEventListener("input", updateDefinition);
 for (const [id, side] of [["add-input-port", "inputs"], ["add-output-port", "outputs"]]) action(id, () => {
   const container = $(side === "inputs" ? "input-ports" : "output-ports");
   container.append(portRow(side, { name: `${side === "inputs" ? "in" : "out"}${container.children.length}`, bits: 1 })); updateDefinition();

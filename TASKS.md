@@ -9,7 +9,7 @@ Die Kennungen sind Dokumentationskennungen; GitHub-Issues wurden noch nicht ange
 - [x] [PRIM-01: Zoom und Navigation](docs/ERWEITERUNGEN.md#prim-01).
 - [x] [PRIM-02: Verbindungsdrähte verschieben und speichern](docs/ERWEITERUNGEN.md#prim-02).
 - [x] [PRIM-03: Variable Operand- und Ausgangsbitbreiten](docs/ERWEITERUNGEN.md#prim-03).
-- [ ] [PRIM-04: TinyCPU-Operationen und gängige Beispiele](docs/ERWEITERUNGEN.md#prim-04).
+- [x] [PRIM-04: TinyCPU-Operationen und gängige Beispiele](docs/ERWEITERUNGEN.md#prim-04).
 - [ ] [PRIM-05: Wiederverwendbare Unterprogramm-Bausteine](docs/ERWEITERUNGEN.md#prim-05).
 - [ ] [PRIM-06: Unterprogramm-Boxen und interaktives Debugging](docs/ERWEITERUNGEN.md#prim-06).
 - [ ] [PRIM-07: Mehrschrittige Programme mit if/else, while und for](docs/ERWEITERUNGEN.md#prim-07).
@@ -70,6 +70,7 @@ Die Kennungen sind Dokumentationskennungen; GitHub-Issues wurden noch nicht ange
 - [ ] Zustandsübergänge visualisieren und mit Zähler / Toggle-Register testen.
 - [ ] Evolution auf zeitabhängige Aufgaben erweitern.
 
-Empfohlene nächste Aufgabe: Suchrobustheit und unabhängige Prüfvektoren verbessern,
-bevor die Zahlbreiten stark erhöht werden.
+Nächste Erweiterungsaufgabe: PRIM-05, wiederverwendbare Unterprogramm-Bausteine.
+Für die Suchentwicklung bleiben Suchrobustheit und unabhängige Prüfvektoren
+vor einer starken Erhöhung der Zahlbreiten empfohlen.
 

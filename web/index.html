@@ -16,10 +16,12 @@
 <label>Operationsdefinition<select id="operation"></select></label>
 <button id="edit-operation-formula" class="secondary full">Rechenvorschrift selbst bearbeiten</button>
 <div class="pair"><label>Bits für a<input id="a-bits" type="number" min="1" max="32" value="2"></label><label id="b-bits-label">Bits für b<input id="b-bits" type="number" min="1" max="32" value="2"></label></div>
+<div id="shift-options" hidden><label>Schiebeweite<select id="shift-mode"><option value="input">Über Eingang b (unsigned)</option><option value="fixed">Fester Parameter n</option></select></label><label id="shift-label" hidden>n<input id="shift" type="number" min="0" max="32" value="1"></label></div>
 <label>Ergebnisbits c<input id="result-bits" type="number" min="1" max="32" value="3"></label>
 <label class="check-label"><input id="signed" type="checkbox"> Vorzeichen (Zweierkomplement)</label>
 <label>Überlauf des Ergebnisses<select id="overflow"><option value="wrap">Abschneiden (modulo 2^Breite)</option><option value="error">Als Fehler ablehnen</option></select></label>
 <label id="flag-label" class="check-label"><input id="result-flag" type="checkbox"> Zusätzlicher Carry-/Borrow-/Überlaufausgang</label>
+<p id="operation-hint" class="hint"></p>
 </div>
 <div id="ports-home"></div><div id="named-options" hidden>
 <p class="hint">Ports stehen in Bitreihenfolge, jeder Port LSB zuerst. N und M sind die Summen (je höchstens 32). Vorzeichen gilt pro Port; alle Ergebnis-Ausdrücke lesen dieselben Eingaben.</p>

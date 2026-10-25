@@ -9,7 +9,26 @@ mit Debugging sowie mehrschrittige Programme mit Kontrollstrukturen und Sprünge
 Die acht Arbeitspakete enthalten Umfang, Abnahmekriterien und Abhängigkeiten.
 PRIM-01 (Zoom und Navigation), PRIM-02 (verschiebbare Leitungen) und PRIM-03
 (variable Bitbreiten für Vorlagen, eigene Aufgaben und bestehende Schaltungen)
-sind umgesetzt. Als Nächstes folgt PRIM-04 mit TinyCPU-Operationsbeispielen.
+sind ebenso wie PRIM-04 (TinyCPU-Operationsbeispiele) umgesetzt.
+Als Nächstes folgt PRIM-05 mit wiederverwendbaren Unterprogramm-Bausteinen.
+
+## TinyCPU-Operationen und weitere Rechenbeispiele
+
+**Vorlage** und **Operationsdefinition** bieten jetzt 26 parametrisierte
+Operationen. Neu sind DIV mit `valid`/`div0`, IsZero, IsNonZero, IsNegative,
+EQ/NE/LT/LE/GT/GE, SHL/SHR/SAR, INC/DEC und MUX. Schiebeweiten können
+als fester Parameter oder über den unsigned Eingang b vorgegeben werden.
+MUX erhält zusätzlich den Ein-Bit-Eingang `select`.
+
+DIV rundet gegen null (−3/2 = −1); bei Nullteiler gilt c=0, valid=0, div0=1.
+Die Oberfläche startet DIV, SAR und IsNegative mit Zweierkomplement.
+Die [29 vollständigen kleinen Beispieltabellen](examples/operations/) sind
+über den Vektorimport verwendbar. `python tools/seed_library.py` übernimmt sie
+in die Funktionsbibliothek. Sie benötigen keine bereits gefundene NAND-Schaltung.
+
+Der geprüfte TinyCPU-Commit, alle 50 Basisbefehle, drei optionale Systembefehle,
+Zahlensemantik und bewusste Abweichungen sind in [TINYCPU.md](docs/TINYCPU.md)
+dokumentiert. Die bestehenden CLI-Vorlagen behalten ihre Semantik.
 
 ## Arithmetische Funktionen selbst definieren
 

@@ -35,6 +35,7 @@ def main():
     gen.add_argument("--signed", action="store_true")
     gen.add_argument("--overflow", choices=("wrap", "error"), default="wrap")
     gen.add_argument("--flag", action="store_true", help="Carry/Borrow bzw. Überlauf als zusätzlichen Ausgang erzeugen")
+    gen.add_argument("--shift", type=int, help="Feste Schiebeweite 0–32 für SHL/SHR/SAR; sonst Eingang b")
     gen.add_argument("--interface", type=Path, help="JSON mit benannten inputs/outputs; Summen müssen --inputs/--outputs entsprechen")
     gen.add_argument("--expressions", type=Path, help="JSON-Zuordnung Ergebnisport -> Ausdruck")
     gen.add_argument("--reference-circuit", type=Path, help="NAND-JSON bitweise auf benannte Ports anwenden")
@@ -69,11 +70,11 @@ def main():
         elif args.command == "generate":
             if (args.operation or args.preset) and (args.interface or args.expressions or args.reference_circuit or args.formula is not None or args.formula_file):
                 raise ValueError("Benannte eigene Referenzen nicht mit --operation/--preset kombinieren.")
-            if not args.operation and (args.a_bits is not None or args.b_bits is not None or args.result_bits is not None or args.signed or args.flag or args.overflow != "wrap"):
+            if not args.operation and (args.a_bits is not None or args.b_bits is not None or args.result_bits is not None or args.signed or args.flag or args.overflow != "wrap" or args.shift is not None):
                 raise ValueError("Breitenparameter und --signed/--flag/--overflow benötigen --operation; eigene Ports über --interface definieren.")
             if args.operation:
                 params = {"a_bits": args.a_bits, "b_bits": args.b_bits, "result_bits": args.result_bits,
-                          "signed": args.signed, "overflow": args.overflow, "flag": args.flag}
+                          "signed": args.signed, "overflow": args.overflow, "flag": args.flag, "shift": args.shift}
                 dataset = generate_operation({"definition": args.operation, "parameters": params}, args.samples, args.seed,
                                              None if args.name == "eigener-ausdruck" else args.name)
             elif args.preset:

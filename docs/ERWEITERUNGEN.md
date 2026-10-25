@@ -2,7 +2,7 @@
 
 Diese acht Arbeitspakete konkretisieren die Erweiterungswünsche vom
 25. Oktober 2026. Sie sind lokale Planungs-Issues; auf GitHub wurden noch keine
-Issues angelegt. PRIM-01 bis PRIM-03 sind umgesetzt; die weiteren Arbeitspakete sind offen.
+Issues angelegt. PRIM-01 bis PRIM-04 sind umgesetzt; die weiteren Arbeitspakete sind offen.
 
 Die Kennungen PRIM-01 bis PRIM-08 sind Dokumentationskennungen, keine GitHub-Issue-Nummern.
 
@@ -13,7 +13,7 @@ Die Kennungen PRIM-01 bis PRIM-08 sind Dokumentationskennungen, keine GitHub-Iss
 | [PRIM-01](#prim-01) | Zoom und Navigation (umgesetzt) | 1 | Eigenständig |
 | [PRIM-02](#prim-02) | Drähte verschieben und speichern (umgesetzt) | 2 | Zoom-Koordinaten aus PRIM-01 berücksichtigen |
 | [PRIM-03](#prim-03) | Variable Bitbreiten (umgesetzt) | 5 | Grundlage für weitere Funktionen |
-| [PRIM-04](#prim-04) | TinyCPU und Operationsbeispiele | 3 | PRIM-03; Kontrollfluss später ergänzen |
+| [PRIM-04](#prim-04) | TinyCPU und Operationsbeispiele (umgesetzt) | 3 | PRIM-03; Kontrollfluss später ergänzen |
 | [PRIM-05](#prim-05) | Wiederverwendbare Unterprogramm-Bausteine | 4 | PRIM-03 |
 | [PRIM-06](#prim-06) | Unterprogramm-Boxen und Debugging | 4 | PRIM-05; PRIM-01/02 berücksichtigen |
 | [PRIM-07](#prim-07) | Mehrschrittige Programme und Kontrollstrukturen | 6 | PRIM-03 |
@@ -26,8 +26,8 @@ Eine Operationsvorlage darf bereits nutzbar sein, bevor eine passende verdrahtet
 Schaltung existiert.
 
 Die Ausgangslage wurde anhand der vorhandenen Implementierung und der verlinkten
-TinyCPU-Quellen geprüft. Der konkrete TinyCPU-Commit ist bei der späteren
-Übernahme festzuhalten.
+TinyCPU-Quellen geprüft. Der bei PRIM-04 übernommene Stand ist in
+[TINYCPU.md](TINYCPU.md) mit Commit und Befehlsinventar festgehalten.
 
 <a id="prim-01"></a>
 
@@ -175,7 +175,7 @@ Export/Import erhalten. Der Formelmodus verwendet `^` als Potenz und bietet
 
 ## PRIM-04 – TinyCPU-Operationen und gängige Rechenoperationen als Beispiele übernehmen
 
-**Status:** geplant, nicht implementiert.
+**Status:** umgesetzt am 25. Oktober 2026.
 
 ### Ziel
 So viele sinnvolle Operationen wie möglich aus [TinyCPU](https://github.com/MobyDickDick/TinyCPU) als wiederverwendbare Beispiele in Primitives anbieten. Nicht direkt darstellbare CPU-Befehle werden nachvollziehbar erfasst und den nötigen Folgearbeiten zugeordnet.
@@ -191,11 +191,25 @@ So viele sinnvolle Operationen wie möglich aus [TinyCPU](https://github.com/Mob
 - Korrekte Referenz/Vektoren und tatsächlich gefundene NAND-Schaltung getrennt ausweisen; nicht für jede Breite eine fertige Verdrahtung voraussetzen.
 
 ### Abnahme
-- [ ] Für jeden inventarisierten TinyCPU-Befehl ist der Übernahmestatus begründet dokumentiert.
-- [ ] IsZero, beide Schieberichtungen und die priorisierten Rechen-/Logikoperationen sind als Beispiele auswählbar.
-- [ ] Kleine Breiten werden vollständig, grössere Varianten mit klar gekennzeichneten Stichproben und Randfällen geprüft.
-- [ ] Referenzwerte und vorhandene Schaltungen stimmen auf den ausgewiesenen Prüfvektoren überein.
-- [ ] Herkunft, geprüfter TinyCPU-Stand und Semantikabweichungen sind dokumentiert.
+- [x] Für jeden inventarisierten TinyCPU-Befehl ist der Übernahmestatus begründet dokumentiert.
+- [x] IsZero, beide Schieberichtungen und die priorisierten Rechen-/Logikoperationen sind als Beispiele auswählbar.
+- [x] Kleine Breiten werden vollständig, grössere Varianten mit klar gekennzeichneten Stichproben und Randfällen geprüft.
+- [x] Referenzwerte und vorhandene Schaltungen stimmen auf den ausgewiesenen Prüfvektoren überein.
+- [x] Herkunft, geprüfter TinyCPU-Stand und Semantikabweichungen sind dokumentiert.
+
+### Umsetzung
+
+26 Operationsdefinitionen, 29 importierbare Standardtabellen sowie Auswahl über
+Oberfläche, API und CLI. DIV bietet Rundung gegen null und valid/div0-Ausgänge;
+Schieber unterstützen feste und variable Weiten. Vergleiche, Null-/Vorzeichentests,
+INC/DEC und MUX ergänzen die vorhandene Arithmetik und Wortlogik.
+Grössere Stichproben enthalten gezielte Operand- und Schiebe-Randfälle.
+Alle 50 Basisbefehle sowie drei optionale Systembefehle sind im
+[Befehlsinventar](TINYCPU.md#vollständiges-befehlsinventar) einzeln eingeordnet.
+Die Referenzen wurden mit 7424 tatsächlichen TinyCPU-VM-Schritten verglichen;
+vorhandene NAND-Beispiele bleiben separat vollständig geprüft.
+Details und Grenzen stehen in [TINYCPU.md](TINYCPU.md),
+Prüfergebnisse in [VERIFIKATION.md](VERIFIKATION.md#tinycpu-operationen-prim-04).
 
 ### Abhängigkeiten
 [PRIM-03](#prim-03); Kontrollfluss wird durch [PRIM-07](#prim-07) und [PRIM-08](#prim-08) ergänzt. Zustandsbehaftete CPU-Komponenten bleiben an das Registermodell aus der bestehenden Architekturplanung gebunden.

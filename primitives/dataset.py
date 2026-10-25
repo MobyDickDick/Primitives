@@ -62,13 +62,11 @@ class Dataset:
             if len(ports.get("inputs", [])) != c.inputs or len(ports.get("outputs", [])) != len(c.outputs):
                 raise ValueError("Die Referenzschaltung braucht einen benannten Port pro ursprünglichem Anschluss.")
         if "operation" in self.metadata:
-            from .operations import variant
+            from .operations import operation_variant
             op = self.metadata["operation"]
             if not isinstance(op, dict) or op.get("version") != 1 or not isinstance(op.get("parameters"), dict):
                 raise ValueError("Ungültige Operationsmetadaten.")
-            if set(op["parameters"]) - {"a_bits", "b_bits", "result_bits", "signed", "overflow", "flag"}:
-                raise ValueError("Ungültige Operationsparameter.")
-            canonical, ports, expressions = variant(op.get("definition"), **op["parameters"])
+            canonical, ports, expressions = operation_variant(op)
             if op != canonical or self.metadata.get("interface") != ports or self.metadata.get("expression") != expressions:
                 raise ValueError("Operationsmetadaten passen nicht zur Schnittstelle oder Referenz.")
 
@@ -164,7 +162,7 @@ PRESETS = {
 }
 
 
-def generate(name, inputs, outputs, expression, samples=None, seed=1, *, oracle=None, ports=None, reference_circuit=None, formula=None):
+def generate(name, inputs, outputs, expression, samples=None, seed=1, *, oracle=None, ports=None, reference_circuit=None, formula=None, edge_inputs=None):
     if any(type(w) is not int or not 1 <= w <= 32 for w in (inputs, outputs)):
         raise ValueError("N und M müssen zwischen 1 und 32 liegen.")
     ports = interface(ports, inputs, outputs) if ports is not None else None
@@ -199,9 +197,15 @@ def generate(name, inputs, outputs, expression, samples=None, seed=1, *, oracle=
         raise ValueError("Die Anzahl Vektoren muss zwischen 1 und 65536 liegen.")
     count = min(total, samples if samples is not None else 256)
     # Include domain endpoints in a sample, particularly for fixed-point functions.
-    xs = list(range(total)) if count == total else sorted({0, total - 1} if count >= 2 else {0})
+    xs = list(range(total)) if count == total else list(dict.fromkeys(
+        [0, total - 1] + (edge_inputs or [])))[:count]
     if count != total and count > len(xs):
-        xs += random.Random(seed).sample(range(1, total - 1), count - len(xs))
+        if edge_inputs is None:
+            xs += random.Random(seed).sample(range(1, total - 1), count - len(xs))
+        else:
+            used = set(xs)
+            candidates = random.Random(seed).sample(range(total), min(total, count + len(used)))
+            xs += [x for x in candidates if x not in used][:count - len(xs)]
         xs.sort()
     fn = None if ports else Expression(expression) if oracle is None else lambda env: oracle(env["x"])
     rows = []

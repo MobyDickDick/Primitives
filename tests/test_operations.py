@@ -52,7 +52,7 @@ class OperationTests(unittest.TestCase):
         self.assertTrue(operation("ADD", 2, 3, 4, overflow="error", signed=True).exhaustive)
 
     def test_word_logic_with_unequal_widths(self):
-        for name in set(OPERATIONS) - {"ADD", "SUB", "MUL"}:
+        for name in ("NOT", "NAND", "AND", "OR", "XOR", "NOR", "XNOR"):
             ds = operation(name, 2, 3, 4)
             for row in ds.rows:
                 a = integer(row[:2])

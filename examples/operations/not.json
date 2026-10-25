@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "name": "NOT(1,1)",
+  "inputs": 1,
+  "outputs": 1,
+  "rows": [
+    [
+      0,
+      1
+    ],
+    [
+      1,
+      0
+    ]
+  ],
+  "metadata": {
+    "expression": {
+      "c": "(~a) & 1"
+    },
+    "seed": 1,
+    "bit_order": "LSB-first",
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 1,
+          "signed": false,
+          "offset": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 1,
+          "signed": false,
+          "offset": 0,
+          "overflow": "wrap"
+        }
+      ]
+    },
+    "operation": {
+      "definition": "NOT",
+      "version": 1,
+      "parameters": {
+        "a_bits": 1,
+        "result_bits": 1,
+        "signed": false,
+        "overflow": "wrap",
+        "flag": false
+      }
+    }
+  },
+  "exhaustive": true
+}

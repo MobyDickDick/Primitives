@@ -1,0 +1,112 @@
+{
+  "schema": 1,
+  "name": "DEC(3,3)",
+  "inputs": 3,
+  "outputs": 3,
+  "rows": [
+    [
+      0,
+      0,
+      0,
+      1,
+      1,
+      1
+    ],
+    [
+      0,
+      0,
+      1,
+      1,
+      1,
+      0
+    ],
+    [
+      0,
+      1,
+      0,
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      1,
+      1,
+      0,
+      1
+    ],
+    [
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      0,
+      1,
+      0,
+      0,
+      1
+    ],
+    [
+      1,
+      1,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      1,
+      1,
+      1,
+      0,
+      1,
+      1
+    ]
+  ],
+  "metadata": {
+    "expression": {
+      "c": "a-1"
+    },
+    "seed": 1,
+    "bit_order": "LSB-first",
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 3,
+          "signed": false,
+          "offset": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 3,
+          "signed": false,
+          "offset": 0,
+          "overflow": "wrap"
+        }
+      ]
+    },
+    "operation": {
+      "definition": "DEC",
+      "version": 1,
+      "parameters": {
+        "a_bits": 3,
+        "result_bits": 3,
+        "signed": false,
+        "overflow": "wrap",
+        "flag": false
+      }
+    }
+  },
+  "exhaustive": true
+}
