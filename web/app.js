@@ -2,7 +2,8 @@
 const $ = id => document.getElementById(id);
 const state = { dataset: null, datasetId: null, result: null, bits: [], timer: null, job: null, librarySignature: null,
   positions: [], selectedRef: 0, layoutToken: 0, layoutDirty: false, routing: null, drag: null,
-  camera: null, cameraTouched: false, wires: {}, selectedWire: null, wireNotice: "", operations: {}, presets: {}, referenceCircuit: null, formMode: "legacy", autoName: false, functionSignature: null };
+  camera: null, cameraTouched: false, wires: {}, selectedWire: null, wireNotice: "", operations: {}, presets: {}, referenceCircuit: null, formMode: "legacy", autoName: false, functionSignature: null,
+  referenceBlock: null, blockSignature: null };
 const svgNS = "http://www.w3.org/2000/svg";
 const int = id => Number($(id).value);
 const presetLabels = { mul: "MUL(2,2,4)" };
@@ -124,6 +125,13 @@ function updateDefinition() {
     const { spec } = readPorts();
     n = spec.inputs.reduce((v, p) => v + p.bits, 0); m = spec.outputs.reduce((v, p) => v + p.bits, 0);
     description = `${spec.inputs.map(p => `${p.name}[${p.bits}]`).join(", ")} → ${spec.outputs.map(p => `${p.name}[${p.bits}]`).join(", ")} · LSB zuerst.`;
+  } else if (mode === "block") {
+    const root = state.referenceBlock?.definitions[state.referenceBlock.root];
+    if (root) {
+      n = root.interface.inputs.reduce((v, p) => v + p.bits, 0);
+      m = root.interface.outputs.reduce((v, p) => v + p.bits, 0);
+      description = `${root.name} · Version ${root.version} · Feste Bausteinreferenz mit gespeicherten Unterbausteinen.`;
+    } else description = "Unterprogramm-Baustein öffnen, um seine Referenz zu verwenden.";
   }
   if (mode !== "legacy") { $("inputs").value = n; $("outputs").value = m; }
   $("variant-description").textContent = description + (mode === "legacy" ? "" : ` Diese Breitenkombination wird als eigene Funktion gespeichert. ${n <= 16 ? `Vollständige Tabelle: ${2 ** n} Eingaben möglich.` : `2^${n} Eingaben: maximal 65536 Vektoren als Stichprobe.`}`);
@@ -133,7 +141,9 @@ function restoreDefinition(ds) {
   $("dataset-name").value = ds.name; $("inputs").value = ds.inputs; $("outputs").value = ds.outputs;
   const meta = ds.metadata || {};
   $("preset").value = meta.operation ? (state.presets[meta.operation.definition.toLowerCase()] ? meta.operation.definition.toLowerCase() : `op:${meta.operation.definition}`) : "custom";
-  if (meta.operation && state.operations[meta.operation.definition]) chooseOperation(meta.operation.definition, meta.operation.parameters);
+  if (meta.hierarchy) {
+    state.referenceBlock = meta.hierarchy; $("task-mode").value = "block"; updateDefinition();
+  } else if (meta.operation && state.operations[meta.operation.definition]) chooseOperation(meta.operation.definition, meta.operation.parameters);
   else if (meta.interface) {
     state.referenceCircuit = meta.reference_circuit || null;
     editPorts(meta.interface, typeof meta.expression === "object" ? meta.expression : { [meta.interface.outputs[0].name]: meta.expression || "0" });
@@ -242,6 +252,7 @@ function renderFunctions(catalog) {
         if (implementation) showProgram(implementation);
         else {
           state.result = null; $("program").hidden = true; $("empty").hidden = false;
+          $("save-block-program").disabled = true;
           $("export-program").disabled = true; $("repair-program").disabled = true; renderTable();
         }
         if (!state.job) $("job-status").textContent = `${ds.function_name} geladen · bereit für die Evolution.`;
@@ -282,6 +293,7 @@ async function refresh() {
   }
   $("background-status").textContent = `Hintergrundsuche · ${catalog.background.message} · ${catalog.background.attempts} Durchgänge`;
   renderFunctions(catalog);
+  renderBlocks(catalog.blocks || []);
   const signature = JSON.stringify(catalog.programs.map(p => [p.id, p.frozen]));
   if (signature === state.librarySignature) return;
   state.librarySignature = signature;
@@ -326,6 +338,13 @@ function verification(f) {
 }
 function showProgram(result) {
   stopAnimation(); state.result = result;
+  if (result.hierarchy) {
+    inspectBlock(result.hierarchy);
+    $("block-status").textContent = "Die geöffnete Schaltung enthält die unten gezeigten festen Unterbausteine.";
+  } else {
+    $("block-tree").hidden = true;
+    $("block-status").textContent = "Die geöffnete NAND-Schaltung ist flach. Sie kann als neuer Baustein gespeichert werden.";
+  }
   const c = result.circuit;
   state.positions = CircuitGraph.automatic(c); state.selectedRef = 0;
   state.wires = {}; state.selectedWire = null; state.wireNotice = "";
@@ -346,6 +365,8 @@ function showProgram(result) {
   });
   state.bits = Array(c.inputs).fill(0);
   $("empty").hidden = true; $("program").hidden = false; $("export-program").disabled = false;
+  $("save-block-program").disabled = false;
+  $("block-name").value = result.hierarchy ? result.hierarchy.definitions[result.hierarchy.root].name : result.dataset_name || state.dataset?.name || "Mein Baustein";
   $("step").max = c.gates.length; $("step").value = c.gates.length;
   $("metrics").replaceChildren();
   const metrics = [[c.gates.length, "NAND-Gatter"], [depths(c).depth, "Gattertiefe"], [`${c.inputs}:${c.outputs.length}`, "Ein- / Ausgänge"]];
@@ -781,6 +802,10 @@ async function saveDefinition() {
     expression: $("expression").value, samples: int("samples"), seed: int("seed") };
   const mode = $("task-mode").value;
   if (mode === "operation") obj.operation = operationRequest();
+  else if (mode === "block") {
+    if (!state.referenceBlock) throw new Error("Zuerst einen gespeicherten Unterprogramm-Baustein öffnen.");
+    obj.block = state.referenceBlock;
+  }
   else if (mode === "named" || mode === "circuit" || mode === "formula") {
     const { spec, expressions } = readPorts(); obj.interface = spec; obj.expression = expressions;
     if (mode === "formula") obj.formula = $("formula-source").value;
@@ -859,6 +884,96 @@ action("export-program", async () => {
   const dataset = result.dataset_id ? await api(`/api/datasets/${result.dataset_id}`) : null;
   download(`${result.id || "nand-programm"}.json`, dataset ? { ...result, dataset } : result);
 });
+
+function inspectBlock(bundle) {
+  const lines = [];
+  function visit(key, path, depth) {
+    const d = bundle.definitions[key];
+    lines.push(`${"  ".repeat(depth)}${path}: ${d.name} v${d.version} · ${d.interface.inputs.map(p => `${p.name}[${p.bits}]`).join(", ")} → ${d.interface.outputs.map(p => `${p.name}[${p.bits}]`).join(", ")} · ${key.slice(0, 18)}`);
+    for (const node of d.nodes || []) if (node.type === "instance") visit(node.definition, node.id, depth + 1);
+  }
+  visit(bundle.root, "Wurzel", 0);
+  $("block-tree").textContent = lines.join("\n"); $("block-tree").hidden = false;
+}
+async function openBlock(bundle) {
+  await setDataset({ block: bundle, samples: int("samples"), seed: int("seed") });
+  const expanded = await api("/api/blocks/expand", { block: bundle });
+  showProgram({ ...expanded, dataset_id: state.datasetId });
+  inspectBlock(bundle);
+  $("block-status").textContent = `${bundle.definitions[bundle.root].name} geöffnet. Hierarchie bleibt im JSON-Export erhalten; Schaltbild zeigt ihre NAND-Expansion.`;
+}
+function prepareBlock(bundle, count) {
+  const root = bundle.definitions[bundle.root], inputs = [], outputs = [], nodes = [], mapping = {};
+  if (count * root.interface.inputs.reduce((n,p) => n+p.bits, 0) > 32 || count * root.interface.outputs.reduce((n,p) => n+p.bits, 0) > 32) throw new Error("Diese Anzahl Instanzen überschreitet die 32-Bit-Grenze. Ports im eigenen JSON-Entwurf verbinden oder zusammenfassen.");
+  for (let i = 0; i < count; i++) {
+    const connections = {}, nodeId = `part${i + 1}`;
+    root.interface.inputs.forEach((p, j) => {
+      const name = count === 1 ? p.name : `in${i + 1}_${j}`;
+      inputs.push({ name, bits: p.bits, signed: p.signed });
+      connections[p.name] = Array.from({length:p.bits}, (_, bit) => ({input:name, bit}));
+    });
+    root.interface.outputs.forEach((p, j) => {
+      const name = count === 1 ? p.name : `out${i + 1}_${j}`;
+      outputs.push({ name, bits: p.bits, signed: p.signed, overflow:p.overflow });
+      mapping[name] = Array.from({length:p.bits}, (_, bit) => ({node:nodeId, port:p.name, bit}));
+    });
+    nodes.push({ id:nodeId, type:"instance", definition:bundle.root, inputs:connections });
+  }
+  $("block-source").value = JSON.stringify({ definition:{ name:`${root.name} – Unterprogramm`, version:1,
+    interface:{inputs, outputs}, nodes, outputs:mapping }, dependencies:[bundle.root] }, null, 2);
+  $("block-editor").open = true; inspectBlock(bundle);
+  $("block-status").textContent = `${count} Instanz${count === 1 ? "" : "en"} vorbereitet. Namen und Portverbindungen im JSON bearbeiten, dann prüfen und speichern.`;
+}
+function renderBlocks(blocks) {
+  const signature = JSON.stringify(blocks);
+  if (signature === state.blockSignature) return;
+  state.blockSignature = signature; $("blocks").replaceChildren();
+  if (!blocks.length) $("blocks").append(el("p", "Eine Schaltung als Baustein speichern oder ein Bausteinpaket importieren.", "hint"));
+  for (const block of blocks) {
+    const card = el("div", undefined, "library-entry function-entry");
+    card.append(el("strong", `${block.name} · v${block.version}`), el("small", `${block.gates} NAND-Gatter · ${block.instances} direkte Instanzen · ${block.definitions} Definitionen`));
+    card.append(el("small", `${block.interface.inputs.map(p => `${p.name}[${p.bits}]`).join(", ")} → ${block.interface.outputs.map(p => `${p.name}[${p.bits}]`).join(", ")}`));
+    for (const [label, handler] of [
+      ["Baustein öffnen", openBlock], ["Als Unterbaustein einsetzen", b => prepareBlock(b, 1)],
+      ["Zweimal einsetzen", b => prepareBlock(b, 2)], ["Bausteinpaket exportieren", b => download(`${block.id}.json`, b)]]) {
+      const button = el("button", label, "secondary");
+      button.addEventListener("click", async () => { clearError(); try { await handler(await api(`/api/blocks/${block.id}`)); } catch (err) { error(err); } });
+      card.append(button);
+    }
+    $("blocks").append(card);
+  }
+}
+action("save-block", async () => {
+  const saved = await api("/api/blocks", JSON.parse($("block-source").value));
+  $("block-source").value = JSON.stringify(saved.block, null, 2); inspectBlock(saved.block); await refresh();
+  $("block-status").textContent = `${saved.summary.name} v${saved.summary.version} mit ${saved.summary.definitions} Definitionen gespeichert. Kennung: ${saved.summary.id}`;
+});
+action("save-block-program", async () => {
+  const result = state.result;
+  if (!result) throw new Error("Zuerst eine NAND-Schaltung öffnen.");
+  let request;
+  if (result.id) request = {program_id:result.id, name:$("block-name").value};
+  else if (result.hierarchy) {
+    const root = result.hierarchy.definitions[result.hierarchy.root];
+    const refs = root.interface.inputs.map(p => [p.name, Array.from({length:p.bits}, (_,bit) => ({input:p.name, bit}))]);
+    request = {definition:{name:$("block-name").value, version:1, interface:root.interface,
+      nodes:[{id:"body", type:"instance", definition:result.hierarchy.root, inputs:Object.fromEntries(refs)}],
+      outputs:Object.fromEntries(root.interface.outputs.map(p => [p.name, Array.from({length:p.bits}, (_,bit) => ({node:"body", port:p.name, bit}))]))}, dependencies:[result.hierarchy.root]};
+  } else {
+    const c = result.circuit, ports = compatible() ? state.dataset?.metadata?.interface : null;
+    request = {definition:{name:$("block-name").value, version:1, circuit:c, interface:ports || {
+      inputs:Array.from({length:c.inputs}, (_,i) => ({name:`in${i}`, bits:1})), outputs:c.outputs.map((_,i) => ({name:`out${i}`, bits:1}))}}};
+  }
+  const saved = await api("/api/blocks", request); await refresh(); inspectBlock(saved.block);
+  $("block-status").textContent = `${saved.summary.name} als feste Version gespeichert.`;
+});
+$("import-block").addEventListener("change", async event => { clearError(); try {
+  if (!event.target.files[0]) return;
+  const obj = JSON.parse(await event.target.files[0].text());
+  const saved = await api("/api/blocks", obj.hierarchy || obj);
+  $("block-source").value = JSON.stringify(saved.block, null, 2); inspectBlock(saved.block); await refresh();
+  $("block-status").textContent = `${saved.summary.name} mit allen Unterbausteinen importiert.`;
+} catch (err) { error(err); } });
 action("export-dataset", () => download(`${state.datasetId}.json`, state.dataset));
 $("step").addEventListener("input", () => { stopAnimation(); renderSimulation(); });
 $("play").addEventListener("click", () => {

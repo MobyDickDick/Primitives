@@ -25,6 +25,25 @@ Bei unvollständiger Tabelle sind nicht aufgeführte Eingaben frei. Eine gefunde
 Schaltung legt dafür trotzdem Ausgaben fest; diese wurden durch die Tabelle
 aber nicht überprüft.
 
+## Hierarchische Bausteine
+
+Alte flache NAND-Schaltungen bleiben unverändert lesbar. Das zusätzliche
+Bausteinpaket mit `schema: 1`, `root` und `definitions` enthält eine geschlossene
+Momentaufnahme der Wurzel samt allen Unterbausteinen. Definitionen besitzen
+Name, Version, Inhaltskennung und benannte Ports. Instanzen verbinden einzelne
+LSB-first-Bits dieser Ports. Verschachtelte Bausteine und lokale NAND-Knoten
+werden vor dem Speichern auf Breiten, fehlende Quellen, Rekursion und Zyklen geprüft.
+
+Programme können die vollständige Hierarchie im Feld `hierarchy` mitführen;
+`circuit` muss dann exakt ihrer NAND-Expansion entsprechen. Der Programmexport
+einer geöffneten Hierarchie erhält beide Darstellungen und den Datensatz.
+Bausteinvektoren führen dieselbe Referenz als `metadata.hierarchy` plus
+`metadata.interface`; unabhängige Stichproben einer festen Version bleiben
+derselben Funktion zugeordnet. Suche und Restfallkorrektur übernehmen keine
+unveränderte Hierarchiebehauptung für modifizierte NAND-Implementierungen.
+Das vollständige Format mit Bitquellen, Inhaltskennungen und CLI-/API-Beispielen
+steht in [BAUSTEINE.md](BAUSTEINE.md#format-und-versionsbindung).
+
 ## Benannte Ports und Breitenvarianten
 
 Schema 1 bleibt gültig. Optional enthält `metadata.interface` die explizite

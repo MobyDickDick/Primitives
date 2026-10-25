@@ -16,6 +16,7 @@ from .library import Library
 from .runner import ROOT, search, tiny_interpreter
 from .background import BackgroundOptimizer
 from .repair import repair_result
+from .blocks import BlockBundle
 
 
 def make_server(port=8765, data_dir=None, *, background=True):
@@ -49,11 +50,13 @@ def make_server(port=8765, data_dir=None, *, background=True):
                     except ValueError:
                         tiny = False
                     self.send_data({"presets": {k: {"inputs": v[0], "outputs": v[1], "expression": v[2]} for k, v in PRESETS.items()},
-                                    "operations": OPERATIONS,
+                                    "operations": OPERATIONS, "blocks": library.blocks(),
                                     "datasets": library.datasets(), "programs": library.programs(), "tiny_available": tiny,
                                     "background": optimizer.status()})
                 elif path.startswith("/api/datasets/"):
                     self.send_data(library.load_dataset(path.rsplit("/", 1)[1]).to_dict())
+                elif path.startswith("/api/blocks/"):
+                    self.send_data(library.load_block(path.rsplit("/", 1)[1]).to_dict())
                 elif path.startswith("/api/programs/"):
                     self.send_data(library.load_program(path.rsplit("/", 1)[1]))
                 elif path.startswith("/api/jobs/"):
@@ -93,12 +96,30 @@ def make_server(port=8765, data_dir=None, *, background=True):
                         dataset = Dataset.from_dict(obj)
                     elif "operation" in obj:
                         dataset = generate_operation(obj["operation"], obj.get("samples"), obj.get("seed", 1), obj.get("name"))
+                    elif "block" in obj:
+                        dataset = BlockBundle(obj["block"]).dataset(obj.get("samples"), obj.get("seed", 1))
                     else:
                         dataset = generate(obj["name"], obj["inputs"], obj["outputs"], obj.get("expression"),
                                            obj.get("samples"), obj.get("seed", 1), ports=obj.get("interface"),
                                            reference_circuit=obj.get("reference_circuit"), formula=obj.get("formula"))
                     key = library.save_dataset(dataset)
                     self.send_data({"id": key, "dataset": dataset.to_dict()})
+                elif path == "/api/blocks":
+                    if "program_id" in obj:
+                        bundle = library.block_from_program(obj["program_id"], obj.get("name"), obj.get("interface"), obj.get("version", 1))
+                    elif "definition" in obj:
+                        deps = [library.load_block(key) for key in obj.get("dependencies", [])]
+                        bundle = BlockBundle.create(obj["definition"], deps)
+                    else:
+                        bundle = BlockBundle(obj)
+                    summary = library.save_block(bundle)
+                    self.send_data({"block": bundle.to_dict(), "summary": summary})
+                elif path in ("/api/blocks/evaluate", "/api/blocks/expand"):
+                    bundle = library.load_block(obj["block_id"]) if "block_id" in obj else BlockBundle(obj["block"])
+                    if path.endswith("evaluate"):
+                        self.send_data({"outputs": bundle.evaluate(obj["bits"])})
+                    else:
+                        self.send_data({"circuit": bundle.expand().to_dict(), "hierarchy": bundle.to_dict()})
                 elif path == "/api/operations/variant":
                     operation, ports, expressions = operation_variant(obj)
                     self.send_data({"operation": operation, "interface": ports, "expression": expressions})

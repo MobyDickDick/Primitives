@@ -11,7 +11,7 @@
 <section class="card"><div class="section-title"><span class="number">01</span><h2>Zuordnungsvektoren</h2></div>
 <button id="new-formula" class="primary full">Eigene Formel definieren</button><p class="hint">Rechenvorschrift selbst eingeben, z. B. a+b oder mehrere Ergebnisse c=… und e=… .</p>
 <label>Vorlage<select id="preset"></select></label>
-<label>Aufgabendefinition<select id="task-mode"><option value="formula">Eigene arithmetische Formel</option><option value="legacy" selected>Bisheriger Ausdruck (N:M)</option><option value="operation">Operation mit variablen Bitbreiten</option><option value="named">Eigene benannte Ein-/Ausgänge</option><option value="circuit">NAND-Referenz mit breiteren Anschlüssen</option></select></label>
+<label>Aufgabendefinition<select id="task-mode"><option value="formula">Eigene arithmetische Formel</option><option value="legacy" selected>Bisheriger Ausdruck (N:M)</option><option value="operation">Operation mit variablen Bitbreiten</option><option value="named">Eigene benannte Ein-/Ausgänge</option><option value="circuit">NAND-Referenz mit breiteren Anschlüssen</option><option value="block">Gespeicherte Bausteinreferenz</option></select></label>
 <div id="operation-options" hidden>
 <label>Operationsdefinition<select id="operation"></select></label>
 <button id="edit-operation-formula" class="secondary full">Rechenvorschrift selbst bearbeiten</button>
@@ -59,6 +59,16 @@
 <button id="save-formula" class="primary">Funktion speichern &amp; Vektoren erzeugen</button>
 </section>
 <section class="card"><div class="section-title"><h2>Definierte Funktionen</h2></div><p class="hint">Hier stehen deine gespeicherten Funktionen mit ihren eigenen Bitbreiten. Eine Funktion ist sofort definiert; ihre NAND-Schaltung wird anschliessend über „Evolution starten“ gesucht. Öffnen lädt genau den gewählten Vektorsatz.</p><div id="functions" class="library"></div></section>
+<section class="card" id="block-section"><div class="section-title"><h2>Unterprogramm-Bausteine</h2></div>
+<p class="hint">Feste NAND-Implementierungen mit benannten Ports und Versionen. Bausteine können weitere Bausteine enthalten. „Einsetzen“ bereitet eine übergeordnete Definition vor; Portverbindungen sind im JSON-Editor bearbeitbar. Das Schaltbild zeigt die expandierten NAND-Gatter. Die Evolution darf diese verändern und liefert dann eine flache Schaltung.</p>
+<label>Bausteinname<input id="block-name" value="Mein Baustein" maxlength="120"></label><button id="save-block-program" class="secondary" disabled>Geöffnete Schaltung als Baustein speichern</button>
+<div id="blocks" class="library"></div>
+<details id="block-editor"><summary>Bausteine zusammensetzen oder importieren</summary>
+<p class="hint">Ein portables Paket oder eine neue Definition mit dependencies eingeben. Eingänge und Portausgänge werden Bit für Bit in LSB-Reihenfolge verbunden. Instanzen verweisen auf feste Definitionskennungen. Eigene Ports dürfen innerhalb der Gesamtgrenzen beliebige Breiten haben.</p>
+<label>Bausteindefinition (JSON)<textarea id="block-source" rows="14" spellcheck="false" placeholder='{"definition":{"name":"Mein Unterprogramm","version":1,"interface":…,"nodes":…,"outputs":…},"dependencies":[…]}'></textarea></label>
+<button id="save-block" class="secondary">Bausteindefinition prüfen &amp; speichern</button><label>Bausteinpaket importieren<input id="import-block" type="file" accept=".json,application/json"></label>
+</details><p id="block-status" class="hint" role="status">Noch kein Baustein geöffnet.</p><pre id="block-tree" class="block-tree" hidden></pre>
+</section>
 <section class="card result"><div class="section-title"><span class="number">03</span><h2>Das Programm</h2><button id="export-program" class="text-button" disabled>JSON exportieren ↓</button></div>
 <div id="empty" class="empty"><div>⊼</div><h3>Ein Gatter. Unzählige Möglichkeiten.</h3><p>Erzeuge Vektoren und starte die Evolution.<br>Oder öffne ein gespeichertes Programm.</p></div>
 <div id="program" hidden><div id="metrics" class="metrics"></div><p id="program-name" class="hint"></p><button id="new-width-variant" class="secondary">Neue Breitenvariante</button><button id="repair-program" class="secondary" disabled>Restfälle exakt korrigieren</button><details id="correction-details" hidden><summary id="correction-summary"></summary><p class="hint">Diese Eingaben werden durch zusätzliche NAND-Gatter erkannt und korrigiert. Alle anderen Eingaben verhalten sich wie zuvor. Bei Stichproben gilt die Prüfung weiterhin nur für die vorhandenen Testfälle.</p><ul id="correction-cases" class="hint"></ul></details><div class="code-line"><code id="notation"></code></div>

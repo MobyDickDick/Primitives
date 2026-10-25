@@ -2,7 +2,7 @@
 
 Diese acht Arbeitspakete konkretisieren die Erweiterungswünsche vom
 25. Oktober 2026. Sie sind lokale Planungs-Issues; auf GitHub wurden noch keine
-Issues angelegt. PRIM-01 bis PRIM-04 sind umgesetzt; die weiteren Arbeitspakete sind offen.
+Issues angelegt. PRIM-01 bis PRIM-05 sind umgesetzt; die weiteren Arbeitspakete sind offen.
 
 Die Kennungen PRIM-01 bis PRIM-08 sind Dokumentationskennungen, keine GitHub-Issue-Nummern.
 
@@ -14,7 +14,7 @@ Die Kennungen PRIM-01 bis PRIM-08 sind Dokumentationskennungen, keine GitHub-Iss
 | [PRIM-02](#prim-02) | Drähte verschieben und speichern (umgesetzt) | 2 | Zoom-Koordinaten aus PRIM-01 berücksichtigen |
 | [PRIM-03](#prim-03) | Variable Bitbreiten (umgesetzt) | 5 | Grundlage für weitere Funktionen |
 | [PRIM-04](#prim-04) | TinyCPU und Operationsbeispiele (umgesetzt) | 3 | PRIM-03; Kontrollfluss später ergänzen |
-| [PRIM-05](#prim-05) | Wiederverwendbare Unterprogramm-Bausteine | 4 | PRIM-03 |
+| [PRIM-05](#prim-05) | Wiederverwendbare Unterprogramm-Bausteine (umgesetzt) | 4 | PRIM-03 |
 | [PRIM-06](#prim-06) | Unterprogramm-Boxen und Debugging | 4 | PRIM-05; PRIM-01/02 berücksichtigen |
 | [PRIM-07](#prim-07) | Mehrschrittige Programme und Kontrollstrukturen | 6 | PRIM-03 |
 | [PRIM-08](#prim-08) | Sprungbefehle und Ablaufdebugger | 6 | PRIM-07 |
@@ -221,7 +221,7 @@ Prüfergebnisse in [VERIFIKATION.md](VERIFIKATION.md#tinycpu-operationen-prim-04
 
 ## PRIM-05 – Unterprogramme als wiederverwendbare Bausteine mit definierten Ein-/Ausgängen modellieren
 
-**Status:** geplant, nicht implementiert.
+**Status:** umgesetzt am 25. Oktober 2026.
 
 ### Ziel
 Gespeicherte Schaltungen und geeignete Unterprogramme als benannte Bausteine mit beliebig vielen unterstützten Eingangs- und Ausgangsports in grössere Schaltungen einsetzen.
@@ -240,10 +240,29 @@ Die Evolution kann Bibliotheksschaltungen bereits einsetzen, expandiert sie aber
 - Zunächst reine Funktionen ohne verborgenen Zustand. Mehrschrittige Quellprogramme nach [PRIM-07](#prim-07) können Referenzen liefern; ein als verdrahtet markierter Baustein benötigt eine passende Schaltungsimplementierung. Zustandsbehaftete Unterprogramme benötigen einen ausdrücklichen Zustandsvertrag.
 
 ### Abnahme
-- [ ] Ein Baustein mit mehreren Eingängen und Ausgängen lässt sich zweimal instanziieren und verbinden.
-- [ ] Hierarchische und expandierte Auswertung liefern dieselben Ergebnisse.
-- [ ] Speichern/Laden erhält Definitionen, Versionen, Instanzen und Portzuordnung.
-- [ ] Ungültige Breiten, fehlende Abhängigkeiten und Zyklen werden verständlich gemeldet.
+- [x] Ein Baustein mit mehreren Eingängen und Ausgängen lässt sich zweimal instanziieren und verbinden.
+- [x] Hierarchische und expandierte Auswertung liefern dieselben Ergebnisse.
+- [x] Speichern/Laden erhält Definitionen, Versionen, Instanzen und Portzuordnung.
+- [x] Ungültige Breiten, fehlende Abhängigkeiten und Zyklen werden verständlich gemeldet.
+
+### Umsetzung
+
+`primitives/blocks.py` modelliert unveränderliche Definitionen mit vollständigen
+Inhaltskennungen, Versionen und beliebig benannten Ports innerhalb der bisherigen
+Bitgrenzen. Hierarchien können weitere Hierarchien enthalten. Separate rekursive
+Auswertung und NAND-Expansion werden unabhängig verglichen; rekursive
+Definitionsabhängigkeiten und zyklische Signalverbindungen werden abgelehnt.
+Ein portables Paket enthält alle benötigten Definitionen.
+
+Bibliothek, API und CLI speichern/importieren/exportieren diese Pakete.
+Die Oberfläche übernimmt vorhandene Schaltungen, bereitet eine oder zwei
+Instanzen vor und bietet einen JSON-Porteditor sowie eine Hierarchieliste.
+Die drei Addiererbeispiele reichen bis zu Volladdierern mit verschachtelten
+Halbaddierern und Logikbausteinen. Beide Evolutionsbackends verwenden geprüfte,
+mutierbare Expansionen; ihre Ergebnisse beanspruchen keine Originalinstanzen.
+
+Bedienung, Format und Grenzen stehen in [BAUSTEINE.md](BAUSTEINE.md),
+Prüfergebnisse in [VERIFIKATION.md](VERIFIKATION.md#unterprogramm-bausteine-prim-05).
 
 ### Abhängigkeiten
 [PRIM-03](#prim-03); sichtbare Boxen und Debugging folgen in [PRIM-06](#prim-06).

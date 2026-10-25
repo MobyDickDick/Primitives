@@ -29,6 +29,8 @@ def search(dataset, config, library=None, *, save=True, time_budget=None, cancel
     check_cancelled(cancel_event)
     saved = library.programs() if library else []
     circuits = [Circuit.from_dict(p["circuit"]) for p in saved if p["fitness"]["exact_on_dataset"]]
+    blocks = library.blocks() if library else []
+    circuits += [library.load_block(b["id"]).expand() for b in blocks]
     incumbent = next((p for p in saved if p["task_id"] == task_id(dataset)), None)
     started = time.monotonic()
     if config.backend == "python":
@@ -86,6 +88,8 @@ def seed = {config.seed};
     check_cancelled(cancel_event)
     result["search"]["elapsed_seconds"] = round(time.monotonic() - started, 3)
     result["search"]["seed_library"] = [p["id"] for p in saved if p["fitness"]["exact_on_dataset"]]
+    # Available expanded seeds, not a claim of preserved instances or ancestry.
+    result["search"]["seed_blocks"] = [b["id"] for b in blocks]
     if config.repair_cases:
         result["fitness"] = fitness(Circuit.from_dict(result["circuit"]), dataset)
         if incumbent and rank(incumbent) < rank(result):

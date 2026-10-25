@@ -9,6 +9,7 @@ import threading
 from .circuit import Circuit
 from .dataset import Dataset
 from .operations import operation_label
+from .blocks import BlockBundle
 
 
 def digest(obj):
@@ -27,6 +28,8 @@ def task_id(dataset):
 def function_id(dataset):
     """A reference function exists independently of its sampled vectors or circuits."""
     meta = dataset.metadata
+    if "hierarchy" in meta:
+        return digest(["block", meta["hierarchy"]["root"]])
     if "operation" in meta:
         return digest(["operation", meta["operation"]])
     if "expression" in meta or "reference_circuit" in meta:
@@ -89,6 +92,40 @@ class Library:
     def load_dataset(self, key):
         self._key(key)
         return Dataset.from_dict(json.loads((self.root / "datasets" / f"{key}.json").read_text(encoding="utf-8")))
+
+    def save_block(self, bundle):
+        if not isinstance(bundle, BlockBundle):
+            bundle = BlockBundle(bundle)
+        with self._lock:
+            path = self.root / "blocks" / f"{bundle.root}.json"
+            if path.exists():
+                if self.load_block(bundle.root).to_dict() != bundle.to_dict():
+                    raise ValueError("Eine feste Bausteinversion darf nicht überschrieben werden.")
+            else:
+                write_json(path, bundle.to_dict())
+        return bundle.summary()
+
+    def load_block(self, key):
+        self._key(key)
+        bundle = BlockBundle(json.loads((self.root / "blocks" / f"{key}.json").read_text(encoding="utf-8")))
+        if bundle.root != key:
+            raise ValueError("Bausteindatei und Definitionskennung stimmen nicht überein.")
+        return bundle
+
+    def blocks(self):
+        with self._lock:
+            return [self.load_block(p.stem).summary() for p in sorted((self.root / "blocks").glob("*.json"))]
+
+    def block_from_program(self, key, name=None, ports=None, version=1):
+        program = self.load_program(key)
+        c = Circuit.from_dict(program["circuit"])
+        ports = program["dataset_metadata"].get("interface") if ports is None else ports
+        if "hierarchy" in program:
+            bundle = BlockBundle(program["hierarchy"]).wrap(name or program["dataset_name"], ports, version, key)
+        else:
+            bundle = BlockBundle.from_circuit(name or program["dataset_name"], c, ports, version, key)
+        self.save_block(bundle)
+        return bundle
 
     def load_layout(self, circuit):
         return self.load_layout_data(circuit)["positions"]
@@ -168,6 +205,7 @@ class Library:
 
     def _save_program(self, result, dataset):
         c = Circuit.from_dict(result["circuit"])
+        self._check_hierarchy(result, c)
         result = {**result, "fitness": fitness(c, dataset)}
         previous = next((p for p in self.programs() if p["task_id"] == task_id(dataset)), None)
         # Preserve the requested interface even when an existing circuit wins a retest.
@@ -200,6 +238,7 @@ class Library:
         self._key(key)
         obj = json.loads((self.root / "programs" / f"{key}.json").read_text(encoding="utf-8"))
         circuit = Circuit.from_dict(obj["circuit"])
+        self._check_hierarchy(obj, circuit)
         try:
             obj["expressions"] = circuit.expressions()
         except ValueError:
@@ -209,6 +248,13 @@ class Library:
         obj["dataset_metadata"] = dataset.metadata
         obj["frozen"] = self.is_frozen(obj["task_id"])
         return obj
+
+    @staticmethod
+    def _check_hierarchy(result, circuit):
+        if "hierarchy" in result:
+            bundle = BlockBundle(result["hierarchy"])
+            if bundle.expand() != circuit:
+                raise ValueError("Hierarchie stimmt nicht mit der konkreten NAND-Implementierung überein.")
 
     def programs(self):
         # Older versions remain loadable by ID; the catalog shows one winner per task.

@@ -33,6 +33,7 @@ Evolution                  Fitness / Bausteine
 | Datei | Aufgabe |
 |---|---|
 | `primitives/circuit.py` | NAND-Schaltung, Parser, Auswertung und Kompaktierung |
+| `primitives/blocks.py` | Feste Bausteinversionen, verschachtelte Instanzen, Portverbindungen und NAND-Expansion |
 | `primitives/dataset.py` | Vektoren, Konsistenz, Kodierung, Ausdrücke, Vorlagen |
 | `primitives/ports.py` | Benannte Schnittstellen, Bitoffsets, Vorzeichen, Ergebnisüberlauf |
 | `primitives/operations.py` | Operationsdefinitionen und konkrete Breitenvarianten als Referenzen |
@@ -90,8 +91,12 @@ Beim Einsetzen einer gespeicherten Schaltung werden ihre formalen Eingänge an
 zufällig gewählte verfügbare Drähte angeschlossen. Bis zu zwei solche Schaltungen
 werden nacheinander eingefügt; die zweite kann die Ergebnisse der ersten verwenden.
 Die Schaltungen werden in NAND-Gatter expandiert. Die Suche kann anschliessend
-auch innerhalb eines eingefügten Bausteins mutieren. Es gibt derzeit keine
-unveränderlichen benannten Makroknoten.
+auch innerhalb eines eingefügten Bausteins mutieren. In der separaten
+Bausteinbibliothek bleiben Definitionen und verschachtelte Instanzen dagegen
+über Inhaltskennungen unveränderlich gespeichert. Beide Suchbackends verwenden
+deren Expansionen und geben flache Ergebnisse ohne Hierarchiebehauptung zurück.
+`search.seed_blocks` nennt verfügbare Quellen, keine belegte Abstammung.
+Die Paket-, Port- und Versionssemantik ist in [BAUSTEINE.md](BAUSTEINE.md) beschrieben.
 
 Seeds sind für denselben Backendtyp, dieselbe Laufzeit, dieselbe Bibliothek und
 dieselben Einstellungen reproduzierbar. TinyLanguage und Python verbrauchen

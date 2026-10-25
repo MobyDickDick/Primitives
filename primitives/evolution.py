@@ -90,7 +90,10 @@ class Problem:
         return [self.rng.randrange(self.bound(i)) for i in range(self.width)]
 
     def specimen(self):
-        """Compose up to two saved circuits on inputs AND earlier gate outputs."""
+        """Compose expanded seeds on inputs and earlier gate outputs.
+
+        Gate genes may subsequently mutate; no original block instance is claimed.
+        """
         if not self.library:
             return self.random_genome()
         gates, outputs = [], list(range(self.n))

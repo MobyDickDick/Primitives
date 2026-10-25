@@ -9,8 +9,29 @@ mit Debugging sowie mehrschrittige Programme mit Kontrollstrukturen und Sprünge
 Die acht Arbeitspakete enthalten Umfang, Abnahmekriterien und Abhängigkeiten.
 PRIM-01 (Zoom und Navigation), PRIM-02 (verschiebbare Leitungen) und PRIM-03
 (variable Bitbreiten für Vorlagen, eigene Aufgaben und bestehende Schaltungen)
-sind ebenso wie PRIM-04 (TinyCPU-Operationsbeispiele) umgesetzt.
-Als Nächstes folgt PRIM-05 mit wiederverwendbaren Unterprogramm-Bausteinen.
+sind ebenso wie PRIM-04 (TinyCPU-Operationsbeispiele) und PRIM-05 (wiederverwendbare
+Unterprogramm-Bausteine) umgesetzt. Als Nächstes folgt PRIM-06 mit
+Unterprogramm-Boxen und interaktivem Debugging.
+
+## Verschachtelte Unterprogramm-Bausteine
+
+Unter **Unterprogramm-Bausteine** können geöffnete Schaltungen mit ihren benannten
+Ports als feste Version gespeichert werden. **Als Unterbaustein einsetzen** und
+**Zweimal einsetzen** bereiten übergeordnete Definitionen im JSON-Editor vor.
+Jeder Baustein darf weitere Unterbausteine enthalten. Die Portverbindungen lassen
+sich bitweise bearbeiten; falsche Breiten, fehlende Abhängigkeiten und Zyklen
+werden beim Prüfen vor dem Speichern abgelehnt.
+
+Die Hierarchieliste zeigt alle Instanzen mit Namen, Versionen und Ports.
+**Baustein öffnen** erzeugt Referenzvektoren und zeigt die NAND-Expansion;
+**Bausteinpaket exportieren** erhält sämtliche eingebetteten Abhängigkeiten.
+Spätere bessere Suchergebnisse ändern bestehende Bausteine nicht.
+Die Evolution verwendet mutierbare Expansionen und liefert flache Schaltungen.
+
+[Drei importierbare Beispiele](examples/blocks/) demonstrieren Halbaddierer,
+Volladdierer und einen Zweibit-Addierer mit mehreren Verschachtelungsebenen.
+[BAUSTEINE.md](docs/BAUSTEINE.md) erklärt Editor, CLI/API, Verbindungen,
+Versionsbindung und Grenzen. Unterprogramm-Boxen im Schaltbild folgen in PRIM-06.
 
 ## TinyCPU-Operationen und weitere Rechenbeispiele
 

@@ -7,6 +7,7 @@ from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 from primitives.server import make_server
 from primitives.runner import ROOT
+from primitives.blocks import BlockBundle
 
 
 class ServerTests(unittest.TestCase):
@@ -69,6 +70,38 @@ class ServerTests(unittest.TestCase):
                 self.request("/api/datasets", obj, headers)
             self.assertEqual(caught.exception.code, 400)
             caught.exception.close()
+
+    def test_nested_blocks_roundtrip_evaluate_compose_and_restart(self):
+        bundle = json.loads((ROOT / "examples" / "blocks" / "ripple-adder-2.json").read_text(encoding="utf-8"))
+        saved = self.request("/api/blocks", bundle)
+        self.assertEqual(saved["summary"]["definitions"], 6)
+        key = saved["summary"]["id"]
+        self.assertEqual(self.request("/api/blocks/" + key), bundle)
+        self.assertEqual(self.request("/api/blocks/evaluate", {"block_id": key, "bits": [1, 1, 1, 1, 1]})["outputs"], [1, 1, 1])
+        expanded = self.request("/api/blocks/expand", {"block_id": key})
+        self.assertEqual(expanded["hierarchy"], bundle)
+        ds = self.request("/api/datasets", {"block": bundle, "samples": 32})["dataset"]
+        self.assertTrue(ds["exhaustive"])
+        self.assertEqual(ds["metadata"]["hierarchy"], bundle)
+        self.assertEqual(self.request("/api/datasets", ds)["dataset"], ds)
+        wrapped = BlockBundle(bundle).wrap("HTTP nested wrapper")
+        created = self.request("/api/blocks", {"definition": wrapped.definition, "dependencies": [key]})
+        self.assertEqual(created["block"], wrapped.to_dict())
+        invalid = wrapped.definition
+        invalid["nodes"][0]["inputs"]["a"] = [{"input": "a", "bit": 9}]
+        for obj in ({"definition": invalid, "dependencies": [key]},
+                    {"definition": wrapped.definition, "dependencies": []}):
+            with self.assertRaises(HTTPError) as caught: self.request("/api/blocks", obj)
+            self.assertEqual(caught.exception.code, 400)
+            caught.exception.close()
+        self.server.shutdown(); self.server.server_close(); self.server.executor.shutdown()
+        self.thread.join(timeout=5)
+        self.server = make_server(0, self.tmp.name, background=False)
+        self.thread = threading.Thread(target=self.server.serve_forever, daemon=True); self.thread.start()
+        self.base = f"http://127.0.0.1:{self.server.server_port}"
+        catalog = self.request("/api/catalog")
+        self.assertEqual({b["id"] for b in catalog["blocks"]}, {key, wrapped.root})
+        self.assertEqual(self.request("/api/blocks/" + wrapped.root), wrapped.to_dict())
 
     def test_width_variants_named_ports_import_and_search(self):
         catalog = self.request("/api/catalog")

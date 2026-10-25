@@ -10,6 +10,7 @@ from .evolution import SearchConfig
 from .library import Library, write_json
 from .runner import ROOT, search
 from .server import serve
+from .blocks import BlockBundle
 
 
 def main():
@@ -62,6 +63,28 @@ def main():
     evaluate = commands.add_parser("eval", help="Klammerprogramm auswerten")
     evaluate.add_argument("expression")
     evaluate.add_argument("bits", help="Eingangsbits in Reihenfolge 1…N, z.B. 101")
+    blocks = commands.add_parser("blocks", help="Versionierte Unterprogramm-Bausteine")
+    block_commands = blocks.add_subparsers(dest="block_command", required=True)
+    block_commands.add_parser("list")
+    for verb in ("import", "compose", "expand", "eval", "vectors"):
+        command = block_commands.add_parser(verb)
+        command.add_argument("file", type=Path, help="Portables Bausteinpaket; bei compose eine neue Definition")
+        if verb in ("expand", "vectors"):
+            command.add_argument("--out", type=Path, required=True)
+        if verb == "compose":
+            command.add_argument("--dependency", action="append", default=[], help="Feste Kennung in der lokalen Bibliothek")
+            command.add_argument("--out", type=Path)
+        if verb == "eval":
+            command.add_argument("bits", help="LSB-first-Eingabebits")
+        if verb == "vectors":
+            command.add_argument("--samples", type=int, default=256)
+            command.add_argument("--seed", type=int, default=1)
+    block_from = block_commands.add_parser("from-program")
+    block_from.add_argument("program_id")
+    block_from.add_argument("--name")
+    block_from.add_argument("--version", type=int, default=1)
+    block_from.add_argument("--interface", type=Path)
+    block_from.add_argument("--out", type=Path)
     args = parser.parse_args()
     try:
         library = Library(args.data_dir)
@@ -106,6 +129,28 @@ def main():
             print(f"{len(dataset.rows)} Vektoren gespeichert: {args.out.resolve()}")
         elif args.command == "library":
             print(json.dumps(library.programs(), ensure_ascii=False, indent=2))
+        elif args.command == "blocks":
+            verb = args.block_command
+            if verb == "list":
+                print(json.dumps(library.blocks(), ensure_ascii=False, indent=2))
+            else:
+                if verb == "from-program":
+                    ports = json.loads(args.interface.read_text(encoding="utf-8")) if args.interface else None
+                    bundle = library.block_from_program(args.program_id, args.name, ports, args.version)
+                else:
+                    document = json.loads(args.file.read_text(encoding="utf-8"))
+                    bundle = (BlockBundle.create(document, [library.load_block(key) for key in args.dependency])
+                              if verb == "compose" else BlockBundle(document))
+                if verb in ("from-program", "import", "compose"):
+                    summary = library.save_block(bundle)
+                    if getattr(args, "out", None): write_json(args.out, bundle.to_dict())
+                    print(json.dumps(summary, ensure_ascii=False, indent=2))
+                elif verb == "expand":
+                    write_json(args.out, {"circuit": bundle.expand().to_dict(), "hierarchy": bundle.to_dict()})
+                elif verb == "vectors":
+                    write_json(args.out, bundle.dataset(args.samples, args.seed).to_dict())
+                else:
+                    print(bundle.evaluate([int(b) for b in args.bits]))
         elif args.command == "eval":
             circuit = parse_expression(args.expression, len(args.bits))
             print(circuit.evaluate([int(b) for b in args.bits]))

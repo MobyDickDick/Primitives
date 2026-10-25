@@ -188,6 +188,52 @@ Geprüft am 25. Oktober 2026:
 
 ![Neue Operationsbeispiele im Browser](tinycpu-prim04.png)
 
+## Unterprogramm-Bausteine (PRIM-05)
+
+Geprüft am 25. Oktober 2026:
+
+- `python -m unittest discover -s tests -v`: **90 Tests erfolgreich**, darunter
+  **12 HTTP-Tests**. Die Suite lief für die lokalen HTTP-Verbindungen ausserhalb
+  der Sandbox. Beide tatsächlichen TinyLanguage-Suchtests bestanden ebenfalls.
+- Die 13 neuen Kerntests vergleichen Halbaddierer, Volladdierer und Zweibit-Addierer
+  auf allen 4/8/32 Eingaben mit unabhängiger Ganzzahlarithmetik sowie zwischen
+  rekursiver Hierarchieauswertung und NAND-Expansion. Die tiefste Beispielkette ist
+  Zweibit-Addierer → Volladdierer → Halbaddierer → XOR/AND.
+- Ein weiterer Aufbau verbindet zwei Instanzen mit unterschiedlich breiten
+  Ein-/Ausgangsports, vertauscht Bits, nutzt direkte Ausgänge und ein lokales NAND.
+  Auch eine von der Knotenliste abweichende Auswertungsreihenfolge wird geprüft.
+  Fehlerfälle umfassen fehlende Abhängigkeiten, direkte/indirekte Definitionsrekursion,
+  Signalzyklen, unbekannte Ports/Knoten, doppelte Instanznamen, falsche Bitbreiten,
+  ungültige Vektoren, manipulierte Inhaltskennungen und leere Schnittstellen.
+- Die Limits für gesamte NAND-Expansion, Verschachtelungstiefe und expandierte
+  gatterlose Hierarchien sind mit ablehnenden Tests geprüft. Speichern/Laden und
+  Import in eine leere Bibliothek erhalten alle eingebetteten Definitionen ohne
+  separate Abhängigkeitsdateien. Eine bessere Bibliotheksschaltung verändert
+  einen vorher gespeicherten Baustein nicht. Neue Versionen bleiben nebeneinander.
+- Programmexport und erneutes Einhüllen erhalten die Hierarchie. Nicht passende
+  Hierarchie/NAND-Paare werden abgelehnt. Suchen mit Python und TinyLanguage
+  verwenden gespeicherte verschachtelte Bausteine und finden für den Halbaddierer
+  null Fehler. Die Ergebnisse beanspruchen keine erhaltenen Originalinstanzen.
+  Eine tatsächliche Restfallkorrektur entfernt die geänderte Hierarchiebehauptung.
+- Tatsächliche CLI-Aufrufe prüfen Import, Auflistung, Auswertung, Expansion,
+  Vektorerzeugung und Zusammensetzung mit fester Abhängigkeit. Alle drei
+  archivierten Beispielpakete werden gegen ihren reproduzierbaren Generator geprüft.
+- Der neue HTTP-Test prüft Paketimport, Katalog, rekursive Auswertung, Expansion,
+  Vektor-Roundtrip, Erzeugung eines weiteren Elternbausteins, Ablehnung ungültiger
+  Verbindungen/fehlender Abhängigkeiten und Erhalt nach einem tatsächlichen Serverneustart.
+- **11 JavaScript-Tests**, `node --check web/app.js` und `git diff --check` bestehen.
+- Browser auf temporärer Bibliothek ohne Hintergrundsuche: Mehrstufigen
+  Zweibit-Addierer geöffnet; zwei Halbaddierer über den JSON-Editor verbunden
+  und gespeichert; die neue Hierarchie als Unterbaustein in einen weiteren
+  Elternbaustein eingesetzt, Seite neu geladen und erneut geöffnet. Zusätzlich
+  die geöffnete Hierarchie unter neuem Namen gespeichert. Der tatsächlich
+  heruntergeladene Programmexport wurde mit `BlockBundle`, `Circuit` und `Dataset`
+  gelesen: Hierarchie, Expansion, Vektoren und alle Abhängigkeiten stimmen überein.
+  Der Wechsel zu einer flachen Schaltung blendet die bisherige Hierarchieliste aus.
+  Die Konsole blieb ohne Warnungen/Fehler.
+
+![Verschachtelte Unterbausteine im Browser](unterbausteine-prim05.png)
+
 ## Tatsächliche Suchergebnisse
 
 Alle folgenden Programme wurden vom TinyLanguage-Backend gefunden und gegen

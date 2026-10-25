@@ -46,6 +46,14 @@ class Dataset:
             raise ValueError("metadata muss ein Objekt sein.")
         if "interface" in self.metadata:
             self.metadata = {**self.metadata, "interface": interface(self.metadata["interface"], self.inputs, self.outputs)}
+        if "hierarchy" in self.metadata:
+            from .blocks import BlockBundle
+            bundle = BlockBundle(self.metadata["hierarchy"])
+            c = bundle.expand()
+            if (c.inputs != self.inputs or len(c.outputs) != self.outputs
+                    or bundle.definition["interface"] != self.metadata.get("interface")
+                    or any(k in self.metadata for k in ("expression", "formula", "operation", "reference_circuit"))):
+                raise ValueError("Bausteinreferenz passt nicht zum Datensatz oder seiner Schnittstelle.")
         if "formula" in self.metadata:
             formula = self.metadata["formula"]
             ports = self.metadata.get("interface")
