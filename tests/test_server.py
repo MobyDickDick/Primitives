@@ -71,6 +71,29 @@ class ServerTests(unittest.TestCase):
         self.assertGreater(state["result"]["comparison"]["candidate_fitness"]["errors"], 0)
         self.assertEqual([p["id"] for p in self.request("/api/catalog")["programs"]], [saved["id"]])
 
+    def test_search_restarts_islands_and_saved_diversity(self):
+        config = {"backend": "python", "gates": 1, "population": 6, "generations": 4,
+                  "restarts": 2, "islands": 3, "migration_interval": 1}
+        job = self.request("/api/search", {"dataset": preset("xor").to_dict(), "config": config})
+        deadline = time.monotonic() + 10
+        while time.monotonic() < deadline:
+            state = self.request("/api/jobs/" + job["job_id"])
+            if state["status"] in ("done", "failed"):
+                break
+            time.sleep(.02)
+        self.assertEqual(state["status"], "done", state)
+        saved = self.request("/api/programs/" + state["result"]["id"])
+        self.assertEqual(saved["search"]["evaluations"], 25)
+        self.assertEqual(saved["search"]["restarts_completed"], 2)
+        self.assertEqual(saved["search"]["tournament_size"], 2)
+        self.assertEqual(saved["search"]["runs"][0]["island_populations"], [2, 2, 2])
+        self.assertEqual(saved["search"]["diversity"]["size"], 6)
+        for change in ({"islands": 4}, {"restarts": 32}, {"migration_interval": 0}):
+            with self.subTest(change=change), self.assertRaises(HTTPError) as error:
+                self.request("/api/search", {"dataset": preset("xor").to_dict(), "config": {**config, **change}})
+            self.assertEqual(error.exception.code, 400)
+            error.exception.close()
+
     def test_function_names_descriptions_and_portable_documents(self):
         obj = {"name": "Meine Addition", "description": "Zwei Bits addieren.",
                "operation": {"definition": "ADD", "parameters": {"a_bits": 1, "b_bits": 1, "result_bits": 2}}}

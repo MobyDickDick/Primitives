@@ -8,8 +8,9 @@ Die vorhandene Python-Implementierung von TinyLanguage macht einen kleinen
 Python-Host sinnvoll. Go ist in dieser Umgebung nicht installiert; mit dem
 verwendbaren TinyLanguage-Interpreter war ein Wechsel zu Go nicht nötig.
 
-Die FFI erlaubt ausschliesslich `configure`, `specimen`, `score`, `trace` und
-`finish` aus `primitives.tiny_bridge`. Die aufwendige Fitnessbewertung und das
+Die FFI erlaubt ausschliesslich `configure`, `specimen`, `score`, `trace`,
+`finish`, `begin_restart`, `initial`, `observe` und `population_buffer` aus
+`primitives.tiny_bridge`. Die aufwendige Fitnessbewertung und das
 Einsetzen gespeicherter Schaltungen laufen im Host. Die Laufzeit wird separat
 unter `.runtime/tinylanguage/` eingerichtet, da der Interpreter selbst eine
 zusammengesetzte Python-Datei in seinem Quellordner erzeugt.
@@ -68,7 +69,7 @@ Beide Backends verwenden eine Steady-State-Elternpopulation mit Turnierselektion
 Zahl von Nachkommen je Generation:
 
 1. Die Elternpopulation mit zufälligen oder neu verdrahteten Bibliothekskandidaten
-   füllen und jedes Mitglied bewerten. Python kann mit der bisherigen Lösung beginnen.
+   füllen und jedes Mitglied bewerten. Beide Backends können mit der bisherigen Lösung beginnen.
 2. Für jeden der beiden Eltern unabhängig bis zu drei Populationsmitglieder mit
    Zurücklegen ziehen und das beste gezogene Mitglied wählen. Bei gleicher Fitness
    gewinnt die erste Ziehung; bei Population 2 bestehen Turniere aus zwei Ziehungen.
@@ -91,6 +92,48 @@ ein Ergebnis vorhanden ist. Abbruch wird vor jeder Bewertung geprüft.
 Gespeicherte Suchmetadaten nennen `selection`, `tournament_size`, die tatsächlich
 initialisierte `parent_population` und `evaluation_budget`. Der Verlauf enthält
 nur Verbesserungen des bisher besten Rangs, beginnend nach der Initialisierung.
+
+### Unabhängige Starts und Inseln
+
+`restarts` (1–32, Standard 1) bezeichnet die gesamte Zahl unabhängiger Starts,
+einschliesslich des ersten. Alle teilen das unveränderte Kandidatenbudget B.
+Start r (ab 0) darf bis zum kumulativen Limit `floor(B*(r+1)/restarts)` bewerten.
+Bei B=64 und drei Starts sind das 21, 21 und 22 Bewertungen. Die Initialisierung
+jedes Starts zählt mit; Konfigurationen mit weniger Budget als Eltern je Start
+werden abgelehnt. Ein zusätzlicher Start erhöht das Gesamtbudget nicht.
+
+Start r verwendet `(seed+r) mod 2^31`. Nur der erste Start darf die bisherige
+Bibliothekslösung übernehmen; folgende Starts erhalten frisch initialisierte
+Populationen und übernehmen keine Gewinner oder Zufallszustände vorheriger Starts.
+Die unveränderten Bibliotheksbausteine bleiben in allen Starts verfügbar.
+Das laufübergreifend beste Genom und sein monotoner Verbesserungsverlauf bleiben
+separat erhalten. Manuelle Suchen enden beim ersten fehlerfreien Treffer; der
+Python-Optimierungsmodus kann alle Starts ausschöpfen. Sein Zeitbudget gilt für
+den gesamten Auftrag. Abbruch verwirft weiterhin den gesamten Auftrag.
+
+`islands` (1–16, Standard 1) teilt die gesamte Elternpopulation möglichst gleich
+auf; Restplätze gehen an die ersten Inseln. Jede Insel benötigt mindestens zwei
+Eltern. Nachkommen werden reihum erzeugt, beide Eltern und das zu ersetzende
+schlechteste Mitglied stammen dabei ausschliesslich von derselben Insel.
+Nach jeweils `migration_interval` lokalen Generationen (1–20000, Standard 10)
+wandert ein Elitegenom von Insel i nach `(i+1) mod islands`. Alle Quellgenome
+werden vor dem Austausch kopiert. Ein Migrant ersetzt nur ein mindestens gleich
+schlechtes Zielmitglied; zusätzliche Fitnessbewertungen entstehen nicht.
+Die Inseln werden innerhalb des jeweiligen Backends nacheinander bearbeitet.
+
+`runs` speichert pro tatsächlich ausgeführtem Start Seed, Bewertungen, besten Rang,
+Inselgrössen, kumulative Generation und Anzahl übernommener Migranten.
+`restarts_completed` zählt auch einen durch Treffer oder Zeitlimit verkürzten Start.
+`diversity_history` enthält je Start die Anfangs- und Endpopulation, global und
+pro Insel. `parent_population` nennt die tatsächlich gefüllte Grösse der letzten
+Population. `diversity` bezeichnet die letzte Endpopulation, nicht den besten
+Start. `unique_fraction` ist der Anteil verschiedener vollständiger Genome;
+`mean_hamming` die mittlere Zahl unterschiedlicher Gene über alle ungeordneten
+Genompaare, geteilt durch die Genomlänge. Bei weniger als zwei Genomen gilt 0.
+Auch inaktive Gene zählen: Die Kennzahlen messen genotypische Vielfalt und
+behaupten weder unterschiedliche Funktionen noch bessere Fitness.
+Die Berechnung nutzt Genhäufigkeiten je Position und benötigt keine zusätzlichen
+Fitnessbewertungen. Metadaten sind auf zwei Schnappschüsse je Start begrenzt.
 
 Die Fitness wird lexikographisch nach falschen Ausgangsbits, aktiven Gattern und
 Gattertiefe bewertet. Implementiert ist die ganzzahlige Rangzahl

@@ -733,6 +733,10 @@ function renderHistory() {
   target.append(svg("polyline", { points: coords.join(" "), fill: "none", stroke: "#146653", "stroke-width": 2.5 }));
   for (const p of points) target.append(svg("circle", { cx: px(p.generation), cy: py(p.errors), r: 3, fill: "#146653" }));
   $("search-summary").textContent = `${search.backend === "tiny" ? "TinyLanguage" : "Python"} · ${search.evaluations} Kandidaten · ${search.generation} Generationen · ${search.elapsed_seconds} s · ${search.library_candidates} verwendbare Bibliotheksbausteine · Seed ${search.seed}`;
+  if (search.diversity) {
+    const d = search.diversity;
+    $("search-summary").textContent += ` · ${search.restarts_completed}/${search.restarts} Starts · ${search.islands} Inseln · Diversität der letzten Population: ${d.unique_genomes}/${d.size} unterschiedliche Genome (${Math.round(d.unique_fraction * 100)} %) · mittlere Gendifferenz ${(d.mean_hamming * 100).toFixed(1)} %`;
+  }
 }
 
 const graphElement = $("graph");
@@ -1148,7 +1152,8 @@ $("import").addEventListener("change", async event => { clearError(); try {
 } catch (err) { error(err); } });
 action("evolve", async () => {
   if (!state.datasetId) throw new Error("Bitte zuerst Zuordnungsvektoren erzeugen.");
-  const config = { gates: int("gates"), population: int("population"), generations: int("generations"), seed: int("seed"), backend: $("backend").value, repair_cases: $("auto-repair").checked ? 4 : 0 };
+  const config = { gates: int("gates"), population: int("population"), generations: int("generations"), seed: int("seed"), backend: $("backend").value, repair_cases: $("auto-repair").checked ? 4 : 0,
+    restarts: int("restarts"), islands: int("islands"), migration_interval: int("migration-interval") };
   $("evolve").disabled = true;
   let job_id;
   try {

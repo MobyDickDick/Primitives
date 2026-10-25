@@ -1,5 +1,5 @@
-// TinyLanguage owns the population, tournament selection and variation.
-// Python FFI evaluates packed truth tables and grafts library circuits.
+// TinyLanguage owns island populations, variation and simultaneous ring migration.
+// The host evaluates fitness and records genotype diversity without re-scoring.
 fn bound(index) {
     if (index < 2 * gates) { return n + Math.floor(index / 2); }
     return n + gates;
@@ -14,109 +14,190 @@ fn store(table, index, value) {
 fn copy_genes(source, source_offset, target, target_offset) {
     def i = 0;
     while (i < width) {
-        def copied = heap_set(target, target_offset + i, heap_get(source, source_offset + i));
-        if (copied.e.code != 0) { print(copied.e.msg); }
+        def status = store(target, target_offset + i, heap_get(source, source_offset + i));
+        if (status != 0) { print(status); }
         i = i + 1;
     }
     return 0;
 }
 
-fn tournament(ranks, size) {
-    def winner = Random.randint(0, size - 1);
+fn island_start(index) {
+    def base = Math.floor(population / islands);
+    def remainder = population - base * islands;
+    def extra = index;
+    if (extra > remainder) { extra = remainder; }
+    return index * base + extra;
+}
+
+fn tournament(ranks, offset, size) {
+    def winner = offset + Random.randint(0, size - 1);
     def draws = 1;
     while (draws < 3 && draws < size) {
-        def contender = Random.randint(0, size - 1);
-        if (heap_get(ranks, contender) < heap_get(ranks, winner)) {
-            winner = contender;
-        }
+        def contender = offset + Random.randint(0, size - 1);
+        if (heap_get(ranks, contender) < heap_get(ranks, winner)) { winner = contender; }
         draws = draws + 1;
     }
     return winner;
 }
 
-def width = 2 * gates + m;
-Random.seed(seed);
-def parents = new(population * width);
-def ranks = new(population);
-def best = bridge.specimen();
-def rank = bridge.score(best);
-def evaluations = 1;
-def size = 1;
-def copied = copy_genes(best, 0, parents, 0);
-def stored = store(ranks, 0, rank);
-def weight = (gates + 1) * (gates + 1);
-while (size < population && rank >= weight) {
-    def candidate = bridge.specimen();
-    def candidate_rank = bridge.score(candidate);
-    evaluations = evaluations + 1;
-    copied = copy_genes(candidate, 0, parents, size * width);
-    stored = store(ranks, size, candidate_rank);
-    size = size + 1;
-    if (candidate_rank < rank) {
-        copied = copy_genes(candidate, 0, best, 0);
-        rank = candidate_rank;
-    }
-    delete(candidate);
-}
-def logged = bridge.trace(0, rank);
-def generation = 0;
-while (generation < generations && rank >= weight && evaluations < evaluation_budget) {
-    generation = generation + 1;
-    def attempt = 0;
-    while (attempt < population && rank >= weight && evaluations < evaluation_budget) {
-        def candidate = bridge.specimen();
-        if (Random.random() >= 0.15) {
-            def selected = new[tournament(ranks, size), tournament(ranks, size)];
-            def crossover = Random.random() < 0.35;
-            def i = 0;
-            while (i < width) {
-                def gene = heap_get(parents, heap_get(selected, 0) * width + i);
-                if (crossover && Random.random() < 0.5) {
-                    gene = heap_get(parents, heap_get(selected, 1) * width + i);
-                }
-                if (Random.random() < 1 / width) {
-                    gene = Random.randint(0, bound(i) - 1);
-                }
-                stored = store(candidate, i, gene);
-                i = i + 1;
-            }
-            delete(selected);
+fn migrate(parents, ranks) {
+    def elites = new(islands * width);
+    def scores = new(islands);
+    def island = 0;
+    // Snapshot every source before changing any target.
+    while (island < islands) {
+        def first = island_start(island);
+        def end = island_start(island + 1);
+        def elite = first;
+        def j = first + 1;
+        while (j < end) {
+            if (heap_get(ranks, j) < heap_get(ranks, elite)) { elite = j; }
+            j = j + 1;
         }
-        def candidate_rank = bridge.score(candidate);
-        evaluations = evaluations + 1;
-        def worst = 0;
-        def j = 1;
-        while (j < size) {
+        def status = copy_genes(parents, elite * width, elites, island * width);
+        if (status != 0) { print(status); }
+        def status = store(scores, island, heap_get(ranks, elite));
+        if (status != 0) { print(status); }
+        island = island + 1;
+    }
+    island = 0;
+    def accepted = 0;
+    while (island < islands) {
+        def source = island - 1;
+        if (source < 0) { source = islands - 1; }
+        def first = island_start(island);
+        def end = island_start(island + 1);
+        def worst = first;
+        def j = first + 1;
+        while (j < end) {
             if (heap_get(ranks, j) > heap_get(ranks, worst)) { worst = j; }
             j = j + 1;
         }
-        def ties = new(size);
-        def count = 0;
-        j = 0;
-        while (j < size) {
-            if (heap_get(ranks, j) == heap_get(ranks, worst)) {
-                stored = store(ties, count, j);
-                count = count + 1;
-            }
-            j = j + 1;
+        if (heap_get(scores, source) <= heap_get(ranks, worst)) {
+            def status = copy_genes(elites, source * width, parents, worst * width);
+            if (status != 0) { print(status); }
+            def status = store(ranks, worst, heap_get(scores, source));
+            if (status != 0) { print(status); }
+            accepted = accepted + 1;
         }
-        worst = heap_get(ties, Random.randint(0, count - 1));
-        delete(ties);
-        if (candidate_rank <= heap_get(ranks, worst)) {
-            copied = copy_genes(candidate, 0, parents, worst * width);
-            stored = store(ranks, worst, candidate_rank);
-        }
-        if (candidate_rank < rank) {
-            copied = copy_genes(candidate, 0, best, 0);
+        island = island + 1;
+    }
+    delete(elites);
+    delete(scores);
+    return accepted;
+}
+
+def width = 2 * gates + m;
+def best = bridge.population_buffer(1);
+def rank = 0;
+def weight = (gates + 1) * (gates + 1);
+def evaluations = 0;
+def generation = 0;
+def restart = 0;
+def size = 0;
+while (restart < restarts && (evaluations == 0 || rank >= weight)) {
+    def status = bridge.begin_restart(restart);
+    if (status != 0) { print(status); }
+    def run_seed = seed + restart;
+    if (run_seed >= 2147483648) { run_seed = run_seed - 2147483648; }
+    Random.seed(run_seed);
+    def limit = Math.floor(evaluation_budget * (restart + 1) / restarts);
+    def parents = bridge.population_buffer(population);
+    def ranks = new(population);
+    size = 0;
+    while (size < population && (evaluations == 0 || rank >= weight)) {
+        def candidate = bridge.initial(restart, size);
+        def candidate_rank = bridge.score(candidate);
+        def status = copy_genes(candidate, 0, parents, size * width);
+        if (status != 0) { print(status); }
+        def status = store(ranks, size, candidate_rank);
+        if (status != 0) { print(status); }
+        if (evaluations == 0 || candidate_rank < rank) {
+            def status = copy_genes(candidate, 0, best, 0);
+            if (status != 0) { print(status); }
             rank = candidate_rank;
         }
+        evaluations = evaluations + 1;
+        size = size + 1;
         delete(candidate);
-        attempt = attempt + 1;
     }
-    logged = bridge.trace(generation, rank);
+    def status = bridge.trace(generation, rank);
+    if (status != 0) { print(status); }
+    def status = bridge.observe(parents, size, width, generation, "initial", 0);
+    if (status != 0) { print(status); }
+    def rounds = 0;
+    def migrations = 0;
+    while (rounds < generations && rank >= weight && evaluations < limit) {
+        rounds = rounds + 1;
+        generation = generation + 1;
+        def attempt = 0;
+        while (attempt < population && rank >= weight && evaluations < limit) {
+            def island = attempt - Math.floor(attempt / islands) * islands;
+            def first = island_start(island);
+            def count = island_start(island + 1) - first;
+            def candidate = bridge.specimen();
+            if (Random.random() >= 0.15) {
+                def selected = new[tournament(ranks, first, count), tournament(ranks, first, count)];
+                def crossover = Random.random() < 0.35;
+                def i = 0;
+                while (i < width) {
+                    def gene = heap_get(parents, heap_get(selected, 0) * width + i);
+                    if (crossover && Random.random() < 0.5) {
+                        gene = heap_get(parents, heap_get(selected, 1) * width + i);
+                    }
+                    if (Random.random() < 1 / width) { gene = Random.randint(0, bound(i) - 1); }
+                    def status = store(candidate, i, gene);
+                    if (status != 0) { print(status); }
+                    i = i + 1;
+                }
+                delete(selected);
+            }
+            def candidate_rank = bridge.score(candidate);
+            evaluations = evaluations + 1;
+            def worst = first;
+            def j = first + 1;
+            while (j < first + count) {
+                if (heap_get(ranks, j) > heap_get(ranks, worst)) { worst = j; }
+                j = j + 1;
+            }
+            def ties = new(count);
+            def ties_count = 0;
+            j = first;
+            while (j < first + count) {
+                if (heap_get(ranks, j) == heap_get(ranks, worst)) {
+                    def status = store(ties, ties_count, j);
+                    if (status != 0) { print(status); }
+                    ties_count = ties_count + 1;
+                }
+                j = j + 1;
+            }
+            worst = heap_get(ties, Random.randint(0, ties_count - 1));
+            delete(ties);
+            if (candidate_rank <= heap_get(ranks, worst)) {
+                def status = copy_genes(candidate, 0, parents, worst * width);
+                if (status != 0) { print(status); }
+                def status = store(ranks, worst, candidate_rank);
+                if (status != 0) { print(status); }
+            }
+            if (candidate_rank < rank) {
+                def status = copy_genes(candidate, 0, best, 0);
+                if (status != 0) { print(status); }
+                rank = candidate_rank;
+            }
+            delete(candidate);
+            attempt = attempt + 1;
+        }
+        if (islands > 1 && rounds - Math.floor(rounds / migration_interval) * migration_interval == 0 && rank >= weight) {
+            migrations = migrations + migrate(parents, ranks);
+        }
+        def status = bridge.trace(generation, rank);
+        if (status != 0) { print(status); }
+    }
+    def status = bridge.observe(parents, size, width, generation, "final", migrations);
+    if (status != 0) { print(status); }
+    delete(parents);
+    delete(ranks);
+    restart = restart + 1;
 }
 print(bridge.finish(best, generation, width, size));
 delete(best);
-delete(parents);
-delete(ranks);
-

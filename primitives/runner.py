@@ -44,9 +44,10 @@ def search(dataset, config, library=None, *, save=True, time_budget=None, cancel
             folder = Path(temp)
             job = folder / "job.json"
             job.write_text(json.dumps({"dataset": dataset.to_dict(), "config": asdict(config),
-                                       "library": [c.to_dict() for c in circuits]}), encoding="utf-8")
+                                       "library": [c.to_dict() for c in circuits],
+                                       "incumbent": incumbent["circuit"] if incumbent else None}), encoding="utf-8")
             # JSON quoting is safe here: this is source text, never a shell command.
-            prelude = f'''def bridge = Python.import_module("primitives.tiny_bridge", new["configure", "specimen", "score", "trace", "finish"]);
+            prelude = f'''def bridge = Python.import_module("primitives.tiny_bridge", new["configure", "specimen", "score", "trace", "finish", "begin_restart", "initial", "observe", "population_buffer"]);
 def configured = bridge.configure({json.dumps(str(job))});
 if (configured != 0) {{ print(configured); }}
 def n = {dataset.inputs};
@@ -56,6 +57,9 @@ def population = {config.population};
 def generations = {config.generations};
 def seed = {config.seed};
 def evaluation_budget = {config.evaluation_budget};
+def restarts = {config.restarts};
+def islands = {config.islands};
+def migration_interval = {config.migration_interval};
 '''
             source = folder / "search.tiny"
             source.write_text(prelude + (ROOT / "tiny" / "evolve.tiny").read_text(encoding="utf-8"), encoding="utf-8")

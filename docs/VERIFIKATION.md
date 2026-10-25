@@ -466,3 +466,40 @@ Geprüft am 25. Oktober 2026:
   Physische Touchbedienung wurde nicht geprüft.
 
 ![Funktionsübersicht mit editierbaren Beschriftungen](oberflaeche-funktionen.png)
+
+## Unabhängige Starts, Inselpopulationen und Diversität
+
+Geprüft am 25. Oktober 2026:
+
+- `python -m unittest discover -s tests`: **150 Tests erfolgreich**, darunter
+  **22 HTTP-Integrationstests** und tatsächliche TinyLanguage-Läufe. Unter Windows
+  mit `PYTHONUTF8=1` für einheitliche Kodierung der CLI-Unterprozesse; wegen
+  WinError 10013 mit freigegebenen lokalen HTTP-Verbindungen ausgeführt.
+- Die erweiterten Suchtests prüfen beide Backends mit drei unabhängigen Starts
+  und drei ungleich grossen Inseln (3/2/2 Eltern). Eine mit einem NAND unmögliche
+  XOR-Aufgabe verbraucht genau 64 Bewertungen, verteilt als 21/21/22. Wiederholte
+  Läufe liefern dieselbe Schaltung, Historie, Migrationen und Diversitätswerte.
+  Seedüberlauf von 2^31−1 auf 0 und die unabhängig nachbewertete Fitness sind geprüft.
+- Weitere Fälle prüfen frische Populationen ohne Übernahme des vorherigen Gewinners,
+  Erhalt des besten Gesamtergebnisses, simultane Ringmigration ohne Kaskaden oder
+  verschlechterte Zielmitglieder, unveränderte Quellgenome, frühzeitige Fehlerfreiheit
+  mit ungefüllten Inseln sowie Optimierung trotz Fehlerfreiheit. Zeitlimit während
+  der Initialisierung und Abbruch zwischen Starts sind enthalten.
+- Die mittlere normalisierte Gendifferenz wird mit einer unabhängigen paarweisen
+  Berechnung verglichen; leere Populationen, Einzelgenome und identische Genome
+  liefern 0. Ungültige Typen, Wertebereiche, zu kleine Inseln und unzureichende
+  Initialisierungsbudgets werden abgelehnt. Tatsächlicher CLI-Aufruf und HTTP-Suche
+  erhalten die neuen Parameter und die Suchmetadaten nach Speichern/Laden.
+- `node --test tests/test_*.js`: **22 Tests erfolgreich**;
+  `node --check web/app.js` und `git diff --check` erfolgreich.
+- Browserprüfung auf separater temporärer Bibliothek ohne Hintergrundsuche:
+  TinyLanguage mit drei Starts, drei Inseln und Austausch in jeder Generation
+  ausgeführt. 64 Kandidaten und die Diversität der letzten Population werden
+  angezeigt; XOR mit einem NAND bleibt korrekt als Annäherung ausgewiesen.
+  Vier Inseln bei sieben Eltern werden sichtbar abgelehnt; die Suchschaltfläche
+  ist danach wieder bedienbar. Neuladen und erneutes Öffnen erhalten die Statistik.
+  Die schmale Ansicht zeigt keinen horizontalen Seitenüberlauf. Beim erfolgreichen
+  Lauf und Wiederöffnen wurden keine JavaScript-Warnungen oder -Fehler beobachtet.
+  Physische Touchbedienung wurde nicht geprüft.
+
+![Gespeicherter Suchverlauf mit Starts, Inseln und Diversität](inselpopulationen.jpg)

@@ -272,6 +272,39 @@ manuellen Lauf auch während der Initialisierung; die Hintergrundsuche kann
 weiter optimieren. Mit gleichem Backend, Seed und denselben Startbedingungen
 bleibt ein Lauf ohne Zeitlimit reproduzierbar. CLI: `--population 24`.
 
+## Unabhängige Starts, Inseln und Diversität
+
+Unter **Evolution** lassen sich **Unabhängige Starts** (1–32), **Inseln** (1–16)
+und der Abstand des Austauschs einstellen. Ein Start und eine Insel bleiben der
+Standard. Alle Starts teilen das bestehende Kandidatenbudget einschliesslich
+ihrer Initialisierungen. Beispielsweise verteilen sich 64 Bewertungen auf drei
+Starts als 21/21/22. Das Budget muss für die Elternpopulation jedes Starts reichen.
+
+Die Elternpopulation wird auf die Inseln verteilt, mit mindestens zwei Eltern
+je Insel. Mutation, Rekombination und Selektion bleiben innerhalb einer Insel.
+Beim Austausch wandert je das beste Programm zur nächsten Insel im Ring und darf
+dort ein mindestens gleich schlechtes Mitglied ersetzen. Der Standardabstand
+beträgt zehn Generationen. Ein neuer Start verwendet frische Populationen und
+den nächsten Seed; nur der erste kann mit der bisherigen Lösung beginnen.
+Das beste Gesamtergebnis bleibt erhalten. Fehlerfreiheit beendet manuelle Läufe
+auch vor weiteren Starts. Eine Garantie für ein besseres Ergebnis besteht nicht.
+
+Die Suchzusammenfassung zeigt ausgeführte Starts, Inselzahl und die Diversität
+der letzten Population: den Anteil unterschiedlicher Genome und ihre mittlere
+Gendifferenz. Auch unbenutzte Gene zählen mit; Vielfalt bedeutet deshalb nicht
+automatisch unterschiedliches Verhalten. JSON-Exporte enthalten zusätzlich Seeds,
+Bewertungen, besten Rang, Migrationen und Anfangs-/Enddiversität je Start und Insel.
+Bei gleichem Backend, Seed und denselben Startbedingungen bleibt die Suche ohne
+Zeitlimit reproduzierbar. [ARCHITEKTUR.md](docs/ARCHITEKTUR.md#unabhängige-starts-und-inseln)
+beschreibt Budgetaufteilung und Kennzahlen genau.
+
+```powershell
+python -m primitives evolve --preset xor --backend python --gates 8 --population 24 --generations 200 --restarts 3 --islands 4 --migration-interval 10
+```
+
+Dieselben Parameter funktionieren mit `--backend tiny` und in der JSON-API als
+`restarts`, `islands` und `migration_interval`.
+
 ## Retests und Bausteinbibliothek
 
 NAND-Ausdrücke verwenden die Schreibweise `(1) ⊼ (2)`, mit dem Operator zwischen

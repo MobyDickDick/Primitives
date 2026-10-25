@@ -36,7 +36,9 @@ Die Kennungen sind Dokumentationskennungen; GitHub-Issues wurden noch nicht ange
 
 - [x] Elternpopulation mit Turnierselektion statt zwei laufender Eltern
       (Python und TinyLanguage; Initialisierung im Kandidatenbudget, bestes Ergebnis erhalten).
-- [ ] Mehrere unabhängige Neustarts, Inselpopulationen und Diversitätsmass.
+- [x] Mehrere unabhängige Neustarts, Inselpopulationen und Diversitätsmass
+      (Python und TinyLanguage; gemeinsames Kandidatenbudget, Ringmigration,
+      genotypische Vielfalt pro Start/Insel, CLI/API und Oberfläche).
 - [ ] Neutrale Evolution und anschliessende Vereinfachung als getrennte Phasen.
 - [x] Explizite Makroknoten mit benannten Ports und festen Abhängigkeitsversionen (PRIM-05;
       bei der Evolution bewusst in mutierbare NAND-Gatter expandiert).
@@ -73,8 +75,8 @@ Die Kennungen sind Dokumentationskennungen; GitHub-Issues wurden noch nicht ange
 - [ ] Evolution auf zeitabhängige Aufgaben erweitern.
 
 Die acht Erweiterungspakete PRIM-01 bis PRIM-08 sind umgesetzt.
-Nächster offener Entwicklungspunkt: mehrere unabhängige Neustarts,
-Inselpopulationen und Diversitätsmass (Etappe 2).
+Nächster offener Entwicklungspunkt: neutrale Evolution und anschliessende
+Vereinfachung als getrennte Phasen (Etappe 2).
 Für die Suchentwicklung bleiben Suchrobustheit und unabhängige Prüfvektoren
 vor einer starken Erhöhung der Zahlbreiten empfohlen.
 
