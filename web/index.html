@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="de">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Primitives · NAND-Labor</title><link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script></head>
+<body>
+<header><div class="brand"><span class="brand-icon">⊼</span><div>PRIMITIVES <span class="version">0.1</span><small>Eine Spielwiese aus NAND-Gattern</small></div></div><span class="local">● Lokal auf deinem Rechner</span></header>
+<main>
+<div class="intro"><div><p class="eyebrow">VON BEISPIELEN ZU PROGRAMMEN</p><h1>Logik wachsen lassen.</h1><p>Definiere eine Funktion. Lass Programme um die beste Lösung konkurrieren.<br>Entdecke, wie aus einem einzigen Gatter neue Bausteine werden.</p></div><div class="formula">(1,(2,3))<small>Alles beginnt mit NAND.</small></div></div>
+<div id="notice" role="status" hidden></div>
+<div class="workspace">
+<aside>
+<section class="card"><div class="section-title"><span class="number">01</span><h2>Zuordnungsvektoren</h2></div>
+<label>Vorlage<select id="preset"></select></label>
+<div class="pair"><label>Eingangsbits N<input id="inputs" type="number" min="1" max="32" value="2"></label><label>Ausgangsbits M<input id="outputs" type="number" min="1" max="32" value="1"></label></div>
+<label>Name<input id="dataset-name" value="xor" maxlength="120"></label>
+<label>Ausdruck<textarea id="expression" rows="2" spellcheck="false">x0 ^ x1</textarea></label>
+<p class="hint"><code>x0…xN</code> einzelne Bits · <code>x</code> ganze Eingabe · <code>a,b</code> untere/obere Hälfte. Bitreihenfolge: LSB zuerst.</p>
+<label>Maximale Anzahl Vektoren<input id="samples" type="number" min="1" max="65536" value="256"></label>
+<button id="generate" class="secondary full">Vektoren erzeugen</button>
+<details><summary>Eigene Vektoren importieren</summary><p class="hint">JSON mit name, inputs, outputs und rows. Jede Zeile enthält N+M Bits.</p><input id="import" type="file" accept=".json,application/json"><label>Oder Zeilen direkt eingeben<textarea id="raw-rows" rows="4" placeholder="[[0,0,0],[1,0,1],[0,1,1],[1,1,0]]"></textarea></label><button id="import-rows" class="secondary full">Zeilen übernehmen</button></details>
+<div id="dataset-summary" class="summary">Noch keine Vektoren erzeugt.</div>
+</section>
+<section class="card"><div class="section-title"><span class="number">02</span><h2>Evolution</h2></div>
+<label>Suchalgorithmus<select id="backend"><option value="tiny">TinyLanguage</option><option value="python">Python</option></select></label>
+<div class="pair"><label>Gatterbudget<input id="gates" type="number" min="1" max="128" value="8"></label><label>Nachkommen / Runde<input id="population" type="number" min="2" max="256" value="24"></label></div>
+<div class="pair"><label>Generationen<input id="generations" type="number" min="1" max="20000" value="200"></label><label>Zufallsseed<input id="seed" type="number" min="0" max="2147483647" value="1"></label></div>
+<p class="hint">Mutation + Rekombination + Bausteine aus der Bibliothek. Ende bei fehlerfreier Zuordnung oder ausgeschöpftem Budget.</p>
+<button id="evolve" class="primary full">Evolution starten <span>→</span></button><p id="job-status" role="status" class="hint">Bereit für das erste Experiment.</p>
+</section>
+</aside>
+<div class="content">
+<section class="card result"><div class="section-title"><span class="number">03</span><h2>Das Programm</h2><button id="export-program" class="text-button" disabled>JSON exportieren ↓</button></div>
+<div id="empty" class="empty"><div>⊼</div><h3>Ein Gatter. Unzählige Möglichkeiten.</h3><p>Erzeuge Vektoren und starte die Evolution.<br>Oder öffne ein gespeichertes Programm.</p></div>
+<div id="program" hidden><div id="metrics" class="metrics"></div><p id="program-name" class="hint"></p><div class="code-line"><code id="notation"></code></div>
+<div class="simulation"><div><p class="eyebrow">EINGÄNGE UMSCHALTEN</p><div id="bit-switches" class="bits"></div></div><div id="output-values" class="output"></div></div>
+<div class="graph-wrap"><svg id="graph" role="img" aria-label="NAND-Programm mit Signalwerten"></svg></div>
+<div class="step-controls"><button id="play" class="secondary">▶ Abspielen</button><label>Gatterschritt <input id="step" type="range" min="0" value="0"></label><span id="step-label"></span></div>
+<div class="chart-head"><h3>Suchverlauf</h3><span>Fehlerhafte Ausgangsbits</span></div><svg id="history" viewBox="0 0 680 130" role="img" aria-label="Fehler im Suchverlauf"></svg><p id="search-summary" class="hint"></p>
+</div>
+<details><summary>Klammerprogramm ausprobieren</summary><div class="parse-row"><input id="nand-expression" value="(1,(2,3))" aria-label="NAND-Ausdruck"><input id="nand-inputs" type="number" min="1" max="32" value="3" aria-label="Anzahl Eingänge"><button id="parse" class="secondary">Ansehen</button></div></details>
+</section>
+<section class="card"><div class="section-title"><h2>Zuordnung prüfen</h2><button id="export-dataset" class="text-button" disabled>Vektoren exportieren ↓</button></div><p id="table-info" class="hint">Die erzeugten Beispiele erscheinen hier. Eine Zeile anklicken, um sie im Schaltbild zu testen.</p><div class="table-wrap"><table><thead><tr><th>Eingänge (LSB zuerst)</th><th>Soll</th><th>Ist</th><th>Prüfung</th></tr></thead><tbody id="vectors"></tbody></table></div></section>
+<section class="card"><div class="section-title"><h2>Bausteinbibliothek</h2><button id="refresh" class="text-button">Aktualisieren ↻</button></div><p class="hint">Jeder Suchlauf speichert sein bestes Programm. Passende, auf ihren Vektoren fehlerfreie Programme fliessen in neue Suchen ein.</p><div id="library" class="library"></div></section>
+</div></div>
+<footer>Primitives · Experimentelles NAND-Labor · Gatterzahl und Tiefe sind Strukturmasse, keine gemessene CPU-Geschwindigkeit.</footer>
+</main></body></html>

@@ -1,0 +1,61 @@
+{
+  "circuit": {
+    "inputs": 2,
+    "gates": [
+      [
+        1,
+        0
+      ]
+    ],
+    "outputs": [
+      2
+    ]
+  },
+  "fitness": {
+    "errors": 0,
+    "total_bits": 4,
+    "accuracy": 1.0,
+    "exact_on_dataset": true,
+    "verified_truth_table": true,
+    "gates": 1,
+    "depth": 1
+  },
+  "search": {
+    "gates": 8,
+    "population": 24,
+    "generations": 400,
+    "seed": 1,
+    "backend": "tiny",
+    "generation": 1,
+    "evaluations": 10,
+    "history": [
+      {
+        "generation": 0,
+        "errors": 1,
+        "score": 120,
+        "evaluations": 1
+      },
+      {
+        "generation": 1,
+        "errors": 0,
+        "score": 10,
+        "evaluations": 10
+      }
+    ],
+    "library_candidates": 2,
+    "elapsed_seconds": 0.647,
+    "seed_library": [
+      "not-1zu1-g1-t1-exakt-9b5f45579118",
+      "xor-2zu1-g4-t3-exakt-e2342db8e734"
+    ]
+  },
+  "id": "nand-2zu1-g1-t1-exakt-24ec6fa85acf",
+  "name": "nand-2zu1-g1-t1-exakt-24ec6fa85acf",
+  "dataset_id": "nand-708e1f565bdb",
+  "dataset_name": "nand",
+  "created_at": "2026-10-25T10:38:27.867863+00:00",
+  "schema": 1,
+  "expressions": [
+    "(2,1)"
+  ]
+}

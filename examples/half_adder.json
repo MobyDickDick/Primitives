@@ -1,0 +1,8 @@
+{
+  "schema": 1,
+  "name": "halbaddierer",
+  "inputs": 2,
+  "outputs": 2,
+  "rows": [[0, 0, 0, 0], [1, 0, 1, 0], [0, 1, 1, 0], [1, 1, 0, 1]],
+  "metadata": {"bit_order": "LSB-first", "description": "Summe und Übertrag zweier Eingangsbits."}
+}

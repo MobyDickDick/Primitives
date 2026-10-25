@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "name": "oracle",
+  "inputs": 2,
+  "outputs": 2,
+  "rows": [
+    [
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      1,
+      0
+    ],
+    [
+      1,
+      0,
+      1,
+      0
+    ],
+    [
+      1,
+      1,
+      0,
+      1
+    ]
+  ],
+  "metadata": {
+    "expression": "Python oracle(x)",
+    "seed": 1,
+    "bit_order": "LSB-first",
+    "oracle_file": "C:\\Users\\marku\\myCloud\\Primitives\\examples\\oracle.py"
+  },
+  "exhaustive": true
+}

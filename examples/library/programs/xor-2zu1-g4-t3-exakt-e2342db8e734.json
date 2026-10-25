@@ -1,0 +1,76 @@
+{
+  "circuit": {
+    "inputs": 2,
+    "gates": [
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        4,
+        3
+      ]
+    ],
+    "outputs": [
+      5
+    ]
+  },
+  "fitness": {
+    "errors": 0,
+    "total_bits": 4,
+    "accuracy": 1.0,
+    "exact_on_dataset": true,
+    "verified_truth_table": true,
+    "gates": 4,
+    "depth": 3
+  },
+  "search": {
+    "gates": 8,
+    "population": 24,
+    "generations": 200,
+    "seed": 1,
+    "backend": "tiny",
+    "generation": 16,
+    "evaluations": 383,
+    "history": [
+      {
+        "generation": 0,
+        "errors": 3,
+        "score": 263,
+        "evaluations": 1
+      },
+      {
+        "generation": 1,
+        "errors": 1,
+        "score": 91,
+        "evaluations": 25
+      },
+      {
+        "generation": 16,
+        "errors": 0,
+        "score": 39,
+        "evaluations": 383
+      }
+    ],
+    "library_candidates": 0,
+    "elapsed_seconds": 1.034,
+    "seed_library": []
+  },
+  "id": "xor-2zu1-g4-t3-exakt-e2342db8e734",
+  "name": "xor-2zu1-g4-t3-exakt-e2342db8e734",
+  "dataset_id": "xor-6ef42b18f093",
+  "dataset_name": "xor",
+  "created_at": "2026-10-25T10:37:54.349742+00:00",
+  "schema": 1,
+  "expressions": [
+    "((1,(1,2)),(2,(1,2)))"
+  ]
+}

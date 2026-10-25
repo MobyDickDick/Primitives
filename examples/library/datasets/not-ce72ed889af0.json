@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "name": "not",
+  "inputs": 1,
+  "outputs": 1,
+  "rows": [
+    [
+      0,
+      1
+    ],
+    [
+      1,
+      0
+    ]
+  ],
+  "metadata": {
+    "expression": "1-x0",
+    "seed": 1,
+    "bit_order": "LSB-first"
+  },
+  "exhaustive": true
+}

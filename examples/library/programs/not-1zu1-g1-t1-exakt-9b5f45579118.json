@@ -1,0 +1,60 @@
+{
+  "circuit": {
+    "inputs": 1,
+    "gates": [
+      [
+        0,
+        0
+      ]
+    ],
+    "outputs": [
+      1
+    ]
+  },
+  "fitness": {
+    "errors": 0,
+    "total_bits": 2,
+    "accuracy": 1.0,
+    "exact_on_dataset": true,
+    "verified_truth_table": true,
+    "gates": 1,
+    "depth": 1
+  },
+  "search": {
+    "gates": 8,
+    "population": 24,
+    "generations": 400,
+    "seed": 1,
+    "backend": "tiny",
+    "generation": 1,
+    "evaluations": 7,
+    "history": [
+      {
+        "generation": 0,
+        "errors": 1,
+        "score": 121,
+        "evaluations": 1
+      },
+      {
+        "generation": 1,
+        "errors": 0,
+        "score": 10,
+        "evaluations": 7
+      }
+    ],
+    "library_candidates": 0,
+    "elapsed_seconds": 0.644,
+    "seed_library": [
+      "xor-2zu1-g4-t3-exakt-e2342db8e734"
+    ]
+  },
+  "id": "not-1zu1-g1-t1-exakt-9b5f45579118",
+  "name": "not-1zu1-g1-t1-exakt-9b5f45579118",
+  "dataset_id": "not-ce72ed889af0",
+  "dataset_name": "not",
+  "created_at": "2026-10-25T10:38:27.213821+00:00",
+  "schema": 1,
+  "expressions": [
+    "(1,1)"
+  ]
+}

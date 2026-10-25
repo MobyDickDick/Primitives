@@ -1,0 +1,60 @@
+// Evolutionary search lives here. Python FFI evaluates packed truth tables
+// and grafts library circuits. The launcher supplies n, m, gates, population,
+// generations, seed, job_path and the explicitly allowlisted bridge.
+fn bound(index) {
+    if (index < 2 * gates) { return n + Math.floor(index / 2); }
+    return n + gates;
+}
+
+def width = 2 * gates + m;
+Random.seed(seed);
+def parent = bridge.specimen();
+def mate = bridge.specimen();
+def rank = bridge.score(parent);
+def weight = (gates + 1) * (gates + 1);
+def logged = bridge.trace(0, rank);
+def generation = 0;
+while (generation < generations && rank >= weight) {
+    generation = generation + 1;
+    def attempt = 0;
+    while (attempt < population && rank >= weight) {
+        def candidate = bridge.specimen();
+        if (Random.random() >= 0.15) {
+            def crossover = Random.random() < 0.35;
+            def i = 0;
+            while (i < width) {
+                def gene = heap_get(parent, i);
+                if (crossover && Random.random() < 0.5) {
+                    gene = heap_get(mate, i);
+                }
+                if (Random.random() < 1 / width) {
+                    gene = Random.randint(0, bound(i) - 1);
+                }
+                def stored = heap_set(candidate, i, gene);
+                if (stored.e.code != 0) { print(stored.e.msg); }
+                i = i + 1;
+            }
+        }
+        def candidate_rank = bridge.score(candidate);
+        if (candidate_rank <= rank) {
+            def j = 0;
+            while (j < width) {
+                def old_gene = heap_get(parent, j);
+                def new_gene = heap_get(candidate, j);
+                def stored_mate = heap_set(mate, j, old_gene);
+                if (stored_mate.e.code != 0) { print(stored_mate.e.msg); }
+                def stored_parent = heap_set(parent, j, new_gene);
+                if (stored_parent.e.code != 0) { print(stored_parent.e.msg); }
+                j = j + 1;
+            }
+            rank = candidate_rank;
+        }
+        delete(candidate);
+        attempt = attempt + 1;
+    }
+    logged = bridge.trace(generation, rank);
+}
+print(bridge.finish(parent, generation, width));
+delete(parent);
+delete(mate);
+

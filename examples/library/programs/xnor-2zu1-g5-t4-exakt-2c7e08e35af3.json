@@ -1,0 +1,93 @@
+{
+  "circuit": {
+    "inputs": 2,
+    "gates": [
+      [
+        1,
+        1
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        0,
+        3
+      ],
+      [
+        5,
+        4
+      ]
+    ],
+    "outputs": [
+      6
+    ]
+  },
+  "fitness": {
+    "errors": 0,
+    "total_bits": 4,
+    "accuracy": 1.0,
+    "exact_on_dataset": true,
+    "verified_truth_table": true,
+    "gates": 5,
+    "depth": 4
+  },
+  "search": {
+    "gates": 8,
+    "population": 24,
+    "generations": 400,
+    "seed": 1,
+    "backend": "tiny",
+    "generation": 5,
+    "evaluations": 120,
+    "history": [
+      {
+        "generation": 0,
+        "errors": 2,
+        "score": 182,
+        "evaluations": 1
+      },
+      {
+        "generation": 1,
+        "errors": 1,
+        "score": 159,
+        "evaluations": 25
+      },
+      {
+        "generation": 2,
+        "errors": 1,
+        "score": 101,
+        "evaluations": 49
+      },
+      {
+        "generation": 5,
+        "errors": 0,
+        "score": 49,
+        "evaluations": 120
+      }
+    ],
+    "library_candidates": 6,
+    "elapsed_seconds": 0.806,
+    "seed_library": [
+      "and-2zu1-g2-t2-exakt-f64e2a6d5552",
+      "nand-2zu1-g1-t1-exakt-24ec6fa85acf",
+      "nor-2zu1-g8-t6-exakt-0e5f42236a1e",
+      "not-1zu1-g1-t1-exakt-9b5f45579118",
+      "or-2zu1-g4-t3-exakt-ae56a700a621",
+      "xor-2zu1-g4-t3-exakt-e2342db8e734"
+    ]
+  },
+  "id": "xnor-2zu1-g5-t4-exakt-2c7e08e35af3",
+  "name": "xnor-2zu1-g5-t4-exakt-2c7e08e35af3",
+  "dataset_id": "xnor-7a50bf601ab9",
+  "dataset_name": "xnor",
+  "created_at": "2026-10-25T10:38:34.683085+00:00",
+  "schema": 1,
+  "expressions": [
+    "((1,(1,(2,2))),((2,2),(1,(2,2))))"
+  ]
+}
