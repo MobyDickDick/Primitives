@@ -308,3 +308,38 @@ von 65536 Sinusvektoren mit 16 Eingangs- und 12 Ausgangsbits ausgeführt.
 Damit wurde die **Vektorgenerierung**, nicht die Synthese einer vollständigen
 Sinusschaltung nachgewiesen.
 
+## Mehrschrittige Programme (PRIM-07)
+
+Geprüft am 25. Oktober 2026:
+
+- `python -m unittest discover -s tests -v`: **109 Tests erfolgreich**, darunter
+  **15 HTTP-Integrationstests** und die bestehenden tatsächlichen TinyLanguage-Läufe.
+  Die Suite lief wegen der Loopback-Sperre mit freigegebenen lokalen Verbindungen.
+- 13 neue Kern-/CLI-Tests vergleichen for-/while-Summen, verschachtelte Verzweigungen,
+  rückwärts laufende und verschachtelte Schleifen auf vollständigen kleinen Bereichen
+  mit unabhängiger Integer-Arithmetik. Weitere Fälle prüfen null Durchläufe, einmalig
+  ausgewertete range-Grenzen, mehrere Rückgabewerte, Zweierkomplement, Abschneiden,
+  Fehlerüberlauf, negative Division, XOR/Potenz und Kurzschlussauswertung.
+- Frischer lokaler Zustand je Aufruf, nicht initialisierte Variablen, fehlende
+  Rückgabe, ungültige Syntax/Host-Zugriffe auch in unerreichbaren Zweigen sowie
+  Sprachversion, Grössen-, Anweisungs-, Iterations- und Gesamtlimits werden geprüft.
+  Laufzeitfehler enthalten Eingabe und Quellposition. Abbruch wird vor und während
+  der tatsächlichen Auswertung ausgelöst.
+- Die zwei neuen HTTP-Tests prüfen asynchrone und synchrone Erzeugung, sämtliche
+  Sollwerte, Import/Export-Roundtrip, Erhalt nach Serverneustart, fehlerfreie
+  bestehende NAND-Suche aus Programmvektoren sowie Abbruch und anschliessenden
+  Neustart der Erzeugung. Fehler-/Abbruchaufträge speichern keine Teildatensätze.
+- Tatsächliche CLI-Aufrufe erzeugen Vektoren aus einer UTF-8-Programmdatei und
+  erhalten eine bestehende Ausgabedatei bei einem späteren Budgetfehler. Die drei
+  archivierten Beispieldatensätze samt Quellen werden gegen ihre Erzeugung geprüft.
+- **13 JavaScript-Tests**, `node --check web/app.js` und `git diff --check` bestehen.
+- Browserprüfung mit separater temporärer Bibliothek ohne Hintergrundsuche:
+  for-, while- und if/else-Beispiele gespeichert; Quelltext und Ports nach Neuladen
+  wieder geöffnet; Überlauf sichtbar abgelehnt; laufende Vektorerzeugung abgebrochen.
+  Danach blieb ausschliesslich die vorher gespeicherte Funktion erhalten. Alle drei
+  Beispiele stehen nach weiterer erfolgreicher Erzeugung nebeneinander. Die
+  Browserkonsole meldete keine Warnungen/Fehler. Die schmale Ansicht wurde visuell
+  geprüft; physische Touchbedienung wurde nicht getestet.
+
+![Programmeditor in der schmalen Browseransicht](programme-prim07.png)
+

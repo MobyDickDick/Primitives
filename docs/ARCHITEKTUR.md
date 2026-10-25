@@ -40,6 +40,8 @@ Evolution                  Fitness / Bausteine
 | `tools/export_operations.py` | Kleine importierbare Standardtabellen des Operationskatalogs |
 | `tools/verify_tinycpu.py` | Optionaler direkter Abgleich mit einem lokalen TinyCPU-Interpreter |
 | `primitives/formula.py` | Eigene arithmetische Ergebnisformeln und explizite Syntaxübersetzung |
+| `primitives/program.py` | Begrenzter Integer-Interpreter für Zuweisungen, return, if/else, while und for |
+| `tools/export_programs.py` | Reproduzierbare vollständige Programmbeispiele samt Quellen |
 | `primitives/evolution.py` | Genom, Fitness, Bibliothekskomposition, Python-Backend |
 | `tiny/evolve.tiny` | TinyLanguage-Evolution |
 | `primitives/tiny_bridge.py` | Kleine FFI-Schnittstelle |
@@ -113,6 +115,17 @@ Es gibt keine Cloudspeicherung, externe Skripte oder externen UI-Abhängigkeiten
 
 Jobzustände sind nur im Arbeitsspeicher vorhanden. Das fertige Ergebnis und seine
 Vektoren werden vor der Erfolgsmeldung in der Bibliothek gespeichert.
+
+Mehrschrittige Programmreferenzen werden im selben begrenzten manuellen
+Auftragskanal erzeugt und sind über dessen Abbruch-API stoppbar. Die
+Hintergrundsuche pausiert während der Erzeugung. Ein geprüfter AST wird in eine
+kleine interne Anweisungsliste übersetzt, ohne Host-Code auszuführen. Jede
+Eingabe erhält neue lokale Variablen und Schleifeniteratoren. Anweisungs- und
+Iterationsbudgets je Eingabe sowie ein gemeinsames Gesamtbudget begrenzen die
+Vektorerzeugung. Erst ein fertiger Datensatz wird gespeichert. Programmquelle,
+Sprachversion, Budgets und Portsemantik sind im Datensatz enthalten; die
+Evolution selbst erhält unverändert kombinatorische Bitvektoren.
+[PROGRAMME.md](PROGRAMME.md) legt Grammatik, Semantik und Schnittstellen fest.
 
 ## Geplante Rückkopplung
 

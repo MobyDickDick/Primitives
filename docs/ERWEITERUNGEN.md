@@ -2,7 +2,7 @@
 
 Diese acht Arbeitspakete konkretisieren die Erweiterungswünsche vom
 25. Oktober 2026. Sie sind lokale Planungs-Issues; auf GitHub wurden noch keine
-Issues angelegt. PRIM-01 bis PRIM-06 sind umgesetzt; die weiteren Arbeitspakete sind offen.
+Issues angelegt. PRIM-01 bis PRIM-07 sind umgesetzt; PRIM-08 ist offen.
 
 Die Kennungen PRIM-01 bis PRIM-08 sind Dokumentationskennungen, keine GitHub-Issue-Nummern.
 
@@ -16,7 +16,7 @@ Die Kennungen PRIM-01 bis PRIM-08 sind Dokumentationskennungen, keine GitHub-Iss
 | [PRIM-04](#prim-04) | TinyCPU und Operationsbeispiele (umgesetzt) | 3 | PRIM-03; Kontrollfluss später ergänzen |
 | [PRIM-05](#prim-05) | Wiederverwendbare Unterprogramm-Bausteine (umgesetzt) | 4 | PRIM-03 |
 | [PRIM-06](#prim-06) | Unterprogramm-Boxen und Debugging (umgesetzt) | 4 | PRIM-05; PRIM-01/02 berücksichtigen |
-| [PRIM-07](#prim-07) | Mehrschrittige Programme und Kontrollstrukturen | 6 | PRIM-03 |
+| [PRIM-07](#prim-07) | Mehrschrittige Programme und Kontrollstrukturen (umgesetzt) | 6 | PRIM-03 |
 | [PRIM-08](#prim-08) | Sprungbefehle und Ablaufdebugger | 6 | PRIM-07 |
 
 Empfohlene Reihenfolge: PRIM-01 → PRIM-02 für die Bedienung; danach PRIM-03 als
@@ -323,7 +323,7 @@ die Prüfung in [VERIFIKATION.md](VERIFIKATION.md#unterprogramm-boxen-und-debugg
 
 ## PRIM-07 – Mehrschrittige Programme mit Variablen, if/else, while und for als Vektorquelle
 
-**Status:** geplant, nicht implementiert.
+**Status:** umgesetzt am 25. Oktober 2026.
 
 ### Ziel
 Neben einem einzelnen Ausdruck sollen kurze deterministische Programme die Sollausgaben einer Aufgabe berechnen können: Zuweisungen, Zwischenergebnisse, Verzweigungen und Schleifen.
@@ -339,11 +339,28 @@ Neben einem einzelnen Ausdruck sollen kurze deterministische Programme die Solla
 - Ein terminierendes Programm kann zunächst eine Wahrheitstabelle für die vorhandene kombinatorische Suche liefern. Schleifen im Quelltext bedeuten nicht automatisch Rückkopplungen im NAND-Schema. Dauerhafter Zustand über Aufrufe bleibt eine eigene Registermodell-Erweiterung.
 
 ### Abnahme
-- [ ] Mehrere Zuweisungen, verschachteltes if/else, while und for erzeugen korrekte Vektoren.
-- [ ] Null Schleifendurchläufe, Grenzwerte, Überlauf und ungültige Programme sind nachvollziehbar behandelt.
-- [ ] Endlosschleifen werden begrenzt und die Erzeugung lässt sich abbrechen.
-- [ ] Ergebnisse entsprechen einer unabhängigen Referenz für kleine vollständig geprüfte Eingabebereiche.
-- [ ] Alte Ausdrucksvorlagen und gespeicherte Datensätze funktionieren weiter.
+- [x] Mehrere Zuweisungen, verschachteltes if/else, while und for erzeugen korrekte Vektoren.
+- [x] Null Schleifendurchläufe, Grenzwerte, Überlauf und ungültige Programme sind nachvollziehbar behandelt.
+- [x] Endlosschleifen werden begrenzt und die Erzeugung lässt sich abbrechen.
+- [x] Ergebnisse entsprechen einer unabhängigen Referenz für kleine vollständig geprüfte Eingabebereiche.
+- [x] Alte Ausdrucksvorlagen und gespeicherte Datensätze funktionieren weiter.
+
+### Umsetzung
+
+`primitives/program.py` interpretiert eine geprüfte Integer-Sprache mit
+Python-ähnlicher Einrückung, Zuweisungen, mehreren Rückgabewerten und
+verschachtelten Kontrollstrukturen. `for i in range(n):` ist die dokumentierte
+Entsprechung zu `for (i=0; i<n; i++)`. Der Interpreter verwendet frische lokale
+Variablen je Eingabe und übernimmt die benannte Port-/Überlaufsemantik.
+Anweisungs-, Iterations- und Gesamtbudgets sowie Abbruchprüfungen begrenzen die
+Ausführung; es wird kein beliebiger Host-Code ausgeführt.
+
+UI, asynchrone Erzeugungs-/Abbruch-API und CLI speichern Quelltext,
+Sprachversion, Ports und Budgets mit den Vektoren. Fehler oder Abbruch erzeugen
+keinen neuen Datensatz. Drei archivierte vollständige Beispiele enthalten
+editierbare Quellen. Die Evolution verwendet unverändert kombinatorische
+Vektoren. Syntax und Bedienung stehen in [PROGRAMME.md](PROGRAMME.md),
+Prüfergebnisse in [VERIFIKATION.md](VERIFIKATION.md#mehrschrittige-programme-prim-07).
 
 ### Abhängigkeiten
 [PRIM-03](#prim-03); Labels und explizite Sprünge werden in [PRIM-08](#prim-08) ergänzt.

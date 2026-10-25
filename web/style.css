@@ -10,3 +10,4 @@
 .block-tree{white-space:pre;overflow:auto;max-height:280px;padding:12px;background:#edf4e7;border-radius:7px;font-size:11px;line-height:1.7}#blocks{margin-top:14px}#block-source{font-family:Consolas,monospace;font-size:12px;line-height:1.5}
 .debug-panel{background:#f1f6ec;border:1px solid #c9d9bf;border-radius:8px;padding:14px;margin:0 0 18px}.debug-inputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px}.debug-inputs label{margin-bottom:6px}.debug-outputs{font:12px Consolas,monospace;line-height:1.8;margin:10px 0;overflow-wrap:anywhere}#debug-path{font-size:12px;align-self:center;overflow-wrap:anywhere}.graph-node.instance{cursor:pointer}.node-port{font:9px Consolas,monospace}
 .content,aside{min-width:0}
+#source-program{font-size:14px;line-height:1.6;tab-size:4;white-space:pre;overflow-x:auto}#save-source-program{margin-top:15px}

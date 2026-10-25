@@ -1,0 +1,493 @@
+{
+  "schema": 1,
+  "root": "block-ec633f5d8a11e651169715c8591a225972dd8e0cf8903d36f5d5a144c8144794",
+  "definitions": {
+    "block-f41951a9613b0a3795bfea2dc5489bc70ee6794e27c6bc740af2fbf1e0027c7e": {
+      "name": "XOR",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "value",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 2,
+        "gates": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            3,
+            4
+          ]
+        ],
+        "outputs": [
+          5
+        ]
+      }
+    },
+    "block-c9df5c695cfbd77a9ff2b2f62a43804db635e2579c0f6c140ea99643b52e1cb1": {
+      "name": "AND",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "value",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 2,
+        "gates": [
+          [
+            0,
+            1
+          ],
+          [
+            2,
+            2
+          ]
+        ],
+        "outputs": [
+          3
+        ]
+      }
+    },
+    "block-ad72d823fffb30ffb30785425c9f1b4bbb68b7196a4d51c602e85be11d3bbf3a": {
+      "name": "Halbaddierer",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "sum",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "carry",
+            "bits": 1,
+            "signed": false,
+            "offset": 1,
+            "overflow": "error"
+          }
+        ]
+      },
+      "nodes": [
+        {
+          "id": "sum",
+          "type": "instance",
+          "definition": "block-f41951a9613b0a3795bfea2dc5489bc70ee6794e27c6bc740af2fbf1e0027c7e",
+          "inputs": {
+            "a": [
+              {
+                "input": "a",
+                "bit": 0
+              }
+            ],
+            "b": [
+              {
+                "input": "b",
+                "bit": 0
+              }
+            ]
+          }
+        },
+        {
+          "id": "carry",
+          "type": "instance",
+          "definition": "block-c9df5c695cfbd77a9ff2b2f62a43804db635e2579c0f6c140ea99643b52e1cb1",
+          "inputs": {
+            "a": [
+              {
+                "input": "a",
+                "bit": 0
+              }
+            ],
+            "b": [
+              {
+                "input": "b",
+                "bit": 0
+              }
+            ]
+          }
+        }
+      ],
+      "outputs": {
+        "sum": [
+          {
+            "node": "sum",
+            "port": "value",
+            "bit": 0
+          }
+        ],
+        "carry": [
+          {
+            "node": "carry",
+            "port": "value",
+            "bit": 0
+          }
+        ]
+      }
+    },
+    "block-d57ab0ba04b11716f40e3e0503cc75b35b63dd764abbf89c42a0f9de06c335bd": {
+      "name": "OR",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "value",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 2,
+        "gates": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            3
+          ]
+        ],
+        "outputs": [
+          4
+        ]
+      }
+    },
+    "block-652ecea9126ec2e777b7f92b0b39e96f49b22262bd240de98afc6b9af9e3ceed": {
+      "name": "Volladdierer",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 1
+          },
+          {
+            "name": "carryIn",
+            "bits": 1,
+            "signed": false,
+            "offset": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "sum",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "carry",
+            "bits": 1,
+            "signed": false,
+            "offset": 1,
+            "overflow": "error"
+          }
+        ]
+      },
+      "nodes": [
+        {
+          "id": "first",
+          "type": "instance",
+          "definition": "block-ad72d823fffb30ffb30785425c9f1b4bbb68b7196a4d51c602e85be11d3bbf3a",
+          "inputs": {
+            "a": [
+              {
+                "input": "a",
+                "bit": 0
+              }
+            ],
+            "b": [
+              {
+                "input": "b",
+                "bit": 0
+              }
+            ]
+          }
+        },
+        {
+          "id": "second",
+          "type": "instance",
+          "definition": "block-ad72d823fffb30ffb30785425c9f1b4bbb68b7196a4d51c602e85be11d3bbf3a",
+          "inputs": {
+            "a": [
+              {
+                "node": "first",
+                "port": "sum",
+                "bit": 0
+              }
+            ],
+            "b": [
+              {
+                "input": "carryIn",
+                "bit": 0
+              }
+            ]
+          }
+        },
+        {
+          "id": "merge",
+          "type": "instance",
+          "definition": "block-d57ab0ba04b11716f40e3e0503cc75b35b63dd764abbf89c42a0f9de06c335bd",
+          "inputs": {
+            "a": [
+              {
+                "node": "first",
+                "port": "carry",
+                "bit": 0
+              }
+            ],
+            "b": [
+              {
+                "node": "second",
+                "port": "carry",
+                "bit": 0
+              }
+            ]
+          }
+        }
+      ],
+      "outputs": {
+        "sum": [
+          {
+            "node": "second",
+            "port": "sum",
+            "bit": 0
+          }
+        ],
+        "carry": [
+          {
+            "node": "merge",
+            "port": "value",
+            "bit": 0
+          }
+        ]
+      }
+    },
+    "block-ec633f5d8a11e651169715c8591a225972dd8e0cf8903d36f5d5a144c8144794": {
+      "name": "ADD2 mit verschachtelten Volladdierern",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 2,
+            "signed": false,
+            "offset": 2
+          },
+          {
+            "name": "carryIn",
+            "bits": 1,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "sum",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "carryOut",
+            "bits": 1,
+            "signed": false,
+            "offset": 2,
+            "overflow": "error"
+          }
+        ]
+      },
+      "nodes": [
+        {
+          "id": "high",
+          "type": "instance",
+          "definition": "block-652ecea9126ec2e777b7f92b0b39e96f49b22262bd240de98afc6b9af9e3ceed",
+          "inputs": {
+            "a": [
+              {
+                "input": "a",
+                "bit": 1
+              }
+            ],
+            "b": [
+              {
+                "input": "b",
+                "bit": 1
+              }
+            ],
+            "carryIn": [
+              {
+                "node": "low",
+                "port": "carry",
+                "bit": 0
+              }
+            ]
+          }
+        },
+        {
+          "id": "low",
+          "type": "instance",
+          "definition": "block-652ecea9126ec2e777b7f92b0b39e96f49b22262bd240de98afc6b9af9e3ceed",
+          "inputs": {
+            "a": [
+              {
+                "input": "a",
+                "bit": 0
+              }
+            ],
+            "b": [
+              {
+                "input": "b",
+                "bit": 0
+              }
+            ],
+            "carryIn": [
+              {
+                "input": "carryIn",
+                "bit": 0
+              }
+            ]
+          }
+        }
+      ],
+      "outputs": {
+        "sum": [
+          {
+            "node": "low",
+            "port": "sum",
+            "bit": 0
+          },
+          {
+            "node": "high",
+            "port": "sum",
+            "bit": 0
+          }
+        ],
+        "carryOut": [
+          {
+            "node": "high",
+            "port": "carry",
+            "bit": 0
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "inputs": [
+    {
+      "name": "n",
+      "bits": 4
+    }
+  ],
+  "outputs": [
+    {
+      "name": "c",
+      "bits": 8
+    }
+  ]
+}

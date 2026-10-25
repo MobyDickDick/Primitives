@@ -46,6 +46,13 @@ class Dataset:
             raise ValueError("metadata muss ein Objekt sein.")
         if "interface" in self.metadata:
             self.metadata = {**self.metadata, "interface": interface(self.metadata["interface"], self.inputs, self.outputs)}
+        if "program" in self.metadata:
+            from .program import Program
+            if (not self.metadata.get("interface") or any(k in self.metadata for k in
+                    ("expression", "formula", "operation", "reference_circuit", "hierarchy", "oracle_file"))):
+                raise ValueError("Programmreferenz braucht eine eigene benannte Schnittstelle ohne andere Referenz.")
+            program = Program(self.metadata["program"], self.metadata["interface"])
+            self.metadata = {**self.metadata, "program": program.spec}
         if "hierarchy" in self.metadata:
             from .blocks import BlockBundle
             bundle = BlockBundle(self.metadata["hierarchy"])
@@ -170,12 +177,19 @@ PRESETS = {
 }
 
 
-def generate(name, inputs, outputs, expression, samples=None, seed=1, *, oracle=None, ports=None, reference_circuit=None, formula=None, edge_inputs=None):
+def generate(name, inputs, outputs, expression=None, samples=None, seed=1, *, oracle=None, ports=None, reference_circuit=None, formula=None, edge_inputs=None, program=None, cancel_event=None):
     if any(type(w) is not int or not 1 <= w <= 32 for w in (inputs, outputs)):
         raise ValueError("N und M müssen zwischen 1 und 32 liegen.")
     ports = interface(ports, inputs, outputs) if ports is not None else None
     if ports is not None and oracle is not None:
         raise ValueError("Benannte Ports werden nur für Ausdrücke unterstützt.")
+    interpreter = budget = None
+    if program is not None:
+        from .program import Program
+        if not ports or any(v is not None for v in (expression, formula, oracle, reference_circuit)):
+            raise ValueError("Programm braucht eine eigene benannte Schnittstelle ohne andere Referenz.")
+        interpreter = Program(program, ports)
+        budget = interpreter.budget(cancel_event)
     if formula is not None:
         if not ports or oracle is not None or reference_circuit is not None:
             raise ValueError("Formeln brauchen eine eigene benannte Schnittstelle.")
@@ -188,7 +202,7 @@ def generate(name, inputs, outputs, expression, samples=None, seed=1, *, oracle=
         reference = Circuit.from_dict(reference_circuit)
         if not ports or len(ports["inputs"]) != reference.inputs or len(ports["outputs"]) != len(reference.outputs):
             raise ValueError("Die Referenzschaltung braucht einen benannten Port pro ursprünglichem Anschluss.")
-    if ports and reference is None:
+    if ports and reference is None and interpreter is None:
         if isinstance(expression, str) and len(ports["outputs"]) == 1:
             expression = {ports["outputs"][0]["name"]: expression}
         if not isinstance(expression, dict) or set(expression) != {p["name"] for p in ports["outputs"]}:
@@ -225,7 +239,9 @@ def generate(name, inputs, outputs, expression, samples=None, seed=1, *, oracle=
             # An explicit interface replaces the historical implicit a/b halves.
             env = {"x": x, "pi": math.pi, **{f"x{i}": v for i, v in enumerate(vector)},
                    **{p["name"]: decode(x, p) for p in ports["inputs"]}}
-            if reference:
+            if interpreter:
+                results = interpreter.run(x, budget)
+            elif reference:
                 wires = [env[p["name"]] for p in ports["inputs"]]
                 for a, b in reference.gates:
                     wires.append(~(wires[a] & wires[b]))
@@ -246,6 +262,10 @@ def generate(name, inputs, outputs, expression, samples=None, seed=1, *, oracle=
         metadata["interface"] = ports
     if formula is not None:
         metadata["formula"] = {"version": 1, "source": formula}
+    if interpreter:
+        budget.check_cancelled()
+        metadata.pop("expression")
+        metadata["program"] = interpreter.spec
     if reference:
         metadata.pop("expression")
         metadata["reference_circuit"] = reference.to_dict()

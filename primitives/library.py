@@ -28,6 +28,9 @@ def task_id(dataset):
 def function_id(dataset):
     """A reference function exists independently of its sampled vectors or circuits."""
     meta = dataset.metadata
+    if "program" in meta:
+        return digest(["program", dataset.inputs, dataset.outputs, meta["interface"],
+                       meta["program"]["version"], meta["program"]["source"]])
     if "hierarchy" in meta:
         return digest(["block", meta["hierarchy"]["root"]])
     if "operation" in meta:

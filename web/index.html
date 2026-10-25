@@ -10,8 +10,9 @@
 <aside>
 <section class="card"><div class="section-title"><span class="number">01</span><h2>Zuordnungsvektoren</h2></div>
 <button id="new-formula" class="primary full">Eigene Formel definieren</button><p class="hint">Rechenvorschrift selbst eingeben, z. B. a+b oder mehrere Ergebnisse c=… und e=… .</p>
+<button id="new-source-program" class="secondary full">Mehrschrittiges Programm definieren</button>
 <label>Vorlage<select id="preset"></select></label>
-<label>Aufgabendefinition<select id="task-mode"><option value="formula">Eigene arithmetische Formel</option><option value="legacy" selected>Bisheriger Ausdruck (N:M)</option><option value="operation">Operation mit variablen Bitbreiten</option><option value="named">Eigene benannte Ein-/Ausgänge</option><option value="circuit">NAND-Referenz mit breiteren Anschlüssen</option><option value="block">Gespeicherte Bausteinreferenz</option></select></label>
+<label>Aufgabendefinition<select id="task-mode"><option value="program">Mehrschrittiges Programm</option><option value="formula">Eigene arithmetische Formel</option><option value="legacy" selected>Bisheriger Ausdruck (N:M)</option><option value="operation">Operation mit variablen Bitbreiten</option><option value="named">Eigene benannte Ein-/Ausgänge</option><option value="circuit">NAND-Referenz mit breiteren Anschlüssen</option><option value="block">Gespeicherte Bausteinreferenz</option></select></label>
 <div id="operation-options" hidden>
 <label>Operationsdefinition<select id="operation"></select></label>
 <button id="edit-operation-formula" class="secondary full">Rechenvorschrift selbst bearbeiten</button>
@@ -24,7 +25,7 @@
 <p id="operation-hint" class="hint"></p>
 </div>
 <div id="ports-home"></div><div id="named-options" hidden>
-<p class="hint">Ports stehen in Bitreihenfolge, jeder Port LSB zuerst. N und M sind die Summen (je höchstens 32). Vorzeichen gilt pro Port; alle Ergebnis-Ausdrücke lesen dieselben Eingaben.</p>
+<p class="hint">Ports stehen in Bitreihenfolge, jeder Port LSB zuerst. N und M sind die Summen (je höchstens 32). Vorzeichen und Ergebnisüberlauf gelten pro Port.</p>
 <div class="port-group"><h3>Eingänge</h3><div id="input-ports"></div><button id="add-input-port" class="text-button">+ Eingangsport</button></div>
 <div class="port-group"><h3>Ergebnisse</h3><div id="output-ports"></div><button id="add-output-port" class="text-button">+ Ergebnisport</button></div>
 <p id="circuit-reference-hint" class="hint" hidden>NAND-Referenz: Jeder ursprüngliche Anschluss wird zu einem Port. NAND wirkt bitweise auf die Zahlenwerte; unsigned wird mit Nullen, signed mit Vorzeichen erweitert. Ergebnisports mit „Abschneiden“ begrenzen die Breite. Dies erweitert das ursprüngliche Bitnetz; es rekonstruiert keine breitere Arithmetik.</p>
@@ -51,6 +52,21 @@
 </section>
 </aside>
 <div class="content">
+<section id="source-program-editor" class="card" hidden><div class="section-title"><h2>Mehrschrittiges Programm</h2></div>
+<label>Beispiel<select id="source-program-example"><option value="for">Summe 0 bis n−1 · for</option><option value="while">Summe 0 bis n−1 · while</option><option value="if">Auswahl · verschachteltes if/else</option></select></label>
+<button id="load-source-program-example" class="secondary">Beispiel einsetzen</button>
+<label>Programmtext · Sprachversion 1<textarea id="source-program" rows="12" spellcheck="false">s = 0
+for i in range(n):
+    s += i
+return s</textarea></label>
+<p class="hint">Blöcke mit Einrückung, z. B. vier Leerzeichen. <code>for i in range(n):</code> entspricht <code>for (i=0; i&lt;n; i++)</code>. Auch <code>range(start, stop, step)</code>, <code>while</code> und <code>if/else</code> sind erlaubt. <code>return c, e</code> liefert Werte in der Reihenfolge der Ergebnisports. <code>**</code> ist Potenz, <code>^</code> XOR, <code>//</code> bzw. <code>div(a,b)</code> Division mit Abrunden. Eingänge sind schreibgeschützt; lokale Variablen starten für jede Eingabe neu. Schleifen liefern Sollvektoren für eine kombinatorische Schaltung.</p>
+<div class="pair"><label>Anweisungsbudget je Eingabe<input id="source-program-steps" type="number" min="1" max="100000" value="10000"></label><label>Iterationsbudget je Eingabe<input id="source-program-iterations" type="number" min="1" max="100000" value="10000"></label></div>
+<label>Gesamtbudget der Vektorerzeugung<input id="source-program-total" type="number" min="1" max="5000000" value="1000000"></label>
+<div id="source-program-ports"></div>
+<button id="save-source-program" class="primary">Programm speichern &amp; Vektoren erzeugen</button>
+<button id="cancel-vectors" class="danger" disabled>■ Vektorerzeugung abbrechen</button>
+<p id="vector-job-status" class="hint" role="status">Bereit. Ein Datensatz wird erst nach erfolgreicher vollständiger Erzeugung gespeichert.</p>
+</section>
 <section id="formula-editor" class="card" hidden><div class="section-title"><h2>Eigene Rechenvorschrift</h2></div>
 <label>Formel<textarea id="formula-source" rows="4" spellcheck="false">a + b</textarea></label>
 <p class="hint">Ein einzelner Ausdruck gilt für den ersten Ergebnisport. Mehrere Ergebnisse: <code>c = mod(a+b,2^4), e = div(a+b,2^4)</code>, alternativ mit Zeilenumbrüchen oder Semikolon trennen. <code>^</code> ist Potenz, <code>div</code> ganzzahlige Division (Abrunden), <code>mod</code> der Rest; <code>xor(a,b)</code> ist bitweises XOR. Ergebnisse lesen die Eingänge unabhängig voneinander.</p>

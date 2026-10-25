@@ -11,7 +11,33 @@ PRIM-01 (Zoom und Navigation), PRIM-02 (verschiebbare Leitungen) und PRIM-03
 (variable Bitbreiten für Vorlagen, eigene Aufgaben und bestehende Schaltungen)
 sind ebenso wie PRIM-04 (TinyCPU-Operationsbeispiele), PRIM-05 (wiederverwendbare
 Unterprogramm-Bausteine) und PRIM-06 (Unterprogramm-Boxen und interaktives
-Debugging) umgesetzt. Als Nächstes folgt PRIM-07 mit mehrschrittigen Programmen.
+Debugging) sowie PRIM-07 (mehrschrittige Programme) umgesetzt.
+Als Nächstes folgt PRIM-08 mit Labels, Sprüngen und Ablaufdebugger.
+
+## Mehrschrittige Programme
+
+**Mehrschrittiges Programm definieren** öffnet einen Editor für lokale Variablen,
+Zuweisungen, `return`, verschachteltes `if/else`, `while` und `for … in range(…)`.
+Zum Beispiel mit n[4] und c[8]:
+
+```text
+s = 0
+for i in range(n):
+    s += i
+return s
+```
+
+Das entspricht `for (i=0; i<n; i++)` und berechnet die Summe von 0 bis n−1.
+Die Oberfläche bietet dasselbe Beispiel mit while und eine Auswahl mit if/else.
+Jede Eingabe startet mit frischem lokalem Zustand. Budgets begrenzen Anweisungen,
+Iterationen und die gesamte Erzeugung; **Vektorerzeugung abbrechen** stoppt den
+Auftrag. Fehler und Abbruch speichern keinen neuen Datensatz. Quelle, Sprachversion,
+Ports und Budgets bleiben beim Wiederöffnen und Export/Import erhalten.
+
+Die erzeugten Sollvektoren können direkt für die kombinatorische NAND-Suche
+verwendet werden. [PROGRAMME.md](docs/PROGRAMME.md) beschreibt Syntax,
+Zahlensemantik, Grenzen sowie CLI/API. [Drei vollständige Beispiele](examples/programs/)
+enthalten auch die editierbaren Programmquellen.
 
 ## Verschachtelte Unterprogramm-Bausteine
 

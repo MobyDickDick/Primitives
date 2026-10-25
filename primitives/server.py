@@ -17,6 +17,7 @@ from .runner import ROOT, search, tiny_interpreter
 from .background import BackgroundOptimizer
 from .repair import repair_result
 from .blocks import BlockBundle
+from .program import ProgramCancelled
 
 
 def make_server(port=8765, data_dir=None, *, background=True):
@@ -91,6 +92,8 @@ def make_server(port=8765, data_dir=None, *, background=True):
                 if not isinstance(obj, dict):
                     raise ValueError("Ein JSON-Objekt wird erwartet.")
                 path = urlsplit(self.path).path
+                if "program" in obj and any(k in obj for k in ("rows", "expression", "formula", "operation", "reference_circuit", "block")):
+                    raise ValueError("Programmreferenz nicht mit anderen Referenzen oder rows kombinieren.")
                 if path == "/api/datasets":
                     if "rows" in obj:
                         dataset = Dataset.from_dict(obj)
@@ -101,9 +104,45 @@ def make_server(port=8765, data_dir=None, *, background=True):
                     else:
                         dataset = generate(obj["name"], obj["inputs"], obj["outputs"], obj.get("expression"),
                                            obj.get("samples"), obj.get("seed", 1), ports=obj.get("interface"),
-                                           reference_circuit=obj.get("reference_circuit"), formula=obj.get("formula"))
+                                           reference_circuit=obj.get("reference_circuit"), formula=obj.get("formula"), program=obj.get("program"))
                     key = library.save_dataset(dataset)
                     self.send_data({"id": key, "dataset": dataset.to_dict()})
+                elif path == "/api/datasets/generate":
+                    if "program" not in obj:
+                        raise ValueError("Dieser Auftrag benötigt eine Programmreferenz.")
+                    with lock:
+                        if any(j["status"] in ("queued", "running", "cancelling") for j in jobs.values()):
+                            raise ValueError("Ein Auftrag läuft bereits. Bitte abwarten oder abbrechen.")
+                        key = uuid.uuid4().hex
+                        jobs[key] = {"kind": "dataset", "status": "queued", "started": time.monotonic()}
+                        cancellations[key] = threading.Event()
+                        optimizer.pause()
+
+                    def generate_vectors():
+                        try:
+                            with lock:
+                                if cancellations[key].is_set(): raise ProgramCancelled()
+                                jobs[key]["status"] = "running"
+                            dataset = generate(obj["name"], obj["inputs"], obj["outputs"],
+                                               samples=obj.get("samples"), seed=obj.get("seed", 1),
+                                               ports=obj.get("interface"), program=obj["program"],
+                                               cancel_event=cancellations[key])
+                            with lock:
+                                if cancellations[key].is_set(): raise ProgramCancelled()
+                                dataset_id = library.save_dataset(dataset)
+                                jobs[key].update(status="done", result={"id": dataset_id, "dataset": dataset.to_dict()})
+                        except ProgramCancelled:
+                            with lock:
+                                jobs[key].update(status="cancelled")
+                        except Exception as exc:
+                            with lock:
+                                jobs[key].update(status="failed", error=str(exc))
+                        finally:
+                            with lock:
+                                if not any(j["status"] in ("queued", "running", "cancelling") for j in jobs.values()):
+                                    optimizer.resume()
+                    executor.submit(generate_vectors)
+                    self.send_data({"job_id": key}, 202)
                 elif path == "/api/blocks":
                     if "program_id" in obj:
                         bundle = library.block_from_program(obj["program_id"], obj.get("name"), obj.get("interface"), obj.get("version", 1))
@@ -184,7 +223,7 @@ def make_server(port=8765, data_dir=None, *, background=True):
                         tiny_interpreter()
                     with lock:
                         if any(j["status"] in ("queued", "running", "cancelling") for j in jobs.values()):
-                            raise ValueError("Eine Suche läuft bereits. Bitte deren Ergebnis abwarten.")
+                            raise ValueError("Ein Auftrag läuft bereits. Bitte abwarten oder abbrechen.")
                         key = uuid.uuid4().hex
                         jobs[key] = {"status": "queued", "started": time.monotonic()}
                         cancellations[key] = threading.Event()

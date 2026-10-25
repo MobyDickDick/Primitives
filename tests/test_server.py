@@ -72,6 +72,75 @@ class ServerTests(unittest.TestCase):
             self.assertEqual(caught.exception.code, 400)
             caught.exception.close()
 
+    def wait_job(self, key):
+        deadline = time.monotonic() + 10
+        while time.monotonic() < deadline:
+            job = self.request("/api/jobs/" + key)
+            if job["status"] in ("done", "failed", "cancelled"):
+                return job
+            time.sleep(0.01)
+        self.fail(f"Auftrag {key} nicht beendet.")
+
+    def test_source_program_generation_import_and_restart(self):
+        ports = {"inputs": [{"name": "n", "bits": 4}], "outputs": [{"name": "c", "bits": 8}]}
+        program = {"version": 1, "source": "s = 0\nfor i in range(n):\n    s += i\nreturn s"}
+        obj = {"name": "Summe for", "inputs": 4, "outputs": 8, "interface": ports, "program": program}
+        key = self.request("/api/datasets/generate", obj)["job_id"]
+        job = self.wait_job(key)
+        self.assertEqual(job["status"], "done", job)
+        self.assertEqual(job["kind"], "dataset")
+        saved = job["result"]; ds = saved["dataset"]
+        self.assertTrue(ds["exhaustive"])
+        self.assertEqual(ds["metadata"]["program"]["source"], program["source"])
+        for row in ds["rows"]:
+            n = sum(b << i for i, b in enumerate(row[:4]))
+            self.assertEqual(sum(b << i for i, b in enumerate(row[4:])), n * (n - 1) // 2)
+        self.assertEqual(self.request("/api/datasets", ds), saved)
+        self.assertEqual(self.request("/api/datasets", obj), saved)
+        self.server.shutdown(); self.server.server_close(); self.server.executor.shutdown()
+        self.thread.join(timeout=5)
+        self.server = make_server(0, self.tmp.name, background=False)
+        self.thread = threading.Thread(target=self.server.serve_forever, daemon=True); self.thread.start()
+        self.base = f"http://127.0.0.1:{self.server.server_port}"
+        self.assertEqual(self.request("/api/datasets/" + saved["id"]), ds)
+        self.assertEqual(len(self.request("/api/catalog")["datasets"]), 1)
+        # A simple source program feeds the existing combinatorial evolution unchanged.
+        xor = self.request("/api/datasets", {"name": "program xor", "inputs": 2, "outputs": 1,
+            "interface": {"inputs": [{"name": "a", "bits": 1}, {"name": "b", "bits": 1}],
+                          "outputs": [{"name": "c", "bits": 1}]}, "program": {"version": 1, "source": "c = a ^ b\nreturn c"}})
+        job = self.wait_job(self.request("/api/search", {"dataset_id": xor["id"], "config": {
+            "backend": "python", "gates": 8, "generations": 300}})["job_id"])
+        self.assertEqual(job["status"], "done", job)
+        self.assertTrue(job["result"]["fitness"]["verified_truth_table"])
+        self.assertEqual(job["result"]["dataset_metadata"], xor["dataset"]["metadata"])
+
+    def test_source_program_cancel_errors_and_no_partial_datasets(self):
+        ports = {"inputs": [{"name": "n", "bits": 16}], "outputs": [{"name": "c", "bits": 8}]}
+        obj = {"name": "Cancel source", "inputs": 16, "outputs": 8, "samples": 65536, "interface": ports,
+               "program": {"version": 1, "source": "s = 0\nfor i in range(1000):\n    s += 1\nreturn 0",
+                           "limits": {"steps": 100000, "iterations": 100000, "total_steps": 5000000}}}
+        key = self.request("/api/datasets/generate", obj)["job_id"]
+        self.assertIn(self.request("/api/jobs/" + key)["status"], ("queued", "running"))
+        self.assertEqual(self.request(f"/api/jobs/{key}/cancel", {})["status"], "cancelling")
+        self.assertEqual(self.wait_job(key)["status"], "cancelled")
+        self.assertEqual(self.request("/api/catalog")["datasets"], [])
+        sources = ["while True:\n    c = 0\nreturn c", "if n:\n    return 1", "return 1 // 0", "import os\nreturn 0",
+                   "if n < 3:\n    return n\nwhile True:\n    c = 0\nreturn c"]
+        for source in sources:
+            with self.subTest(source=source):
+                obj["program"] = {"version": 1, "source": source, "limits": {"steps": 100}}
+                job = self.wait_job(self.request("/api/datasets/generate", obj)["job_id"])
+                self.assertEqual(job["status"], "failed", job)
+                self.assertIn("Zeile", job["error"])
+                self.assertEqual(self.request("/api/catalog")["datasets"], [])
+        obj["program"] = {"version": 1, "source": "return 0"}
+        with self.assertRaises(HTTPError) as caught:
+            self.request("/api/datasets", {**obj, "expression": "n"})
+        self.assertEqual(caught.exception.code, 400); caught.exception.close()
+        job = self.wait_job(self.request("/api/datasets/generate", obj)["job_id"])
+        self.assertEqual(job["status"], "done", job)
+        self.assertEqual(len(self.request("/api/catalog")["datasets"]), 1)
+
     def test_nested_blocks_roundtrip_evaluate_compose_and_restart(self):
         bundle = json.loads((ROOT / "examples" / "blocks" / "ripple-adder-2.json").read_text(encoding="utf-8"))
         saved = self.request("/api/blocks", bundle)

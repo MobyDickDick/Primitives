@@ -3,7 +3,7 @@ const $ = id => document.getElementById(id);
 const state = { dataset: null, datasetId: null, result: null, bits: [], timer: null, job: null, librarySignature: null,
   positions: [], selectedRef: 0, layoutToken: 0, layoutDirty: false, routing: null, drag: null,
   camera: null, cameraTouched: false, wires: {}, selectedWire: null, wireNotice: "", operations: {}, presets: {}, referenceCircuit: null, formMode: "legacy", autoName: false, functionSignature: null,
-  referenceBlock: null, blockSignature: null, debug: null };
+  referenceBlock: null, blockSignature: null, debug: null, vectorJob: null };
 const svgNS = "http://www.w3.org/2000/svg";
 const int = id => Number($(id).value);
 const presetLabels = { mul: "MUL(2,2,4)" };
@@ -91,18 +91,21 @@ function chooseOperation(definition, parameters = null) {
   $("task-mode").value = "operation"; updateDefinition();
 }
 function updateDefinition() {
-  const mode = $("task-mode").value, formula = mode === "formula", named = formula || mode === "named" || mode === "circuit";
+  const mode = $("task-mode").value, formula = mode === "formula", program = mode === "program", named = formula || program || mode === "named" || mode === "circuit";
   $("formula-editor").hidden = !formula;
-  const options = $("named-options"); options.classList.toggle("formula-mode", formula);
-  if (formula) { if (options.parentNode !== $("formula-ports")) $("formula-ports").append(options); }
-  else if (options.parentNode === $("formula-ports")) $("ports-home").after(options);
+  $("source-program-editor").hidden = !program;
+  const options = $("named-options"); options.classList.toggle("formula-mode", formula || program);
+  if (formula || program) {
+    const home = $(program ? "source-program-ports" : "formula-ports");
+    if (options.parentNode !== home) home.append(options);
+  } else if (options.parentNode !== $("ports-home").parentNode) $("ports-home").after(options);
   $("operation-options").hidden = mode !== "operation"; $("named-options").hidden = !named;
   $("expression").closest("label").hidden = mode !== "legacy";
   $("expression-hint").hidden = mode !== "legacy"; $("mul-hint").hidden = true;
   $("inputs").readOnly = $("outputs").readOnly = mode !== "legacy";
   $("circuit-reference-hint").hidden = mode !== "circuit";
   for (const node of document.querySelectorAll(".port-expression, .remove-port, #add-input-port, #add-output-port")) node.hidden = mode === "circuit";
-  if (formula) for (const node of document.querySelectorAll(".port-expression")) node.hidden = true;
+  if (formula || program) for (const node of document.querySelectorAll(".port-expression")) node.hidden = true;
   let n = int("inputs"), m = int("outputs"), description = "";
   if (mode === "operation") {
     const def = state.operations[$("operation").value];
@@ -147,7 +150,16 @@ function restoreDefinition(ds) {
   else if (meta.interface) {
     state.referenceCircuit = meta.reference_circuit || null;
     editPorts(meta.interface, typeof meta.expression === "object" ? meta.expression : { [meta.interface.outputs[0].name]: meta.expression || "0" });
-    $("task-mode").value = meta.formula ? "formula" : meta.reference_circuit ? "circuit" : "named";
+    $("task-mode").value = meta.program ? "program" : meta.formula ? "formula" : meta.reference_circuit ? "circuit" : "named";
+    if (meta.program) {
+      $("source-program").value = meta.program.source;
+      const example = Object.entries(sourceProgramExamples).find(([, source]) => source.trim() === meta.program.source.trim());
+      if (example) $("source-program-example").value = example[0];
+      $("samples").value = ds.rows.length; $("seed").value = meta.seed ?? 1;
+      $("source-program-steps").value = meta.program.limits.steps;
+      $("source-program-iterations").value = meta.program.limits.iterations;
+      $("source-program-total").value = meta.program.limits.total_steps;
+    }
     if (meta.formula) $("formula-source").value = meta.formula.source;
     updateDefinition();
   } else {
@@ -205,6 +217,9 @@ function compatible() {
 }
 async function setDataset(obj) {
   const saved = await api("/api/datasets", obj);
+  await acceptDataset(saved);
+}
+async function acceptDataset(saved) {
   state.dataset = saved.dataset; state.datasetId = saved.id;
   datasetSummary(saved.dataset); restoreDefinition(saved.dataset);
   $("export-dataset").disabled = false;
@@ -230,6 +245,7 @@ function renderFunctions(catalog) {
     entry.append(el("strong", first.function_name));
     if (p) entry.append(el("small", `${p.signed ? "Zweierkomplement" : "unsigned"} · ${p.overflow === "wrap" ? "Abschneiden" : "Überlauffehler"}${p.flag ? " · Statusausgang" : ""}`));
     if (first.metadata?.formula) entry.append(el("code", first.metadata.formula.source, "function-formula"));
+    if (first.metadata?.program) entry.append(el("code", first.metadata.program.source, "function-formula"));
     const select = el("select"); select.setAttribute("aria-label", `Vektorsatz für ${first.function_name}`);
     for (const ds of datasets) select.add(new Option(`${ds.count} Vektoren · ${ds.exhaustive ? "vollständig" : "Stichprobe"} · ${ds.name} · ${ds.id.slice(-12)}`, ds.id));
     if (datasets.some(ds => ds.id === state.datasetId)) select.value = state.datasetId;
@@ -743,6 +759,10 @@ action("reset-wire", resetWire);
 $("task-mode").addEventListener("change", async () => {
   clearError();
   try {
+    if ($("task-mode").value === "program") {
+      if (state.formMode !== "program") newSourceProgram();
+      updateDefinition(); return;
+    }
     if ($("task-mode").value === "formula") {
       if (state.formMode === "operation" || state.formMode === "named") await editAsFormula();
       else if (state.formMode !== "formula") newFormula();
@@ -804,7 +824,7 @@ action("new-width-variant", async () => {
   const ds = result.dataset_id ? await api(`/api/datasets/${result.dataset_id}`) : null;
   const family = ds && Object.entries(state.presets).find(([name, p]) => state.operations[name.toUpperCase()] &&
     p.inputs === ds.inputs && p.outputs === ds.outputs && p.expression === ds.metadata?.expression)?.[0];
-  if (ds?.metadata?.operation || ds?.metadata?.interface && (ds.metadata.expression || ds.metadata.reference_circuit)) {
+  if (ds?.metadata?.operation || ds?.metadata?.interface && (ds.metadata.expression || ds.metadata.reference_circuit || ds.metadata.program)) {
     restoreDefinition(ds);
   } else if (family) {
     chooseOperation(family.toUpperCase()); $("preset").value = family;
@@ -825,6 +845,7 @@ action("new-width-variant", async () => {
   $("task-mode").focus(); $("task-mode").scrollIntoView({ block: "center", behavior: "smooth" });
 });
 async function saveDefinition() {
+  if (state.vectorJob) throw new Error("Die Vektorerzeugung läuft bereits. Bitte abwarten oder abbrechen.");
   if ($("task-mode").value === "formula") await syncFormula();
   updateDefinition();
   const obj = { name: $("dataset-name").value, inputs: int("inputs"), outputs: int("outputs"),
@@ -835,8 +856,14 @@ async function saveDefinition() {
     if (!state.referenceBlock) throw new Error("Zuerst einen gespeicherten Unterprogramm-Baustein öffnen.");
     obj.block = state.referenceBlock;
   }
-  else if (mode === "named" || mode === "circuit" || mode === "formula") {
+  else if (mode === "named" || mode === "circuit" || mode === "formula" || mode === "program") {
     const { spec, expressions } = readPorts(); obj.interface = spec; obj.expression = expressions;
+    if (mode === "program") {
+      delete obj.expression;
+      obj.program = { version: 1, source: $("source-program").value, limits: {
+        steps: int("source-program-steps"), iterations: int("source-program-iterations"), total_steps: int("source-program-total") } };
+      return generateProgramVectors(obj);
+    }
     if (mode === "formula") obj.formula = $("formula-source").value;
     if (mode === "circuit") {
       if (!state.referenceCircuit) throw new Error("Zuerst eine Schaltung öffnen und «Neue Breitenvariante» wählen.");
@@ -845,6 +872,61 @@ async function saveDefinition() {
   }
   return setDataset(obj);
 }
+const sourceProgramExamples = {
+  for: "s = 0\nfor i in range(n):\n    s += i\nreturn s",
+  while: "s = 0\ni = 0\nwhile i < n:\n    s += i\n    i += 1\nreturn s",
+  if: "if n < 8:\n    if n == 0:\n        c = 1\n    else:\n        c = n * 2\nelse:\n    c = n - 1\nreturn c"
+};
+function newSourceProgram() {
+  state.autoName = false; $("preset").value = "custom";
+  const example = $("source-program-example").value;
+  $("dataset-name").value = example === "if" ? "Auswahl mit if/else" : `Summe mit ${example}`;
+  editPorts({ inputs: [{ name: "n", bits: 4 }], outputs: [{ name: "c", bits: 8 }] });
+  $("source-program").value = sourceProgramExamples[example];
+  $("task-mode").value = "program"; updateDefinition();
+}
+function vectorControls(busy) {
+  for (const id of ["generate", "save-source-program", "save-formula"]) $(id).disabled = busy;
+  $("evolve").disabled = busy || Boolean(state.job);
+  $("cancel-vectors").disabled = !busy;
+}
+async function generateProgramVectors(obj) {
+  if (state.job) throw new Error("Eine Suche läuft. Bitte zuerst abwarten oder abbrechen.");
+  state.vectorJob = "starting"; vectorControls(true);
+  $("vector-job-status").textContent = "Vektorerzeugung wird gestartet …";
+  let job_id;
+  try { ({ job_id } = await api("/api/datasets/generate", obj)); }
+  catch (err) { state.vectorJob = null; vectorControls(false); throw err; }
+  state.vectorJob = job_id;
+  async function poll() {
+    let job;
+    try { job = await api(`/api/jobs/${job_id}`); }
+    catch (err) {
+      $("vector-job-status").textContent = "Verbindung zur Vektorerzeugung unterbrochen. Erneuter Versuch …";
+      setTimeout(poll, 1500); return;
+    }
+    $("vector-job-status").textContent = job.status === "cancelling" ? "Vektorerzeugung wird abgebrochen …" : `Vektorerzeugung läuft · ${job.elapsed_seconds} s`;
+    if (["done", "failed", "cancelled"].includes(job.status)) {
+      state.vectorJob = null; vectorControls(false);
+      if (job.status === "done") {
+        $("vector-job-status").textContent = "Programm und Vektoren gespeichert.";
+        try { await acceptDataset(job.result); } catch (err) { error(err); }
+      } else {
+        $("vector-job-status").textContent = job.status === "cancelled" ? "Vektorerzeugung abgebrochen; kein Datensatz gespeichert." : "Vektorerzeugung fehlgeschlagen; kein Datensatz gespeichert.";
+        if (job.status === "failed") error(new Error(job.error));
+      }
+    } else setTimeout(poll, 200);
+  }
+  setTimeout(poll, 100);
+}
+action("new-source-program", () => { newSourceProgram(); $("source-program").focus(); });
+action("load-source-program-example", newSourceProgram);
+action("save-source-program", saveDefinition);
+action("cancel-vectors", async () => {
+  if (!state.vectorJob || state.vectorJob === "starting") return;
+  const result = await api(`/api/jobs/${state.vectorJob}/cancel`, {});
+  if (result.status === "cancelling") $("vector-job-status").textContent = "Vektorerzeugung wird abgebrochen …";
+});
 action("generate", saveDefinition);
 action("save-formula", saveDefinition);
 action("import-rows", () => setDataset({ name: $("dataset-name").value, inputs: int("inputs"), outputs: int("outputs"), rows: JSON.parse($("raw-rows").value) }));

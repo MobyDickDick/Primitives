@@ -319,3 +319,14 @@ Statusausgang. Es gelten weiterhin die Summenlimits von 32 Bits je Seite.
 Die vollständigen Rechenregeln und Unterschiede zum CPU-Zustandsmodell sind in
 [TINYCPU.md](TINYCPU.md#zahlensemantik) beschrieben.
 
+## Mehrschrittige Programmreferenzen
+
+Optionales `metadata.program` enthält `version: 1`, `source` und die
+Ausführungsbudgets `limits.steps`, `limits.iterations`, `limits.total_steps`.
+Es benötigt `metadata.interface` mit benannten Ports und ersetzt eine
+`expression`-/`formula`-/`operation`-/`reference_circuit`-/`hierarchy`-Referenz.
+Das Datensatzschema und LSB-first-Bitvektoren bleiben unverändert. Quelle,
+Sprachversion, Schnittstelle und Budgets werden beim Import validiert.
+Grammatik, Zahlenbereich, Rückgabezuordnung, API und ein vollständiges
+JSON-Beispiel stehen in [PROGRAMME.md](PROGRAMME.md).
+
