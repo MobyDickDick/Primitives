@@ -4,8 +4,11 @@
 globalThis.CircuitGraph = (() => {
   const width = 196, height = 84, clearance = 12;
   const boxName = ref => `Box ${ref}`;
+  const boxHeight = p => p?.height || height;
+  const pinOffset = (count, slot) => (slot - (count - 1) / 2) * 16;
 
   function nodes(c) {
+    if (c.view_nodes) return c.view_nodes;
     const result = Array.from({ length: c.inputs }, (_, ref) => ({ ref, kind: "input", index: ref, sources: [], level: 0 }));
     c.gates.forEach((sources, index) => result.push({ ref: result.length, kind: "gate", index, sources, level: 1 + Math.max(...sources.map(r => result[r].level)) }));
     const level = 1 + Math.max(...result.map(n => n.level));
@@ -16,10 +19,17 @@ globalThis.CircuitGraph = (() => {
   function automatic(c) {
     const list = nodes(c), layers = [], positions = [];
     list.forEach(n => (layers[n.level] ||= []).push(n.ref));
-    const totalHeight = Math.max(300, (Math.max(...layers.map(l => l.length)) + 1) * 132);
-    const place = () => layers.forEach((layer, level) => layer.forEach((ref, i) => {
-      positions[ref] = { x: 40 + level * 288, y: (i + 1) * totalHeight / (layer.length + 1) };
-    }));
+    const totalHeight = Math.max(300, ...layers.map(l => l.reduce((sum, ref) => sum + boxHeight(list[ref]) + 48, 48)));
+    const place = () => layers.forEach((layer, level) => {
+      const used = layer.reduce((sum, ref) => sum + boxHeight(list[ref]), 0);
+      const gap = (totalHeight - used) / (layer.length + 1);
+      let y = gap;
+      layer.forEach(ref => {
+        const h = boxHeight(list[ref]);
+        positions[ref] = { x: 40 + level * 288, y: y + h / 2, ...(h !== height ? { height: h } : {}) };
+        y += h + gap;
+      });
+    });
     place();
     // Barycentre sweeps reduce crossings between neighbouring layers.
     for (let pass = 0; pass < 4; pass++) {
@@ -34,27 +44,31 @@ globalThis.CircuitGraph = (() => {
 
   function valid(c, positions) {
     return Array.isArray(positions) && positions.length === nodes(c).length && positions.every(p =>
-      p && Number.isFinite(p.x) && Number.isFinite(p.y) && p.x >= 20 && p.y >= height / 2 + 20 && p.x <= 99000 && p.y <= 99000);
+      p && Number.isFinite(p.x) && Number.isFinite(p.y) && p.x >= 20 && p.y >= boxHeight(p) / 2 + 20 && p.x <= 99000 && p.y <= 99000);
   }
 
   function canPlace(positions, ref, point) {
-    return positions.every((p, i) => i === ref || Math.abs(point.x - p.x) >= width + 44 || Math.abs(point.y - p.y) >= height + 36);
+    return positions.every((p, i) => i === ref || Math.abs(point.x - p.x) >= width + 44 || Math.abs(point.y - p.y) >= (boxHeight(point) + boxHeight(p)) / 2 + 36);
   }
 
   function connections(c, positions) {
-    return nodes(c).flatMap(node => {
+    const list = nodes(c);
+    return list.flatMap(node => {
       // NAND is commutative: the upper source always uses the upper port.
       const sources = node.sources.map((source, port) => ({ source, port }))
-        .sort((a, b) => positions[a.source].y - positions[b.source].y || a.source - b.source || a.port - b.port);
-      return sources.map(({ source, port }, slot) => ({ source, target: node.ref, port, id: `${source}:${node.ref}:${port}`,
-        start: { x: positions[source].x + width, y: positions[source].y },
-        end: { x: positions[node.ref].x, y: positions[node.ref].y + (sources.length === 2 ? (slot ? 18 : -18) : 0) } }));
+        .sort((a, b) => node.kind === "instance" ? a.port - b.port : positions[a.source].y - positions[b.source].y || a.source - b.source || a.port - b.port);
+      return sources.map(({ source, port }, slot) => {
+        const sourceBit = node.sourceBits?.[port] || 0;
+        return { source, sourceBit, target: node.ref, port, id: `${source}:${node.ref}:${port}${c.view_nodes ? `:${sourceBit}` : ""}`,
+          start: { x: positions[source].x + width, y: positions[source].y + (list[source].kind === "instance" ? pinOffset(list[source].signalRefs.length, sourceBit) : 0) },
+          end: { x: positions[node.ref].x, y: positions[node.ref].y + (node.kind === "instance" ? pinOffset(sources.length, slot) : sources.length === 2 ? (slot ? 18 : -18) : 0) } };
+      });
     });
   }
 
   function rectangles(positions) {
     return positions.map(p => ({ left: p.x - clearance, right: p.x + width + clearance,
-      top: p.y - height / 2 - clearance, bottom: p.y + height / 2 + clearance }));
+      top: p.y - boxHeight(p) / 2 - clearance, bottom: p.y + boxHeight(p) / 2 + clearance }));
   }
   function clear(a, b, obstacles) {
     return !obstacles.some(r => a.x === b.x
@@ -191,7 +205,7 @@ globalThis.CircuitGraph = (() => {
     // Leads must leave to the right and enter from the left, outside the clearance.
     if (points[1].y !== edge.start.y || points[1].x < edge.start.x + 18 ||
         points.at(-2).y !== edge.end.y || points.at(-2).x > edge.end.x - 18) return false;
-    const boxes = positions.map(p => ({ left: p.x, right: p.x + width, top: p.y - height / 2, bottom: p.y + height / 2 }));
+    const boxes = positions.map(p => ({ left: p.x, right: p.x + width, top: p.y - boxHeight(p) / 2, bottom: p.y + boxHeight(p) / 2 }));
     return points.slice(1).every((p, i) => clear(points[i], p, boxes));
   }
 
@@ -220,6 +234,6 @@ globalThis.CircuitGraph = (() => {
     return edges.map((edge, i) => ({ ...edge, manual: Boolean(wires[edge.id]), blocked: blocked[i], points: paths[i],
       path: paths[i].map((p, j) => `${j ? "L" : "M"} ${p.x} ${p.y}`).join(" ") }));
   }
-  return { width, height, boxName, nodes, automatic, valid, canPlace, connections, routes, rectangles, clear,
+  return { width, height, boxHeight, pinOffset, boxName, nodes, automatic, valid, canPlace, connections, routes, rectangles, clear,
     validPoints, manualPath, usablePath, moveSegment };
 })();

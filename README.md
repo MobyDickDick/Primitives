@@ -9,9 +9,9 @@ mit Debugging sowie mehrschrittige Programme mit Kontrollstrukturen und Sprünge
 Die acht Arbeitspakete enthalten Umfang, Abnahmekriterien und Abhängigkeiten.
 PRIM-01 (Zoom und Navigation), PRIM-02 (verschiebbare Leitungen) und PRIM-03
 (variable Bitbreiten für Vorlagen, eigene Aufgaben und bestehende Schaltungen)
-sind ebenso wie PRIM-04 (TinyCPU-Operationsbeispiele) und PRIM-05 (wiederverwendbare
-Unterprogramm-Bausteine) umgesetzt. Als Nächstes folgt PRIM-06 mit
-Unterprogramm-Boxen und interaktivem Debugging.
+sind ebenso wie PRIM-04 (TinyCPU-Operationsbeispiele), PRIM-05 (wiederverwendbare
+Unterprogramm-Bausteine) und PRIM-06 (Unterprogramm-Boxen und interaktives
+Debugging) umgesetzt. Als Nächstes folgt PRIM-07 mit mehrschrittigen Programmen.
 
 ## Verschachtelte Unterprogramm-Bausteine
 
@@ -23,7 +23,7 @@ sich bitweise bearbeiten; falsche Breiten, fehlende Abhängigkeiten und Zyklen
 werden beim Prüfen vor dem Speichern abgelehnt.
 
 Die Hierarchieliste zeigt alle Instanzen mit Namen, Versionen und Ports.
-**Baustein öffnen** erzeugt Referenzvektoren und zeigt die NAND-Expansion;
+**Baustein öffnen** erzeugt Referenzvektoren und zeigt klickbare Unterprogramm-Boxen;
 **Bausteinpaket exportieren** erhält sämtliche eingebetteten Abhängigkeiten.
 Spätere bessere Suchergebnisse ändern bestehende Bausteine nicht.
 Die Evolution verwendet mutierbare Expansionen und liefert flache Schaltungen.
@@ -31,7 +31,16 @@ Die Evolution verwendet mutierbare Expansionen und liefert flache Schaltungen.
 [Drei importierbare Beispiele](examples/blocks/) demonstrieren Halbaddierer,
 Volladdierer und einen Zweibit-Addierer mit mehreren Verschachtelungsebenen.
 [BAUSTEINE.md](docs/BAUSTEINE.md) erklärt Editor, CLI/API, Verbindungen,
-Versionsbindung und Grenzen. Unterprogramm-Boxen im Schaltbild folgen in PRIM-06.
+Versionsbindung und Grenzen.
+
+Eine Unterprogramm-Box zeigt benannte Bitanschlüsse, Breiten und aktuelle Werte.
+Anklicken oder Enter öffnet die interne Schaltung mit einem **lokalen Handtest**:
+Eingänge als Bits oder Zahlen ändern und die Ausgänge unmittelbar prüfen.
+**Test zurücksetzen**, **Nächstes NAND-Gatter** und **Vollständig auswerten**
+machen die internen Signale nachvollziehbar. **Zur übergeordneten Schaltung**
+stellt deren tatsächliche Eingangssignale, Gatterschritt, Zoom und Layout wieder her.
+Lokale Handwerte ändern weder andere Instanzen noch gespeicherte Definitionen.
+**Layout speichern** sichert Boxpositionen und Leitungswege je Instanzpfad.
 
 ## TinyCPU-Operationen und weitere Rechenbeispiele
 

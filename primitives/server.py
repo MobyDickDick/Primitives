@@ -64,9 +64,9 @@ def make_server(port=8765, data_dir=None, *, background=True):
                         job = dict(jobs[path.rsplit("/", 1)[1]])
                     job["elapsed_seconds"] = round(time.monotonic() - job.pop("started"), 1)
                     self.send_data(job)
-                elif path in ("/", "/app.js", "/graph.js", "/viewport.js", "/style.css"):
+                elif path in ("/", "/app.js", "/graph.js", "/viewport.js", "/block-debug.js", "/style.css"):
                     name = "index.html" if path == "/" else path[1:]
-                    content_type = {"index.html": "text/html; charset=utf-8", "app.js": "text/javascript; charset=utf-8", "graph.js": "text/javascript; charset=utf-8", "viewport.js": "text/javascript; charset=utf-8", "style.css": "text/css; charset=utf-8"}[name]
+                    content_type = {"index.html": "text/html; charset=utf-8", "app.js": "text/javascript; charset=utf-8", "graph.js": "text/javascript; charset=utf-8", "viewport.js": "text/javascript; charset=utf-8", "block-debug.js": "text/javascript; charset=utf-8", "style.css": "text/css; charset=utf-8"}[name]
                     self.send_data((ROOT / "web" / name).read_bytes(), content_type=content_type)
                 else:
                     self.send_data({"error": "Nicht gefunden."}, 404)
@@ -114,6 +114,19 @@ def make_server(port=8765, data_dir=None, *, background=True):
                         bundle = BlockBundle(obj)
                     summary = library.save_block(bundle)
                     self.send_data({"block": bundle.to_dict(), "summary": summary})
+                elif path in ("/api/blocks/view", "/api/blocks/layout/load", "/api/blocks/layout/save"):
+                    bundle = library.load_block(obj["block_id"]) if "block_id" in obj else BlockBundle(obj["block"])
+                    instance_path = obj.get("path", [])
+                    view = bundle.view(instance_path)
+                    if path.endswith("view"):
+                        self.send_data(view)
+                    else:
+                        circuit = Circuit.from_dict(view["circuit"])
+                        identity = {"block": bundle.root, "path": instance_path}
+                        if path.endswith("/save"):
+                            library.save_layout(circuit, obj["positions"], obj.get("wires", {}),
+                                                identity=identity, nodes=view["circuit"].get("view_nodes"))
+                        self.send_data(library.load_layout_data(circuit, identity=identity))
                 elif path in ("/api/blocks/evaluate", "/api/blocks/expand"):
                     bundle = library.load_block(obj["block_id"]) if "block_id" in obj else BlockBundle(obj["block"])
                     if path.endswith("evaluate"):

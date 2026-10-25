@@ -3,6 +3,43 @@
 Stand: 25. Oktober 2026. Geprüft mit Python 3.14.5 und der vorhandenen
 TinyLanguage-Laufzeit unter Windows.
 
+## Unterprogramm-Boxen und Debugging (PRIM-06)
+
+Aktueller Gesamtstand: **94 Python-Tests** mit
+`python -m unittest discover -s tests` und **13 JavaScript-Tests** mit
+`node --test tests/test_block_debug.js tests/test_graph.js tests/test_viewport.js`.
+Die unten dokumentierten früheren Testzahlen gehören zu den jeweiligen Etappen.
+Die HTTP-Integrationstests wurden ausserhalb der Sandbox ausgeführt, da deren
+Netzwerkregeln lokale Loopback-Verbindungen blockieren.
+
+`tests/test_block_debug.py` prüft für alle Eingaben der kleinen Addierer jede
+sichtbare Quelle/Ziel-Pinzuordnung gegen die NAND-Signale und jede sichtbare
+Instanz gegen eine eigene hierarchische Auswertung. Dazu kommen mehrbitige Ports,
+mehrere Ausgänge, lokale NAND-Knoten, direkte und mehrfach verwendete Ausgänge,
+ungültige Pfade und die unveränderten Definitionsinhalte.
+Der HTTP-Test prüft Ansichtspfade bis zum Blatt, getrennte Instanzlayouts,
+Leitungskennungen, Speicherung und erneutes Lesen mit einer neuen Library-Instanz.
+Die JS-Prüfungen ergänzen 32-Bit-Zahleneingaben mit und ohne Vorzeichen,
+Bereichsfehler, unveränderte Nachbarports, geordnete Bitpins, variable Boxhöhen
+und Routing um hierarchische Boxen. Die bisherigen Routing-/Zoomtests bleiben gültig.
+
+Im Browser mit isolierten Beispieldaten geprüft:
+
+- Mehrbitige ADD-Box mit zwei Ausgängen: a=3, b=3, carryIn=1 ergibt sum=3,
+  carryOut=1; lokale Nullwerte ergeben beide Ausgänge 0.
+- Zurückkehren stellt die Elternwerte 3/3/1 und ihre tatsächlichen Ausgänge wieder her.
+- Zwei Volladdierer-Instanzen derselben Definition bleiben nach lokalen Handtests unabhängig.
+- Navigation per Klick und Enter über mehrere Ebenen bis zu den internen OR-NAND-Gattern.
+- Reset auf 0/3, Einzelschritt auf 1/3 und vollständige Auswertung auf 3/3 mit
+  erwarteten unbekannten bzw. bekannten Signalen; Zoom bleibt bei Schritten erhalten.
+- Box per Tastatur verschoben, Instanzlayout gespeichert und nach Neuladen
+  sowie erneuter Navigation zum selben Instanzpfad korrekt geladen.
+- Schmale Ansicht ohne horizontalen Seitenüberlauf; Portwerte und Verdrahtung
+  zusätzlich bei breiter Ansicht visuell geprüft.
+
+Die Bedienansicht ist in [BAUSTEINE.md](BAUSTEINE.md#unterprogramm-boxen-und-lokales-debugging-prim-06)
+abgebildet. Handwerte und Navigationspfad werden bewusst nicht dauerhaft gespeichert.
+
 ## Automatische Prüfungen
 
 `python -m unittest discover -s tests -v`: **17 Tests erfolgreich**.

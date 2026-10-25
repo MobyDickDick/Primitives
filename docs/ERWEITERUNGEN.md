@@ -2,7 +2,7 @@
 
 Diese acht Arbeitspakete konkretisieren die Erweiterungswünsche vom
 25. Oktober 2026. Sie sind lokale Planungs-Issues; auf GitHub wurden noch keine
-Issues angelegt. PRIM-01 bis PRIM-05 sind umgesetzt; die weiteren Arbeitspakete sind offen.
+Issues angelegt. PRIM-01 bis PRIM-06 sind umgesetzt; die weiteren Arbeitspakete sind offen.
 
 Die Kennungen PRIM-01 bis PRIM-08 sind Dokumentationskennungen, keine GitHub-Issue-Nummern.
 
@@ -15,7 +15,7 @@ Die Kennungen PRIM-01 bis PRIM-08 sind Dokumentationskennungen, keine GitHub-Iss
 | [PRIM-03](#prim-03) | Variable Bitbreiten (umgesetzt) | 5 | Grundlage für weitere Funktionen |
 | [PRIM-04](#prim-04) | TinyCPU und Operationsbeispiele (umgesetzt) | 3 | PRIM-03; Kontrollfluss später ergänzen |
 | [PRIM-05](#prim-05) | Wiederverwendbare Unterprogramm-Bausteine (umgesetzt) | 4 | PRIM-03 |
-| [PRIM-06](#prim-06) | Unterprogramm-Boxen und Debugging | 4 | PRIM-05; PRIM-01/02 berücksichtigen |
+| [PRIM-06](#prim-06) | Unterprogramm-Boxen und Debugging (umgesetzt) | 4 | PRIM-05; PRIM-01/02 berücksichtigen |
 | [PRIM-07](#prim-07) | Mehrschrittige Programme und Kontrollstrukturen | 6 | PRIM-03 |
 | [PRIM-08](#prim-08) | Sprungbefehle und Ablaufdebugger | 6 | PRIM-07 |
 
@@ -274,7 +274,7 @@ Prüfergebnisse in [VERIFIKATION.md](VERIFIKATION.md#unterprogramm-bausteine-pri
 
 ## PRIM-06 – Unterprogramme als klickbare Boxen im Verdrahtungsschema anzeigen und debuggen
 
-**Status:** geplant, nicht implementiert.
+**Status:** umgesetzt am 25. Oktober 2026.
 
 ### Ziel
 Ein ganzes Unterprogramm erscheint als verständliche Box mit seinen Ein- und Ausgängen. Per Klick kann es untersucht und mit von Hand gesetzten Eingaben geprüft werden.
@@ -289,11 +289,29 @@ Ein ganzes Unterprogramm erscheint als verständliche Box mit seinen Ein- und Au
 - Boxen verschieben, zoomen und verbinden; Positionen und aufgeklappte Ansicht sinnvoll erhalten.
 
 ### Abnahme
-- [ ] Ein mehrbitiger Baustein mit mehreren Ausgängen erscheint mit korrekten Ports und Werten.
-- [ ] Ein Klick erlaubt lokale Handtests, z. B. ADD mit 0, Maximalwert und Überlauf.
-- [ ] Zwei Instanzen desselben Unterprogramms bleiben unabhängig.
-- [ ] Verlassen der Testansicht stellt die Sicht auf die tatsächlichen Eingangssignale wieder her.
-- [ ] Schaltbild und Bausteinzuordnung bleiben nach Speichern/Laden korrekt.
+- [x] Ein mehrbitiger Baustein mit mehreren Ausgängen erscheint mit korrekten Ports und Werten.
+- [x] Ein Klick erlaubt lokale Handtests, z. B. ADD mit 0, Maximalwert und Überlauf.
+- [x] Zwei Instanzen desselben Unterprogramms bleiben unabhängig.
+- [x] Verlassen der Testansicht stellt die Sicht auf die tatsächlichen Eingangssignale wieder her.
+- [x] Schaltbild und Bausteinzuordnung bleiben nach Speichern/Laden korrekt.
+
+### Umsetzung
+
+Die Schaltbildprojektion ordnet jeden sichtbaren Anschluss einem exakten Signal
+der geprüften NAND-Expansion zu. Instanzen erscheinen als Boxen mit Namen,
+Version und benannten Bitanschlüssen. Die Höhe passt sich der Portanzahl an.
+Klick oder Enter öffnet die interne Hierarchie bis hin zu einzelnen NAND-Gattern.
+Bit- und Zahleneingaben, Reset und Gatterschritte arbeiten in einem eigenen
+lokalen Testvektor. Beim Zurückkehren werden Eingangssignale, Schritt, Auswahl,
+Kamera und Layout der übergeordneten Ansicht wiederhergestellt.
+
+Gespeicherte Layouts sind an Paketkennung und Instanzpfad gebunden. Zwei Instanzen
+derselben Definition teilen weder Layout noch Handwerte. Verbindungen werden
+weiterhin im bestehenden benannten JSON-Porteditor festgelegt; Leitungswege sind
+im Schema verschiebbar. Vorlagen ohne NAND-Implementierung bleiben als Funktionen
+ohne Schaltung gekennzeichnet. Bedienung und Grenzen stehen in
+[BAUSTEINE.md](BAUSTEINE.md#unterprogramm-boxen-und-lokales-debugging-prim-06),
+die Prüfung in [VERIFIKATION.md](VERIFIKATION.md#unterprogramm-boxen-und-debugging-prim-06).
 
 ### Abhängigkeiten
 [PRIM-05](#prim-05), [PRIM-03](#prim-03); für Navigation und Leitungsführung [PRIM-01](#prim-01) und [PRIM-02](#prim-02) berücksichtigen.

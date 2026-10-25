@@ -130,16 +130,16 @@ class Library:
     def load_layout(self, circuit):
         return self.load_layout_data(circuit)["positions"]
 
-    def load_layout_data(self, circuit):
-        path = self.root / "layouts" / f"{digest(circuit.to_dict())}.json"
+    def load_layout_data(self, circuit, *, identity=None):
+        path = self.root / "layouts" / f"{digest(circuit.to_dict() if identity is None else identity)}.json"
         with self._lock:
             if not path.exists():
                 return {"positions": None, "wires": {}}
             data = json.loads(path.read_text(encoding="utf-8"))
             return {"positions": data["positions"], "wires": data.get("wires", {})}
 
-    def save_layout(self, circuit, positions, wires=None):
-        count = circuit.inputs + len(circuit.gates) + len(circuit.outputs)
+    def save_layout(self, circuit, positions, wires=None, *, identity=None, nodes=None):
+        count = len(nodes) if nodes is not None else circuit.inputs + len(circuit.gates) + len(circuit.outputs)
         if not isinstance(positions, list) or len(positions) != count:
             raise ValueError("Für jede Box wird eine Position benötigt.")
         cleaned = []
@@ -154,6 +154,9 @@ class Library:
                        for i, sources in enumerate(circuit.gates) for port, source in enumerate(sources)}
         connections.update(f"{source}:{circuit.inputs + len(circuit.gates) + i}:0"
                            for i, source in enumerate(circuit.outputs))
+        if nodes is not None:
+            connections = {f"{source}:{node['ref']}:{port}:{node['sourceBits'][port]}"
+                           for node in nodes for port, source in enumerate(node["sources"])}
         wires = {} if wires is None else wires
         if not isinstance(wires, dict) or not set(wires) <= connections:
             raise ValueError("Ungültige Leitungskennung.")
@@ -170,7 +173,7 @@ class Library:
                     raise ValueError("Leitungssegmente müssen waagrecht oder senkrecht sein.")
             cleaned_wires[key] = [{"x": p["x"], "y": p["y"]} for p in points]
         with self._lock:
-            write_json(self.root / "layouts" / f"{digest(circuit.to_dict())}.json",
+            write_json(self.root / "layouts" / f"{digest(circuit.to_dict() if identity is None else identity)}.json",
                        {"schema": 2, "positions": cleaned, "wires": cleaned_wires})
         return cleaned
 

@@ -3,7 +3,7 @@ const $ = id => document.getElementById(id);
 const state = { dataset: null, datasetId: null, result: null, bits: [], timer: null, job: null, librarySignature: null,
   positions: [], selectedRef: 0, layoutToken: 0, layoutDirty: false, routing: null, drag: null,
   camera: null, cameraTouched: false, wires: {}, selectedWire: null, wireNotice: "", operations: {}, presets: {}, referenceCircuit: null, formMode: "legacy", autoName: false, functionSignature: null,
-  referenceBlock: null, blockSignature: null };
+  referenceBlock: null, blockSignature: null, debug: null };
 const svgNS = "http://www.w3.org/2000/svg";
 const int = id => Number($(id).value);
 const presetLabels = { mul: "MUL(2,2,4)" };
@@ -337,7 +337,7 @@ function verification(f) {
   return f.verified_truth_table ? "Vollständig geprüft" : f.exact_on_dataset ? "Passt zur Stichprobe" : "Annäherung";
 }
 function showProgram(result) {
-  stopAnimation(); state.result = result;
+  stopAnimation(); state.result = result; state.debug = null; $("block-debug").hidden = true;
   if (result.hierarchy) {
     inspectBlock(result.hierarchy);
     $("block-status").textContent = "Die geöffnete Schaltung enthält die unten gezeigten festen Unterbausteine.";
@@ -384,7 +384,9 @@ function showProgram(result) {
   }
   $("notation").textContent = result.expressions ? result.expressions.map((s, i) => `y${i} = ${s}`).join("  ;  ") : "Gatterliste im JSON-Export verfügbar.";
   renderSimulation(); renderTable(); renderHistory();
+  if (result.hierarchy) BlockDebug.start(result).catch(error);
 }
+function simulationCircuit() { return state.debug?.view.circuit || state.result.circuit; }
 function depths(c) {
   const d = Array(c.inputs).fill(0);
   for (const [a, b] of c.gates) d.push(1 + Math.max(d[a], d[b]));
@@ -392,11 +394,12 @@ function depths(c) {
 }
 function renderSimulation() {
   if (!state.result) return;
-  const c = state.result.circuit, step = int("step");
+  const c = simulationCircuit(), step = int("step");
   const result = evaluate(c, state.bits);
   $("bit-switches").replaceChildren();
   state.bits.forEach((bit, i) => {
-    const port = compatible() && state.dataset.metadata?.interface?.inputs.find(p => p.offset <= i && i < p.offset + p.bits);
+    const ports = state.debug?.view.interface || (compatible() && state.dataset.metadata?.interface);
+    const port = ports?.inputs?.find(p => p.offset <= i && i < p.offset + p.bits);
     const name = port ? `${port.name}[${i - port.offset}]` : String(i + 1);
     const button = el("button", `${name}: ${bit}`, bit ? "on" : "");
     button.setAttribute("aria-label", `Eingang ${name}: ${bit}`);
@@ -405,6 +408,7 @@ function renderSimulation() {
     $("bit-switches").append(button);
   });
   const ready = ref => ref < c.inputs + step;
+  BlockDebug.render(result.wires, ready);
   $("output-values").replaceChildren(el("small", "AUSGANG · LSB ZUERST"), document.createTextNode(c.outputs.map(o => ready(o) ? result.wires[o] : "·").join(" ")));
   $("step-label").textContent = `${step}/${c.gates.length}`;
   const graph = $("graph"), positions = state.positions, list = CircuitGraph.nodes(c);
@@ -416,7 +420,8 @@ function renderSimulation() {
   if (!state.camera) state.camera = CircuitViewport.fit(graphBounds(), graphSize());
   renderCamera();
   for (const wire of state.routing) {
-    const known = ready(wire.source), bit = result.wires[wire.source];
+    const source = list[wire.source].signalRefs?.[wire.sourceBit || 0] ?? wire.source;
+    const known = ready(source), bit = result.wires[source];
     const path = svg("path", { d: wire.path, fill: "none", stroke: !known ? "#d8dfd4" : bit ? "#3e8c54" : "#99a8a0",
       "stroke-width": wire.id === state.selectedWire ? 4 : known && bit ? 2.5 : 1.5, "stroke-linejoin": "round",
       class: `signal-wire${wire.blocked ? " blocked" : ""}${wire.id === state.selectedWire ? " selected" : ""}`,
@@ -439,24 +444,40 @@ function renderSimulation() {
   const valueAt = ref => ready(ref) ? result.wires[ref] : "·";
   list.forEach(node => {
     const { ref, kind, index, sources } = node, { x, y } = positions[ref];
-    const signal = kind === "output" ? sources[0] : ref, known = ready(signal), bit = result.wires[signal];
-    const heading = `Box ${ref} · ${kind === "input" ? `Eingang ${index + 1}` : kind === "gate" ? "NAND" : `Ausgang y${index}`}`;
+    const signal = node.signalRefs?.[0] ?? (kind === "output" ? sources[0] : ref), known = (node.signalRefs || [signal]).every(ready), bit = result.wires[signal];
+    const heading = `Box ${ref} · ${kind === "input" ? `Eingang ${node.label || index + 1}` : kind === "gate" ? "NAND" : kind === "instance" ? `${node.id} · v${node.version}` : `Ausgang ${node.label || `y${index}`}`}`;
     const formula = kind === "gate" ? `Box ${sources[0]} ⊼ Box ${sources[1]}` : kind === "output" ? `von Box ${sources[0]}` : "Klicken: 0 ↔ 1";
-    const description = kind === "gate" ? `Box ${ref}: Box ${sources[0]} NAND mit Box ${sources[1]} verknüpft. Wert: ${valueAt(signal)}.` : `${heading}. Wert: ${valueAt(signal)}. ${kind === "input" ? "Zum Umschalten anklicken." : formula}`;
+    const description = kind === "instance" ? `${heading}: ${node.name}. Zum lokalen Handtest öffnen.` : kind === "gate" ? `Box ${ref}: Box ${sources[0]} NAND mit Box ${sources[1]} verknüpft. Wert: ${valueAt(signal)}.` : `${heading}. Wert: ${valueAt(signal)}. ${kind === "input" ? "Zum Umschalten anklicken." : formula}`;
     const group = svg("g", { "data-node": ref, class: `graph-node ${kind}${ref === state.selectedRef ? " selected" : ""}`, tabindex: 0, role: "button", "aria-label": description });
     if (kind === "input") group.setAttribute("aria-pressed", String(Boolean(bit)));
     group.append(svg("title", {}, `${description} Zum Verschieben ziehen oder Pfeiltasten verwenden.`));
-    group.append(svg("rect", { x, y: y - CircuitGraph.height / 2, width: CircuitGraph.width, height: CircuitGraph.height, rx: kind === "input" ? 24 : 9,
+    const height = CircuitGraph.boxHeight(positions[ref]);
+    group.append(svg("rect", { x, y: y - height / 2, width: CircuitGraph.width, height, rx: kind === "input" ? 24 : 9,
       fill: !known ? "#f3f5f0" : bit ? "#d6ed95" : "#fff", stroke: ref === state.selectedRef ? "#146653" : "#98b397", "stroke-width": ref === state.selectedRef ? 2 : 1 }));
     const text = (offset, content, className) => svg("text", { x: x + CircuitGraph.width / 2, y: y + offset, "text-anchor": "middle", class: className, fill: known ? "#183e31" : "#758575" }, content);
-    group.append(text(-19, heading, "node-heading"), text(3, formula, "node-formula"), text(25, `Wert: ${valueAt(signal)}`, "node-value"));
+    if (kind === "instance") {
+      group.append(text(-height / 2 + 14, heading, "node-heading"));
+      const name = text(height / 2 - 6, node.name.length > 28 ? `${node.name.slice(0, 27)}…` : node.name, "node-heading");
+      name.append(svg("title", {}, node.name)); group.append(name);
+      for (const side of ["inputs", "outputs"]) {
+        const refs = side === "inputs" ? node.inputRefs : node.signalRefs;
+        for (const p of node.interface[side]) for (let i = 0; i < p.bits; i++) {
+          const slot = p.offset + i, offset = CircuitGraph.pinOffset(refs.length, slot);
+          const label = `${p.name}[${i}]/${p.bits}=${valueAt(refs[slot])}`;
+          const portText = svg("text", { x: side === "inputs" ? x + 5 : x + CircuitGraph.width - 5,
+            y: y + offset + 3, "text-anchor": side === "inputs" ? "start" : "end", class: "node-port" },
+            label.length > 17 ? `${p.name.slice(0, 6)}…[${i}]=${valueAt(refs[slot])}` : label);
+          portText.append(svg("title", {}, `${label} · ${p.signed ? "Zweierkomplement" : "unsigned"}`)); group.append(portText);
+        }
+      }
+    } else group.append(text(-19, heading, "node-heading"), text(3, formula, "node-formula"), text(25, `Wert: ${valueAt(signal)}`, "node-value"));
     graph.append(group);
   });
   const selected = list[state.selectedRef];
   if (selected) {
-    const signal = selected.kind === "output" ? selected.sources[0] : selected.ref;
-    $("box-description").textContent = selected.kind === "gate"
-      ? `Box ${selected.ref}: Box ${selected.sources[0]} NAND mit Box ${selected.sources[1]} verknüpft. Aktuell: ${valueAt(selected.sources[0])} ⊼ ${valueAt(selected.sources[1])} = ${valueAt(signal)}. NAND liefert nur bei zwei Einsen eine 0.`
+    const signal = selected.signalRefs?.[0] ?? (selected.kind === "output" ? selected.sources[0] : selected.ref);
+    $("box-description").textContent = selected.kind === "instance" ? `${selected.id}: ${selected.name} v${selected.version}. Ports: ${["inputs", "outputs"].map(side => selected.interface[side].map(p => `${p.name}[${p.bits}]`).join(", ")).join(" → ")}. Anklicken oder Enter öffnet die interne Schaltung für einen getrennten lokalen Handtest.` : selected.kind === "gate"
+      ? `Box ${selected.ref}: Box ${selected.sources[0]} NAND mit Box ${selected.sources[1]} verknüpft. Aktuell: ${(selected.inputRefs || selected.sources).map(valueAt).join(" ⊼ ")} = ${valueAt(signal)}. NAND liefert nur bei zwei Einsen eine 0.`
       : selected.kind === "input" ? `Box ${selected.ref} ist Eingang ${selected.index + 1}. Wert: ${valueAt(signal)}. Mit einem Klick oder der Leertaste zwischen 0 und 1 umschalten.`
       : `Box ${selected.ref} ist Ausgang y${selected.index} und übernimmt den Wert von Box ${signal}: ${valueAt(signal)}.`;
   }
@@ -490,7 +511,8 @@ function layoutChanged() {
   $("layout-status").textContent = "Layout geändert · noch nicht gespeichert.";
 }
 function moveBox(ref, x, y) {
-  const point = { x: Math.max(20, Math.min(99000, x)), y: Math.max(64, Math.min(99000, y)) };
+  const height = state.positions[ref].height;
+  const point = { x: Math.max(20, Math.min(99000, x)), y: Math.max((height || CircuitGraph.height) / 2 + 20, Math.min(99000, y)), ...(height ? { height } : {}) };
   if (!CircuitGraph.canPlace(state.positions, ref, point)) return false;
   state.positions[ref] = point; layoutChanged(); return true;
 }
@@ -499,8 +521,8 @@ function graphSize() {
   return { width: Math.max(1, rect.width), height: Math.max(1, rect.height) };
 }
 function graphBounds() {
-  const points = state.positions.flatMap(p => [{ x: p.x, y: p.y - CircuitGraph.height / 2 },
-    { x: p.x + CircuitGraph.width, y: p.y + CircuitGraph.height / 2 }]);
+  const points = state.positions.flatMap(p => [{ x: p.x, y: p.y - CircuitGraph.boxHeight(p) / 2 },
+    { x: p.x + CircuitGraph.width, y: p.y + CircuitGraph.boxHeight(p) / 2 }]);
   for (const wire of state.routing || []) points.push(...wire.points);
   return { left: Math.min(...points.map(p => p.x)), right: Math.max(...points.map(p => p.x)),
     top: Math.min(...points.map(p => p.y)), bottom: Math.max(...points.map(p => p.y)) };
@@ -527,13 +549,13 @@ function renderTable() {
   $("vectors").replaceChildren();
   if (!state.dataset) return;
   const ds = state.dataset, matches = compatible();
-  $("table-info").textContent = `${ds.name} · ${ds.rows.length} Vektoren${ds.rows.length > 128 ? " · die ersten 128 werden angezeigt" : ""} · ${ds.exhaustive ? "alle Eingaben" : "Stichprobe"}${state.result && !matches ? " · Programm und Datensatz haben verschiedene Bitbreiten" : ""}. Zeile anklicken zum Testen.`;
+  $("table-info").textContent = `${ds.name} · ${ds.rows.length} Vektoren${ds.rows.length > 128 ? " · die ersten 128 werden angezeigt" : ""} · ${ds.exhaustive ? "alle Eingaben" : "Stichprobe"}${state.result && !matches ? " · Programm und Datensatz haben verschiedene Bitbreiten" : ""}. ${state.debug?.path.length ? "Gesamtschaltung: Für Vektortests zuerst zur Wurzel zurückkehren." : "Zeile anklicken zum Testen."}`;
   for (const row of ds.rows.slice(0, 128)) {
     const tr = el("tr"), input = row.slice(0, ds.inputs), output = row.slice(ds.inputs);
     const actual = matches ? evaluate(state.result.circuit, input).outputs : null;
     const ok = actual && actual.every((v, i) => v === output[i]);
     tr.append(el("td", input.join(" ")), el("td", output.join(" ")), el("td", actual ? actual.join(" ") : "–"), el("td", actual ? ok ? "✓" : "✕" : "–", actual ? ok ? "ok" : "bad" : ""));
-    if (state.result && state.result.circuit.inputs === ds.inputs) tr.addEventListener("click", () => {
+    if (state.result && !state.debug?.path.length && state.result.circuit.inputs === ds.inputs) tr.addEventListener("click", () => {
       stopAnimation(); state.bits = input; $("step").value = state.result.circuit.gates.length; renderSimulation();
     });
     $("vectors").append(tr);
@@ -621,7 +643,13 @@ function finishBoxDrag(event) {
   if (graphElement.hasPointerCapture(event.pointerId)) graphElement.releasePointerCapture(event.pointerId);
   if (drag.kind === "pan") return;
   if (drag.kind === "wire") { renderSimulation(); return; }
-  if (!drag.moved && event.type === "pointerup" && drag.ref < state.result.circuit.inputs) toggleInput(drag.ref);
+  if (!drag.moved && event.type === "pointerup") activateNode(drag.ref);
+  else renderSimulation();
+}
+function activateNode(ref) {
+  const node = CircuitGraph.nodes(simulationCircuit())[ref];
+  if (node.kind === "input") toggleInput(ref);
+  else if (node.kind === "instance") BlockDebug.enter(node).catch(error);
   else renderSimulation();
 }
 graphElement.addEventListener("pointerup", finishBoxDrag);
@@ -678,7 +706,7 @@ graphElement.addEventListener("keydown", event => {
   const ref = Number(node.getAttribute("data-node"));
   if (["Enter", " "].includes(event.key)) {
     event.preventDefault(); state.selectedRef = ref;
-    if (ref < state.result.circuit.inputs) toggleInput(ref); else renderSimulation();
+    activateNode(ref);
   } else if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) {
     event.preventDefault(); stopAnimation(); state.selectedRef = ref;
     const p = state.positions[ref], delta = event.shiftKey ? 40 : 10;
@@ -687,19 +715,20 @@ graphElement.addEventListener("keydown", event => {
   }
 });
 action("save-layout", async () => {
-  const token = state.layoutToken, circuit = state.result.circuit;
-  const positions = state.positions.map(p => ({ ...p }));
+  const token = state.layoutToken, circuit = simulationCircuit();
+  const positions = state.positions.map(p => ({ x: p.x, y: p.y }));
   const wires = JSON.parse(JSON.stringify(state.wires));
   $("save-layout").disabled = true;
   try {
-    await api("/api/layout/save", { circuit, positions, wires });
+    await api(state.debug ? "/api/blocks/layout/save" : "/api/layout/save",
+      { ...(state.debug ? BlockDebug.request() : { circuit }), positions, wires });
     if (token !== state.layoutToken) return;
-    state.layoutDirty = JSON.stringify(positions) !== JSON.stringify(state.positions) || JSON.stringify(wires) !== JSON.stringify(state.wires);
+    state.layoutDirty = JSON.stringify(positions) !== JSON.stringify(state.positions.map(p => ({ x: p.x, y: p.y }))) || JSON.stringify(wires) !== JSON.stringify(state.wires);
     $("layout-status").textContent = state.layoutDirty ? "Layout gespeichert. Weitere Änderungen sind noch nicht gespeichert." : "Layout gespeichert · wird beim Öffnen dieser Schaltung wiederhergestellt.";
   } finally { $("save-layout").disabled = false; }
 });
 action("auto-layout", () => {
-  stopAnimation(); state.positions = CircuitGraph.automatic(state.result.circuit);
+  stopAnimation(); state.positions = CircuitGraph.automatic(simulationCircuit());
   state.wires = {}; state.selectedWire = null;
   state.camera = null; state.cameraTouched = false;
   layoutChanged(); renderSimulation();
@@ -900,7 +929,7 @@ async function openBlock(bundle) {
   const expanded = await api("/api/blocks/expand", { block: bundle });
   showProgram({ ...expanded, dataset_id: state.datasetId });
   inspectBlock(bundle);
-  $("block-status").textContent = `${bundle.definitions[bundle.root].name} geöffnet. Hierarchie bleibt im JSON-Export erhalten; Schaltbild zeigt ihre NAND-Expansion.`;
+  $("block-status").textContent = `${bundle.definitions[bundle.root].name} geöffnet. Unterprogramm-Boxen anklicken, um ihre interne Schaltung lokal zu testen.`;
 }
 function prepareBlock(bundle, count) {
   const root = bundle.definitions[bundle.root], inputs = [], outputs = [], nodes = [], mapping = {};
@@ -981,8 +1010,9 @@ $("play").addEventListener("click", () => {
   $("step").value = 0; renderSimulation(); $("play").textContent = "Ⅱ Pause";
   state.timer = setInterval(() => {
     $("step").value = int("step") + 1; renderSimulation();
-    if (int("step") >= state.result.circuit.gates.length) stopAnimation();
+    if (int("step") >= simulationCircuit().gates.length) stopAnimation();
   }, 450);
 });
+BlockDebug.init();
 refresh().catch(error);
 setInterval(() => { if (!document.hidden) refresh().catch(() => {}); }, 5000);

@@ -8,6 +8,7 @@ from urllib.request import Request, urlopen
 from primitives.server import make_server
 from primitives.runner import ROOT
 from primitives.blocks import BlockBundle
+from primitives.circuit import Circuit
 
 
 class ServerTests(unittest.TestCase):
@@ -138,6 +139,47 @@ class ServerTests(unittest.TestCase):
             with self.assertRaises(HTTPError) as caught: self.request("/api/datasets", invalid)
             self.assertEqual(caught.exception.code, 400)
             caught.exception.close()
+
+    def test_block_debug_views_and_separate_persistent_instance_layouts(self):
+        from primitives.library import Library
+        bundle = BlockBundle(json.loads((ROOT / "examples/blocks/ripple-adder-2.json").read_text(encoding="utf-8")))
+        key = self.request("/api/blocks", bundle.to_dict())["summary"]["id"]
+        root = self.request("/api/blocks/view", {"block_id": key})
+        instances = [n for n in root["circuit"]["view_nodes"] if n["kind"] == "instance"]
+        self.assertEqual([n["id"] for n in instances], ["low", "high"])
+        for path in ([], ["low"], ["high"], ["low", "first", "sum"]):
+            request = {"block_id": key, "path": path}
+            view = self.request("/api/blocks/view", request)
+            c = view["circuit"]
+            nodes = c.get("view_nodes")
+            count = len(nodes) if nodes else c["inputs"] + len(c["gates"]) + len(c["outputs"])
+            positions = [{"x": 40 + 288 * i, "y": 100 + 10 * len(path)} for i in range(count)]
+            if nodes:
+                node = next(n for n in nodes if n["sources"])
+                wire = f'{node["sources"][0]}:{node["ref"]}:0:{node["sourceBits"][0]}'
+            else:
+                wire = f'{c["gates"][0][0]}:{c["inputs"]}:0'
+            wires = {wire: [{"x": 236, "y": 100}, {"x": 300, "y": 100}]}
+            saved = self.request("/api/blocks/layout/save", {**request, "positions": positions, "wires": wires})
+            self.assertEqual(saved, {"positions": positions, "wires": wires})
+            self.assertEqual(self.request("/api/blocks/layout/load", request), saved)
+            reloaded = Library(self.tmp.name).load_layout_data(Circuit.from_dict(c), identity={"block": key, "path": path})
+            self.assertEqual(reloaded, saved)
+            with self.assertRaises(HTTPError) as caught:
+                self.request("/api/blocks/layout/save", {**request, "positions": positions, "wires": {"bogus": []}})
+            self.assertEqual(caught.exception.code, 400); caught.exception.close()
+        high = self.request("/api/blocks/layout/load", {"block_id": key, "path": ["high"]})
+        low_request = {"block_id": key, "path": ["low"]}
+        low = self.request("/api/blocks/layout/load", low_request)
+        low["positions"][0]["x"] = 999
+        self.request("/api/blocks/layout/save", {**low_request, **low})
+        self.assertEqual(self.request("/api/blocks/layout/load", {"block_id": key, "path": ["high"]}), high)
+        for path in (["absent"], "low", ["low"] * 33):
+            with self.assertRaises(HTTPError) as caught:
+                self.request("/api/blocks/view", {"block_id": key, "path": path})
+            self.assertEqual(caught.exception.code, 400); caught.exception.close()
+        with urlopen(self.base + "/block-debug.js") as response:
+            self.assertIn(b"BlockDebug", response.read())
 
     def test_cpu_operations_catalog_roundtrip_and_rejection(self):
         operations = self.request("/api/catalog")["operations"]
