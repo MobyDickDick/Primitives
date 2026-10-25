@@ -44,9 +44,9 @@
 </section>
 <section class="card"><div class="section-title"><span class="number">02</span><h2>Evolution</h2></div>
 <label>Suchalgorithmus<select id="backend"><option value="tiny">TinyLanguage</option><option value="python">Python</option></select></label>
-<div class="pair"><label>Gatterbudget<input id="gates" type="number" min="1" max="128" value="8"></label><label>Nachkommen / Runde<input id="population" type="number" min="2" max="256" value="24"></label></div>
+<div class="pair"><label>Gatterbudget<input id="gates" type="number" min="1" max="128" value="8"></label><label>Elternpopulation<input id="population" type="number" min="2" max="256" value="24"></label></div>
 <div class="pair"><label>Generationen<input id="generations" type="number" min="1" max="20000" value="200"></label><label>Zufallsseed<input id="seed" type="number" min="0" max="2147483647" value="1"></label></div>
-<p class="hint">Mutation + Rekombination + Bausteine aus der Bibliothek. Ende bei fehlerfreier Zuordnung oder ausgeschöpftem Budget.</p>
+<p class="hint">Turnierselektion aus der Elternpopulation, Mutation, Rekombination und Bibliotheksbausteine. Pro Runde höchstens so viele Nachkommen wie Eltern. Initialisierung zählt zum Kandidatenbudget. Ende bei fehlerfreier Zuordnung oder ausgeschöpftem Budget.</p>
 <label class="check-label"><input id="auto-repair" type="checkbox" checked> Wenige Restfälle exakt korrigieren</label><p class="hint">Bis zu 4 fehlerhafte Eingaben, höchstens 25 % der Testfälle. Zusätzliche NAND-Gatter erzwingen die Sollausgabe; sie zählen zum Ergebnis und können das Suchbudget überschreiten.</p>
 <button id="evolve" class="primary full">Evolution starten <span>→</span></button><button id="cancel-search" class="danger full" disabled>■ Suche abbrechen</button><p id="job-status" role="status" class="hint">Bereit für das erste Experiment.</p>
 </section>

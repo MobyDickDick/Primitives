@@ -3,6 +3,30 @@
 Stand: 25. Oktober 2026. Geprüft mit Python 3.14.5 und der vorhandenen
 TinyLanguage-Laufzeit unter Windows.
 
+## Elternpopulation mit Turnierselektion (Etappe 2)
+
+Geprüft am 25. Oktober 2026: **117 Kern-/CLI-/Suchtests** innerhalb der Sandbox
+und **20 HTTP-Integrationstests** mit freigegebenem lokalem Netzwerkzugriff
+erfolgreich, insgesamt **137 Python-Tests**. Ein HTTP-Test meldete beim ersten
+freigegebenen Lauf einen Windows-Verbindungsabbruch (WinError 10053); der gezielte
+Wiederholungslauf bestand. Ausserdem bestehen **22 JavaScript-Tests**,
+`node --check web/app.js` und `git -c core.whitespace=cr-at-eol diff --check`.
+
+- Neun neue Suchtests prüfen bewertete Initialisierung, einen Treffer im vierten
+  Elternkandidaten, zwei unabhängige Turniere über die ganze Population,
+  unveränderte Elterngenome, Abbruch und ein Zeitlimit während der Initialisierung.
+- Python und die tatsächliche TinyLanguage-Laufzeit füllen Populationen von
+  zwei bzw. fünf Mitgliedern auf einer mit dem Gatterbudget unlösbaren XOR-Aufgabe.
+  Beide schöpfen das gemeinsame Bewertungsbudget ohne Überschreitung aus und
+  liefern bei Wiederholung identische Schaltungen und Verbesserungsverläufe.
+- Fünf Python-Seeds mit mehreren Ausgängen und weiterer Strukturoptimierung
+  prüfen den monotonen besten Rang und vergleichen die Ergebnisfitness mit
+  unabhängiger skalarer Schaltungsauswertung. Die bestehenden echten
+  TinyLanguage-Läufe für XOR und verschachtelte Halbaddierer bleiben erfolgreich.
+- Der HTTP-Suchtest liest die gespeicherten Auswahl-/Populationsmetadaten erneut
+  aus der Bibliothek. Bestehende Hintergrundsuche, exakte Startlösung,
+  Null-Zeitbudget, Retests, Bibliotheksbausteine und Abbruch beider Backends bestehen.
+
 ## Funktionen löschen
 
 Geprüft am 25. Oktober 2026: **120 Python-Tests** mit

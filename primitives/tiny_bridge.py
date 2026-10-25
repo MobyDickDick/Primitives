@@ -28,8 +28,8 @@ def trace(generation, value):
     return _problem.trace(generation, value)
 
 
-def finish(genome, generation, width):
+def finish(genome, generation, width, parent_population=0):
     if len(genome) != width:
         raise ValueError("Ungültige Genomlänge.")
-    return json.dumps(_problem.result(genome, generation))
+    return json.dumps(_problem.result(genome, generation, parent_population))
 

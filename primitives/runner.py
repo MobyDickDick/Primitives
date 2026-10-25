@@ -55,6 +55,7 @@ def gates = {config.gates};
 def population = {config.population};
 def generations = {config.generations};
 def seed = {config.seed};
+def evaluation_budget = {config.evaluation_budget};
 '''
             source = folder / "search.tiny"
             source.write_text(prelude + (ROOT / "tiny" / "evolve.tiny").read_text(encoding="utf-8"), encoding="utf-8")

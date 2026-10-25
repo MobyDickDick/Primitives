@@ -24,6 +24,11 @@ class SearchConfig:
     repair_cases: int = 0
     optimize: bool = False
 
+    @property
+    def evaluation_budget(self):
+        # Initialization is charged to the same budget as offspring.
+        return min(500000, 1 + self.population * self.generations)
+
     def validate(self):
         for name, lo, hi in (("gates", 1, 128), ("population", 2, 256), ("generations", 1, 20000), ("seed", 0, 2**31-1)):
             value = getattr(self, name)
@@ -134,7 +139,7 @@ class Problem:
                                  "score": int(score), "evaluations": self.evaluations})
         return 0
 
-    def result(self, genome, generation):
+    def result(self, genome, generation, parent_population=0):
         circuit = genome_circuit(genome, self.n, self.m).compact()
         errors, _, _ = self.metrics(genome)
         total = len(self.dataset.rows) * self.m
@@ -143,25 +148,46 @@ class Problem:
                 "verified_truth_table": errors == 0 and self.dataset.exhaustive,
                 "gates": len(circuit.gates), "depth": circuit.depth},
                 "search": {**asdict(self.config), "generation": int(generation), "evaluations": self.evaluations,
-                           "history": self.history, "library_candidates": len(self.library)}}
+                           "history": self.history, "library_candidates": len(self.library),
+                           "selection": "tournament", "tournament_size": min(3, self.config.population),
+                           "parent_population": int(parent_population),
+                           "evaluation_budget": self.config.evaluation_budget}}
+
+
+def tournament(ranks, rng):
+    """Select the best of up to three independently drawn population members."""
+    contenders = (rng.randrange(len(ranks)) for _ in range(min(3, len(ranks))))
+    return min(contenders, key=ranks.__getitem__)
 
 
 def search_python(problem):
     p, rng = problem, problem.rng
-    parent, mate = p.initial_genome(), p.specimen()
-    score = p.score(parent)
+    best = p.initial_genome()
+    score = p.score(best)
+    parents, ranks = [best], [score]
+    while (len(parents) < p.config.population and not p.expired()
+           and (p.config.optimize or score >= p.error_weight)):
+        candidate = p.specimen()
+        rank = p.score(candidate)
+        parents.append(candidate)
+        ranks.append(rank)
+        if rank < score:
+            best, score = candidate, rank
     p.trace(0, score)
     generation = 0
     while (generation < p.config.generations and not p.expired()
+           and p.evaluations < p.config.evaluation_budget
            and (p.config.optimize or score >= p.error_weight)):
         generation += 1
         for _ in range(p.config.population):
-            if p.expired():
+            if p.expired() or p.evaluations >= p.config.evaluation_budget:
                 break
-            candidate = list(parent)
             if rng.random() < 0.15:
                 candidate = p.specimen()
             else:
+                parent = parents[tournament(ranks, rng)]
+                mate = parents[tournament(ranks, rng)]
+                candidate = list(parent)
                 crossover = rng.random() < 0.35
                 for i in range(p.width):
                     if crossover and rng.random() < 0.5:
@@ -169,10 +195,16 @@ def search_python(problem):
                     if rng.random() < 1 / p.width:
                         candidate[i] = rng.randrange(p.bound(i))
             rank = p.score(candidate)
-            if rank <= score:
-                mate, parent, score = parent, candidate, rank
+            # Replace a worst member, retaining the population's best rank.
+            # New equal-ranked genomes can enter without mutating saved parents.
+            worst_rank = max(ranks)
+            worst = rng.choice([i for i, value in enumerate(ranks) if value == worst_rank])
+            if rank <= ranks[worst]:
+                parents[worst], ranks[worst] = candidate, rank
+            if rank < score:
+                best, score = candidate, rank
             if score < p.error_weight and not p.config.optimize:
                 break
         p.trace(generation, score)
-    return p.result(parent, generation)
+    return p.result(best, generation, len(parents))
 

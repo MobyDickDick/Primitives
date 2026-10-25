@@ -233,6 +233,22 @@ Die fertige Wahrheitstabelle lässt sich auch über **Eigene Vektoren importiere
 aus [`examples/mul-2-2-4.json`](examples/mul-2-2-4.json) laden.
 Auf der Kommandozeile bleibt die Vorlage über `--preset mul` verfügbar.
 
+## Elternpopulation und Turnierselektion
+
+Beide Suchbackends verwenden eine bewertete **Elternpopulation** (Standard 24,
+einstellbar von 2 bis 256). Zwei unabhängige Turniere wählen die Eltern für
+Mutation und Rekombination: jeweils die beste von drei zufälligen Ziehungen,
+bei Population 2 von zwei Ziehungen. Ein mindestens gleich guter Nachkomme
+ersetzt ein zufällig gewähltes schlechtestes Mitglied. Das beste gefundene
+Ergebnis bleibt erhalten.
+
+Pro Runde werden höchstens so viele Nachkommen wie Eltern bewertet.
+Initialisierung und Nachkommen teilen sich das Kandidatenbudget
+`min(500000, 1 + Elternzahl × Generationen)`. Fehlerfreiheit beendet einen
+manuellen Lauf auch während der Initialisierung; die Hintergrundsuche kann
+weiter optimieren. Mit gleichem Backend, Seed und denselben Startbedingungen
+bleibt ein Lauf ohne Zeitlimit reproduzierbar. CLI: `--population 24`.
+
 ## Retests und Bausteinbibliothek
 
 NAND-Ausdrücke verwenden die Schreibweise `(1) ⊼ (2)`, mit dem Operator zwischen

@@ -1,52 +1,113 @@
-// Evolutionary search lives here. Python FFI evaluates packed truth tables
-// and grafts library circuits. The launcher supplies n, m, gates, population,
-// generations, seed, job_path and the explicitly allowlisted bridge.
+// TinyLanguage owns the population, tournament selection and variation.
+// Python FFI evaluates packed truth tables and grafts library circuits.
 fn bound(index) {
     if (index < 2 * gates) { return n + Math.floor(index / 2); }
     return n + gates;
 }
 
+fn store(table, index, value) {
+    def stored = heap_set(table, index, value);
+    if (stored.e.code != 0) { print(stored.e.msg); }
+    return 0;
+}
+
+fn copy_genes(source, source_offset, target, target_offset) {
+    def i = 0;
+    while (i < width) {
+        def copied = heap_set(target, target_offset + i, heap_get(source, source_offset + i));
+        if (copied.e.code != 0) { print(copied.e.msg); }
+        i = i + 1;
+    }
+    return 0;
+}
+
+fn tournament(ranks, size) {
+    def winner = Random.randint(0, size - 1);
+    def draws = 1;
+    while (draws < 3 && draws < size) {
+        def contender = Random.randint(0, size - 1);
+        if (heap_get(ranks, contender) < heap_get(ranks, winner)) {
+            winner = contender;
+        }
+        draws = draws + 1;
+    }
+    return winner;
+}
+
 def width = 2 * gates + m;
 Random.seed(seed);
-def parent = bridge.specimen();
-def mate = bridge.specimen();
-def rank = bridge.score(parent);
+def parents = new(population * width);
+def ranks = new(population);
+def best = bridge.specimen();
+def rank = bridge.score(best);
+def evaluations = 1;
+def size = 1;
+def copied = copy_genes(best, 0, parents, 0);
+def stored = store(ranks, 0, rank);
 def weight = (gates + 1) * (gates + 1);
+while (size < population && rank >= weight) {
+    def candidate = bridge.specimen();
+    def candidate_rank = bridge.score(candidate);
+    evaluations = evaluations + 1;
+    copied = copy_genes(candidate, 0, parents, size * width);
+    stored = store(ranks, size, candidate_rank);
+    size = size + 1;
+    if (candidate_rank < rank) {
+        copied = copy_genes(candidate, 0, best, 0);
+        rank = candidate_rank;
+    }
+    delete(candidate);
+}
 def logged = bridge.trace(0, rank);
 def generation = 0;
-while (generation < generations && rank >= weight) {
+while (generation < generations && rank >= weight && evaluations < evaluation_budget) {
     generation = generation + 1;
     def attempt = 0;
-    while (attempt < population && rank >= weight) {
+    while (attempt < population && rank >= weight && evaluations < evaluation_budget) {
         def candidate = bridge.specimen();
         if (Random.random() >= 0.15) {
+            def selected = new[tournament(ranks, size), tournament(ranks, size)];
             def crossover = Random.random() < 0.35;
             def i = 0;
             while (i < width) {
-                def gene = heap_get(parent, i);
+                def gene = heap_get(parents, heap_get(selected, 0) * width + i);
                 if (crossover && Random.random() < 0.5) {
-                    gene = heap_get(mate, i);
+                    gene = heap_get(parents, heap_get(selected, 1) * width + i);
                 }
                 if (Random.random() < 1 / width) {
                     gene = Random.randint(0, bound(i) - 1);
                 }
-                def stored = heap_set(candidate, i, gene);
-                if (stored.e.code != 0) { print(stored.e.msg); }
+                stored = store(candidate, i, gene);
                 i = i + 1;
             }
+            delete(selected);
         }
         def candidate_rank = bridge.score(candidate);
-        if (candidate_rank <= rank) {
-            def j = 0;
-            while (j < width) {
-                def old_gene = heap_get(parent, j);
-                def new_gene = heap_get(candidate, j);
-                def stored_mate = heap_set(mate, j, old_gene);
-                if (stored_mate.e.code != 0) { print(stored_mate.e.msg); }
-                def stored_parent = heap_set(parent, j, new_gene);
-                if (stored_parent.e.code != 0) { print(stored_parent.e.msg); }
-                j = j + 1;
+        evaluations = evaluations + 1;
+        def worst = 0;
+        def j = 1;
+        while (j < size) {
+            if (heap_get(ranks, j) > heap_get(ranks, worst)) { worst = j; }
+            j = j + 1;
+        }
+        def ties = new(size);
+        def count = 0;
+        j = 0;
+        while (j < size) {
+            if (heap_get(ranks, j) == heap_get(ranks, worst)) {
+                stored = store(ties, count, j);
+                count = count + 1;
             }
+            j = j + 1;
+        }
+        worst = heap_get(ties, Random.randint(0, count - 1));
+        delete(ties);
+        if (candidate_rank <= heap_get(ranks, worst)) {
+            copied = copy_genes(candidate, 0, parents, worst * width);
+            stored = store(ranks, worst, candidate_rank);
+        }
+        if (candidate_rank < rank) {
+            copied = copy_genes(candidate, 0, best, 0);
             rank = candidate_rank;
         }
         delete(candidate);
@@ -54,7 +115,8 @@ while (generation < generations && rank >= weight) {
     }
     logged = bridge.trace(generation, rank);
 }
-print(bridge.finish(parent, generation, width));
-delete(parent);
-delete(mate);
+print(bridge.finish(best, generation, width, size));
+delete(best);
+delete(parents);
+delete(ranks);
 

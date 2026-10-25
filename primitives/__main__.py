@@ -60,7 +60,8 @@ def main():
     source.add_argument("--dataset", type=Path)
     evolve.add_argument("--backend", choices=("tiny", "python"), default="tiny")
     evolve.add_argument("--gates", type=int, default=12)
-    evolve.add_argument("--population", type=int, default=24)
+    evolve.add_argument("--population", type=int, default=24,
+                        help="Elternpopulation (2–256); zugleich maximale Nachkommen je Runde")
     evolve.add_argument("--generations", type=int, default=200)
     evolve.add_argument("--seed", type=int, default=1)
     commands.add_parser("library", help="Gespeicherte Programme auflisten")

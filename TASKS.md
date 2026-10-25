@@ -34,7 +34,8 @@ Die Kennungen sind Dokumentationskennungen; GitHub-Issues wurden noch nicht ange
 
 ## Etappe 2 – Suche robuster und aussagekräftiger machen
 
-- [ ] Elternpopulation mit Turnierselektion statt zwei laufender Eltern.
+- [x] Elternpopulation mit Turnierselektion statt zwei laufender Eltern
+      (Python und TinyLanguage; Initialisierung im Kandidatenbudget, bestes Ergebnis erhalten).
 - [ ] Mehrere unabhängige Neustarts, Inselpopulationen und Diversitätsmass.
 - [ ] Neutrale Evolution und anschliessende Vereinfachung als getrennte Phasen.
 - [x] Explizite Makroknoten mit benannten Ports und festen Abhängigkeitsversionen (PRIM-05;
@@ -72,7 +73,8 @@ Die Kennungen sind Dokumentationskennungen; GitHub-Issues wurden noch nicht ange
 - [ ] Evolution auf zeitabhängige Aufgaben erweitern.
 
 Die acht Erweiterungspakete PRIM-01 bis PRIM-08 sind umgesetzt.
-Nächster offener Entwicklungspunkt: Elternpopulation mit Turnierselektion (Etappe 2).
+Nächster offener Entwicklungspunkt: mehrere unabhängige Neustarts,
+Inselpopulationen und Diversitätsmass (Etappe 2).
 Für die Suchentwicklung bleiben Suchrobustheit und unabhängige Prüfvektoren
 vor einer starken Erhöhung der Zahlbreiten empfohlen.
 

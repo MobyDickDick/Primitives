@@ -51,6 +51,10 @@ class ServerTests(unittest.TestCase):
         self.assertEqual(state["status"], "done", state)
         self.assertTrue(state["result"]["fitness"]["verified_truth_table"])
         saved = self.request("/api/programs/" + state["result"]["id"])
+        self.assertEqual(saved["search"]["selection"], "tournament")
+        self.assertEqual(saved["search"]["tournament_size"], 3)
+        self.assertEqual(saved["search"]["parent_population"], 24)
+        self.assertLessEqual(saved["search"]["evaluations"], saved["search"]["evaluation_budget"])
         evaluated = self.request("/api/evaluate", {"circuit": saved["circuit"], "bits": [1, 0]})
         self.assertEqual(evaluated["outputs"], [1])
         retest = self.request("/api/search", {"dataset_id": d["id"], "config": {

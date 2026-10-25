@@ -63,21 +63,34 @@ Ein Genom enthält für jedes der G Gatter zwei Verweise und anschliessend M
 Ausgangsverweise, also 2G+M Ganzzahlen. Die zulässigen Werte hängen von der Position
 ab; dadurch entstehen auch bei Mutation und Rekombination keine Vorwärtsverweise.
 
-Der erste Prototyp verwendet eine kompakte Steady-State-Variante mit zwei Eltern
-und einer einstellbaren Zahl von Nachkommen pro Generation:
+Beide Backends verwenden eine Steady-State-Elternpopulation mit Turnierselektion.
+`population` (2–256, Standard 24) bestimmt die Elternzahl und zugleich die maximale
+Zahl von Nachkommen je Generation:
 
-1. Zufällige Kandidaten oder neu verdrahtete Bibliotheksbausteine erzeugen.
-2. Einen Kandidaten mit dem aktuellen Elternprogramm beginnen lassen.
-3. Mit Wahrscheinlichkeit 35 % Gene vom zweiten Elternprogramm übernehmen.
+1. Die Elternpopulation mit zufälligen oder neu verdrahteten Bibliothekskandidaten
+   füllen und jedes Mitglied bewerten. Python kann mit der bisherigen Lösung beginnen.
+2. Für jeden der beiden Eltern unabhängig bis zu drei Populationsmitglieder mit
+   Zurücklegen ziehen und das beste gezogene Mitglied wählen. Bei gleicher Fitness
+   gewinnt die erste Ziehung; bei Population 2 bestehen Turniere aus zwei Ziehungen.
+3. Eine Kopie des ersten Elternprogramms erzeugen. Mit Wahrscheinlichkeit 35 %
+   jedes Gen unabhängig mit Wahrscheinlichkeit 50 % vom zweiten Elternprogramm übernehmen.
 4. Jedes Gen mit Wahrscheinlichkeit 1/(2G+M) durch einen zulässigen Verweis ersetzen.
 5. In 15 % der Versuche stattdessen einen neuen zufälligen/Bibliothekskandidaten nutzen.
-6. Gleich gute oder bessere Kandidaten übernehmen; das vorige Elternprogramm
-   wird zum zweiten Elternprogramm. Gleichstände erlauben neutrale Veränderung.
-7. Bei null Fehlern oder am Ende des Generationenbudgets stoppen.
+6. Ein zufällig gewähltes Mitglied mit schlechtestem Rang ersetzen, sofern der
+   Nachkomme mindestens gleich gut ist. Dadurch bleiben bessere Eltern erhalten;
+   Gleichstände erlauben neutrale Veränderung an unterschiedlichen Populationsplätzen.
+7. Das beste gefundene Genom separat sichern. Bei null Fehlern oder ausgeschöpftem
+   Generationen-/Kandidatenbudget stoppen. Der Python-Hintergrundmodus `optimize`
+   sucht auch bei null Fehlern weiter und respektiert zusätzlich sein Zeitbudget.
 
-Beide Eltern werden zunächst mit einem Kandidaten initialisiert; nur der erste wird
-als Ausgangsbester bewertet. Das ist keine klassische grosse Elternpopulation.
-Eine breitere Auswahlstrategie ist ausdrücklich eine Folgeaufgabe.
+Die Initialisierung zählt zum gesamten Bewertungsbudget
+`min(500000, 1 + population * generations)`. Deshalb kann die letzte Generation
+weniger Nachkommen enthalten. Frühe Fehlerfreiheit oder ein Zeitlimit dürfen die
+Initialisierung beenden; mindestens der erste Kandidat wird bewertet, damit immer
+ein Ergebnis vorhanden ist. Abbruch wird vor jeder Bewertung geprüft.
+Gespeicherte Suchmetadaten nennen `selection`, `tournament_size`, die tatsächlich
+initialisierte `parent_population` und `evaluation_budget`. Der Verlauf enthält
+nur Verbesserungen des bisher besten Rangs, beginnend nach der Initialisierung.
 
 Die Fitness wird lexikographisch nach falschen Ausgangsbits, aktiven Gattern und
 Gattertiefe bewertet. Implementiert ist die ganzzahlige Rangzahl
