@@ -1,9 +1,11 @@
 import unittest
+import threading
 
 from primitives.circuit import Circuit
 from primitives.dataset import Dataset, bits, preset
 from primitives.library import fitness
 from primitives.repair import repair_result
+from primitives.evolution import SearchCancelled
 
 
 MUL_APPROXIMATION = Circuit(4, ((3, 0), (2, 0), (1, 3), (1, 2), (4, 7),
@@ -13,6 +15,12 @@ MUL_APPROXIMATION = Circuit(4, ((3, 0), (2, 0), (1, 3), (1, 2), (4, 7),
 class RepairTests(unittest.TestCase):
     def result(self, circuit):
         return {"circuit": circuit.to_dict(), "search": {"history": []}}
+
+    def test_cancel_stops_automatic_repair(self):
+        cancelled = threading.Event()
+        cancelled.set()
+        with self.assertRaises(SearchCancelled):
+            repair_result(self.result(MUL_APPROXIMATION), preset("mul"), cancel_event=cancelled)
 
     def test_mul_last_case_is_compiled_into_nand_gates(self):
         original = MUL_APPROXIMATION

@@ -8,7 +8,7 @@ import sys
 import tempfile
 import time
 from .circuit import Circuit
-from .evolution import Problem, search_python
+from .evolution import Problem, check_cancelled, search_python
 from .library import fitness, rank, task_id
 from .repair import repair_result
 
@@ -24,8 +24,9 @@ def tiny_interpreter():
     return path
 
 
-def search(dataset, config, library=None, *, save=True, time_budget=None):
+def search(dataset, config, library=None, *, save=True, time_budget=None, cancel_event=None):
     config.validate()
+    check_cancelled(cancel_event)
     saved = library.programs() if library else []
     circuits = [Circuit.from_dict(p["circuit"]) for p in saved if p["fitness"]["exact_on_dataset"]]
     incumbent = next((p for p in saved if p["task_id"] == task_id(dataset)), None)
@@ -33,7 +34,7 @@ def search(dataset, config, library=None, *, save=True, time_budget=None):
     if config.backend == "python":
         result = search_python(Problem(dataset, config, circuits,
                                       Circuit.from_dict(incumbent["circuit"]) if incumbent else None,
-                                      time_budget=time_budget))
+                                      time_budget=time_budget, cancel_event=cancel_event))
     else:
         interpreter = tiny_interpreter()
         (ROOT / ".jobs").mkdir(exist_ok=True)
@@ -57,17 +58,32 @@ def seed = {config.seed};
             source.write_text(prelude + (ROOT / "tiny" / "evolve.tiny").read_text(encoding="utf-8"), encoding="utf-8")
             env = dict(os.environ, PYTHONPATH=str(ROOT) + os.pathsep + str(interpreter.parent),
                        PYTHONDONTWRITEBYTECODE="1")
-            try:
-                proc = subprocess.run([sys.executable, str(interpreter), str(source)], cwd=ROOT, env=env,
-                                      text=True, encoding="utf-8", errors="replace", capture_output=True, timeout=300)
-            except subprocess.TimeoutExpired as exc:
-                raise ValueError("TinyLanguage-Suche nach 300 Sekunden abgebrochen; Budget verkleinern oder Python-Backend wählen.") from exc
+            flags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
+            with subprocess.Popen([sys.executable, str(interpreter), str(source)], cwd=ROOT, env=env,
+                                  text=True, encoding="utf-8", errors="replace", stdout=subprocess.PIPE,
+                                  stderr=subprocess.PIPE, creationflags=flags) as proc:
+                deadline = time.monotonic() + 300
+                try:
+                    while True:
+                        check_cancelled(cancel_event)
+                        if time.monotonic() >= deadline:
+                            raise ValueError("TinyLanguage-Suche nach 300 Sekunden abgebrochen; Budget verkleinern oder Python-Backend wählen.")
+                        try:
+                            stdout, stderr = proc.communicate(timeout=0.1)
+                            break
+                        except subprocess.TimeoutExpired:
+                            pass
+                finally:
+                    if proc.poll() is None:
+                        proc.kill()
+                        proc.communicate()
             if proc.returncode:
-                raise ValueError("TinyLanguage meldet: " + (proc.stderr or proc.stdout)[-5000:])
+                raise ValueError("TinyLanguage meldet: " + (stderr or stdout)[-5000:])
             try:
-                result = json.loads(proc.stdout.strip().splitlines()[-1])
+                result = json.loads(stdout.strip().splitlines()[-1])
             except (ValueError, IndexError) as exc:
-                raise ValueError("TinyLanguage lieferte kein gültiges Suchergebnis: " + proc.stdout[-1000:]) from exc
+                raise ValueError("TinyLanguage lieferte kein gültiges Suchergebnis: " + stdout[-1000:]) from exc
+    check_cancelled(cancel_event)
     result["search"]["elapsed_seconds"] = round(time.monotonic() - started, 3)
     result["search"]["seed_library"] = [p["id"] for p in saved if p["fitness"]["exact_on_dataset"]]
     if config.repair_cases:
@@ -76,8 +92,10 @@ def seed = {config.seed};
             result = {"circuit": incumbent["circuit"], "fitness": incumbent["fitness"],
                       "search": result["search"],
                       **({"correction": incumbent["correction"]} if "correction" in incumbent else {})}
-        result = repair_result(result, dataset, config.repair_cases)
+        result = repair_result(result, dataset, config.repair_cases, cancel_event=cancel_event)
+    check_cancelled(cancel_event)
     if library and save:
+        check_cancelled(cancel_event)
         result = library.save_program(result, dataset)
     return result
 

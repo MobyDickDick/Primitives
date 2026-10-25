@@ -33,6 +33,16 @@ Auf der Kommandozeile bleibt die Vorlage über `--preset mul` verfügbar.
 
 ## Retests und Bausteinbibliothek
 
+NAND-Ausdrücke verwenden die Schreibweise `(1) ⊼ (2)`, mit dem Operator zwischen
+den Argumenten. Verschachtelungen werden eingeklammert: `(1) ⊼ ((2) ⊼ (3))`.
+Das ältere Format `(1,(2,3))` kann weiterhin eingelesen werden.
+
+Während einer manuellen Programmgenerierung beendet **■ Suche abbrechen** den
+laufenden Suchlauf, sowohl mit Python als auch mit TinyLanguage. Der abgebrochene
+Lauf wird nicht gespeichert; bisherige Programme bleiben erhalten. Danach lässt
+sich eine neue Evolution starten. Die automatische Hintergrundsuche läuft nach
+dem Abbruch wieder weiter; sie lässt sich pro Aufgabe über **Frozen** stoppen.
+
 Ein erneuter Suchlauf prüft das neue Programm gegen das bisher beste Programm
 auf denselben Zuordnungsvektoren. Es gewinnt zuerst die kleinere Zahl falscher
 Ausgangsbits, danach die kleinere Gatterzahl und schliesslich die geringere Tiefe.
@@ -60,6 +70,27 @@ Ein gespeichertes Programm lässt sich auch auswählen und direkt über
 Eingaben und die zusätzlichen Gatter an. Alle vorhandenen Vektoren werden danach
 erneut geprüft. Eine korrigierte Stichprobe bleibt eine Stichprobe und wird nicht
 als vollständige Wahrheitstabelle bezeichnet.
+
+## Interaktives Schaltbild
+
+Alle Boxen sind eindeutig ab 0 nummeriert. Eine NAND-Box zeigt beispielsweise
+`Box 2 ⊼ Box 3`; darunter steht separat ihr berechneter Signalwert. Anklicken
+zeigt zusätzlich eine Erklärung der ausgewählten Box und ihrer Verknüpfung.
+Ein Klick auf eine Eingangsbox schaltet deren Bit direkt zwischen 0 und 1 um.
+
+Boxen lassen sich mit Maus oder Touch verschieben; die Zuleitungen folgen und
+werden um andere Boxen herumgeführt. Die obere Quelle erhält den oberen
+NAND-Eingang, damit sich die beiden Zuleitungen nicht unnötig kreuzen.
+Überlagerungen von Boxen werden beim Verschieben verhindert.
+Mit **Automatisch anordnen** wird die Anordnung neu berechnet.
+Bei komplexen Schaltungen können Leitungskreuzungen weiterhin vorkommen.
+
+**Layout speichern** sichert die Positionen pro Schaltung im Datenverzeichnis
+des lokalen Servers. Sie werden beim erneuten Öffnen automatisch geladen und
+bleiben nach einem Serverneustart erhalten. Änderungen der Eingangswerte oder
+des Simulationsschritts verändern die Positionen nicht. Eine andere Schaltung
+erhält ein eigenes Layout. Tastatur: Tab wählt eine Box, Pfeiltasten verschieben
+sie, Leertaste oder Enter schalten Eingänge um.
 
 ## Hintergrundsuche und Frozen
 

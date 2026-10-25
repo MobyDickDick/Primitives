@@ -25,18 +25,23 @@ Bei unvollständiger Tabelle sind nicht aufgeführte Eingaben frei. Eine gefunde
 Schaltung legt dafür trotzdem Ausgaben fest; diese wurden durch die Tabelle
 aber nicht überprüft.
 
-## Klammerformat
+## NAND-Schreibweise
 
 ```text
-1             Eingangsbit 1 ohne Gatter
-(1,2)         NAND von Eingangsbit 1 und 2
-(1,1)         NOT von Eingangsbit 1
-(1,(2,3))     NAND(x0, NAND(x1,x2))
+1                        Eingangsbit 1 ohne Gatter
+(1) ⊼ (2)                NAND von Eingangsbit 1 und 2
+(1) ⊼ (1)                NOT von Eingangsbit 1
+(1) ⊼ ((2) ⊼ (3))        NAND(x0, NAND(x1,x2))
 ```
 
 Mehrfachverwendung von Eingängen ist erlaubt und für die funktionale Vollständigkeit
 wichtig. NAND(a,b) ist 0, wenn beide Argumente 1 sind, andernfalls 1. Die Grammatik ist
-`Ausdruck := Eingangsnummer | '(' Ausdruck ',' Ausdruck ')'`.
+`Ausdruck := Atom [ '⊼' Atom ]`, `Atom := Eingangsnummer | '(' Ausdruck ')'`.
+Der Operator steht zwischen seinen beiden Argumenten. NAND ist nicht assoziativ;
+weitere Verknüpfungen müssen deshalb ausdrücklich eingeklammert werden.
+Auch `\bar{\wedge}` wird bei der Eingabe als Operator akzeptiert.
+Das bisherige Klammerformat `(1,(2,3))` bleibt lesbar; Anzeige und Export verwenden
+die Schreibweise mit `⊼`, auch bei bereits gespeicherten Programmen.
 Identische, auch vertauschte NAND-Teilausdrücke werden beim Einlesen gemeinsam genutzt.
 
 ## Interne Schaltung
@@ -49,7 +54,7 @@ Identische, auch vertauschte NAND-Teilausdrücke werden beim Einlesen gemeinsam 
 }
 ```
 
-Das entspricht `(1,(2,3))`. Alle Verweise beginnen hier bei 0:
+Das entspricht `(1) ⊼ ((2) ⊼ (3))`. Alle Verweise beginnen hier bei 0:
 
 - `0…N-1`: Eingänge.
 - `N+i`: Ausgang des Gatters i.

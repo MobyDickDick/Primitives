@@ -5,6 +5,15 @@ import time
 from .circuit import Circuit
 
 
+class SearchCancelled(Exception):
+    """The user stopped the current search."""
+
+
+def check_cancelled(cancel_event):
+    if cancel_event is not None and cancel_event.is_set():
+        raise SearchCancelled("Suche abgebrochen.")
+
+
 @dataclass
 class SearchConfig:
     gates: int = 12
@@ -38,8 +47,10 @@ def genome_circuit(genome, n, m):
 
 
 class Problem:
-    def __init__(self, dataset, config, library=(), incumbent=None, time_budget=None):
+    def __init__(self, dataset, config, library=(), incumbent=None, time_budget=None, cancel_event=None):
         config.validate()
+        self.cancel_event = cancel_event
+        check_cancelled(cancel_event)
         self.dataset, self.config = dataset, config
         self.n, self.m, self.g = dataset.inputs, dataset.outputs, config.gates
         self.width = self.g * 2 + self.m
@@ -48,6 +59,8 @@ class Problem:
         self.mask = (1 << len(dataset.rows)) - 1
         columns = [0] * (self.n + self.m)
         for i, row in enumerate(dataset.rows):
+            if i % 256 == 0:
+                check_cancelled(cancel_event)
             for j, bit in enumerate(row):
                 columns[j] |= bit << i
         self.columns, self.targets = columns[:self.n], columns[self.n:]
@@ -105,6 +118,7 @@ class Problem:
         return errors, len(circuit.active()), circuit.depth
 
     def score(self, genome):
+        check_cancelled(self.cancel_event)
         self.evaluations += 1
         errors, gates, depth = self.metrics(genome)
         return errors * self.error_weight + gates * (self.g + 1) + depth

@@ -65,7 +65,18 @@ class CircuitTests(unittest.TestCase):
         for x in range(8):
             b = bits(x, 3)
             self.assertEqual(c.evaluate(b), [1 - (b[0] & (1 - (b[1] & b[2])))])
-        self.assertEqual(c.expressions(), ["(1,(2,3))"])
+        self.assertEqual(c.expressions(), ["(1) ⊼ ((2) ⊼ (3))"])
+        for source in (c.expressions()[0], r"(1) \bar{\wedge} ((2) \bar{\wedge} (3))"):
+            self.assertEqual(parse_expression(source, 3), c)
+
+    def test_infix_grouping_and_shared_nodes(self):
+        legacy = parse_expression("((1,2),(2,1))", 2)
+        infix = parse_expression("((1) ⊼ (2)) ⊼ ((2) ⊼ (1))", 2)
+        self.assertEqual(infix, legacy)
+        self.assertEqual(parse_expression("(1)", 2).evaluate([1, 0]), [1])
+        for source in ("1 ⊼ 2 ⊼ 3", "(1) ⊼", "⊼ (1) (2)", "(1)(2)", "(1) ∧ (2)"):
+            with self.assertRaises(ValueError, msg=source):
+                parse_expression(source, 3)
 
     def test_parse_and_reference_validation(self):
         for text in ("(0,1)", "(1,4)", "(1,2", "(1,2),3", "", "__import__", "(1 2)"):

@@ -9,7 +9,7 @@ from urllib.parse import urlsplit
 import uuid
 from .circuit import Circuit, parse_expression
 from .dataset import Dataset, PRESETS, generate
-from .evolution import SearchConfig
+from .evolution import SearchCancelled, SearchConfig, check_cancelled
 from .library import Library
 from .runner import ROOT, search, tiny_interpreter
 from .background import BackgroundOptimizer
@@ -18,7 +18,7 @@ from .repair import repair_result
 
 def make_server(port=8765, data_dir=None, *, background=True):
     library = Library(data_dir or ROOT / "data")
-    jobs, lock = {}, threading.Lock()
+    jobs, cancellations, lock = {}, {}, threading.Lock()
     executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="evolution")
     optimizer = BackgroundOptimizer(library, enabled=background)
 
@@ -58,9 +58,9 @@ def make_server(port=8765, data_dir=None, *, background=True):
                         job = dict(jobs[path.rsplit("/", 1)[1]])
                     job["elapsed_seconds"] = round(time.monotonic() - job.pop("started"), 1)
                     self.send_data(job)
-                elif path in ("/", "/app.js", "/style.css"):
+                elif path in ("/", "/app.js", "/graph.js", "/style.css"):
                     name = "index.html" if path == "/" else path[1:]
-                    content_type = {"index.html": "text/html; charset=utf-8", "app.js": "text/javascript; charset=utf-8", "style.css": "text/css; charset=utf-8"}[name]
+                    content_type = {"index.html": "text/html; charset=utf-8", "app.js": "text/javascript; charset=utf-8", "graph.js": "text/javascript; charset=utf-8", "style.css": "text/css; charset=utf-8"}[name]
                     self.send_data((ROOT / "web" / name).read_bytes(), content_type=content_type)
                 else:
                     self.send_data({"error": "Nicht gefunden."}, 404)
@@ -91,11 +91,26 @@ def make_server(port=8765, data_dir=None, *, background=True):
                     key = library.save_dataset(dataset)
                     self.send_data({"id": key, "dataset": dataset.to_dict()})
                 elif path == "/api/parse":
-                    self.send_data({"circuit": parse_expression(obj["expression"], obj["inputs"]).to_dict()})
+                    circuit = parse_expression(obj["expression"], obj["inputs"])
+                    self.send_data({"circuit": circuit.to_dict(), "expressions": circuit.expressions()})
+                elif path in ("/api/layout/load", "/api/layout/save"):
+                    circuit = Circuit.from_dict(obj["circuit"])
+                    positions = (library.save_layout(circuit, obj["positions"]) if path.endswith("/save")
+                                 else library.load_layout(circuit))
+                    self.send_data({"positions": positions})
                 elif path == "/api/evaluate":
                     circuit = Circuit.from_dict(obj["circuit"])
                     values = circuit.wires(obj["bits"])
                     self.send_data({"wires": values, "outputs": [values[o] for o in circuit.outputs]})
+                elif path.startswith("/api/jobs/") and path.endswith("/cancel"):
+                    key = path.split("/")[-2]
+                    with lock:
+                        job = jobs[key]
+                        if job["status"] in ("queued", "running", "cancelling"):
+                            cancellations[key].set()
+                            job["status"] = "cancelling"
+                        status = job["status"]
+                    self.send_data({"status": status})
                 elif path.startswith("/api/programs/") and path.endswith("/frozen"):
                     setting = library.set_frozen(path.split("/")[-2], obj["frozen"])
                     if setting["frozen"]:
@@ -116,25 +131,32 @@ def make_server(port=8765, data_dir=None, *, background=True):
                     if config.backend == "tiny":
                         tiny_interpreter()
                     with lock:
-                        if any(j["status"] in ("queued", "running") for j in jobs.values()):
+                        if any(j["status"] in ("queued", "running", "cancelling") for j in jobs.values()):
                             raise ValueError("Eine Suche läuft bereits. Bitte deren Ergebnis abwarten.")
                         key = uuid.uuid4().hex
                         jobs[key] = {"status": "queued", "started": time.monotonic()}
+                        cancellations[key] = threading.Event()
                         optimizer.pause()
 
                     def work():
-                        with lock:
-                            jobs[key]["status"] = "running"
                         try:
-                            result = search(dataset, config, library)
                             with lock:
+                                check_cancelled(cancellations[key])
+                                jobs[key]["status"] = "running"
+                            result = search(dataset, config, library, save=False, cancel_event=cancellations[key])
+                            with lock:
+                                check_cancelled(cancellations[key])
+                                result = library.save_program(result, dataset)
                                 jobs[key].update(status="done", result=result)
+                        except SearchCancelled:
+                            with lock:
+                                jobs[key].update(status="cancelled")
                         except Exception as exc:
                             with lock:
                                 jobs[key].update(status="failed", error=str(exc))
                         finally:
                             with lock:
-                                if not any(j["status"] in ("queued", "running") for j in jobs.values()):
+                                if not any(j["status"] in ("queued", "running", "cancelling") for j in jobs.values()):
                                     optimizer.resume()
                     executor.submit(work)
                     self.send_data({"job_id": key}, 202)
@@ -156,6 +178,9 @@ def make_server(port=8765, data_dir=None, *, background=True):
             super().shutdown()
 
         def server_close(self):
+            with lock:
+                for event in cancellations.values():
+                    event.set()
             optimizer.close()
             super().server_close()
 

@@ -84,6 +84,14 @@ class RetestTests(unittest.TestCase):
         self.assertEqual([p["id"] for p in self.library.programs()], [old["id"]])
         self.assertEqual(self.save(self.approximate)["id"], old["id"])
 
+    def test_legacy_expressions_are_displayed_infix_on_load(self):
+        old = self.save(self.exact)
+        old["expressions"] = ["((1,2),(1,2))"]
+        write_json(Path(self.tmp.name) / "programs" / f'{old["id"]}.json', old)
+        loaded = self.library.load_program(old["id"])
+        self.assertEqual(loaded["expressions"], ["((1) ⊼ (2)) ⊼ ((1) ⊼ (2))"])
+        self.assertEqual(loaded["circuit"], old["circuit"])
+
     def test_search_returns_kept_program_with_comparison(self):
         old = self.save(self.exact)
         candidate = self.result(self.approximate)

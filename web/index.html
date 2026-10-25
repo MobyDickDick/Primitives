@@ -1,10 +1,10 @@
 <!doctype html>
 <html lang="de">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Primitives · NAND-Labor</title><link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Primitives · NAND-Labor</title><link rel="stylesheet" href="/style.css"><script src="/graph.js" defer></script><script src="/app.js" defer></script></head>
 <body>
 <header><div class="brand"><span class="brand-icon">⊼</span><div>PRIMITIVES <span class="version">0.1</span><small>Eine Spielwiese aus NAND-Gattern</small></div></div><span class="local">● Lokal auf deinem Rechner</span></header>
 <main>
-<div class="intro"><div><p class="eyebrow">VON BEISPIELEN ZU PROGRAMMEN</p><h1>Logik wachsen lassen.</h1><p>Definiere eine Funktion. Lass Programme um die beste Lösung konkurrieren.<br>Entdecke, wie aus einem einzigen Gatter neue Bausteine werden.</p></div><div class="formula">(1,(2,3))<small>Alles beginnt mit NAND.</small></div></div>
+<div class="intro"><div><p class="eyebrow">VON BEISPIELEN ZU PROGRAMMEN</p><h1>Logik wachsen lassen.</h1><p>Definiere eine Funktion. Lass Programme um die beste Lösung konkurrieren.<br>Entdecke, wie aus einem einzigen Gatter neue Bausteine werden.</p></div><div class="formula">(1) ⊼ ((2) ⊼ (3))<small>Alles beginnt mit NAND.</small></div></div>
 <div id="notice" role="status" hidden></div>
 <div class="workspace">
 <aside>
@@ -26,7 +26,7 @@
 <div class="pair"><label>Generationen<input id="generations" type="number" min="1" max="20000" value="200"></label><label>Zufallsseed<input id="seed" type="number" min="0" max="2147483647" value="1"></label></div>
 <p class="hint">Mutation + Rekombination + Bausteine aus der Bibliothek. Ende bei fehlerfreier Zuordnung oder ausgeschöpftem Budget.</p>
 <label class="check-label"><input id="auto-repair" type="checkbox" checked> Wenige Restfälle exakt korrigieren</label><p class="hint">Bis zu 4 fehlerhafte Eingaben, höchstens 25 % der Testfälle. Zusätzliche NAND-Gatter erzwingen die Sollausgabe; sie zählen zum Ergebnis und können das Suchbudget überschreiten.</p>
-<button id="evolve" class="primary full">Evolution starten <span>→</span></button><p id="job-status" role="status" class="hint">Bereit für das erste Experiment.</p>
+<button id="evolve" class="primary full">Evolution starten <span>→</span></button><button id="cancel-search" class="danger full" disabled>■ Suche abbrechen</button><p id="job-status" role="status" class="hint">Bereit für das erste Experiment.</p>
 </section>
 </aside>
 <div class="content">
@@ -34,11 +34,15 @@
 <div id="empty" class="empty"><div>⊼</div><h3>Ein Gatter. Unzählige Möglichkeiten.</h3><p>Erzeuge Vektoren und starte die Evolution.<br>Oder öffne ein gespeichertes Programm.</p></div>
 <div id="program" hidden><div id="metrics" class="metrics"></div><p id="program-name" class="hint"></p><button id="repair-program" class="secondary" disabled>Restfälle exakt korrigieren</button><details id="correction-details" hidden><summary id="correction-summary"></summary><p class="hint">Diese Eingaben werden durch zusätzliche NAND-Gatter erkannt und korrigiert. Alle anderen Eingaben verhalten sich wie zuvor. Bei Stichproben gilt die Prüfung weiterhin nur für die vorhandenen Testfälle.</p><ul id="correction-cases" class="hint"></ul></details><div class="code-line"><code id="notation"></code></div>
 <div class="simulation"><div><p class="eyebrow">EINGÄNGE UMSCHALTEN</p><div id="bit-switches" class="bits"></div></div><div id="output-values" class="output"></div></div>
-<div class="graph-wrap"><svg id="graph" role="img" aria-label="NAND-Programm mit Signalwerten"></svg></div>
+<div class="graph-toolbar"><button id="save-layout" class="secondary">Layout speichern</button><button id="auto-layout" class="secondary">Automatisch anordnen</button></div>
+<p class="hint graph-help">Jede Box hat eine eigene Nummer. ⊼ verknüpft die genannten Quellboxen mit NAND; „Wert“ ist das berechnete Signal. Boxen zum Verschieben ziehen. Eingangsboxen zum Umschalten anklicken. Mit der Tastatur: Tab wählt eine Box, Pfeiltasten verschieben sie, Leertaste schaltet einen Eingang um.</p>
+<p id="layout-status" class="hint" role="status"></p>
+<div class="graph-wrap"><svg id="graph" role="group" aria-label="Interaktives NAND-Schaltbild" aria-describedby="box-description"></svg></div>
+<p id="box-description" class="hint box-description" role="status"></p>
 <div class="step-controls"><button id="play" class="secondary">▶ Abspielen</button><label>Gatterschritt <input id="step" type="range" min="0" value="0"></label><span id="step-label"></span></div>
 <div class="chart-head"><h3>Suchverlauf</h3><span>Fehlerhafte Ausgangsbits</span></div><svg id="history" viewBox="0 0 680 130" role="img" aria-label="Fehler im Suchverlauf"></svg><p id="search-summary" class="hint"></p>
 </div>
-<details><summary>Klammerprogramm ausprobieren</summary><div class="parse-row"><input id="nand-expression" value="(1,(2,3))" aria-label="NAND-Ausdruck"><input id="nand-inputs" type="number" min="1" max="32" value="3" aria-label="Anzahl Eingänge"><button id="parse" class="secondary">Ansehen</button></div></details>
+<details><summary>NAND-Programm ausprobieren</summary><p class="hint">Schreibweise: <code>(1) ⊼ (2)</code>. Verschachtelte Argumente einklammern, z. B. <code>(1) ⊼ ((2) ⊼ (3))</code>.</p><div class="parse-row"><input id="nand-expression" value="(1) ⊼ ((2) ⊼ (3))" aria-label="NAND-Ausdruck"><input id="nand-inputs" type="number" min="1" max="32" value="3" aria-label="Anzahl Eingänge"><button id="parse" class="secondary">Ansehen</button></div></details>
 </section>
 <section class="card"><div class="section-title"><h2>Zuordnung prüfen</h2><button id="export-dataset" class="text-button" disabled>Vektoren exportieren ↓</button></div><p id="table-info" class="hint">Die erzeugten Beispiele erscheinen hier. Eine Zeile anklicken, um sie im Schaltbild zu testen.</p><div class="table-wrap"><table><thead><tr><th>Eingänge (LSB zuerst)</th><th>Soll</th><th>Ist</th><th>Prüfung</th></tr></thead><tbody id="vectors"></tbody></table></div></section>
 <section class="card"><div class="section-title"><h2>Bausteinbibliothek</h2><button id="refresh" class="text-button">Aktualisieren ↻</button></div><p class="hint">Pro Aufgabe mit denselben Zuordnungsvektoren erscheint nur die beste Version. Jeder Retest prüft das neue gegen das bisherige Programm: Weniger Fehler gewinnen, bei Gleichstand weniger Gatter und danach geringere Tiefe. Sonst bleibt die bisherige Version erhalten. Passende, auf ihren Vektoren fehlerfreie Programme fliessen in neue Suchen ein.</p><p class="hint">Solange der Server läuft, sucht er reihum mit niedriger Priorität weiter – auch nach kleineren fehlerfreien Lösungen. Manuelle Suchen haben Vorrang. „Frozen“ stoppt die automatische Suche für diese Aufgabe; die Einstellung bleibt bei Verbesserungen und nach einem Neustart erhalten.</p><p id="background-status" role="status" class="summary"></p><div id="library" class="library"></div></section>

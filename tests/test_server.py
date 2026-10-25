@@ -70,6 +70,74 @@ class ServerTests(unittest.TestCase):
             self.assertEqual(caught.exception.code, 400)
             caught.exception.close()
 
+    def test_infix_parse_api(self):
+        for expression in ("(1) ⊼ ((2) ⊼ (3))", "(1,(2,3))"):
+            parsed = self.request("/api/parse", {"expression": expression, "inputs": 3})
+            self.assertEqual(parsed["expressions"], ["(1) ⊼ ((2) ⊼ (3))"])
+            self.assertEqual(self.request("/api/evaluate", {"circuit": parsed["circuit"], "bits": [1, 1, 1]})["outputs"], [1])
+
+    def test_layout_is_saved_per_circuit_and_survives_reload(self):
+        from primitives.circuit import Circuit
+        from primitives.library import Library
+        circuit = {"inputs": 2, "gates": [[0, 1]], "outputs": [2]}
+        positions = [{"x": 40, "y": 100}, {"x": 40, "y": 240}, {"x": 330, "y": 170}, {"x": 620, "y": 170}]
+        self.assertIsNone(self.request("/api/layout/load", {"circuit": circuit})["positions"])
+        self.assertEqual(self.request("/api/layout/save", {"circuit": circuit, "positions": positions})["positions"], positions)
+        self.assertEqual(self.request("/api/layout/load", {"circuit": circuit})["positions"], positions)
+        self.assertEqual(Library(self.tmp.name).load_layout(Circuit.from_dict(circuit)), positions)
+        other = {**circuit, "gates": [[0, 0]]}
+        self.assertIsNone(self.request("/api/layout/load", {"circuit": other})["positions"])
+        for invalid in ([], [{"x": True, "y": 100}] * 4, [{"x": float("nan"), "y": 100}] * 4,
+                        [{"x": -1, "y": 100}] * 4):
+            with self.assertRaises(HTTPError) as caught:
+                self.request("/api/layout/save", {"circuit": circuit, "positions": invalid})
+            self.assertEqual(caught.exception.code, 400)
+            caught.exception.close()
+        with urlopen(self.base + "/graph.js") as response:
+            self.assertIn(b"CircuitGraph", response.read())
+
+    def test_cancel_search_and_restart(self):
+        from primitives.runner import tiny_interpreter
+        backends = ["python"]
+        try:
+            tiny_interpreter()
+            backends.append("tiny")
+        except ValueError:
+            pass
+        dataset = self.request("/api/datasets", {"name": "xor", "inputs": 2, "outputs": 1, "expression": "x0 ^ x1"})
+        for backend in backends:
+            with self.subTest(backend=backend):
+                job = self.request("/api/search", {"dataset_id": dataset["id"], "config": {
+                    "backend": backend, "gates": 1, "population": 25, "generations": 20000}})
+                path = "/api/jobs/" + job["job_id"]
+                deadline = time.monotonic() + 3
+                while self.request(path)["status"] == "queued" and time.monotonic() < deadline:
+                    time.sleep(0.01)
+                # Give TinyLanguage time to start its subprocess before cancellation.
+                time.sleep(0.15)
+                self.assertEqual(self.request(path + "/cancel", {})["status"], "cancelling")
+                deadline = time.monotonic() + 3
+                while time.monotonic() < deadline:
+                    state = self.request(path)
+                    if state["status"] == "cancelled":
+                        break
+                    time.sleep(0.02)
+                self.assertEqual(state["status"], "cancelled", state)
+                self.assertNotIn("result", state)
+                self.assertEqual(self.request(path + "/cancel", {})["status"], "cancelled")
+                self.assertEqual(self.request("/api/catalog")["programs"], [])
+        # Cancellation releases the worker for the next search.
+        job = self.request("/api/search", {"dataset_id": dataset["id"], "config": {
+            "backend": "python", "gates": 1, "population": 2, "generations": 1}})
+        path = "/api/jobs/" + job["job_id"]
+        deadline = time.monotonic() + 3
+        while time.monotonic() < deadline:
+            state = self.request(path)
+            if state["status"] in ("done", "failed"):
+                break
+            time.sleep(0.02)
+        self.assertEqual(state["status"], "done", state)
+
     def test_repair_freeze_and_unfreeze_api(self):
         from primitives.library import Library
         from primitives.dataset import preset

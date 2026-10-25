@@ -1,6 +1,7 @@
 "use strict";
 const $ = id => document.getElementById(id);
-const state = { dataset: null, datasetId: null, result: null, bits: [], timer: null, job: null, librarySignature: null };
+const state = { dataset: null, datasetId: null, result: null, bits: [], timer: null, job: null, librarySignature: null,
+  positions: [], selectedRef: 0, layoutToken: 0, layoutDirty: false, routing: null, drag: null };
 const svgNS = "http://www.w3.org/2000/svg";
 const int = id => Number($(id).value);
 const presetLabels = { mul: "MUL(2,2,4)" };
@@ -117,6 +118,19 @@ function verification(f) {
 function showProgram(result) {
   stopAnimation(); state.result = result;
   const c = result.circuit;
+  state.positions = CircuitGraph.automatic(c); state.selectedRef = 0;
+  state.layoutDirty = false; state.routing = null; state.drag = null;
+  const layoutToken = ++state.layoutToken;
+  $("layout-status").textContent = "Automatische Anordnung. Gespeichertes Layout wird geladen …";
+  api("/api/layout/load", { circuit: c }).then(({ positions }) => {
+    if (layoutToken !== state.layoutToken || state.layoutDirty || state.drag) return;
+    if (CircuitGraph.valid(c, positions) && positions.every((p, ref) => CircuitGraph.canPlace(positions, ref, p))) {
+      state.positions = positions; state.routing = null; renderSimulation();
+      $("layout-status").textContent = "Gespeichertes Layout geladen.";
+    } else $("layout-status").textContent = "Automatische Anordnung. Das Layout kann auf diesem Rechner gespeichert werden.";
+  }).catch(err => {
+    if (layoutToken === state.layoutToken && !state.layoutDirty) $("layout-status").textContent = `Layout konnte nicht geladen werden: ${err.message}`;
+  });
   state.bits = Array(c.inputs).fill(0);
   $("empty").hidden = true; $("program").hidden = false; $("export-program").disabled = false;
   $("step").max = c.gates.length; $("step").value = c.gates.length;
@@ -126,7 +140,7 @@ function showProgram(result) {
   for (const [value, label] of metrics) {
     const cell = el("div", undefined, "metric"); cell.append(el("strong", value), el("span", label)); $("metrics").append(cell);
   }
-  $("program-name").textContent = result.fitness ? `${verification(result.fitness)} · ${result.id || "Suchergebnis"}` : "Eigenes Klammerprogramm · NAND verknüpft jeweils beide Argumente.";
+  $("program-name").textContent = result.fitness ? `${verification(result.fitness)} · ${result.id || "Suchergebnis"}` : "Eigenes NAND-Programm · ⊼ steht zwischen den beiden Argumenten.";
   $("repair-program").disabled = !result.id || !result.fitness?.errors || Boolean(state.job);
   $("correction-details").hidden = !result.correction;
   $("correction-cases").replaceChildren();
@@ -151,33 +165,67 @@ function renderSimulation() {
     const button = el("button", `${i + 1}: ${bit}`, bit ? "on" : "");
     button.setAttribute("aria-label", `Eingang ${i + 1}: ${bit}`);
     button.setAttribute("aria-pressed", String(Boolean(bit)));
-    button.addEventListener("click", () => { state.bits[i] ^= 1; renderSimulation(); });
+    button.addEventListener("click", () => toggleInput(i));
     $("bit-switches").append(button);
   });
   const ready = ref => ref < c.inputs + step;
   $("output-values").replaceChildren(el("small", "AUSGANG · LSB ZUERST"), document.createTextNode(c.outputs.map(o => ready(o) ? result.wires[o] : "·").join(" ")));
   $("step-label").textContent = `${step}/${c.gates.length}`;
-  const { d } = depths(c), levels = new Map(), positions = [];
-  d.forEach((level, ref) => { if (!levels.has(level)) levels.set(level, []); levels.get(level).push(ref); });
-  const maxLevel = Math.max(...d), height = Math.max(210, ...[...levels.values()].map(v => v.length * 64 + 40));
-  for (const [level, refs] of levels) refs.forEach((ref, index) => { positions[ref] = { x: 28 + level * 155, y: (index + 1) * height / (refs.length + 1) }; });
-  const outX = 28 + (maxLevel + 1) * 155, width = outX + 100;
-  const graph = $("graph"); graph.replaceChildren(); graph.setAttribute("viewBox", `0 0 ${width} ${height}`); graph.setAttribute("width", width); graph.setAttribute("height", height);
-  function wire(ref, end, offset = 0) {
-    const start = positions[ref], color = !ready(ref) ? "#d8dfd4" : result.wires[ref] ? "#3e8c54" : "#99a8a0";
-    graph.append(svg("path", { d: `M ${start.x + 82} ${start.y} C ${start.x + 120} ${start.y}, ${end.x - 40} ${end.y + offset}, ${end.x} ${end.y + offset}`, fill: "none", stroke: color, "stroke-width": result.wires[ref] && ready(ref) ? 2.5 : 1.5 }));
+  const graph = $("graph"), positions = state.positions, list = CircuitGraph.nodes(c);
+  const focusedRef = document.activeElement?.closest?.("#graph [data-node]")?.getAttribute("data-node");
+  const width = Math.max(600, ...positions.map(p => p.x + CircuitGraph.width + 44));
+  const height = Math.max(300, ...positions.map(p => p.y + CircuitGraph.height / 2 + 44));
+  graph.replaceChildren();
+  // Keep the coordinate system stable until a drag ends.
+  if (!state.drag) {
+    graph.setAttribute("viewBox", `0 0 ${width} ${height}`); graph.setAttribute("width", width); graph.setAttribute("height", height);
   }
-  c.gates.forEach(([a, b], i) => { wire(a, positions[c.inputs + i], -9); wire(b, positions[c.inputs + i], 9); });
-  c.outputs.forEach((ref, i) => wire(ref, { x: outX, y: (i + 1) * height / (c.outputs.length + 1) }));
-  d.forEach((_, ref) => {
-    const { x, y } = positions[ref], known = ready(ref), bit = result.wires[ref];
-    graph.append(svg("rect", { x, y: y - 20, width: 82, height: 40, rx: ref < c.inputs ? 20 : 7, fill: !known ? "#f3f5f0" : bit ? "#d6ed95" : "#fff", stroke: known ? "#98b397" : "#dbe4d7" }));
-    graph.append(svg("text", { x: x + 41, y: y + 4, "text-anchor": "middle", fill: known ? "#183e31" : "#abb7aa" }, `${ref < c.inputs ? `i${ref + 1}` : `⊼${ref - c.inputs + 1}`}  ${known ? bit : "·"}`));
+  if (!state.routing) state.routing = CircuitGraph.routes(c, positions);
+  for (const wire of state.routing) {
+    const known = ready(wire.source), bit = result.wires[wire.source];
+    const path = svg("path", { d: wire.path, fill: "none", stroke: !known ? "#d8dfd4" : bit ? "#3e8c54" : "#99a8a0",
+      "stroke-width": known && bit ? 2.5 : 1.5, "stroke-linejoin": "round", class: "signal-wire", "data-source": wire.source, "data-target": wire.target });
+    path.append(svg("title", {}, `Box ${wire.source} → Box ${wire.target}: ${known ? bit : "noch nicht ausgewertet"}`));
+    graph.append(path);
+  }
+  const valueAt = ref => ready(ref) ? result.wires[ref] : "·";
+  list.forEach(node => {
+    const { ref, kind, index, sources } = node, { x, y } = positions[ref];
+    const signal = kind === "output" ? sources[0] : ref, known = ready(signal), bit = result.wires[signal];
+    const heading = `Box ${ref} · ${kind === "input" ? `Eingang ${index + 1}` : kind === "gate" ? "NAND" : `Ausgang y${index}`}`;
+    const formula = kind === "gate" ? `Box ${sources[0]} ⊼ Box ${sources[1]}` : kind === "output" ? `von Box ${sources[0]}` : "Klicken: 0 ↔ 1";
+    const description = kind === "gate" ? `Box ${ref}: Box ${sources[0]} NAND mit Box ${sources[1]} verknüpft. Wert: ${valueAt(signal)}.` : `${heading}. Wert: ${valueAt(signal)}. ${kind === "input" ? "Zum Umschalten anklicken." : formula}`;
+    const group = svg("g", { "data-node": ref, class: `graph-node ${kind}${ref === state.selectedRef ? " selected" : ""}`, tabindex: 0, role: "button", "aria-label": description });
+    if (kind === "input") group.setAttribute("aria-pressed", String(Boolean(bit)));
+    group.append(svg("title", {}, `${description} Zum Verschieben ziehen oder Pfeiltasten verwenden.`));
+    group.append(svg("rect", { x, y: y - CircuitGraph.height / 2, width: CircuitGraph.width, height: CircuitGraph.height, rx: kind === "input" ? 24 : 9,
+      fill: !known ? "#f3f5f0" : bit ? "#d6ed95" : "#fff", stroke: ref === state.selectedRef ? "#146653" : "#98b397", "stroke-width": ref === state.selectedRef ? 2 : 1 }));
+    const text = (offset, content, className) => svg("text", { x: x + CircuitGraph.width / 2, y: y + offset, "text-anchor": "middle", class: className, fill: known ? "#183e31" : "#758575" }, content);
+    group.append(text(-19, heading, "node-heading"), text(3, formula, "node-formula"), text(25, `Wert: ${valueAt(signal)}`, "node-value"));
+    graph.append(group);
   });
-  c.outputs.forEach((ref, i) => {
-    const y = (i + 1) * height / (c.outputs.length + 1);
-    graph.append(svg("text", { x: outX + 4, y: y + 4, fill: "#146653" }, `y${i} = ${ready(ref) ? result.wires[ref] : "·"}`));
-  });
+  const selected = list[state.selectedRef];
+  if (selected) {
+    const signal = selected.kind === "output" ? selected.sources[0] : selected.ref;
+    $("box-description").textContent = selected.kind === "gate"
+      ? `Box ${selected.ref}: Box ${selected.sources[0]} NAND mit Box ${selected.sources[1]} verknüpft. Aktuell: ${valueAt(selected.sources[0])} ⊼ ${valueAt(selected.sources[1])} = ${valueAt(signal)}. NAND liefert nur bei zwei Einsen eine 0.`
+      : selected.kind === "input" ? `Box ${selected.ref} ist Eingang ${selected.index + 1}. Wert: ${valueAt(signal)}. Mit einem Klick oder der Leertaste zwischen 0 und 1 umschalten.`
+      : `Box ${selected.ref} ist Ausgang y${selected.index} und übernimmt den Wert von Box ${signal}: ${valueAt(signal)}.`;
+  }
+  if (focusedRef !== undefined) graph.querySelector(`[data-node="${focusedRef}"]`)?.focus({ preventScroll: true });
+}
+
+function toggleInput(ref) {
+  stopAnimation(); state.bits[ref] ^= 1; renderSimulation(); renderTable();
+}
+function layoutChanged() {
+  state.layoutDirty = true; state.routing = null;
+  $("layout-status").textContent = "Layout geändert · noch nicht gespeichert.";
+}
+function moveBox(ref, x, y) {
+  const point = { x: Math.max(20, Math.min(99000, x)), y: Math.max(64, Math.min(99000, y)) };
+  if (!CircuitGraph.canPlace(state.positions, ref, point)) return false;
+  state.positions[ref] = point; layoutChanged(); return true;
 }
 function renderTable() {
   $("vectors").replaceChildren();
@@ -217,42 +265,118 @@ function renderHistory() {
   $("search-summary").textContent = `${search.backend === "tiny" ? "TinyLanguage" : "Python"} · ${search.evaluations} Kandidaten · ${search.generation} Generationen · ${search.elapsed_seconds} s · ${search.library_candidates} verwendbare Bibliotheksbausteine · Seed ${search.seed}`;
 }
 
+const graphElement = $("graph");
+graphElement.addEventListener("pointerdown", event => {
+  const node = event.target.closest("[data-node]");
+  if (!node || event.button !== 0 || state.drag) return;
+  event.preventDefault(); stopAnimation();
+  const ref = Number(node.getAttribute("data-node"));
+  state.selectedRef = ref; node.focus({ preventScroll: true });
+  const matrix = graphElement.getScreenCTM().inverse();
+  const start = new DOMPoint(event.clientX, event.clientY).matrixTransform(matrix);
+  state.drag = { ref, pointerId: event.pointerId, start, matrix, origin: { ...state.positions[ref] },
+    clientX: event.clientX, clientY: event.clientY, moved: false };
+  graphElement.setPointerCapture(event.pointerId);
+  renderSimulation();
+});
+graphElement.addEventListener("pointermove", event => {
+  const drag = state.drag;
+  if (!drag || event.pointerId !== drag.pointerId) return;
+  if (Math.hypot(event.clientX - drag.clientX, event.clientY - drag.clientY) < 5 && !drag.moved) return;
+  drag.moved = true;
+  const point = new DOMPoint(event.clientX, event.clientY).matrixTransform(drag.matrix);
+  if (moveBox(drag.ref, drag.origin.x + point.x - drag.start.x, drag.origin.y + point.y - drag.start.y)) renderSimulation();
+});
+function finishBoxDrag(event) {
+  const drag = state.drag;
+  if (!drag || event.pointerId !== drag.pointerId) return;
+  state.drag = null;
+  if (graphElement.hasPointerCapture(event.pointerId)) graphElement.releasePointerCapture(event.pointerId);
+  if (!drag.moved && event.type === "pointerup" && drag.ref < state.result.circuit.inputs) toggleInput(drag.ref);
+  else renderSimulation();
+}
+graphElement.addEventListener("pointerup", finishBoxDrag);
+graphElement.addEventListener("pointercancel", finishBoxDrag);
+graphElement.addEventListener("keydown", event => {
+  const node = event.target.closest("[data-node]");
+  if (!node) return;
+  const ref = Number(node.getAttribute("data-node"));
+  if (["Enter", " "].includes(event.key)) {
+    event.preventDefault(); state.selectedRef = ref;
+    if (ref < state.result.circuit.inputs) toggleInput(ref); else renderSimulation();
+  } else if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) {
+    event.preventDefault(); stopAnimation(); state.selectedRef = ref;
+    const p = state.positions[ref], delta = event.shiftKey ? 40 : 10;
+    if (moveBox(ref, p.x + (event.key === "ArrowRight" ? delta : event.key === "ArrowLeft" ? -delta : 0),
+      p.y + (event.key === "ArrowDown" ? delta : event.key === "ArrowUp" ? -delta : 0))) renderSimulation();
+  }
+});
+action("save-layout", async () => {
+  const token = state.layoutToken, circuit = state.result.circuit;
+  const positions = state.positions.map(p => ({ ...p }));
+  $("save-layout").disabled = true;
+  try {
+    await api("/api/layout/save", { circuit, positions });
+    if (token !== state.layoutToken) return;
+    state.layoutDirty = JSON.stringify(positions) !== JSON.stringify(state.positions);
+    $("layout-status").textContent = state.layoutDirty ? "Layout gespeichert. Weitere Änderungen sind noch nicht gespeichert." : "Layout gespeichert · wird beim Öffnen dieser Schaltung wiederhergestellt.";
+  } finally { $("save-layout").disabled = false; }
+});
+action("auto-layout", () => {
+  stopAnimation(); state.positions = CircuitGraph.automatic(state.result.circuit);
+  layoutChanged(); renderSimulation();
+});
+
 action("generate", () => setDataset({ name: $("dataset-name").value, inputs: int("inputs"), outputs: int("outputs"), expression: $("expression").value, samples: int("samples"), seed: int("seed") }));
 action("import-rows", () => setDataset({ name: $("dataset-name").value, inputs: int("inputs"), outputs: int("outputs"), rows: JSON.parse($("raw-rows").value) }));
 $("import").addEventListener("change", async event => { clearError(); try { if (event.target.files[0]) await setDataset(JSON.parse(await event.target.files[0].text())); } catch (err) { error(err); } });
 action("evolve", async () => {
   if (!state.datasetId) throw new Error("Bitte zuerst Zuordnungsvektoren erzeugen.");
   const config = { gates: int("gates"), population: int("population"), generations: int("generations"), seed: int("seed"), backend: $("backend").value, repair_cases: $("auto-repair").checked ? 4 : 0 };
-  const { job_id } = await api("/api/search", { dataset_id: state.datasetId, config });
-  state.job = job_id; $("evolve").disabled = true;
+  $("evolve").disabled = true;
+  let job_id;
+  try {
+    ({ job_id } = await api("/api/search", { dataset_id: state.datasetId, config }));
+  } catch (err) { $("evolve").disabled = false; throw err; }
+  state.job = job_id; $("cancel-search").disabled = false;
   $("repair-program").disabled = true;
   $("job-status").textContent = "Suche läuft …";
   async function poll() {
     try {
       const job = await api(`/api/jobs/${job_id}`);
-      $("job-status").textContent = `Suche läuft · ${job.elapsed_seconds} s`;
+      $("job-status").textContent = job.status === "cancelling" ? "Suche wird abgebrochen …" : `Suche läuft · ${job.elapsed_seconds} s`;
       if (job.status === "done") {
-        state.job = null; $("evolve").disabled = false;
+        state.job = null; $("evolve").disabled = false; $("cancel-search").disabled = true;
         showProgram(job.result); await refresh();
         const comparison = job.result.comparison;
         if (comparison) {
           const before = comparison.previous_fitness, after = comparison.candidate_fitness;
           $("job-status").textContent = `Retest: bisher ${before.errors}, neu ${after.errors} fehlerhafte Ausgangsbits · ${comparison.accepted ? "Bessere Version übernommen." : "Bisherige Version beibehalten."}`;
         } else $("job-status").textContent = `${verification(job.result.fitness)} · Programm gespeichert.`;
-      } else if (job.status === "failed") {
-        state.job = null; $("evolve").disabled = false; $("job-status").textContent = "Suche fehlgeschlagen."; error(new Error(job.error));
+      } else if (job.status === "failed" || job.status === "cancelled") {
+        state.job = null; $("evolve").disabled = false; $("cancel-search").disabled = true;
+        $("job-status").textContent = job.status === "cancelled" ? "Suche abgebrochen. Bisherige Programme bleiben erhalten." : "Suche fehlgeschlagen.";
+        if (job.status === "failed") error(new Error(job.error));
         $("repair-program").disabled = !state.result?.id || !state.result?.fitness?.errors;
       } else setTimeout(poll, 700);
     } catch (err) {
-      state.job = null; $("evolve").disabled = false; $("job-status").textContent = "Verbindung zur Suche unterbrochen."; error(err);
-      $("repair-program").disabled = !state.result?.id || !state.result?.fitness?.errors;
+      if (state.job !== job_id) { error(err); return; }
+      $("job-status").textContent = "Verbindung zur Suche unterbrochen. Erneuter Versuch …"; error(err);
+      setTimeout(poll, 1500);
     }
   }
   setTimeout(poll, 250);
 });
+action("cancel-search", async () => {
+  if (!state.job) return;
+  $("cancel-search").disabled = true;
+  $("job-status").textContent = "Suche wird abgebrochen …";
+  try { await api(`/api/jobs/${state.job}/cancel`, {}); }
+  catch (err) { $("cancel-search").disabled = !state.job; throw err; }
+});
 action("parse", async () => {
-  const { circuit } = await api("/api/parse", { expression: $("nand-expression").value, inputs: int("nand-inputs") });
-  showProgram({ circuit, expressions: [$("nand-expression").value] });
+  const result = await api("/api/parse", { expression: $("nand-expression").value, inputs: int("nand-inputs") });
+  showProgram(result);
 });
 action("refresh", refresh);
 action("repair-program", async () => {

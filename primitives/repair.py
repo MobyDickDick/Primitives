@@ -1,12 +1,14 @@
 """Compile a small number of exact input exceptions into ordinary NAND gates."""
 from .circuit import Circuit
 from .library import fitness
+from .evolution import check_cancelled
 
 
-def repair_result(result, dataset, max_cases=4):
+def repair_result(result, dataset, max_cases=4, *, cancel_event=None):
     circuit = Circuit.from_dict(result["circuit"]).compact()
     failures = []
     for row in dataset.rows:
+        check_cancelled(cancel_event)
         inputs, expected = row[:dataset.inputs], row[dataset.inputs:]
         actual = circuit.evaluate(inputs)
         if actual != expected:

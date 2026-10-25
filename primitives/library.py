@@ -2,6 +2,7 @@
 from datetime import datetime, timezone
 import hashlib
 import json
+import math
 from pathlib import Path
 import re
 import threading
@@ -76,6 +77,27 @@ class Library:
         self._key(key)
         return Dataset.from_dict(json.loads((self.root / "datasets" / f"{key}.json").read_text(encoding="utf-8")))
 
+    def load_layout(self, circuit):
+        path = self.root / "layouts" / f"{digest(circuit.to_dict())}.json"
+        with self._lock:
+            return json.loads(path.read_text(encoding="utf-8"))["positions"] if path.exists() else None
+
+    def save_layout(self, circuit, positions):
+        count = circuit.inputs + len(circuit.gates) + len(circuit.outputs)
+        if not isinstance(positions, list) or len(positions) != count:
+            raise ValueError("Für jede Box wird eine Position benötigt.")
+        cleaned = []
+        for point in positions:
+            if (not isinstance(point, dict) or set(point) != {"x", "y"}
+                    or any(type(point[k]) not in (int, float) or not math.isfinite(point[k])
+                           or not 0 <= point[k] <= 100000 for k in ("x", "y"))):
+                raise ValueError("Ungültige Boxposition.")
+            cleaned.append({"x": point["x"], "y": point["y"]})
+        with self._lock:
+            write_json(self.root / "layouts" / f"{digest(circuit.to_dict())}.json",
+                       {"schema": 1, "positions": cleaned})
+        return cleaned
+
     @staticmethod
     def _key(key):
         if not isinstance(key, str) or not re.fullmatch(r"[a-z0-9-]{1,180}", key):
@@ -136,7 +158,11 @@ class Library:
     def load_program(self, key):
         self._key(key)
         obj = json.loads((self.root / "programs" / f"{key}.json").read_text(encoding="utf-8"))
-        Circuit.from_dict(obj["circuit"])
+        circuit = Circuit.from_dict(obj["circuit"])
+        try:
+            obj["expressions"] = circuit.expressions()
+        except ValueError:
+            obj["expressions"] = None
         obj["task_id"] = task_id(self.load_dataset(obj["dataset_id"]))
         obj["frozen"] = self.is_frozen(obj["task_id"])
         return obj

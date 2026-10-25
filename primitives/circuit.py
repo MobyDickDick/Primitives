@@ -68,7 +68,7 @@ class Circuit:
     def expressions(self, max_chars=10000):
         values = [str(i + 1) for i in range(self.inputs)]
         for a, b in self.gates:
-            expr = f"({values[a]},{values[b]})"
+            expr = f"({values[a]}) ⊼ ({values[b]})"
             if len(expr) > max_chars:
                 raise ValueError("Klammerausdruck zu gross; bitte die Gatterliste verwenden.")
             values.append(expr)
@@ -76,13 +76,28 @@ class Circuit:
 
 
 def parse_expression(source: str, inputs: int) -> Circuit:
-    """Parse (1,(2,3)); merge identical NAND subexpressions."""
+    """Parse infix NAND and legacy pairs; merge identical subexpressions."""
     if not isinstance(source, str) or len(source) > 10000:
         raise ValueError("Ungültiger oder zu langer NAND-Ausdruck.")
-    tokens = re.findall(r"\d+|[(),]|\S", source)
+    tokens = re.findall(r"\d+|\S", source.replace(r"\bar{\wedge}", "⊼"))
     pos, gates, known = 0, [], {}
 
     def parse(level=0):
+        nonlocal pos
+        a = atom(level)
+        if pos < len(tokens) and tokens[pos] == "⊼":
+            pos += 1
+            return gate(a, atom(level))
+        return a
+
+    def gate(a, b):
+        pair = tuple(sorted((a, b)))
+        if pair not in known:
+            known[pair] = inputs + len(gates)
+            gates.append(pair)
+        return known[pair]
+
+    def atom(level):
         nonlocal pos
         if level > 100 or pos >= len(tokens):
             raise ValueError("Unvollständiger oder zu tief verschachtelter NAND-Ausdruck.")
@@ -96,14 +111,11 @@ def parse_expression(source: str, inputs: int) -> Circuit:
         if token != "(":
             raise ValueError("Eine Eingangsnummer oder '(' wird erwartet.")
         a = parse(level + 1)
-        expect(",")
-        b = parse(level + 1)
+        if pos < len(tokens) and tokens[pos] == ",":
+            pos += 1
+            a = gate(a, parse(level + 1))
         expect(")")
-        pair = tuple(sorted((a, b)))
-        if pair not in known:
-            known[pair] = inputs + len(gates)
-            gates.append(pair)
-        return known[pair]
+        return a
 
     def expect(token):
         nonlocal pos
