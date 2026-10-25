@@ -125,6 +125,33 @@ class ServerTests(unittest.TestCase):
         self.assertIn('id="page-functions"', page)
         self.assertIn('id="dataset-description"', page)
 
+    def test_neutral_search_simplifies_and_exports_separate_phases(self):
+        redundant = Circuit(2, ((0, 1), (2, 2), (3, 3)), (4,))
+        Library(self.tmp.name).save_program({"circuit": redundant.to_dict()}, preset("nand"))
+        job = self.request("/api/search", {"dataset": preset("nand").to_dict(), "config": {
+            "backend": "python", "gates": 3, "neutral": True, "repair_cases": 4}})
+        deadline = time.monotonic() + 10
+        while time.monotonic() < deadline:
+            state = self.request("/api/jobs/" + job["job_id"])
+            if state["status"] in ("done", "failed"):
+                break
+            time.sleep(.02)
+        self.assertEqual(state["status"], "done", state)
+        saved = self.request("/api/programs/" + state["result"]["id"])
+        self.assertTrue(saved["search"]["neutral"])
+        self.assertEqual(saved["search"]["objective"], "errors_only")
+        self.assertEqual(saved["search"]["evaluations"], 1)
+        self.assertEqual(saved["search"]["phases"][0]["result"]["gates"], 3)
+        self.assertEqual(saved["search"]["phases"][1]["removed_gates"], 2)
+        self.assertEqual(saved["fitness"]["gates"], 1)
+        self.assertTrue(saved["fitness"]["verified_truth_table"])
+        with urlopen(self.base) as response:
+            self.assertIn('id="neutral"', response.read().decode())
+        with self.assertRaises(HTTPError) as caught:
+            self.request("/api/search", {"dataset": preset("nand").to_dict(), "config": {"neutral": "true"}})
+        self.assertEqual(caught.exception.code, 400)
+        caught.exception.close()
+
     def test_source_debug_step_continue_stop_reset_and_isolation(self):
         from test_program_debug import PORTS, SUM
         obj = {"interface": PORTS, "program": {"version": 1, "source": SUM}, "x": 5}

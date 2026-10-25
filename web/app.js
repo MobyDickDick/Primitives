@@ -716,6 +716,8 @@ function renderTable() {
 function renderHistory() {
   const target = $("history"), search = state.result.search;
   target.replaceChildren();
+  $("phase-summary").hidden = true;
+  $("phase-summary").textContent = "";
   if (!search) { $("search-summary").textContent = "Für ein eingegebenes Programm gibt es keinen Suchverlauf."; return; }
   const points = search.history, maxGen = Math.max(1, search.generation), maxErr = Math.max(1, ...points.map(p => p.errors));
   const px = g => 40 + g / maxGen * 610, py = e => 100 - e / maxErr * 78;
@@ -736,6 +738,11 @@ function renderHistory() {
   if (search.diversity) {
     const d = search.diversity;
     $("search-summary").textContent += ` · ${search.restarts_completed}/${search.restarts} Starts · ${search.islands} Inseln · Diversität der letzten Population: ${d.unique_genomes}/${d.size} unterschiedliche Genome (${Math.round(d.unique_fraction * 100)} %) · mittlere Gendifferenz ${(d.mean_hamming * 100).toFixed(1)} %`;
+  }
+  if (search.neutral && search.phases?.length === 2) {
+    const phase = search.phases[1];
+    $("phase-summary").hidden = false;
+    $("phase-summary").textContent = `Phase 1: neutrale Evolution (${search.phases[0].result.errors} falsche Bits) · Phase 2: Vereinfachung ${phase.before.gates} → ${phase.result.gates} Gatter, Tiefe ${phase.before.depth} → ${phase.result.depth} (vor einer allfälligen Restfallkorrektur)`;
   }
 }
 
@@ -1153,7 +1160,7 @@ $("import").addEventListener("change", async event => { clearError(); try {
 action("evolve", async () => {
   if (!state.datasetId) throw new Error("Bitte zuerst Zuordnungsvektoren erzeugen.");
   const config = { gates: int("gates"), population: int("population"), generations: int("generations"), seed: int("seed"), backend: $("backend").value, repair_cases: $("auto-repair").checked ? 4 : 0,
-    restarts: int("restarts"), islands: int("islands"), migration_interval: int("migration-interval") };
+    restarts: int("restarts"), islands: int("islands"), migration_interval: int("migration-interval"), neutral: $("neutral").checked };
   $("evolve").disabled = true;
   let job_id;
   try {

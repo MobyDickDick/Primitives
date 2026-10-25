@@ -27,6 +27,7 @@ class SearchConfig:
     restarts: int = 1
     islands: int = 1
     migration_interval: int = 10
+    neutral: bool = False
 
     @property
     def evaluation_budget(self):
@@ -46,6 +47,8 @@ class SearchConfig:
             raise ValueError("repair_cases muss zwischen 0 und 4 liegen.")
         if type(self.optimize) is not bool:
             raise ValueError("optimize muss ein Wahrheitswert sein.")
+        if type(self.neutral) is not bool:
+            raise ValueError("neutral muss ein Wahrheitswert sein.")
         if self.optimize and self.backend != "python":
             raise ValueError("Strukturoptimierung verwendet das Python-Backend.")
         for name, lo, hi in (("restarts", 1, 32), ("islands", 1, 16), ("migration_interval", 1, 20000)):
@@ -185,7 +188,9 @@ class Problem:
         check_cancelled(self.cancel_event)
         self.evaluations += 1
         errors, gates, depth = self.metrics(genome)
-        score = errors * self.error_weight + gates * (self.g + 1) + depth
+        score = errors * self.error_weight
+        if not self.config.neutral:
+            score += gates * (self.g + 1) + depth
         if getattr(self, "run_best_score", None) is None or score < self.run_best_score:
             self.run_best_score = score
         return score
@@ -202,6 +207,18 @@ class Problem:
         circuit = genome_circuit(genome, self.n, self.m).compact()
         errors, _, _ = self.metrics(genome)
         total = len(self.dataset.rows) * self.m
+        phases = []
+        if self.config.neutral:
+            before = {"errors": errors, "gates": len(circuit.gates), "depth": circuit.depth}
+            phases.append({"name": "neutral_evolution", "objective": "errors_only",
+                           "evaluations": self.evaluations, "result": before})
+            # A separate bounded pass; these identities preserve every input,
+            # including inputs absent from a sampled training dataset.
+            circuit = circuit.simplify(check=lambda: check_cancelled(self.cancel_event))
+            phases.append({"name": "simplification", "method": "nand-identities-v1",
+                           "evaluations": 0, "before": before,
+                           "result": {"errors": errors, "gates": len(circuit.gates), "depth": circuit.depth},
+                           "removed_gates": before["gates"] - len(circuit.gates)})
         return {"circuit": circuit.to_dict(), "fitness": {"errors": errors, "total_bits": total,
                 "accuracy": (total - errors) / total, "exact_on_dataset": errors == 0,
                 "verified_truth_table": errors == 0 and self.dataset.exhaustive,
@@ -209,6 +226,8 @@ class Problem:
                 "search": {**asdict(self.config), "generation": int(generation), "evaluations": self.evaluations,
                            "history": self.history, "library_candidates": len(self.library),
                            "selection": "tournament",
+                           "objective": "errors_only" if self.config.neutral else "errors_gates_depth",
+                           "phases": phases,
                            "tournament_size": min(3, max(island_sizes(self.config.population, self.config.islands))),
                            "parent_population": int(parent_population),
                            "restarts_completed": len(self.runs), "runs": self.runs,

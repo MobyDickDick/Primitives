@@ -67,6 +67,8 @@ def main():
     evolve.add_argument("--islands", type=int, default=1, help="Inseln (1–16), teilen die Elternpopulation; mindestens 2 Eltern je Insel")
     evolve.add_argument("--migration-interval", type=int, default=10, help="Elitenaustausch im Ring nach jeweils so vielen Generationen")
     evolve.add_argument("--seed", type=int, default=1)
+    evolve.add_argument("--neutral", action="store_true",
+                        help="Nur Ausgangsfehler bewerten, danach funktionserhaltend vereinfachen")
     commands.add_parser("library", help="Gespeicherte Programme auflisten")
     evaluate = commands.add_parser("eval", help="Klammerprogramm auswerten")
     evaluate.add_argument("expression")
@@ -132,7 +134,8 @@ def main():
         elif args.command == "evolve":
             dataset = preset(args.preset) if args.preset else Dataset.from_dict(json.loads(args.dataset.read_text(encoding="utf-8")))
             config = SearchConfig(args.gates, args.population, args.generations, args.seed, args.backend,
-                                  restarts=args.restarts, islands=args.islands, migration_interval=args.migration_interval)
+                                  restarts=args.restarts, islands=args.islands, migration_interval=args.migration_interval,
+                                  neutral=args.neutral)
             print(json.dumps(search(dataset, config, library), ensure_ascii=False, indent=2))
         elif args.command == "oracle":
             spec = importlib.util.spec_from_file_location("primitives_user_oracle", args.file.resolve())

@@ -141,6 +141,49 @@ Gattertiefe bewertet. Implementiert ist die ganzzahlige Rangzahl
 wiegt immer stärker als sämtliche Strukturkosten. Tote Gatter dürfen während der
 Suche existieren, werden aber nicht als aktive Gatter berechnet.
 
+### Neutrale Evolution mit getrennter Vereinfachung
+
+`neutral` (bool, Standard `false`) wählt in beiden Backends das Suchziel
+`errors_only`. Die Rangzahl ist dann ausschliesslich `Fehler*(G+1)^2`; die
+Skalierung erhält die bestehenden Fehlerfreiheits- und Verlaufsberechnungen.
+Gatterzahl und Tiefe beeinflussen weder Turniere, Ersatzentscheidungen, Migration
+noch die Sicherung des besten Genoms. Gleiche Fehlerzahlen erlauben somit auch
+grössere und tiefere Nachkommen. Das separat gesicherte Genom wird nur bei weniger
+Fehlern ersetzt, bei Gleichstand bleibt der erste Treffer erhalten. Die laufende
+Population darf auf diesem Plateau driften. Ohne `neutral` gilt unverändert die
+gemeinsame Rangzahl aus Fehlern, aktiven Gattern und Tiefe.
+
+Nach Abschluss aller tatsächlich ausgeführten Starts führt `Problem.result`
+genau einmal die getrennte Vereinfachungsphase aus. Damit verwenden Python und
+die TinyLanguage-FFI dieselben Regeln, auch bei einem Treffer in der Initialisierung,
+ausgeschöpftem Kandidatenbudget oder einem Python-Zeitlimit. `Circuit.simplify`
+verarbeitet die Gatter topologisch, kanonisiert die beiden NAND-Eingänge und
+teilt gleiche Eingangs-Paare. `NAND(NAND(x,x), NAND(x,x)) = x` überbrückt doppelte
+Negationen; anschliessende Kompaktierung entfernt unerreichbare Gatter. Direkte
+Ausgänge und gemeinsam verwendete Zwischenergebnisse bleiben erhalten. Gatterzahl
+und Tiefe nehmen dabei nicht zu. Der Durchlauf ist durch die Schaltungsgrösse
+begrenzt, benötigt keine Fitnessbewertungen und prüft Abbruch vor, während und
+nach dem Umschreiben. Die abgeschlossene Suche wird bei Abbruch nicht gespeichert.
+
+Die Identitäten erhalten die vollständige Boolesche Funktion, ohne Sollvektoren
+als Äquivalenzbeweis zu verwenden. Der Bezug zur Referenz bleibt trotzdem nur so
+stark wie der ursprüngliche Datensatz: Eine passende Stichprobe bleibt eine
+Stichprobe, und eine Annäherung behält ihre Fehler. Das Verfahren garantiert keine
+globale Minimalität; weitere NAND-Identitäten und SAT-Prüfung bleiben mögliche
+Erweiterungen. Der bestehende Python-Modus `optimize` kann auch in Kombination mit
+`neutral` bei null Fehlern weitersuchen; Strukturkosten bleiben dann weiterhin
+der anschliessenden Vereinfachung vorbehalten.
+
+`search.objective` unterscheidet `errors_only` von `errors_gates_depth`.
+`search.phases` ist ohne neutralen Modus leer und enthält sonst in dieser
+Reihenfolge `neutral_evolution` und `simplification`. Gespeichert werden Fehler,
+Gatter, Tiefe, Bewertungen sowie vorherige Struktur und entfernte Gatter der
+Vereinfachung (`method: nand-identities-v1`). `search.history`, `runs.best_score`
+und die Diversität beziehen sich ausschliesslich auf die Evolutionsphase;
+Vereinfachung verbraucht null Bewertungen. Eine optionale Restfallkorrektur in
+`runner.search` folgt erst danach. Die normale Bibliotheksentscheidung vergleicht
+weiter Fehler, Gatter und Tiefe und kann die bisherige Version beibehalten.
+
 Für die Bewertung stehen alle Vektoren als Bits in grossen Python-Ganzzahlen.
 Ein NAND berechnet dadurch eine ganze Spalte parallel. Die eigentliche skalare
 Bitsemantik bleibt dieselbe und wird unabhängig dagegen getestet.

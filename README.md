@@ -305,6 +305,40 @@ python -m primitives evolve --preset xor --backend python --gates 8 --population
 Dieselben Parameter funktionieren mit `--backend tiny` und in der JSON-API als
 `restarts`, `islands` und `migration_interval`.
 
+## Neutrale Evolution und getrennte Vereinfachung
+
+Unter **Evolution** aktiviert **Neutral entwickeln, danach vereinfachen** zwei
+getrennte Phasen, sowohl mit TinyLanguage als auch mit Python:
+
+1. Die Evolution bewertet ausschliesslich die Zahl falscher Ausgangsbits.
+   Gleich gute Nachkommen dürfen mehr aktive Gatter oder eine grössere Tiefe
+   besitzen und trotzdem Eltern ersetzen. Das beste bisherige Ergebnis bleibt
+   separat erhalten; bei gleicher Fehlerzahl bleibt der erste Treffer gesichert.
+2. Anschliessend führt eine deterministische Vereinfachung gleiche NAND-Gatter
+   zusammen, auch mit vertauschten Eingängen, überbrückt doppelte Negationen
+   und entfernt dadurch unbenutzte Gatter. Beispielsweise werden drei NANDs
+   für NAND → NOT → NOT zu einem NAND. Diese Identitäten erhalten die Funktion
+   für **alle** Eingaben, auch ausserhalb einer Trainingsstichprobe.
+
+Der Modus ist standardmässig ausgeschaltet. Ohne ihn bewertet die Suche weiter
+Fehler, Gatterzahl und Tiefe gemeinsam. Kandidatenbudget, Starts, Inseln und Ende
+beim ersten fehlerfreien Treffer bleiben gleich. Die nachgelagerte Vereinfachung
+benötigt keine zusätzlichen Kandidatenbewertungen und läuft auch nach einem
+ausgeschöpften Suchbudget. Sie ist abbrechbar und beansprucht keine Minimalität.
+Der Prüfstatus gegenüber der Referenz bleibt unverändert: Eine Stichprobe wird
+durch die Vereinfachung nicht zu einer vollständig geprüften Wahrheitstabelle.
+
+Die Suchzusammenfassung zeigt beide Phasen mit Gatterzahl und Tiefe vor/nach der
+Vereinfachung. Im JSON-Export stehen `search.objective` und `search.phases` mit
+Bewertungszahlen und Ergebnissen. Der Suchverlauf beschreibt nur die Evolution;
+eine gewählte Restfallkorrektur erfolgt danach und kann weitere Gatter ergänzen.
+
+```powershell
+python -m primitives evolve --preset xor --backend tiny --gates 8 --neutral
+```
+
+In der JSON-API wird `config.neutral` auf `true` gesetzt.
+
 ## Retests und Bausteinbibliothek
 
 NAND-Ausdrücke verwenden die Schreibweise `(1) ⊼ (2)`, mit dem Operator zwischen

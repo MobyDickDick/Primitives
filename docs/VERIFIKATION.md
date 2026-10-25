@@ -503,3 +503,43 @@ Geprüft am 25. Oktober 2026:
   Physische Touchbedienung wurde nicht geprüft.
 
 ![Gespeicherter Suchverlauf mit Starts, Inseln und Diversität](inselpopulationen.jpg)
+
+## Neutrale Evolution und getrennte Vereinfachung
+
+Geprüft am 25. Oktober 2026:
+
+- `python -m unittest discover -s tests`: **162 Tests erfolgreich**, darunter
+  **23 HTTP-Integrationstests** und tatsächliche TinyLanguage-Läufe. Unter Windows
+  mit `PYTHONUTF8=1`; nach der bekannten WinError-10013-Loopback-Sperre wurde die
+  vollständige Suite mit freigegebenen lokalen Verbindungen erfolgreich ausgeführt.
+- Elf neue Kerntests prüfen neutralen Rang unabhängig von Gatterzahl und Tiefe,
+  Aufnahme grösserer gleich guter Nachkommen, Erhalt des gesicherten Eliten und
+  strikte boolesche Konfiguration. Beide Backends prüfen frühe Fehlerfreiheit,
+  getrennte Phasen, gespeicherte Metadaten sowie drei Starts mit drei Inseln,
+  Ringmigration und exakt 64 Bewertungen. Wiederholungen erhalten Ergebnisse,
+  Phasen, Historie und Diversität. Ein tatsächlicher CLI-Aufruf prüft `--neutral`.
+- Die Vereinfachung wird auf **160 zufälligen Schaltungen mit 1–4 Eingängen**
+  gegen alle Eingaben unabhängig skalar geprüft. Weitere Fälle prüfen vertauschte
+  NAND-Eingänge, doppelte Negationen, gemeinsam verwendete Inverter, mehrere und
+  direkte Ausgänge, tote Gatter, gatterlose Ergebnisse und 32 Eingänge. Gatterzahl
+  und Tiefe nehmen nicht zu; ein weiterer Durchlauf verändert das Ergebnis nicht.
+- Ein Stichprobentest prüft den Funktionserhalt auch auf nicht enthaltenen
+  Eingaben, ohne den Prüfstatus aufzuwerten. Zeitlimit, Abbruch während des
+  Umschreibens und Abbruch am Phasenübergang werden geprüft. Die strukturelle
+  Vereinfachung erhöht das Kandidatenbudget nicht und beansprucht keine Minimalität.
+- Ein neuer HTTP-Test prüft Suche mit neutralem Modus und aktivierter Restfalloption,
+  Phasenprotokoll, tatsächliche Reduktion von drei auf ein Gatter, unabhängige
+  Nachbewertung, Wiederöffnen des gespeicherten Ergebnisses und ungültige Konfiguration.
+- `node --test tests/test_*.js`: **24 Tests erfolgreich**. Zwei neue UI-Tests
+  prüfen alte Ergebnisse ohne Phasen und die separate Phasenanzeige mit Gatterzahl,
+  Tiefe und Hinweis auf anschliessende Restfallkorrektur. `node --check web/app.js`
+  und `git diff --check` erfolgreich.
+- Browserprüfung mit temporärer Bibliothek und deaktivierter Hintergrundsuche:
+  neutralen Modus für TinyLanguage eingeschaltet, redundanten NAND mit drei
+  Gattern als Ausgangspunkt verwendet. Das Ergebnis zeigt ein NAND, Tiefe eins
+  und alle vier korrekten Sollwerte; das Phasenprotokoll weist **3 → 1 Gatter**
+  und **Tiefe 3 → 1** getrennt aus. Neuladen und erneutes Öffnen erhalten die
+  Anzeige. Die Desktopansicht wurde visuell geprüft; keine Browserwarnungen oder
+  JavaScript-Fehler beobachtet. Physische Touchbedienung wurde nicht getestet.
+
+![Getrennte Evolutions- und Vereinfachungsphase](neutrale-evolution.png)

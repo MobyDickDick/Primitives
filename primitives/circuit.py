@@ -58,6 +58,36 @@ class Circuit:
                 gates.append((mapping[a], mapping[b]))
         return Circuit(self.inputs, tuple(gates), tuple(mapping[o] for o in self.outputs))
 
+    def simplify(self, *, check=None):
+        """Share equal NANDs and bypass double inversions, preserving all inputs.
+
+        Topological rewriting uses only Boolean identities, never training rows.
+        The final compaction removes gates made unreachable by those rewrites.
+        This is a bounded local simplification, not a minimality proof.
+        """
+        if check:
+            check()
+        mapping = list(range(self.inputs))
+        gates, known = [], {}
+        for a, b in self.gates:
+            if check:
+                check()
+            a, b = mapping[a], mapping[b]
+            pair = tuple(sorted((a, b)))
+            if a == b and a >= self.inputs and gates[a - self.inputs][0] == gates[a - self.inputs][1]:
+                ref = gates[a - self.inputs][0]
+            elif pair in known:
+                ref = known[pair]
+            else:
+                ref = self.inputs + len(gates)
+                gates.append(pair)
+                known[pair] = ref
+            mapping.append(ref)
+        result = Circuit(self.inputs, tuple(gates), tuple(mapping[o] for o in self.outputs)).compact()
+        if check:
+            check()
+        return result
+
     @property
     def depth(self):
         depths = [0] * self.inputs

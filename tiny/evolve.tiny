@@ -1,5 +1,6 @@
 // TinyLanguage owns island populations, variation and simultaneous ring migration.
-// The host evaluates fitness and records genotype diversity without re-scoring.
+// The host evaluates the configured objective (errors only in neutral mode),
+// records diversity, and simplifies the final elite in a separate neutral-mode pass.
 fn bound(index) {
     if (index < 2 * gates) { return n + Math.floor(index / 2); }
     return n + gates;

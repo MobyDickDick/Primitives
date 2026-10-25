@@ -39,7 +39,9 @@ Die Kennungen sind Dokumentationskennungen; GitHub-Issues wurden noch nicht ange
 - [x] Mehrere unabhängige Neustarts, Inselpopulationen und Diversitätsmass
       (Python und TinyLanguage; gemeinsames Kandidatenbudget, Ringmigration,
       genotypische Vielfalt pro Start/Insel, CLI/API und Oberfläche).
-- [ ] Neutrale Evolution und anschliessende Vereinfachung als getrennte Phasen.
+- [x] Neutrale Evolution und anschliessende Vereinfachung als getrennte Phasen
+      (Python und TinyLanguage; Fehlerzahl ohne Strukturkosten, danach
+      funktionserhaltende NAND-Vereinfachung, CLI/API, Oberfläche und Phasenprotokoll).
 - [x] Explizite Makroknoten mit benannten Ports und festen Abhängigkeitsversionen (PRIM-05;
       bei der Evolution bewusst in mutierbare NAND-Gatter expandiert).
 - [ ] Tatsächliche Abstammung einzelner Kandidaten speichern; aktuell nur Liste
@@ -75,8 +77,8 @@ Die Kennungen sind Dokumentationskennungen; GitHub-Issues wurden noch nicht ange
 - [ ] Evolution auf zeitabhängige Aufgaben erweitern.
 
 Die acht Erweiterungspakete PRIM-01 bis PRIM-08 sind umgesetzt.
-Nächster offener Entwicklungspunkt: neutrale Evolution und anschliessende
-Vereinfachung als getrennte Phasen (Etappe 2).
+Nächster offener Entwicklungspunkt: tatsächliche Abstammung einzelner Kandidaten
+speichern (Etappe 2).
 Für die Suchentwicklung bleiben Suchrobustheit und unabhängige Prüfvektoren
 vor einer starken Erhöhung der Zahlbreiten empfohlen.
 
