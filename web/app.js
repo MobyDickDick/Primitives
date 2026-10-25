@@ -2,10 +2,127 @@
 const $ = id => document.getElementById(id);
 const state = { dataset: null, datasetId: null, result: null, bits: [], timer: null, job: null, librarySignature: null,
   positions: [], selectedRef: 0, layoutToken: 0, layoutDirty: false, routing: null, drag: null,
-  camera: null, cameraTouched: false, wires: {}, selectedWire: null, wireNotice: "" };
+  camera: null, cameraTouched: false, wires: {}, selectedWire: null, wireNotice: "", operations: {}, presets: {}, referenceCircuit: null, formMode: "legacy" };
 const svgNS = "http://www.w3.org/2000/svg";
 const int = id => Number($(id).value);
 const presetLabels = { mul: "MUL(2,2,4)" };
+
+function portRow(side, port, expression = "0") {
+  const row = el("div", undefined, "port-editor"); row.dataset.side = side;
+  function field(label, key, value, type = "text") {
+    const wrap = el("label", label), input = el("input"); input.type = type; input.value = value;
+    input.dataset.field = key;
+    if (type === "number") { input.min = 1; input.max = 32; }
+    wrap.append(input); row.append(wrap);
+    input.addEventListener("input", updateDefinition);
+  }
+  field(side === "inputs" ? "Eingangsname" : "Ergebnisname", "name", port.name);
+  field("Bits", "bits", port.bits, "number");
+  const signed = el("label", undefined, "check-label"), check = el("input");
+  check.type = "checkbox"; check.checked = Boolean(port.signed); check.dataset.field = "signed";
+  signed.append(check, document.createTextNode("Zweierkomplement")); row.append(signed);
+  check.addEventListener("change", updateDefinition);
+  if (side === "outputs") {
+    const label = el("label", "Überlauf"), select = el("select"); select.dataset.field = "overflow";
+    select.add(new Option("Fehler", "error")); select.add(new Option("Abschneiden", "wrap"));
+    select.value = port.overflow || "error"; label.append(select); row.append(label);
+    const exprLabel = el("label", "Referenzausdruck"), expr = el("textarea");
+    expr.rows = 2; expr.value = expression; expr.dataset.field = "expression"; expr.spellcheck = false;
+    exprLabel.className = "port-expression"; exprLabel.append(expr); row.append(exprLabel);
+  }
+  const remove = el("button", "Port entfernen", "text-button remove-port");
+  remove.addEventListener("click", () => { row.remove(); updateDefinition(); }); row.append(remove);
+  return row;
+}
+function editPorts(spec, expressions = {}) {
+  for (const side of ["inputs", "outputs"]) {
+    const container = $(side === "inputs" ? "input-ports" : "output-ports");
+    container.replaceChildren(...spec[side].map(p => portRow(side, p, expressions[p.name] || "0")));
+  }
+}
+function editLegacyPorts(inputs, outputs, expression) {
+  let ports;
+  if (/\b[ab]\b/.test(expression) && inputs >= 2) {
+    ports = [{ name: "a", bits: Math.floor(inputs / 2) }, { name: "b", bits: Math.ceil(inputs / 2) }];
+  } else {
+    ports = Array.from({ length: inputs }, (_, i) => ({ name: `in${i}`, bits: 1 }));
+    expression = expression.replace(/\bx(\d+)\b/g, (_, i) => `in${i}`);
+  }
+  editPorts({ inputs: ports, outputs: [{ name: "c", bits: outputs, overflow: "error" }] }, { c: expression });
+}
+function readPorts() {
+  const spec = { inputs: [], outputs: [] }, expressions = {};
+  for (const row of document.querySelectorAll(".port-editor")) {
+    const get = key => row.querySelector(`[data-field="${key}"]`);
+    const port = { name: get("name").value, bits: Number(get("bits").value), signed: get("signed").checked };
+    if (row.dataset.side === "outputs") {
+      port.overflow = get("overflow").value; expressions[port.name] = get("expression").value;
+    }
+    spec[row.dataset.side].push(port);
+  }
+  return { spec, expressions };
+}
+function operationRequest() {
+  const definition = $("operation").value, op = state.operations[definition];
+  const params = { a_bits: int("a-bits"), result_bits: int("result-bits"), signed: $("signed").checked,
+    overflow: $("overflow").value, flag: $("result-flag").checked && ["ADD", "SUB", "MUL"].includes(definition) };
+  if (op?.operands === 2) params.b_bits = int("b-bits");
+  return { definition, version: 1, parameters: params };
+}
+function chooseOperation(definition, parameters = null) {
+  const op = state.operations[definition]; if (!op) return;
+  $("operation").value = definition;
+  const p = parameters || { a_bits: op.defaults[0], b_bits: op.defaults[1], result_bits: op.defaults[2] };
+  $("a-bits").value = p.a_bits; $("b-bits").value = p.b_bits || 1; $("result-bits").value = p.result_bits;
+  $("signed").checked = Boolean(p.signed); $("overflow").value = p.overflow || "wrap"; $("result-flag").checked = Boolean(p.flag);
+  $("task-mode").value = "operation"; updateDefinition();
+}
+function updateDefinition() {
+  const mode = $("task-mode").value, named = mode === "named" || mode === "circuit";
+  $("operation-options").hidden = mode !== "operation"; $("named-options").hidden = !named;
+  $("expression").closest("label").hidden = mode !== "legacy";
+  $("expression-hint").hidden = mode !== "legacy"; $("mul-hint").hidden = true;
+  $("inputs").readOnly = $("outputs").readOnly = mode !== "legacy";
+  $("circuit-reference-hint").hidden = mode !== "circuit";
+  for (const node of document.querySelectorAll(".port-expression, .remove-port, #add-input-port, #add-output-port")) node.hidden = mode === "circuit";
+  let n = int("inputs"), m = int("outputs"), description = "";
+  if (mode === "operation") {
+    const op = operationRequest(), p = op.parameters;
+    n = p.a_bits + (p.b_bits || 0); m = p.result_bits + Number(p.flag);
+    $("b-bits-label").hidden = state.operations[op.definition]?.operands !== 2;
+    $("flag-label").hidden = !["ADD", "SUB", "MUL"].includes(op.definition);
+    description = `${op.definition}(${p.a_bits}${p.b_bits ? `,${p.b_bits}` : ""},${p.result_bits}) · ${p.signed ? "Zweierkomplement" : "unsigned"} · ${p.overflow === "wrap" ? "Ergebnis modulo 2^Breite" : "Überlauf wird abgelehnt"}.`;
+    if (p.flag) description += op.definition === "SUB" && !p.signed ? " Borrow: a < b; Abschneiden positiver hoher Bits setzt Borrow nicht." : ` Statusbit: ausserhalb des Ergebnisbereichs (${p.signed || op.definition === "MUL" ? "Overflow" : "Carry"}).`;
+  } else if (named) {
+    const { spec } = readPorts();
+    n = spec.inputs.reduce((v, p) => v + p.bits, 0); m = spec.outputs.reduce((v, p) => v + p.bits, 0);
+    description = `${spec.inputs.map(p => `${p.name}[${p.bits}]`).join(", ")} → ${spec.outputs.map(p => `${p.name}[${p.bits}]`).join(", ")} · LSB zuerst.`;
+  }
+  if (mode !== "legacy") { $("inputs").value = n; $("outputs").value = m; }
+  $("variant-description").textContent = description + (mode === "legacy" ? "" : ` Referenz/Vektorvorlage; eine passende NAND-Implementierung wird separat gesucht. ${n <= 16 ? `Vollständige Tabelle: ${2 ** n} Eingaben.` : `2^${n} Eingaben: maximal 65536 Vektoren als Stichprobe.`}`);
+  state.formMode = mode;
+}
+function restoreDefinition(ds) {
+  $("dataset-name").value = ds.name; $("inputs").value = ds.inputs; $("outputs").value = ds.outputs;
+  const meta = ds.metadata || {};
+  $("preset").value = meta.operation ? meta.operation.definition.toLowerCase() : "custom";
+  if (meta.operation && state.operations[meta.operation.definition]) chooseOperation(meta.operation.definition, meta.operation.parameters);
+  else if (meta.interface) {
+    state.referenceCircuit = meta.reference_circuit || null;
+    editPorts(meta.interface, typeof meta.expression === "object" ? meta.expression : { [meta.interface.outputs[0].name]: meta.expression || "0" });
+    $("task-mode").value = meta.reference_circuit ? "circuit" : "named";
+    updateDefinition();
+  } else {
+    $("task-mode").value = "legacy";
+    if (typeof meta.expression === "string") $("expression").value = meta.expression;
+    updateDefinition();
+  }
+}
+function datasetSummary(ds) {
+  const ports = ds.metadata?.interface;
+  const mapping = ports ? ` · ${ports.inputs.map(p => `${p.name}[${p.bits}]`).join(" + ")} → ${ports.outputs.map(p => `${p.name}[${p.bits}]`).join(" + ")}` : "";
+  $("dataset-summary").textContent = `${ds.name} · ${ds.rows.length} Vektoren · ${ds.inputs}:${ds.outputs} · ${ds.exhaustive ? "vollständige Wahrheitstabelle" : "Stichprobe"}${mapping}`;
+}
 
 function el(tag, text, className) {
   const node = document.createElement(tag);
@@ -51,13 +168,18 @@ function compatible() {
 async function setDataset(obj) {
   const saved = await api("/api/datasets", obj);
   state.dataset = saved.dataset; state.datasetId = saved.id;
-  $("dataset-summary").textContent = `${saved.dataset.rows.length} Vektoren · ${saved.dataset.inputs}:${saved.dataset.outputs} · ${saved.dataset.exhaustive ? "vollständige Wahrheitstabelle" : "Stichprobe"}`;
+  datasetSummary(saved.dataset); restoreDefinition(saved.dataset);
   $("export-dataset").disabled = false;
   renderTable();
 }
 async function refresh() {
   const catalog = await api("/api/catalog");
+  if (!catalog.operations) throw new Error("Die neuen Bitbreitenfunktionen benötigen einen Neustart des lokalen Webservers. Danach die Seite neu laden.");
+  state.operations = catalog.operations;
+  state.presets = catalog.presets;
   if (!$("preset").options.length) {
+    for (const name of Object.keys(catalog.operations)) $("operation").add(new Option(name, name));
+    editPorts({ inputs: [{ name: "a", bits: 2 }, { name: "b", bits: 2 }], outputs: [{ name: "c", bits: 3 }] }, { c: "a+b" });
     for (const name of Object.keys(catalog.presets)) $("preset").add(new Option(presetLabels[name] || name.toUpperCase(), name));
     $("preset").add(new Option("Eigener Ausdruck", "custom"));
     $("preset").value = "xor";
@@ -65,6 +187,10 @@ async function refresh() {
       const name = $("preset").value, p = catalog.presets[name];
       $("mul-hint").hidden = name !== "mul";
       if (!p) return;
+      if (catalog.operations[name.toUpperCase()]) {
+        chooseOperation(name.toUpperCase()); $("dataset-name").value = presetLabels[name] || name; return;
+      }
+      $("task-mode").value = "legacy"; updateDefinition();
       $("inputs").value = p.inputs; $("outputs").value = p.outputs;
       $("dataset-name").value = presetLabels[name] || name; $("expression").value = p.expression;
     });
@@ -92,7 +218,7 @@ async function refresh() {
       try {
         const data = await api(`/api/datasets/${program.dataset_id}`);
         state.dataset = data; state.datasetId = program.dataset_id;
-        $("dataset-summary").textContent = `${data.name} · ${data.rows.length} Vektoren · ${data.inputs}:${data.outputs}`;
+        datasetSummary(data); restoreDefinition(data);
         $("export-dataset").disabled = false;
         showProgram(program);
       } catch (err) { error(err); }
@@ -167,8 +293,10 @@ function renderSimulation() {
   const result = evaluate(c, state.bits);
   $("bit-switches").replaceChildren();
   state.bits.forEach((bit, i) => {
-    const button = el("button", `${i + 1}: ${bit}`, bit ? "on" : "");
-    button.setAttribute("aria-label", `Eingang ${i + 1}: ${bit}`);
+    const port = compatible() && state.dataset.metadata?.interface?.inputs.find(p => p.offset <= i && i < p.offset + p.bits);
+    const name = port ? `${port.name}[${i - port.offset}]` : String(i + 1);
+    const button = el("button", `${name}: ${bit}`, bit ? "on" : "");
+    button.setAttribute("aria-label", `Eingang ${name}: ${bit}`);
     button.setAttribute("aria-pressed", String(Boolean(bit)));
     button.addEventListener("click", () => toggleInput(i));
     $("bit-switches").append(button);
@@ -480,9 +608,65 @@ function resetWire() {
 }
 action("reset-wire", resetWire);
 
-action("generate", () => setDataset({ name: $("dataset-name").value, inputs: int("inputs"), outputs: int("outputs"), expression: $("expression").value, samples: int("samples"), seed: int("seed") }));
+$("task-mode").addEventListener("change", async () => {
+  clearError();
+  try {
+    if ($("task-mode").value === "named" && state.formMode === "legacy") editLegacyPorts(int("inputs"), int("outputs"), $("expression").value);
+    else if ($("task-mode").value === "named" && state.formMode === "operation") {
+      const v = await api("/api/operations/variant", operationRequest()); editPorts(v.interface, v.expression);
+    }
+    updateDefinition();
+  } catch (err) { $("task-mode").value = state.formMode; error(err); }
+});
+$("operation").addEventListener("change", () => chooseOperation($("operation").value));
+for (const id of ["a-bits", "b-bits", "result-bits", "signed", "overflow", "result-flag"]) $(id).addEventListener("input", updateDefinition);
+for (const [id, side] of [["add-input-port", "inputs"], ["add-output-port", "outputs"]]) action(id, () => {
+  const container = $(side === "inputs" ? "input-ports" : "output-ports");
+  container.append(portRow(side, { name: `${side === "inputs" ? "in" : "out"}${container.children.length}`, bits: 1 })); updateDefinition();
+});
+action("new-width-variant", async () => {
+  const result = state.result;
+  const ds = result.dataset_id ? await api(`/api/datasets/${result.dataset_id}`) : null;
+  const family = ds && Object.entries(state.presets).find(([name, p]) => state.operations[name.toUpperCase()] &&
+    p.inputs === ds.inputs && p.outputs === ds.outputs && p.expression === ds.metadata?.expression)?.[0];
+  if (ds?.metadata?.operation || ds?.metadata?.interface && (ds.metadata.expression || ds.metadata.reference_circuit)) {
+    restoreDefinition(ds);
+  } else if (family) {
+    chooseOperation(family.toUpperCase()); $("preset").value = family;
+  } else if (typeof ds?.metadata?.expression === "string" && !ds.metadata.oracle_file) {
+    editLegacyPorts(ds.inputs, ds.outputs, ds.metadata.expression);
+    $("preset").value = "custom";
+    $("task-mode").value = "named"; updateDefinition();
+  } else {
+    state.referenceCircuit = result.circuit;
+    $("preset").value = "custom";
+    editPorts({ inputs: Array.from({ length: result.circuit.inputs }, (_, i) => ({ name: `in${i}`, bits: 1 })),
+      outputs: result.circuit.outputs.map((_, i) => ({ name: `out${i}`, bits: 1, overflow: "wrap" })) });
+    $("task-mode").value = "circuit"; updateDefinition();
+  }
+  $("dataset-name").value = `${ds?.name || "NAND"} – Breitenvariante`.slice(0, 120);
+  $("variant-description").append(document.createTextNode(" Breiten jetzt anpassen und neue Vektoren erzeugen."));
+  $("task-mode").focus(); $("task-mode").scrollIntoView({ block: "center", behavior: "smooth" });
+});
+action("generate", () => {
+  updateDefinition();
+  const obj = { name: $("dataset-name").value, inputs: int("inputs"), outputs: int("outputs"),
+    expression: $("expression").value, samples: int("samples"), seed: int("seed") };
+  const mode = $("task-mode").value;
+  if (mode === "operation") obj.operation = operationRequest();
+  else if (mode === "named" || mode === "circuit") {
+    const { spec, expressions } = readPorts(); obj.interface = spec; obj.expression = expressions;
+    if (mode === "circuit") {
+      if (!state.referenceCircuit) throw new Error("Zuerst eine Schaltung öffnen und «Neue Breitenvariante» wählen.");
+      obj.reference_circuit = state.referenceCircuit;
+    }
+  }
+  return setDataset(obj);
+});
 action("import-rows", () => setDataset({ name: $("dataset-name").value, inputs: int("inputs"), outputs: int("outputs"), rows: JSON.parse($("raw-rows").value) }));
-$("import").addEventListener("change", async event => { clearError(); try { if (event.target.files[0]) await setDataset(JSON.parse(await event.target.files[0].text())); } catch (err) { error(err); } });
+$("import").addEventListener("change", async event => { clearError(); try {
+  if (event.target.files[0]) { const obj = JSON.parse(await event.target.files[0].text()); await setDataset(obj.dataset || obj); }
+} catch (err) { error(err); } });
 action("evolve", async () => {
   if (!state.datasetId) throw new Error("Bitte zuerst Zuordnungsvektoren erzeugen.");
   const config = { gates: int("gates"), population: int("population"), generations: int("generations"), seed: int("seed"), backend: $("backend").value, repair_cases: $("auto-repair").checked ? 4 : 0 };
@@ -540,7 +724,11 @@ action("repair-program", async () => {
     $("job-status").textContent = `${verification(result.fitness)} · Beste Version nach Restfallkorrektur geladen.`;
   } finally { $("repair-program").disabled = !state.result?.id || !state.result?.fitness?.errors || Boolean(state.job); }
 });
-action("export-program", () => download(`${state.result.id || "nand-programm"}.json`, state.result));
+action("export-program", async () => {
+  const result = state.result;
+  const dataset = result.dataset_id ? await api(`/api/datasets/${result.dataset_id}`) : null;
+  download(`${result.id || "nand-programm"}.json`, dataset ? { ...result, dataset } : result);
+});
 action("export-dataset", () => download(`${state.datasetId}.json`, state.dataset));
 $("step").addEventListener("input", () => { stopAnimation(); renderSimulation(); });
 $("play").addEventListener("click", () => {

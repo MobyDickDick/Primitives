@@ -2,7 +2,7 @@
 
 Diese acht Arbeitspakete konkretisieren die Erweiterungswünsche vom
 25. Oktober 2026. Sie sind lokale Planungs-Issues; auf GitHub wurden noch keine
-Issues angelegt. PRIM-01 und PRIM-02 sind umgesetzt; die weiteren Arbeitspakete sind offen.
+Issues angelegt. PRIM-01 bis PRIM-03 sind umgesetzt; die weiteren Arbeitspakete sind offen.
 
 Die Kennungen PRIM-01 bis PRIM-08 sind Dokumentationskennungen, keine GitHub-Issue-Nummern.
 
@@ -12,7 +12,7 @@ Die Kennungen PRIM-01 bis PRIM-08 sind Dokumentationskennungen, keine GitHub-Iss
 |---|---|---|---|
 | [PRIM-01](#prim-01) | Zoom und Navigation (umgesetzt) | 1 | Eigenständig |
 | [PRIM-02](#prim-02) | Drähte verschieben und speichern (umgesetzt) | 2 | Zoom-Koordinaten aus PRIM-01 berücksichtigen |
-| [PRIM-03](#prim-03) | Variable Bitbreiten | 5 | Grundlage für weitere Funktionen |
+| [PRIM-03](#prim-03) | Variable Bitbreiten (umgesetzt) | 5 | Grundlage für weitere Funktionen |
 | [PRIM-04](#prim-04) | TinyCPU und Operationsbeispiele | 3 | PRIM-03; Kontrollfluss später ergänzen |
 | [PRIM-05](#prim-05) | Wiederverwendbare Unterprogramm-Bausteine | 4 | PRIM-03 |
 | [PRIM-06](#prim-06) | Unterprogramm-Boxen und Debugging | 4 | PRIM-05; PRIM-01/02 berücksichtigen |
@@ -117,7 +117,7 @@ Die Zoom-Koordinatenumrechnung aus [PRIM-01](#prim-01) wiederverwenden; Routing 
 
 ## PRIM-03 – Operationen parametrisieren: variable Operand- und Ausgangsbitbreiten
 
-**Status:** geplant, nicht implementiert.
+**Status:** umgesetzt am 25. Oktober 2026, einschliesslich Breitenvarianten für beliebige geöffnete Schaltungen.
 
 ### Ziel
 Operationen wie ADD und MUL als Familien mit unterschiedlichen Bitbreiten anbieten. Eine Variante darf bereits als ausführbare Referenz/Vektorvorlage existieren, auch wenn noch keine passende verdrahtete Schaltung gefunden wurde.
@@ -134,9 +134,26 @@ N und M sind bereits einstellbar, aber `a` und `b` werden in `primitives/dataset
 - Grössenlimits, vollständige Wahrheitstabellen und Stichproben beibehalten und sichtbar unterscheiden; kombinatorisches Wachstum nicht durch automatisches Erzeugen aller Varianten verschärfen.
 
 ### Abnahme
-- [ ] ADD mit gleichen und unterschiedlichen Operandbreiten liefert definierte Ergebnisse, auch bei Überlauf.
-- [ ] Eine Vorlage funktioniert ohne bereits vorhandene Schaltung und kann zur Suche verwendet werden.
-- [ ] Breiten/Bitreihenfolge bleiben beim Speichern und Laden erhalten; bestehende Beispiele funktionieren weiter.
+- [x] ADD mit gleichen und unterschiedlichen Operandbreiten liefert definierte Ergebnisse, auch bei Überlauf.
+- [x] Eine Vorlage funktioniert ohne bereits vorhandene Schaltung und kann zur Suche verwendet werden.
+- [x] Breiten/Bitreihenfolge bleiben beim Speichern und Laden erhalten; bestehende Beispiele funktionieren weiter.
+
+### Umsetzung
+`primitives/ports.py` validiert benannte, fortlaufende LSB-first-Ports mit
+unsigned/Zweierkomplement und Ergebnisüberlaufregeln. `primitives/operations.py`
+trennt Operationsdefinitionen von konkreten Breitenvarianten. ADD, SUB, MUL und
+die vorhandenen elementaren Logikoperationen sind parametrisiert; eigene
+Ausdrücke unterstützen beliebig benannte zusätzliche Ein-/Ausgänge innerhalb
+der bisherigen Gesamtlimits. UI, API und CLI erzeugen dieselben Metadaten.
+
+Jede geöffnete Schaltung bietet **Neue Breitenvariante**. Vorhandene Referenzen
+bleiben verwendbar; reine NAND-Schaltungen werden auf Wunsch bitweise auf
+benannte Busports angewendet. Das ergibt eine Referenz für die neue Suche,
+keine Behauptung einer bereits vorhandenen breiteren Arithmetikschaltung.
+Eine einzelne bestehende Bitverdrahtung definiert keine allgemeine Rechenoperation.
+
+Format und Semantik stehen in [FORMAT.md](FORMAT.md#benannte-ports-und-breitenvarianten),
+die Prüfung in [VERIFIKATION.md](VERIFIKATION.md#variable-bitbreiten-prim-03).
 
 ### Ansatzpunkte
 `primitives/dataset.py`, Bibliotheksmetadaten, Katalog-API und Vorlagenauswahl. Grundlage für TinyCPU-Beispiele und Unterprogramm-Schnittstellen.

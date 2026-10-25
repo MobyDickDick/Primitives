@@ -70,6 +70,42 @@ class ServerTests(unittest.TestCase):
             self.assertEqual(caught.exception.code, 400)
             caught.exception.close()
 
+    def test_width_variants_named_ports_import_and_search(self):
+        catalog = self.request("/api/catalog")
+        self.assertIn("ADD", catalog["operations"])
+        self.assertEqual(catalog["programs"], [])
+        variant = self.request("/api/operations/variant", {"definition": "SUB", "parameters": {
+            "a_bits": 2, "b_bits": 3, "result_bits": 3, "flag": True}})
+        self.assertEqual(variant["expression"]["c"], "a-b")
+        self.assertEqual(variant["interface"]["outputs"][1]["name"], "borrow")
+        obj = {"operation": {"definition": "ADD", "parameters": {
+            "a_bits": 2, "b_bits": 3, "result_bits": 4, "flag": True}}, "samples": 32}
+        saved = self.request("/api/datasets", obj)
+        ds = saved["dataset"]
+        self.assertEqual((ds["inputs"], ds["outputs"], len(ds["rows"])), (5, 5, 32))
+        self.assertEqual([p["offset"] for p in ds["metadata"]["interface"]["inputs"]], [0, 2])
+        self.assertEqual(self.request("/api/datasets/" + saved["id"]), ds)
+        self.assertEqual(self.request("/api/datasets", ds)["dataset"], ds)
+        named = self.request("/api/datasets", {"name": "named XOR", "inputs": 2, "outputs": 1,
+            "interface": {"inputs": [{"name": "left", "bits": 1}, {"name": "right", "bits": 1}],
+                          "outputs": [{"name": "result", "bits": 1}]}, "expression": {"result": "left ^ right"}})
+        job = self.request("/api/search", {"dataset_id": named["id"], "config": {
+            "backend": "python", "gates": 8, "generations": 300}})
+        deadline = time.monotonic() + 10
+        while time.monotonic() < deadline:
+            state = self.request("/api/jobs/" + job["job_id"])
+            if state["status"] in ("done", "failed"): break
+            time.sleep(0.03)
+        self.assertEqual(state["status"], "done", state)
+        self.assertTrue(state["result"]["fitness"]["verified_truth_table"])
+        self.assertEqual(state["result"]["dataset_metadata"], named["dataset"]["metadata"])
+        for invalid in ({"operation": {"definition": "ADD", "parameters": {"a_bits": 32, "b_bits": 2}}},
+                        {**obj, "operation": {"definition": "ADD", "parameters": {"a_bits": 2, "b_bits": 2,
+                            "result_bits": 2, "overflow": "error"}}}):
+            with self.assertRaises(HTTPError) as caught: self.request("/api/datasets", invalid)
+            self.assertEqual(caught.exception.code, 400)
+            caught.exception.close()
+
     def test_infix_parse_api(self):
         for expression in ("(1) ⊼ ((2) ⊼ (3))", "(1,(2,3))"):
             parsed = self.request("/api/parse", {"expression": expression, "inputs": 3})

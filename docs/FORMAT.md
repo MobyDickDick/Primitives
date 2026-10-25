@@ -25,6 +25,117 @@ Bei unvollständiger Tabelle sind nicht aufgeführte Eingaben frei. Eine gefunde
 Schaltung legt dafür trotzdem Ausgaben fest; diese wurden durch die Tabelle
 aber nicht überprüft.
 
+## Benannte Ports und Breitenvarianten
+
+Schema 1 bleibt gültig. Optional enthält `metadata.interface` die explizite
+Schnittstelle, zum Beispiel für ADD(2,3,4):
+
+```json
+{
+  "schema": 1,
+  "bit_order": "LSB-first",
+  "inputs": [
+    {"name": "a", "bits": 2, "signed": false, "offset": 0},
+    {"name": "b", "bits": 3, "signed": false, "offset": 2}
+  ],
+  "outputs": [
+    {"name": "c", "bits": 4, "signed": false, "offset": 0, "overflow": "wrap"}
+  ]
+}
+```
+
+Portreihenfolge legt die fortlaufenden Offsets fest. Offsets beginnen pro Seite
+bei 0; in einer Zeile stehen alle Eingänge vor allen Ergebnissen. Innerhalb
+jedes Ports kommt das niederwertigste Bit zuerst. Im Beispiel lautet die Zeile
+`a0,a1,b0,b1,b2,c0,c1,c2,c3`, mit N=5 und M=4. Offsets dürfen beim Erzeugen
+weggelassen werden; angegebene Offsets werden geprüft. Summen müssen N/M
+entsprechen, jede Seite hat 1–32 Bits. Portnamen sind auf beiden Seiten eindeutig,
+beginnen mit einem ASCII-Buchstaben und enthalten höchstens 32 Buchstaben,
+Ziffern oder Unterstriche. `x`, `x0…`, `pi`, Sprach- und Funktionsnamen sind reserviert.
+
+`signed: false` kodiert 0…2^w−1, `signed: true` kodiert −2^(w−1)…2^(w−1)−1
+im Zweierkomplement. Eingaben werden vor der Referenzrechnung entsprechend
+dekodiert; die Zwischenrechnung verwendet mathematische Zahlen ohne implizites
+Abschneiden. Pro Ergebnis legt `overflow` fest:
+
+- `error` (Standard bei eigenen Ports): Ein nicht darstellbares oder nicht
+  ganzzahliges Ergebnis bricht die gesamte Erzeugung ab. Keine Teilvektoren speichern.
+- `wrap`: Ganzzahlige Ergebnisse modulo 2^w als Bits speichern. Bei signed
+  werden dieselben Bits als Zweierkomplement interpretiert.
+
+`metadata.expression` ist bei mehreren Ergebnissen eine Zuordnung
+`{"c":"a+b", "valid":"a != 0"}`. Genau ein Ausdruck pro Ergebnisport ist
+erforderlich; alle Ausdrücke sehen nur die Eingaben, die Rohbits `x0…`, das
+gepackte unsigned `x` und `pi`. Es gibt keine Abhängigkeiten zwischen Ergebnissen.
+Ohne Schnittstelle bleibt die alte automatische a/b-Halbierung und die alte
+strikte Ergebnisprüfung vollständig erhalten.
+
+Parametrisierte Operationen enthalten zusätzlich beispielsweise:
+
+```json
+{
+  "definition": "ADD",
+  "version": 1,
+  "parameters": {
+    "a_bits": 2, "b_bits": 3, "result_bits": 4,
+    "signed": false, "overflow": "wrap", "flag": false
+  }
+}
+```
+
+Dieses Objekt steht in `metadata.operation`. Definition, Breitenvariante und
+NAND-Implementierung sind getrennt: Die Definition existiert im Katalog, die
+Variante in den Metadaten, eine gefundene Schaltung im Programm. Beim Import
+müssen Operationsparameter, Schnittstelle und Referenzausdrücke zueinander passen.
+Es werden keine Varianten vorab aufgezählt. Die alten `PRESETS` bleiben unverändert.
+
+ADD, SUB und MUL rechnen a+b, a−b und a×b. Unterschiedliche Breiten sind erlaubt;
+signed gilt bei diesen Operationen für beide Operanden und c. Standard ist
+unsigned mit `wrap`. Optional hängt `flag: true` hinter c einen unsigned
+Ein-Bit-Ausgang an (zählt zu M):
+
+| Operation | unsigned | signed |
+|---|---|---|
+| ADD | `carry`: mathematisches Ergebnis > 2^result_bits−1 | `overflow`: Ergebnis ausserhalb des signed Ergebnisbereichs |
+| SUB | `borrow`: a < b | `overflow`: Ergebnis ausserhalb des signed Ergebnisbereichs |
+| MUL | `overflow`: Ergebnis ausserhalb des unsigned Ergebnisbereichs | `overflow`: Ergebnis ausserhalb des signed Ergebnisbereichs |
+
+Borrow zeigt keine Abschneidung hoher positiver Bits an. Ein Statusausgang hebt
+`error` nicht auf. NOT/NAND/AND/OR/XOR/NOR/XNOR wirken bitweise. Python-artige
+unbegrenzte Bitwerte entsprechen Nullerweiterung bei unsigned und
+Vorzeichenerweiterung bei signed. NOT/NAND/NOR/XNOR invertieren genau die
+Ergebnisbreite und interpretieren sie gemäss dem Ergebnisvorzeichen; bei
+AND/OR/XOR gilt anschliessend die gewählte Überlaufregel.
+
+Für beliebige NAND-Schaltungen kann `metadata.reference_circuit` deren
+unveränderte Gatterliste enthalten. Je ein benannter Port ersetzt einen
+ursprünglichen Eingangs- bzw. Ausgangsanschluss. Jede NAND-Stufe wird als
+bitweises `~(a & b)` auf den dekodierten Portwerten ausgeführt. Nur die
+Ergebnisports begrenzen die Breite gemäss `overflow`, üblicherweise `wrap`.
+Das ist eine bitweise Referenz zum Erzeugen neuer Vektoren; die arithmetische
+Absicht einer flachen Bitverdrahtung lässt sich daraus nicht allgemein ableiten.
+
+API:
+
+- `GET /api/catalog` liefert feste `presets` und parametrisierbare `operations`.
+- `POST /api/operations/variant` nimmt das Operationsobjekt entgegen und liefert
+  `operation`, `interface` und `expression` ohne Vektorerzeugung oder Speicherung.
+- `POST /api/datasets` mit `{"operation": {...}, "samples": 256, "seed": 1}`
+  erzeugt die Variante. `name` ist optional; N/M ergeben sich aus der Operation.
+- Eigene Aufgaben senden `name`, `inputs`, `outputs`, `interface` und `expression`
+  (String für einen Ausgang oder Zuordnung); alternativ `reference_circuit`.
+- Import mit `rows` prüft und erhält die Metadaten. `exhaustive` wird stets
+  aus den tatsächlichen Zeilen berechnet. Bibliotheksprogramme referenzieren
+  ihren Datensatz und liefern zusätzlich dessen `dataset_metadata`.
+
+Der Browser-Programmexport enthält den zugehörigen vollständigen `dataset`.
+Beim Import dieses Exports übernimmt die Vektorimportfunktion den Datensatz.
+Verschiedene Referenzmetadaten bei identischen N/M/Vektoren bleiben dieselbe
+Suchaufgabe: Die Bibliothek behält die beste Schaltung und deren bisherigen
+Datensatz; die neu angeforderte Schnittstelle wird als eigener Datensatz gespeichert.
+Pro Anfrage entstehen höchstens 65536 Vektoren. Nur wenn alle 2^N Eingaben
+enthalten sind, gilt die Tabelle als vollständig; sonst bleibt sie eine Stichprobe.
+
 ## NAND-Schreibweise
 
 ```text

@@ -9,6 +9,7 @@ from urllib.parse import urlsplit
 import uuid
 from .circuit import Circuit, parse_expression
 from .dataset import Dataset, PRESETS, generate
+from .operations import OPERATIONS, generate_operation, operation_variant
 from .evolution import SearchCancelled, SearchConfig, check_cancelled
 from .library import Library
 from .runner import ROOT, search, tiny_interpreter
@@ -47,6 +48,7 @@ def make_server(port=8765, data_dir=None, *, background=True):
                     except ValueError:
                         tiny = False
                     self.send_data({"presets": {k: {"inputs": v[0], "outputs": v[1], "expression": v[2]} for k, v in PRESETS.items()},
+                                    "operations": OPERATIONS,
                                     "datasets": library.datasets(), "programs": library.programs(), "tiny_available": tiny,
                                     "background": optimizer.status()})
                 elif path.startswith("/api/datasets/"):
@@ -86,10 +88,19 @@ def make_server(port=8765, data_dir=None, *, background=True):
                     raise ValueError("Ein JSON-Objekt wird erwartet.")
                 path = urlsplit(self.path).path
                 if path == "/api/datasets":
-                    dataset = Dataset.from_dict(obj) if "rows" in obj else generate(
-                        obj["name"], obj["inputs"], obj["outputs"], obj["expression"], obj.get("samples"), obj.get("seed", 1))
+                    if "rows" in obj:
+                        dataset = Dataset.from_dict(obj)
+                    elif "operation" in obj:
+                        dataset = generate_operation(obj["operation"], obj.get("samples"), obj.get("seed", 1), obj.get("name"))
+                    else:
+                        dataset = generate(obj["name"], obj["inputs"], obj["outputs"], obj.get("expression"),
+                                           obj.get("samples"), obj.get("seed", 1), ports=obj.get("interface"),
+                                           reference_circuit=obj.get("reference_circuit"))
                     key = library.save_dataset(dataset)
                     self.send_data({"id": key, "dataset": dataset.to_dict()})
+                elif path == "/api/operations/variant":
+                    operation, ports, expressions = operation_variant(obj)
+                    self.send_data({"operation": operation, "interface": ports, "expression": expressions})
                 elif path == "/api/parse":
                     circuit = parse_expression(obj["expression"], obj["inputs"])
                     self.send_data({"circuit": circuit.to_dict(), "expressions": circuit.expressions()})

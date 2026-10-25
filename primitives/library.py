@@ -157,20 +157,22 @@ class Library:
         c = Circuit.from_dict(result["circuit"])
         result = {**result, "fitness": fitness(c, dataset)}
         previous = next((p for p in self.programs() if p["task_id"] == task_id(dataset)), None)
+        # Preserve the requested interface even when an existing circuit wins a retest.
+        dataset_id = self.save_dataset(dataset)
         comparison = None
         if previous:
             comparison = {"accepted": rank(result) < rank(previous), "previous_id": previous["id"],
                           "previous_fitness": previous["fitness"], "candidate_fitness": result["fitness"]}
             if not comparison["accepted"]:
                 return {**previous, "comparison": comparison}
-        dataset_id = self.save_dataset(dataset)
         f = result["fitness"]
         status = "exakt" if f["verified_truth_table"] else "stichprobe" if f["exact_on_dataset"] else "annaeherung"
         key = f"{slug(dataset.name)}-{c.inputs}zu{len(c.outputs)}-g{len(c.gates)}-t{c.depth}-{status}-{digest([c.to_dict(), dataset_id])}"
         obj = {**result, "id": key, "name": key, "dataset_id": dataset_id,
                "task_id": task_id(dataset),
                "frozen": self.is_frozen(task_id(dataset)),
-               "dataset_name": dataset.name, "created_at": datetime.now(timezone.utc).isoformat(), "schema": 1}
+               "dataset_name": dataset.name, "dataset_metadata": dataset.metadata,
+               "created_at": datetime.now(timezone.utc).isoformat(), "schema": 1}
         try:
             obj["expressions"] = c.expressions()
         except ValueError:
@@ -189,7 +191,9 @@ class Library:
             obj["expressions"] = circuit.expressions()
         except ValueError:
             obj["expressions"] = None
-        obj["task_id"] = task_id(self.load_dataset(obj["dataset_id"]))
+        dataset = self.load_dataset(obj["dataset_id"])
+        obj["task_id"] = task_id(dataset)
+        obj["dataset_metadata"] = dataset.metadata
         obj["frozen"] = self.is_frozen(obj["task_id"])
         return obj
 

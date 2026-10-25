@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 import math
 import operator
 import random
+from .ports import decode, encode, interface
 
 
 def bits(value, width):
@@ -42,6 +43,24 @@ class Dataset:
         self.rows = [list(k + v) for k, v in sorted(unique.items())]
         if not isinstance(self.metadata, dict):
             raise ValueError("metadata muss ein Objekt sein.")
+        if "interface" in self.metadata:
+            self.metadata = {**self.metadata, "interface": interface(self.metadata["interface"], self.inputs, self.outputs)}
+        if "reference_circuit" in self.metadata:
+            from .circuit import Circuit
+            c = Circuit.from_dict(self.metadata["reference_circuit"])
+            ports = self.metadata.get("interface", {})
+            if len(ports.get("inputs", [])) != c.inputs or len(ports.get("outputs", [])) != len(c.outputs):
+                raise ValueError("Die Referenzschaltung braucht einen benannten Port pro ursprünglichem Anschluss.")
+        if "operation" in self.metadata:
+            from .operations import variant
+            op = self.metadata["operation"]
+            if not isinstance(op, dict) or op.get("version") != 1 or not isinstance(op.get("parameters"), dict):
+                raise ValueError("Ungültige Operationsmetadaten.")
+            if set(op["parameters"]) - {"a_bits", "b_bits", "result_bits", "signed", "overflow", "flag"}:
+                raise ValueError("Ungültige Operationsparameter.")
+            canonical, ports, expressions = variant(op.get("definition"), **op["parameters"])
+            if op != canonical or self.metadata.get("interface") != ports or self.metadata.get("expression") != expressions:
+                raise ValueError("Operationsmetadaten passen nicht zur Schnittstelle oder Referenz.")
 
     @property
     def exhaustive(self):
@@ -132,9 +151,24 @@ PRESETS = {
 }
 
 
-def generate(name, inputs, outputs, expression, samples=None, seed=1, *, oracle=None):
+def generate(name, inputs, outputs, expression, samples=None, seed=1, *, oracle=None, ports=None, reference_circuit=None):
     if any(type(w) is not int or not 1 <= w <= 32 for w in (inputs, outputs)):
         raise ValueError("N und M müssen zwischen 1 und 32 liegen.")
+    ports = interface(ports, inputs, outputs) if ports is not None else None
+    if ports is not None and oracle is not None:
+        raise ValueError("Benannte Ports werden nur für Ausdrücke unterstützt.")
+    reference = None
+    if reference_circuit is not None:
+        from .circuit import Circuit
+        reference = Circuit.from_dict(reference_circuit)
+        if not ports or len(ports["inputs"]) != reference.inputs or len(ports["outputs"]) != len(reference.outputs):
+            raise ValueError("Die Referenzschaltung braucht einen benannten Port pro ursprünglichem Anschluss.")
+    if ports and reference is None:
+        if isinstance(expression, str) and len(ports["outputs"]) == 1:
+            expression = {ports["outputs"][0]["name"]: expression}
+        if not isinstance(expression, dict) or set(expression) != {p["name"] for p in ports["outputs"]}:
+            raise ValueError("Für jeden Ergebnisport ist genau ein Ausdruck erforderlich.")
+        functions = {key: Expression(value) for key, value in expression.items()}
     total = 1 << inputs
     if samples is not None and (type(samples) is not int or not 1 <= samples <= 65536):
         raise ValueError("Die Anzahl Vektoren muss zwischen 1 und 65536 liegen.")
@@ -144,16 +178,39 @@ def generate(name, inputs, outputs, expression, samples=None, seed=1, *, oracle=
     if count != total and count > len(xs):
         xs += random.Random(seed).sample(range(1, total - 1), count - len(xs))
         xs.sort()
-    fn, rows = Expression(expression) if oracle is None else lambda env: oracle(env["x"]), []
+    fn = None if ports else Expression(expression) if oracle is None else lambda env: oracle(env["x"])
+    rows = []
     for x in xs:
         vector = bits(x, inputs)
         env = {"x": x, "a": x & ((1 << (inputs // 2)) - 1), "b": x >> (inputs // 2), "pi": math.pi}
         env.update({f"x{i}": v for i, v in enumerate(vector)})
+        if ports:
+            # An explicit interface replaces the historical implicit a/b halves.
+            env = {"x": x, "pi": math.pi, **{f"x{i}": v for i, v in enumerate(vector)},
+                   **{p["name"]: decode(x, p) for p in ports["inputs"]}}
+            if reference:
+                wires = [env[p["name"]] for p in ports["inputs"]]
+                for a, b in reference.gates:
+                    wires.append(~(wires[a] & wires[b]))
+                results = [wires[o] for o in reference.outputs]
+            else:
+                results = [functions[p["name"]](env) for p in ports["outputs"]]
+            output = []
+            for port, value in zip(ports["outputs"], results):
+                output += bits(encode(value, port, x), port["bits"])
+            rows.append(vector + output)
+            continue
         result = fn(env)
         if result != int(result) or not 0 <= result < 1 << outputs:
             raise ValueError(f"Ausgabe für x={x} ist {result}; erwartet wird eine ganze Zahl 0…{(1 << outputs) - 1}.")
         rows.append(vector + bits(int(result), outputs))
-    return Dataset(name, inputs, outputs, rows, {"expression": expression, "seed": seed, "bit_order": "LSB-first"})
+    metadata = {"expression": expression, "seed": seed, "bit_order": "LSB-first"}
+    if ports:
+        metadata["interface"] = ports
+    if reference:
+        metadata.pop("expression")
+        metadata["reference_circuit"] = reference.to_dict()
+    return Dataset(name, inputs, outputs, rows, metadata)
 
 
 def preset(name, samples=None, seed=1):

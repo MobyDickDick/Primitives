@@ -10,11 +10,27 @@
 <aside>
 <section class="card"><div class="section-title"><span class="number">01</span><h2>Zuordnungsvektoren</h2></div>
 <label>Vorlage<select id="preset"></select></label>
+<label>Aufgabendefinition<select id="task-mode"><option value="legacy">Bisheriger Ausdruck (N:M)</option><option value="operation">Operation mit variablen Bitbreiten</option><option value="named">Eigene benannte Ein-/Ausgänge</option><option value="circuit">NAND-Referenz mit breiteren Anschlüssen</option></select></label>
+<div id="operation-options" hidden>
+<label>Operationsdefinition<select id="operation"></select></label>
+<div class="pair"><label>Bits für a<input id="a-bits" type="number" min="1" max="32" value="2"></label><label id="b-bits-label">Bits für b<input id="b-bits" type="number" min="1" max="32" value="2"></label></div>
+<label>Ergebnisbits c<input id="result-bits" type="number" min="1" max="32" value="3"></label>
+<label class="check-label"><input id="signed" type="checkbox"> Vorzeichen (Zweierkomplement)</label>
+<label>Überlauf des Ergebnisses<select id="overflow"><option value="wrap">Abschneiden (modulo 2^Breite)</option><option value="error">Als Fehler ablehnen</option></select></label>
+<label id="flag-label" class="check-label"><input id="result-flag" type="checkbox"> Zusätzlicher Carry-/Borrow-/Überlaufausgang</label>
+</div>
+<div id="named-options" hidden>
+<p class="hint">Ports stehen in Bitreihenfolge, jeder Port LSB zuerst. N und M sind die Summen (je höchstens 32). Vorzeichen gilt pro Port; alle Ergebnis-Ausdrücke lesen dieselben Eingaben.</p>
+<div id="input-ports"></div><button id="add-input-port" class="text-button">+ Eingangsport</button>
+<div id="output-ports"></div><button id="add-output-port" class="text-button">+ Ergebnisport</button>
+<p id="circuit-reference-hint" class="hint" hidden>NAND-Referenz: Jeder ursprüngliche Anschluss wird zu einem Port. NAND wirkt bitweise auf die Zahlenwerte; unsigned wird mit Nullen, signed mit Vorzeichen erweitert. Ergebnisports mit „Abschneiden“ begrenzen die Breite. Dies erweitert das ursprüngliche Bitnetz; es rekonstruiert keine breitere Arithmetik.</p>
+</div>
+<p id="variant-description" class="hint" role="status"></p>
 <p id="mul-hint" class="hint" hidden><strong>MUL(2,2,4)</strong>: a und b haben je 2 Bits (0–3), c = a * b hat 4 Bits. N = 2 + 2 = 4, M = 4. Mit mindestens 16 Vektoren werden alle Eingaben geprüft. Mögliche Ergebnisse: 0, 1, 2, 3, 4, 6, 9; alle anderen 4-Bit-Werte kommen als Sollausgabe nicht vor.</p>
 <div class="pair"><label>Eingangsbits N<input id="inputs" type="number" min="1" max="32" value="2"></label><label>Ausgangsbits M<input id="outputs" type="number" min="1" max="32" value="1"></label></div>
 <label>Name<input id="dataset-name" value="xor" maxlength="120"></label>
 <label>Ausdruck<textarea id="expression" rows="2" spellcheck="false">x0 ^ x1</textarea></label>
-<p class="hint"><code>x0…x(N−1)</code> einzelne Bits · <code>x</code> ganze Eingabe · <code>a,b</code> untere/obere Hälfte. N zählt alle Eingangsbits zusammen, M die Ergebnisbits. Bitreihenfolge: LSB zuerst. Name, Bitanzahl und Ausdruck lassen sich direkt bearbeiten; danach «Vektoren erzeugen» klicken.</p>
+<p id="expression-hint" class="hint"><code>x0…x(N−1)</code> einzelne Bits · <code>x</code> ganze Eingabe · <code>a,b</code> untere/obere Hälfte. N zählt alle Eingangsbits zusammen, M die Ergebnisbits. Bitreihenfolge: LSB zuerst. Name, Bitanzahl und Ausdruck lassen sich direkt bearbeiten; danach «Vektoren erzeugen» klicken.</p>
 <label>Maximale Anzahl Vektoren<input id="samples" type="number" min="1" max="65536" value="256"></label>
 <button id="generate" class="secondary full">Vektoren erzeugen</button>
 <details><summary>Eigene Vektoren importieren</summary><p class="hint">JSON mit name, inputs, outputs und rows. Jede Zeile enthält N+M Bits.</p><input id="import" type="file" accept=".json,application/json"><label>Oder Zeilen direkt eingeben<textarea id="raw-rows" rows="4" placeholder="[[0,0,0],[1,0,1],[0,1,1],[1,1,0]]"></textarea></label><button id="import-rows" class="secondary full">Zeilen übernehmen</button></details>
@@ -32,7 +48,7 @@
 <div class="content">
 <section class="card result"><div class="section-title"><span class="number">03</span><h2>Das Programm</h2><button id="export-program" class="text-button" disabled>JSON exportieren ↓</button></div>
 <div id="empty" class="empty"><div>⊼</div><h3>Ein Gatter. Unzählige Möglichkeiten.</h3><p>Erzeuge Vektoren und starte die Evolution.<br>Oder öffne ein gespeichertes Programm.</p></div>
-<div id="program" hidden><div id="metrics" class="metrics"></div><p id="program-name" class="hint"></p><button id="repair-program" class="secondary" disabled>Restfälle exakt korrigieren</button><details id="correction-details" hidden><summary id="correction-summary"></summary><p class="hint">Diese Eingaben werden durch zusätzliche NAND-Gatter erkannt und korrigiert. Alle anderen Eingaben verhalten sich wie zuvor. Bei Stichproben gilt die Prüfung weiterhin nur für die vorhandenen Testfälle.</p><ul id="correction-cases" class="hint"></ul></details><div class="code-line"><code id="notation"></code></div>
+<div id="program" hidden><div id="metrics" class="metrics"></div><p id="program-name" class="hint"></p><button id="new-width-variant" class="secondary">Neue Breitenvariante</button><button id="repair-program" class="secondary" disabled>Restfälle exakt korrigieren</button><details id="correction-details" hidden><summary id="correction-summary"></summary><p class="hint">Diese Eingaben werden durch zusätzliche NAND-Gatter erkannt und korrigiert. Alle anderen Eingaben verhalten sich wie zuvor. Bei Stichproben gilt die Prüfung weiterhin nur für die vorhandenen Testfälle.</p><ul id="correction-cases" class="hint"></ul></details><div class="code-line"><code id="notation"></code></div>
 <div class="simulation"><div><p class="eyebrow">EINGÄNGE UMSCHALTEN</p><div id="bit-switches" class="bits"></div></div><div id="output-values" class="output"></div></div>
 <div class="graph-toolbar"><button id="save-layout" class="secondary">Layout speichern</button><button id="auto-layout" class="secondary">Automatisch anordnen</button><button id="reset-wire" class="secondary" disabled>Leitung zurücksetzen</button><div class="graph-zoom" role="group" aria-label="Schaltbild-Zoom"><button id="zoom-out" class="secondary" aria-label="Schaltbild verkleinern">−</button><output id="zoom-level" aria-label="Zoomstufe">100 %</output><button id="zoom-in" class="secondary" aria-label="Schaltbild vergrössern">+</button><button id="zoom-reset" class="secondary">100 %</button><button id="zoom-fit" class="secondary">Alles einpassen</button></div></div>
 <p id="graph-help" class="hint graph-help">Jede Box hat eine eigene Nummer. ⊼ verknüpft die genannten Quellboxen mit NAND; „Wert“ ist das berechnete Signal. Boxen zum Verschieben ziehen. Leitungssegmente quer ziehen; Anschlüsse bleiben fest. Tab wählt auch Segmente, Pfeiltasten verschieben sie, Entf setzt die gewählte Leitung zurück. „Automatisch anordnen“ setzt Boxen und alle manuellen Wege zurück. Eingangsboxen zum Umschalten anklicken. Zoom: Strg + Mausrad oder Touchpad-Zoomgeste. Ausschnitt: freie Fläche ziehen oder mittlere Maustaste. Tastatur im Schaltbild: +/− zoomt, 0 zeigt 100 %, F passt alles ein. Pfeiltasten verschieben den Ausschnitt; bei ausgewählter Box verschieben sie die Box. Tab wählt eine Box, Leertaste schaltet einen Eingang um.</p>

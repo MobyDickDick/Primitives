@@ -8,7 +8,7 @@ Die Kennungen sind Dokumentationskennungen; GitHub-Issues wurden noch nicht ange
 
 - [x] [PRIM-01: Zoom und Navigation](docs/ERWEITERUNGEN.md#prim-01).
 - [x] [PRIM-02: Verbindungsdrähte verschieben und speichern](docs/ERWEITERUNGEN.md#prim-02).
-- [ ] [PRIM-03: Variable Operand- und Ausgangsbitbreiten](docs/ERWEITERUNGEN.md#prim-03).
+- [x] [PRIM-03: Variable Operand- und Ausgangsbitbreiten](docs/ERWEITERUNGEN.md#prim-03).
 - [ ] [PRIM-04: TinyCPU-Operationen und gängige Beispiele](docs/ERWEITERUNGEN.md#prim-04).
 - [ ] [PRIM-05: Wiederverwendbare Unterprogramm-Bausteine](docs/ERWEITERUNGEN.md#prim-05).
 - [ ] [PRIM-06: Unterprogramm-Boxen und interaktives Debugging](docs/ERWEITERUNGEN.md#prim-06).

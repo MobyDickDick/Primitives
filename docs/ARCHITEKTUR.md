@@ -34,6 +34,8 @@ Evolution                  Fitness / Bausteine
 |---|---|
 | `primitives/circuit.py` | NAND-Schaltung, Parser, Auswertung und Kompaktierung |
 | `primitives/dataset.py` | Vektoren, Konsistenz, Kodierung, Ausdrücke, Vorlagen |
+| `primitives/ports.py` | Benannte Schnittstellen, Bitoffsets, Vorzeichen, Ergebnisüberlauf |
+| `primitives/operations.py` | Operationsdefinitionen und konkrete Breitenvarianten als Referenzen |
 | `primitives/evolution.py` | Genom, Fitness, Bibliothekskomposition, Python-Backend |
 | `tiny/evolve.tiny` | TinyLanguage-Evolution |
 | `primitives/tiny_bridge.py` | Kleine FFI-Schnittstelle |
@@ -41,6 +43,13 @@ Evolution                  Fitness / Bausteine
 | `primitives/library.py` | Benennung, Laden und atomisches Speichern |
 | `primitives/server.py` | Lokale API und Hintergrundauftrag |
 | `web/` | Benutzeroberfläche mit SVG-Simulation |
+
+Benannte Ports erweitern das Datensatzformat optional; die Evolution verarbeitet
+weiter dieselben N+M-Bitvektoren. Operationsdefinition, konkrete Breitenvariante
+und NAND-Implementierung haben getrennte Rollen. Beliebige bestehende
+NAND-Schaltungen können als bitweise Busreferenz für eine neue Aufgabenvariante
+dienen. Vorhandene mathematische Referenzen werden dafür bevorzugt. Eine
+Breitenänderung erzeugt neue Sollvektoren und benötigt eine passende Schaltung.
 
 ## Evolution
 

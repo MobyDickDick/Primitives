@@ -66,6 +66,46 @@ Geprüft am 25. Oktober 2026:
 Maus und Tastatur wurden praktisch geprüft; Touch verwendet dieselben
 Pointer-Ereignisse, wurde aber nicht an einem Touchgerät geprüft.
 
+## Variable Bitbreiten (PRIM-03)
+
+Geprüft am 25. Oktober 2026:
+
+- `python -m unittest discover -s tests -v`: **56 Tests erfolgreich**, darunter
+  **8 HTTP-Tests**. Die neun neuen Kern-/CLI-Tests vergleichen ADD/SUB/MUL
+  unabhängig mit mathematischer Integer-Arithmetik: gleiche und ungleiche
+  Operandbreiten, ADD(2,3,4), ADD(4,4,4), ADD(4,4,5), MUL(2,2,4), unsigned und
+  Zweierkomplement, Abschneiden und Fehlerüberlauf sowie Carry/Borrow/Overflow.
+  Auch eine positive Abschneidung bei SUB wird ausdrücklich von Borrow getrennt.
+- Weitere neue Fälle prüfen Logik mit Wortbreiten, drei benannte Eingänge und
+  zwei Ergebnisse, fortlaufende LSB-first-Zuordnung, ungültige Portnamen/Breiten/
+  Offsets, widersprüchliche Operationsmetadaten und die bisherigen Grössenlimits.
+  Die CLI wird als echter Unterprozess mit Operationsparametern sowie eigenen
+  Port-/Ausdrucksdateien ausgeführt. Die bestehende TinyLanguage-Prüfung besteht.
+- Referenzen für beliebige NAND-Schaltungen werden mit breiteren Ports, direkten
+  Ausgängen und mehreren Ergebnissen geprüft; bei Ein-Bit-Ports entspricht die
+  Auswertung der ursprünglichen Schaltung. Suche ohne vorhandene Implementierung,
+  Metadaten nach Speichern/Laden und Erhalt einer neuen Portvariante trotz eines
+  besseren bisherigen Bibliotheksprogramms sind ebenfalls geprüft.
+- Die HTTP-Prüfung umfasst Operationskatalog, Variantenvorschau ohne Erzeugung,
+  Generierung, Export-/Import-Roundtrip, erneutes Laden, ungültige Breiten,
+  Überlauffehler und eine erfolgreiche Suche mit benannter Schnittstelle.
+  Die gesamte Python-Suite lief wegen der Loopback-Sperre ausserhalb der Sandbox.
+- `node --test tests/test_graph.js tests/test_viewport.js`: **11 Tests erfolgreich**.
+  `node --check web/app.js` und `git diff --check`: erfolgreich.
+- Browserprüfung auf temporärem lokalem Server mit einer Kopie der Beispieldaten
+  und ohne Hintergrundsuche: ADD mit ungleichen Breiten und Carry erzeugen;
+  Überlauf sichtbar ablehnen; signed mit Abschneiden ausführen; Operation in freie
+  Ports umwandeln; gespeichertes XOR als 2/3/3-Breitenvariante erzeugen und suchen;
+  nach Neuladen die gespeicherten Breiten wieder öffnen. Der kurze Suchlauf war
+  eine korrekt ausgewiesene Annäherung und behauptet keine vollständige Lösung.
+  Auch eine frei eingegebene NAND-Schaltung wurde als 2/3/3-Busreferenz mit 32
+  vollständigen Vektoren ausgeführt. Der Screenshot zeigt die wieder geladenen
+  Breiten und benannte Simulationsbits.
+
+![Breitenvariante im Browser](bitbreiten-prim03.png)
+
+Die automatische Browserprüfung deckt keine physische Touchbedienung ab.
+
 ## Tatsächliche Suchergebnisse
 
 Alle folgenden Programme wurden vom TinyLanguage-Backend gefunden und gegen

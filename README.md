@@ -7,8 +7,54 @@ Die [Erweiterungs-Issues](docs/ERWEITERUNGEN.md) beschreiben Zoom, verschiebbare
 Leitungen, TinyCPU-Operationsbeispiele, variable Bitbreiten, Unterprogramm-Boxen
 mit Debugging sowie mehrschrittige Programme mit Kontrollstrukturen und Sprüngen.
 Die acht Arbeitspakete enthalten Umfang, Abnahmekriterien und Abhängigkeiten.
-PRIM-01 (Zoom und Navigation) und PRIM-02 (verschiebbare Leitungen) sind umgesetzt;
-als Nächstes folgt PRIM-03 mit variablen Bitbreiten.
+PRIM-01 (Zoom und Navigation), PRIM-02 (verschiebbare Leitungen) und PRIM-03
+(variable Bitbreiten für Vorlagen, eigene Aufgaben und bestehende Schaltungen)
+sind umgesetzt. Als Nächstes folgt PRIM-04 mit TinyCPU-Operationsbeispielen.
+
+## Bitbreiten bei jeder Schaltung ändern
+
+Eine Schaltung öffnen und **Neue Breitenvariante** wählen. Bei bekannten
+Operationen erscheint deren parametrisierte Referenz, bei eigenen Ausdrücken
+eine bearbeitbare Schnittstelle. Eine Schaltung ohne Rechenreferenz kann als
+bitweise NAND-Referenz mit breiteren Anschlüssen verwendet werden. Anschliessend
+die Breiten anpassen, **Vektoren erzeugen** und **Evolution starten** wählen.
+Die neue Aufgabenvariante benötigt eine passende NAND-Implementierung; die bisherige
+Verdrahtung wird durch die Breitenwahl nicht automatisch zu einem breiteren Addierer.
+
+Unter **Aufgabendefinition** stehen auch unabhängig von einer vorhandenen Schaltung
+**Operation mit variablen Bitbreiten** und **Eigene benannte Ein-/Ausgänge** bereit.
+ADD, SUB, MUL und die vorhandenen elementaren Logikoperationen sind parametrisiert.
+Eigene Schnittstellen erlauben zusätzliche Operanden und mehrere Ergebnisse,
+jeweils mit Namen, Breite, Vorzeichen und einem eigenen Ergebnis-Ausdruck.
+Eingangsbits N und Ausgangsbits M werden aus den Portbreiten berechnet.
+
+Zahlen sind wahlweise unsigned oder als Zweierkomplement kodiert. **Abschneiden**
+speichert das Ergebnis modulo 2^Ergebnisbreite; **Als Fehler ablehnen** bricht die
+Vektorerzeugung beim ersten nicht darstellbaren Wert ab. ADD/SUB/MUL können ein
+zusätzliches Statusbit ausgeben: Carry bei unsigned ADD, Borrow bei unsigned SUB,
+sonst Overflow. Carry/Overflow zeigen ein Ergebnis ausserhalb des gewählten
+Bereichs an; Borrow bedeutet `a < b`. Auch mit Statusbit bleibt die gewählte
+Überlaufregel wirksam. Die vollständige Semantik steht in [FORMAT.md](docs/FORMAT.md).
+
+**Vektoren exportieren** erhält Portnamen, Bitzuordnung und Referenzmetadaten;
+der JSON-Programmexport enthält zusätzlich den zugehörigen Datensatz. Über
+**Eigene Vektoren importieren** lassen sich beide Formen als Aufgaben laden.
+Vollständige Tabellen und Stichproben bleiben klar unterschieden. Pro Seite sind
+insgesamt höchstens 32 Bits und pro Datensatz höchstens 65536 Vektoren erlaubt.
+Es werden nur angeforderte Varianten erzeugt.
+
+CLI-Beispiel für unterschiedliche Operandenbreiten und einen Carry-Ausgang:
+
+```powershell
+python -m primitives generate --operation ADD --a-bits 2 --b-bits 3 --result-bits 4 --flag --out examples/add-2-3-4.json
+```
+
+Mit `--signed` gilt Zweierkomplement, mit `--overflow error` werden Überläufe
+abgelehnt. Eigene Schnittstellen werden über `--interface ports.json`, mehrere
+Ergebnisausdrücke über `--expressions expressions.json` geladen. Die Summen müssen
+zu `--inputs` und `--outputs` passen. `--reference-circuit circuit.json` erlaubt
+statt Ausdrücken eine vorhandene NAND-Schaltung als bitweise Referenz.
+Vorhandene `--preset`-Aufrufe behalten ihre bisherige Semantik.
 
 ## Beispiele anpassen
 
