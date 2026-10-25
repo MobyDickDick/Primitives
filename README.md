@@ -11,6 +11,37 @@ PRIM-01 (Zoom und Navigation), PRIM-02 (verschiebbare Leitungen) und PRIM-03
 (variable Bitbreiten für Vorlagen, eigene Aufgaben und bestehende Schaltungen)
 sind umgesetzt. Als Nächstes folgt PRIM-04 mit TinyCPU-Operationsbeispielen.
 
+## Arithmetische Funktionen selbst definieren
+
+**Eigene Formel definieren** öffnet einen Formeleditor mit frei benannten
+Ein- und Ausgängen. Für eine eigene Addition genügt `a + b`, mit beispielsweise
+je 4 Bits für a und b und 5 Bits für c. Für eine getrennte Summe und einen
+Übertrag eingeben:
+
+```text
+c = mod(a+b,2^4)
+e = div(a+b,2^4)
+```
+
+Die Eingänge a und b erhalten je 4 Bits, c erhält 4 Bits und e erhält 1 Bit.
+**Ergebnisports aus Formel übernehmen** legt die benannten Ergebnisse an;
+neu hinzugekommene Ports beginnen mit 1 Bit und lassen sich frei verbreitern.
+Beim Speichern werden die Ports ebenfalls aus der Formel übernommen.
+Mit **Beispiel: Summe und Übertrag** werden Formel und alle vier Portbreiten
+direkt eingesetzt. Ergebnisse dürfen auch mit Komma oder Semikolon getrennt werden.
+
+Im Formelmodus bedeutet `^` Potenz; `div` rundet den Quotienten nach unten,
+`mod` berechnet den zugehörigen Rest. Bitweises XOR wird `xor(a,b)` geschrieben.
+Alle Ergebnisformeln lesen dieselben Eingänge unabhängig voneinander. Die Breiten,
+Vorzeichen und Überlaufregeln werden pro Port eingestellt. Die bisherigen
+Ausdrucksmodi verwenden weiterhin `^` für XOR und `**` für Potenz.
+
+**Funktion speichern & Vektoren erzeugen** speichert die eigene Formel zusammen
+mit den Ports und Vektoren unter **Definierte Funktionen**. Sie lässt sich dort
+wieder öffnen, bearbeiten, exportieren und für eine Evolution verwenden.
+**Rechenvorschrift selbst bearbeiten** öffnet eine ausgewählte Standardoperation
+als frei bearbeitbare Formel. Es ist keine vorhandene NAND-Schaltung erforderlich.
+
 ## Bitbreiten bei jeder Schaltung ändern
 
 Unter **Definierte Funktionen** stehen gespeicherte Funktionen nebeneinander,

@@ -161,6 +161,13 @@ ADD(8,8,9) können gleichzeitig gespeichert und wieder geöffnet werden; auch
 ADD(1,1,16) ist zulässig. Namen folgen automatisch der Breitenkombination.
 Mehrere Stichproben derselben Funktion sind als einzelne Vektorsätze auswählbar.
 
+Über **Eigene Formel definieren** können Rechenvorschriften direkt selbst
+geschrieben werden: ein Ausdruck wie `a+b` oder mehrere Ergebnisse wie
+`c=mod(a+b,2^4), e=div(a+b,2^4)`. Die Ports und Breiten sind frei einstellbar.
+Formelquelle und Syntaxversion bleiben beim Speichern, Wiederöffnen und
+Export/Import erhalten. Der Formelmodus verwendet `^` als Potenz und bietet
+`mod`, `div` sowie explizites `xor`; bisherige Ausdrucksmodi bleiben kompatibel.
+
 ### Ansatzpunkte
 `primitives/dataset.py`, Bibliotheksmetadaten, Katalog-API und Vorlagenauswahl. Grundlage für TinyCPU-Beispiele und Unterprogramm-Schnittstellen.
 

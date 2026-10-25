@@ -128,6 +128,30 @@ class ServerTests(unittest.TestCase):
             ds = self.request("/api/datasets/" + entry["id"])
             self.assertEqual(ds["metadata"]["operation"], entry["metadata"]["operation"])
 
+    def test_own_arithmetic_formula_with_two_outputs(self):
+        source = "c = mod(a+b,2^4), e = div(a+b,2^4)"
+        parsed = self.request("/api/formulas/parse", {"formula": source})
+        self.assertEqual(set(parsed["expression"]), {"c", "e"})
+        converted = self.request("/api/formulas/convert", {"expression": {"c": "a^b"}})
+        self.assertIn("xor(a, b)", converted["formula"])
+        obj = {"name": "User formula", "inputs": 8, "outputs": 5, "formula": source,
+            "interface": {"inputs": [{"name": "a", "bits": 4}, {"name": "b", "bits": 4}],
+                          "outputs": [{"name": "c", "bits": 4}, {"name": "e", "bits": 1}]}}
+        saved = self.request("/api/datasets", obj)
+        self.assertTrue(saved["dataset"]["exhaustive"])
+        self.assertEqual(saved["dataset"]["metadata"]["formula"]["source"], source)
+        for row in saved["dataset"]["rows"]:
+            integer = lambda bs: sum(b << i for i, b in enumerate(bs))
+            total = integer(row[:4]) + integer(row[4:8])
+            self.assertEqual(integer(row[8:12]), total % 16)
+            self.assertEqual(row[-1], total // 16)
+        self.assertEqual(self.request("/api/datasets/" + saved["id"]), saved["dataset"])
+        self.assertEqual(self.request("/api/datasets", saved["dataset"])["dataset"], saved["dataset"])
+        for formula in ("c=a; c=b", "c=div(a,0); e=0", "c=a+b; e=c"):
+            with self.assertRaises(HTTPError) as caught: self.request("/api/datasets", {**obj, "formula": formula})
+            self.assertEqual(caught.exception.code, 400)
+            caught.exception.close()
+
     def test_infix_parse_api(self):
         for expression in ("(1) ⊼ ((2) ⊼ (3))", "(1,(2,3))"):
             parsed = self.request("/api/parse", {"expression": expression, "inputs": 3})

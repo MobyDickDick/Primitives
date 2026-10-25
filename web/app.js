@@ -80,13 +80,18 @@ function chooseOperation(definition, parameters = null) {
   $("task-mode").value = "operation"; updateDefinition();
 }
 function updateDefinition() {
-  const mode = $("task-mode").value, named = mode === "named" || mode === "circuit";
+  const mode = $("task-mode").value, formula = mode === "formula", named = formula || mode === "named" || mode === "circuit";
+  $("formula-editor").hidden = !formula;
+  const options = $("named-options"); options.classList.toggle("formula-mode", formula);
+  if (formula) { if (options.parentNode !== $("formula-ports")) $("formula-ports").append(options); }
+  else if (options.parentNode === $("formula-ports")) $("ports-home").after(options);
   $("operation-options").hidden = mode !== "operation"; $("named-options").hidden = !named;
   $("expression").closest("label").hidden = mode !== "legacy";
   $("expression-hint").hidden = mode !== "legacy"; $("mul-hint").hidden = true;
   $("inputs").readOnly = $("outputs").readOnly = mode !== "legacy";
   $("circuit-reference-hint").hidden = mode !== "circuit";
   for (const node of document.querySelectorAll(".port-expression, .remove-port, #add-input-port, #add-output-port")) node.hidden = mode === "circuit";
+  if (formula) for (const node of document.querySelectorAll(".port-expression")) node.hidden = true;
   let n = int("inputs"), m = int("outputs"), description = "";
   if (mode === "operation") {
     const op = operationRequest(), p = op.parameters;
@@ -113,7 +118,8 @@ function restoreDefinition(ds) {
   else if (meta.interface) {
     state.referenceCircuit = meta.reference_circuit || null;
     editPorts(meta.interface, typeof meta.expression === "object" ? meta.expression : { [meta.interface.outputs[0].name]: meta.expression || "0" });
-    $("task-mode").value = meta.reference_circuit ? "circuit" : "named";
+    $("task-mode").value = meta.formula ? "formula" : meta.reference_circuit ? "circuit" : "named";
+    if (meta.formula) $("formula-source").value = meta.formula.source;
     updateDefinition();
   } else {
     $("task-mode").value = "legacy";
@@ -194,6 +200,7 @@ function renderFunctions(catalog) {
     const p = first.metadata?.operation?.parameters;
     entry.append(el("strong", first.function_name));
     if (p) entry.append(el("small", `${p.signed ? "Zweierkomplement" : "unsigned"} · ${p.overflow === "wrap" ? "Abschneiden" : "Überlauffehler"}${p.flag ? " · Statusausgang" : ""}`));
+    if (first.metadata?.formula) entry.append(el("code", first.metadata.formula.source, "function-formula"));
     const select = el("select"); select.setAttribute("aria-label", `Vektorsatz für ${first.function_name}`);
     for (const ds of datasets) select.add(new Option(`${ds.count} Vektoren · ${ds.exhaustive ? "vollständig" : "Stichprobe"} · ${ds.name} · ${ds.id.slice(-12)}`, ds.id));
     if (datasets.some(ds => ds.id === state.datasetId)) select.value = state.datasetId;
@@ -665,12 +672,54 @@ action("reset-wire", resetWire);
 $("task-mode").addEventListener("change", async () => {
   clearError();
   try {
-    if ($("task-mode").value === "named" && state.formMode === "legacy") editLegacyPorts(int("inputs"), int("outputs"), $("expression").value);
+    if ($("task-mode").value === "formula") {
+      if (state.formMode === "operation" || state.formMode === "named") await editAsFormula();
+      else if (state.formMode !== "formula") newFormula();
+      updateDefinition(); return;
+    }
+    if ($("task-mode").value === "named" && state.formMode === "formula") {
+      const { spec } = readPorts();
+      const v = await api("/api/formulas/expressions", { formula: $("formula-source").value, result_name: spec.outputs[0]?.name || "c" });
+      spec.outputs = Object.keys(v.expression).map(name => spec.outputs.find(p => p.name === name) || { name, bits: 1 });
+      editPorts(spec, v.expression);
+    }
+    else if ($("task-mode").value === "named" && state.formMode === "legacy") editLegacyPorts(int("inputs"), int("outputs"), $("expression").value);
     else if ($("task-mode").value === "named" && state.formMode === "operation") {
       const v = await api("/api/operations/variant", operationRequest()); editPorts(v.interface, v.expression);
     }
     updateDefinition();
   } catch (err) { $("task-mode").value = state.formMode; error(err); }
+});
+function newFormula() {
+  state.autoName = false; $("dataset-name").value = "Eigene Summe"; $("preset").value = "custom";
+  editPorts({ inputs: [{ name: "a", bits: 4 }, { name: "b", bits: 4 }], outputs: [{ name: "c", bits: 5 }] });
+  $("formula-source").value = "a + b"; $("task-mode").value = "formula"; updateDefinition();
+}
+async function editAsFormula() {
+  let spec, expressions;
+  if (state.formMode === "operation") {
+    const v = await api("/api/operations/variant", operationRequest()); spec = v.interface; expressions = v.expression;
+  } else ({ spec, expressions } = readPorts());
+  const converted = await api("/api/formulas/convert", { expression: expressions });
+  editPorts(spec, expressions); $("formula-source").value = converted.formula;
+  state.autoName = false; $("preset").value = "custom"; $("task-mode").value = "formula"; updateDefinition();
+}
+async function syncFormula() {
+  const { spec } = readPorts();
+  const parsed = await api("/api/formulas/parse", { formula: $("formula-source").value, result_name: spec.outputs[0]?.name || "c" });
+  spec.outputs = Object.keys(parsed.expression).map(name => spec.outputs.find(p => p.name === name) || { name, bits: 1, overflow: "error" });
+  editPorts(spec, parsed.expression); updateDefinition();
+  $("formula-status").textContent = `Ergebnisse: ${spec.outputs.map(p => `${p.name}[${p.bits}]`).join(", ")}. Neue Ergebnisports beginnen mit 1 Bit; ihre Breiten sind frei einstellbar.`;
+}
+action("new-formula", () => { newFormula(); $("formula-source").focus(); });
+action("edit-operation-formula", async () => { await editAsFormula(); $("formula-source").focus(); });
+action("formula-sync", syncFormula);
+action("formula-example", () => {
+  newFormula(); $("dataset-name").value = "Summe und Übertrag";
+  editPorts({ inputs: [{ name: "a", bits: 4 }, { name: "b", bits: 4 }],
+    outputs: [{ name: "c", bits: 4 }, { name: "e", bits: 1 }] });
+  $("formula-source").value = "c = mod(a+b,2^4)\ne = div(a+b,2^4)"; updateDefinition();
+  $("formula-status").textContent = "a und b: je 4 Bits. c: untere 4 Bits der Summe. e: Übertrag (1 Bit).";
 });
 $("dataset-name").addEventListener("input", () => { state.autoName = false; });
 $("operation").addEventListener("change", () => chooseOperation($("operation").value));
@@ -704,21 +753,25 @@ action("new-width-variant", async () => {
   $("variant-description").append(document.createTextNode(" Breiten jetzt anpassen und neue Vektoren erzeugen."));
   $("task-mode").focus(); $("task-mode").scrollIntoView({ block: "center", behavior: "smooth" });
 });
-action("generate", () => {
+async function saveDefinition() {
+  if ($("task-mode").value === "formula") await syncFormula();
   updateDefinition();
   const obj = { name: $("dataset-name").value, inputs: int("inputs"), outputs: int("outputs"),
     expression: $("expression").value, samples: int("samples"), seed: int("seed") };
   const mode = $("task-mode").value;
   if (mode === "operation") obj.operation = operationRequest();
-  else if (mode === "named" || mode === "circuit") {
+  else if (mode === "named" || mode === "circuit" || mode === "formula") {
     const { spec, expressions } = readPorts(); obj.interface = spec; obj.expression = expressions;
+    if (mode === "formula") obj.formula = $("formula-source").value;
     if (mode === "circuit") {
       if (!state.referenceCircuit) throw new Error("Zuerst eine Schaltung öffnen und «Neue Breitenvariante» wählen.");
       obj.reference_circuit = state.referenceCircuit;
     }
   }
   return setDataset(obj);
-});
+}
+action("generate", saveDefinition);
+action("save-formula", saveDefinition);
 action("import-rows", () => setDataset({ name: $("dataset-name").value, inputs: int("inputs"), outputs: int("outputs"), rows: JSON.parse($("raw-rows").value) }));
 $("import").addEventListener("change", async event => { clearError(); try {
   if (event.target.files[0]) { const obj = JSON.parse(await event.target.files[0].text()); await setDataset(obj.dataset || obj); }

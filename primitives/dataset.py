@@ -5,6 +5,7 @@ import math
 import operator
 import random
 from .ports import decode, encode, interface
+from .formula import parse_formula
 
 
 def bits(value, width):
@@ -45,6 +46,15 @@ class Dataset:
             raise ValueError("metadata muss ein Objekt sein.")
         if "interface" in self.metadata:
             self.metadata = {**self.metadata, "interface": interface(self.metadata["interface"], self.inputs, self.outputs)}
+        if "formula" in self.metadata:
+            formula = self.metadata["formula"]
+            ports = self.metadata.get("interface")
+            if (not isinstance(formula, dict) or formula.get("version") != 1 or not ports
+                    or "operation" in self.metadata or "reference_circuit" in self.metadata):
+                raise ValueError("Formelmetadaten brauchen version 1 und eine eigene benannte Schnittstelle.")
+            expressions = parse_formula(formula.get("source"), ports["outputs"][0]["name"])
+            if expressions != self.metadata.get("expression") or set(expressions) != {p["name"] for p in ports["outputs"]}:
+                raise ValueError("Formel, Ergebnisausdrücke und Ergebnisports passen nicht zusammen.")
         if "reference_circuit" in self.metadata:
             from .circuit import Circuit
             c = Circuit.from_dict(self.metadata["reference_circuit"])
@@ -87,15 +97,18 @@ CMP = {ast.Eq: operator.eq, ast.NotEq: operator.ne, ast.Lt: operator.lt,
 
 class Expression:
     """Small AST interpreter, deliberately without eval/import/attribute access."""
-    def __init__(self, text):
+    def __init__(self, text, *, syntax="python"):
         if not isinstance(text, str) or len(text) > 1000:
             raise ValueError("Ausdruck zu lang oder ungültig.")
         try:
-            self.root = ast.parse(text, mode="eval").body
+            self.root = ast.parse(text.replace("^", "**") if syntax == "math" else text, mode="eval").body
         except SyntaxError as exc:
             raise ValueError(f"Ungültiger Ausdruck: {exc.msg}") from exc
         if sum(1 for _ in ast.walk(self.root)) > 200:
             raise ValueError("Ausdruck zu komplex.")
+        self.functions = {**FUNCTIONS}
+        if syntax == "math":
+            self.functions.update(mod=operator.mod, div=operator.floordiv, xor=operator.xor)
 
     def __call__(self, names):
         def visit(n):
@@ -110,8 +123,8 @@ class Expression:
                 value = BINOPS[type(n.op)](a, b)
             elif isinstance(n, ast.UnaryOp) and isinstance(n.op, (ast.USub, ast.UAdd, ast.Not, ast.Invert)):
                 value = {ast.USub: operator.neg, ast.UAdd: operator.pos, ast.Not: operator.not_, ast.Invert: operator.invert}[type(n.op)](visit(n.operand))
-            elif isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and n.func.id in FUNCTIONS and not n.keywords and 1 <= len(n.args) <= 3:
-                value = FUNCTIONS[n.func.id](*(visit(a) for a in n.args))
+            elif isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and n.func.id in self.functions and not n.keywords and 1 <= len(n.args) <= 3:
+                value = self.functions[n.func.id](*(visit(a) for a in n.args))
             elif isinstance(n, ast.IfExp):
                 value = visit(n.body) if visit(n.test) else visit(n.orelse)
             elif isinstance(n, ast.BoolOp):
@@ -151,12 +164,18 @@ PRESETS = {
 }
 
 
-def generate(name, inputs, outputs, expression, samples=None, seed=1, *, oracle=None, ports=None, reference_circuit=None):
+def generate(name, inputs, outputs, expression, samples=None, seed=1, *, oracle=None, ports=None, reference_circuit=None, formula=None):
     if any(type(w) is not int or not 1 <= w <= 32 for w in (inputs, outputs)):
         raise ValueError("N und M müssen zwischen 1 und 32 liegen.")
     ports = interface(ports, inputs, outputs) if ports is not None else None
     if ports is not None and oracle is not None:
         raise ValueError("Benannte Ports werden nur für Ausdrücke unterstützt.")
+    if formula is not None:
+        if not ports or oracle is not None or reference_circuit is not None:
+            raise ValueError("Formeln brauchen eine eigene benannte Schnittstelle.")
+        if any(p["name"] in ("mod", "div", "xor") for p in ports["inputs"] + ports["outputs"]):
+            raise ValueError("mod, div und xor sind im Formelmodus als Funktionsnamen reserviert.")
+        expression = parse_formula(formula, ports["outputs"][0]["name"])
     reference = None
     if reference_circuit is not None:
         from .circuit import Circuit
@@ -168,7 +187,13 @@ def generate(name, inputs, outputs, expression, samples=None, seed=1, *, oracle=
             expression = {ports["outputs"][0]["name"]: expression}
         if not isinstance(expression, dict) or set(expression) != {p["name"] for p in ports["outputs"]}:
             raise ValueError("Für jeden Ergebnisport ist genau ein Ausdruck erforderlich.")
-        functions = {key: Expression(value) for key, value in expression.items()}
+        functions = {key: Expression(value, syntax="math" if formula is not None else "python") for key, value in expression.items()}
+        if formula is not None:
+            allowed = {p["name"] for p in ports["inputs"]} | {"x", "pi"} | {f"x{i}" for i in range(inputs)}
+            for key, fn in functions.items():
+                for node in ast.walk(fn.root):
+                    if isinstance(node, ast.Name) and node.id not in allowed | set(fn.functions):
+                        raise ValueError(f"Ergebnis {key}: unbekannter Eingangsname {node.id}. Ergebnisse dürfen nicht voneinander abhängen.")
     total = 1 << inputs
     if samples is not None and (type(samples) is not int or not 1 <= samples <= 65536):
         raise ValueError("Die Anzahl Vektoren muss zwischen 1 und 65536 liegen.")
@@ -207,6 +232,8 @@ def generate(name, inputs, outputs, expression, samples=None, seed=1, *, oracle=
     metadata = {"expression": expression, "seed": seed, "bit_order": "LSB-first"}
     if ports:
         metadata["interface"] = ports
+    if formula is not None:
+        metadata["formula"] = {"version": 1, "source": formula}
     if reference:
         metadata.pop("expression")
         metadata["reference_circuit"] = reference.to_dict()

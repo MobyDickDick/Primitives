@@ -36,6 +36,7 @@ Evolution                  Fitness / Bausteine
 | `primitives/dataset.py` | Vektoren, Konsistenz, Kodierung, Ausdrücke, Vorlagen |
 | `primitives/ports.py` | Benannte Schnittstellen, Bitoffsets, Vorzeichen, Ergebnisüberlauf |
 | `primitives/operations.py` | Operationsdefinitionen und konkrete Breitenvarianten als Referenzen |
+| `primitives/formula.py` | Eigene arithmetische Ergebnisformeln und explizite Syntaxübersetzung |
 | `primitives/evolution.py` | Genom, Fitness, Bibliothekskomposition, Python-Backend |
 | `tiny/evolve.tiny` | TinyLanguage-Evolution |
 | `primitives/tiny_bridge.py` | Kleine FFI-Schnittstelle |

@@ -9,20 +9,22 @@
 <div class="workspace">
 <aside>
 <section class="card"><div class="section-title"><span class="number">01</span><h2>Zuordnungsvektoren</h2></div>
+<button id="new-formula" class="primary full">Eigene Formel definieren</button><p class="hint">Rechenvorschrift selbst eingeben, z. B. a+b oder mehrere Ergebnisse c=… und e=… .</p>
 <label>Vorlage<select id="preset"></select></label>
-<label>Aufgabendefinition<select id="task-mode"><option value="legacy">Bisheriger Ausdruck (N:M)</option><option value="operation">Operation mit variablen Bitbreiten</option><option value="named">Eigene benannte Ein-/Ausgänge</option><option value="circuit">NAND-Referenz mit breiteren Anschlüssen</option></select></label>
+<label>Aufgabendefinition<select id="task-mode"><option value="formula">Eigene arithmetische Formel</option><option value="legacy" selected>Bisheriger Ausdruck (N:M)</option><option value="operation">Operation mit variablen Bitbreiten</option><option value="named">Eigene benannte Ein-/Ausgänge</option><option value="circuit">NAND-Referenz mit breiteren Anschlüssen</option></select></label>
 <div id="operation-options" hidden>
 <label>Operationsdefinition<select id="operation"></select></label>
+<button id="edit-operation-formula" class="secondary full">Rechenvorschrift selbst bearbeiten</button>
 <div class="pair"><label>Bits für a<input id="a-bits" type="number" min="1" max="32" value="2"></label><label id="b-bits-label">Bits für b<input id="b-bits" type="number" min="1" max="32" value="2"></label></div>
 <label>Ergebnisbits c<input id="result-bits" type="number" min="1" max="32" value="3"></label>
 <label class="check-label"><input id="signed" type="checkbox"> Vorzeichen (Zweierkomplement)</label>
 <label>Überlauf des Ergebnisses<select id="overflow"><option value="wrap">Abschneiden (modulo 2^Breite)</option><option value="error">Als Fehler ablehnen</option></select></label>
 <label id="flag-label" class="check-label"><input id="result-flag" type="checkbox"> Zusätzlicher Carry-/Borrow-/Überlaufausgang</label>
 </div>
-<div id="named-options" hidden>
+<div id="ports-home"></div><div id="named-options" hidden>
 <p class="hint">Ports stehen in Bitreihenfolge, jeder Port LSB zuerst. N und M sind die Summen (je höchstens 32). Vorzeichen gilt pro Port; alle Ergebnis-Ausdrücke lesen dieselben Eingaben.</p>
-<div id="input-ports"></div><button id="add-input-port" class="text-button">+ Eingangsport</button>
-<div id="output-ports"></div><button id="add-output-port" class="text-button">+ Ergebnisport</button>
+<div class="port-group"><h3>Eingänge</h3><div id="input-ports"></div><button id="add-input-port" class="text-button">+ Eingangsport</button></div>
+<div class="port-group"><h3>Ergebnisse</h3><div id="output-ports"></div><button id="add-output-port" class="text-button">+ Ergebnisport</button></div>
 <p id="circuit-reference-hint" class="hint" hidden>NAND-Referenz: Jeder ursprüngliche Anschluss wird zu einem Port. NAND wirkt bitweise auf die Zahlenwerte; unsigned wird mit Nullen, signed mit Vorzeichen erweitert. Ergebnisports mit „Abschneiden“ begrenzen die Breite. Dies erweitert das ursprüngliche Bitnetz; es rekonstruiert keine breitere Arithmetik.</p>
 </div>
 <p id="variant-description" class="hint" role="status"></p>
@@ -47,6 +49,13 @@
 </section>
 </aside>
 <div class="content">
+<section id="formula-editor" class="card" hidden><div class="section-title"><h2>Eigene Rechenvorschrift</h2></div>
+<label>Formel<textarea id="formula-source" rows="4" spellcheck="false">a + b</textarea></label>
+<p class="hint">Ein einzelner Ausdruck gilt für den ersten Ergebnisport. Mehrere Ergebnisse: <code>c = mod(a+b,2^4), e = div(a+b,2^4)</code>, alternativ mit Zeilenumbrüchen oder Semikolon trennen. <code>^</code> ist Potenz, <code>div</code> ganzzahlige Division (Abrunden), <code>mod</code> der Rest; <code>xor(a,b)</code> ist bitweises XOR. Ergebnisse lesen die Eingänge unabhängig voneinander.</p>
+<div class="formula-toolbar"><button id="formula-sync" class="secondary">Ergebnisports aus Formel übernehmen</button><button id="formula-example" class="secondary">Beispiel: Summe und Übertrag</button></div>
+<p id="formula-status" class="hint" role="status">Breiten für die Eingänge und Ergebnisse unten frei einstellen.</p><div id="formula-ports"></div>
+<button id="save-formula" class="primary">Funktion speichern &amp; Vektoren erzeugen</button>
+</section>
 <section class="card"><div class="section-title"><h2>Definierte Funktionen</h2></div><p class="hint">Hier stehen deine gespeicherten Funktionen mit ihren eigenen Bitbreiten. Eine Funktion ist sofort definiert; ihre NAND-Schaltung wird anschliessend über „Evolution starten“ gesucht. Öffnen lädt genau den gewählten Vektorsatz.</p><div id="functions" class="library"></div></section>
 <section class="card result"><div class="section-title"><span class="number">03</span><h2>Das Programm</h2><button id="export-program" class="text-button" disabled>JSON exportieren ↓</button></div>
 <div id="empty" class="empty"><div>⊼</div><h3>Ein Gatter. Unzählige Möglichkeiten.</h3><p>Erzeuge Vektoren und starte die Evolution.<br>Oder öffne ein gespeichertes Programm.</p></div>

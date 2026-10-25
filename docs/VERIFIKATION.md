@@ -126,6 +126,31 @@ Nach der Ergänzung der Funktionsübersicht am 25. Oktober 2026:
 
 ![Drei gleichzeitig definierte ADD-Funktionen](definierte-funktionen.png)
 
+### Eigene arithmetische Formeln
+
+Geprüft am 25. Oktober 2026 mit **66 erfolgreichen Python-Tests**,
+darunter **10 HTTP-Tests**; ausserdem **11 JavaScript-Tests**, Syntaxprüfung
+und `git diff --check` erfolgreich. Die Python-Suite lief für die HTTP-Tests
+ausserhalb der Sandbox.
+
+Die sieben neuen Kern-/CLI-Tests prüfen die vollständige 256-Zeilen-Tabelle
+für `c=mod(a+b,2^4), e=div(a+b,2^4)` gegen unabhängige Integer-Arithmetik,
+einfache Ausdrücke mit frei benanntem Ergebnis, Komma-/Zeilen-/Semikolonnotation,
+Potenzpriorität und unverändertes historisches XOR, negative Division/Modulo,
+Nullteiler und ungültige oder unzulässige Formeln. Metadaten-Roundtrip,
+Bibliothek, tatsächliche CLI-Aufrufe mit Formeltext/Quelldatei und Übersetzung
+zwischen den beiden Ausdruckssyntaxen werden ebenfalls geprüft. Der neue
+HTTP-Test prüft Erzeugung, alle Sollwerte, Import/Laden und Fehlerantworten.
+
+Browserprüfung auf leerer temporärer Testbibliothek: `a+b` als eigene Funktion
+gespeichert, anschliessend das genaue Komma-Beispiel des Nutzers eingetippt,
+die Ergebnisports übernommen, c auf 4 Bits eingestellt und mit e=1 Bit
+gespeichert. Nach Neuladen liessen sich Quelle und Breiten unverändert öffnen.
+Der Wechsel zum bisherigen Porteditor und das Öffnen der Standardoperation
+XOR als `c = xor(a,b)` wurden ebenfalls praktisch geprüft.
+
+![Eigener Formeleditor mit Summe und Übertrag](eigene-formeln.png)
+
 ## Tatsächliche Suchergebnisse
 
 Alle folgenden Programme wurden vom TinyLanguage-Backend gefunden und gegen

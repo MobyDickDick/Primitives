@@ -31,7 +31,8 @@ def function_id(dataset):
         return digest(["operation", meta["operation"]])
     if "expression" in meta or "reference_circuit" in meta:
         return digest([dataset.inputs, dataset.outputs, meta.get("interface"),
-                       meta.get("expression"), meta.get("reference_circuit"), meta.get("oracle_file")])
+                       meta.get("expression"), meta.get("reference_circuit"), meta.get("oracle_file"),
+                       meta.get("formula", {}).get("version")])
     return task_id(dataset)
 
 

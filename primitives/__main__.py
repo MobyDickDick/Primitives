@@ -26,6 +26,9 @@ def main():
     gen.add_argument("--inputs", type=int, default=2)
     gen.add_argument("--outputs", type=int, default=1)
     gen.add_argument("--expression", default="x0 ^ x1")
+    formulas = gen.add_mutually_exclusive_group()
+    formulas.add_argument("--formula", help="Eigene Formel, z.B. c=mod(a+b,2^4), e=div(a+b,2^4); ^ bedeutet Potenz")
+    formulas.add_argument("--formula-file", type=Path, help="UTF-8-Datei mit eigener Formel")
     gen.add_argument("--a-bits", type=int)
     gen.add_argument("--b-bits", type=int)
     gen.add_argument("--result-bits", type=int)
@@ -64,7 +67,7 @@ def main():
         if args.command == "serve":
             serve(args.port, args.data_dir)
         elif args.command == "generate":
-            if (args.operation or args.preset) and (args.interface or args.expressions or args.reference_circuit):
+            if (args.operation or args.preset) and (args.interface or args.expressions or args.reference_circuit or args.formula is not None or args.formula_file):
                 raise ValueError("Benannte eigene Referenzen nicht mit --operation/--preset kombinieren.")
             if not args.operation and (args.a_bits is not None or args.b_bits is not None or args.result_bits is not None or args.signed or args.flag or args.overflow != "wrap"):
                 raise ValueError("Breitenparameter und --signed/--flag/--overflow benötigen --operation; eigene Ports über --interface definieren.")
@@ -77,8 +80,11 @@ def main():
                 dataset = preset(args.preset, args.samples, args.seed)
             else:
                 load = lambda p: json.loads(p.read_text(encoding="utf-8")) if p else None
+                formula = args.formula_file.read_text(encoding="utf-8") if args.formula_file else args.formula
+                if formula is not None and (args.expressions or args.reference_circuit):
+                    raise ValueError("Formel nicht mit --expressions oder --reference-circuit kombinieren.")
                 dataset = generate(args.name, args.inputs, args.outputs, load(args.expressions) if args.expressions else args.expression,
-                                   args.samples, args.seed, ports=load(args.interface), reference_circuit=load(args.reference_circuit))
+                                   args.samples, args.seed, ports=load(args.interface), reference_circuit=load(args.reference_circuit), formula=formula)
             write_json(args.out, dataset.to_dict())
             print(f"{len(dataset.rows)} Vektoren gespeichert: {args.out.resolve()}")
         elif args.command == "evolve":

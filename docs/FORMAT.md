@@ -142,6 +142,70 @@ Datensatz; die neu angeforderte Schnittstelle wird als eigener Datensatz gespeic
 Pro Anfrage entstehen höchstens 65536 Vektoren. Nur wenn alle 2^N Eingaben
 enthalten sind, gilt die Tabelle als vollständig; sonst bleibt sie eine Stichprobe.
 
+## Eigene arithmetische Formeln
+
+Ein Erzeugungsauftrag mit `formula` und benannter `interface` verwendet die
+arithmetische Formelsyntax. Beispiel mit N=8 und M=5:
+
+```json
+{
+  "name": "Summe und Übertrag",
+  "inputs": 8,
+  "outputs": 5,
+  "formula": "c = mod(a+b,2^4), e = div(a+b,2^4)",
+  "interface": {
+    "inputs": [{"name":"a","bits":4}, {"name":"b","bits":4}],
+    "outputs": [{"name":"c","bits":4}, {"name":"e","bits":1}]
+  },
+  "samples": 256
+}
+```
+
+Ein einzelner Ausdruck wie `a+b` definiert den ersten (und einzigen)
+Ergebnisport. Mehrere Ergebnisse werden mit einfachen Zuweisungen definiert,
+getrennt durch Zeilenumbrüche, Semikolon oder Komma ausserhalb von Klammern.
+Jeder Name darf genau einmal vorkommen; sämtliche Ergebnisports benötigen eine
+Formel. Die Oberfläche übernimmt die Ergebnisnamen in Textreihenfolge und
+behält vorhandene Breiten gleicher Namen bei. Neue Ergebnisports beginnen mit
+1 Bit. Ein- und Ausgangsnamen bleiben insgesamt eindeutig.
+
+In Formelsyntax ist `^` Potenz mit der üblichen Potenzpriorität; `**` ist
+ebenfalls gültig. `mod(a,b)` entspricht `a % b`, `div(a,b)` entspricht `a // b`
+(Abrunden Richtung minus unendlich), `xor(a,b)` ist bitweises XOR. Bei negativen
+Zahlen gilt beispielsweise `div(-7,4) = -2` und `mod(-7,4) = 1`. Division durch
+null, nicht darstellbare Resultate bei `overflow: error`, unbekannte Variablen
+und zu grosse Ausdrücke führen zu Fehlern ohne gespeicherten Teildatensatz.
+Die bisherigen Mathematikfunktionen, Operatoren und Ausdruckslimits gelten
+weiter. `mod`, `div`, `xor` sind in diesem Modus als Portnamen reserviert.
+
+Alle Ergebnisformeln greifen ausschliesslich auf Eingaben, Rohbits, `x` und
+`pi` zu; Ergebnisabhängigkeiten, Zuweisungsketten und Kontrollstrukturen sind
+nicht Teil dieses Modus. Es wird der begrenzte AST-Interpreter verwendet,
+ohne `eval`, Imports, Datei- oder Netzwerkzugriff. Mehrschrittige Programme
+bleiben eine eigene Erweiterung nach PRIM-07.
+
+Der gespeicherte Datensatz enthält die ursprüngliche Quelle als
+`metadata.formula = {"version":1,"source":"…"}`, die Zuordnung der
+Ergebnisausdrücke als `metadata.expression` und die kanonische Schnittstelle
+als `metadata.interface`. Beim Import müssen Quelle, Ergebnisausdrücke und
+Ports zusammenpassen. Die Syntaxversion gehört zur Funktionsidentität:
+Ein historischer Ausdruck mit `^` wird niemals stillschweigend als Potenz
+interpretiert. Ein Wechsel zwischen den Editoren übersetzt die Operatoren
+ausdrücklich, etwa Python-XOR zu `xor(a,b)`.
+
+- `POST /api/formulas/parse`: `formula` und optional `result_name`; liefert die
+  Zuordnung `expression` ohne Vektorerzeugung.
+- `POST /api/formulas/convert`: historische `expression`-Zuordnung; liefert
+  eine semantisch entsprechende `formula`.
+- `POST /api/formulas/expressions`: arithmetische `formula`; liefert eine
+  semantisch entsprechende historische `expression`-Zuordnung.
+- `POST /api/datasets`: erzeugt und speichert die Formel gemäss obigem Beispiel.
+
+CLI: `generate --interface ports.json --inputs 8 --outputs 5 --formula
+"c=mod(a+b,2^4), e=div(a+b,2^4)" --out vectors.json`. Alternativ liest
+`--formula-file formula.txt` eine mehrzeilige UTF-8-Quelldatei. Formelquellen
+sind mit den vorgegebenen Operations- und NAND-Referenzmodi nicht kombinierbar.
+
 ## NAND-Schreibweise
 
 ```text
