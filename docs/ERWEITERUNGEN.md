@@ -155,6 +155,12 @@ Eine einzelne bestehende Bitverdrahtung definiert keine allgemeine Rechenoperati
 Format und Semantik stehen in [FORMAT.md](FORMAT.md#benannte-ports-und-breitenvarianten),
 die Prüfung in [VERIFIKATION.md](VERIFIKATION.md#variable-bitbreiten-prim-03).
 
+Die Oberfläche führt eigenständige Breitenvarianten unter **Definierte Funktionen**,
+einschliesslich Varianten ohne NAND-Implementierung. ADD(1,1,2), ADD(4,4,5) und
+ADD(8,8,9) können gleichzeitig gespeichert und wieder geöffnet werden; auch
+ADD(1,1,16) ist zulässig. Namen folgen automatisch der Breitenkombination.
+Mehrere Stichproben derselben Funktion sind als einzelne Vektorsätze auswählbar.
+
 ### Ansatzpunkte
 `primitives/dataset.py`, Bibliotheksmetadaten, Katalog-API und Vorlagenauswahl. Grundlage für TinyCPU-Beispiele und Unterprogramm-Schnittstellen.
 

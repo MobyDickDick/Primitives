@@ -118,6 +118,12 @@ Absicht einer flachen Bitverdrahtung lässt sich daraus nicht allgemein ableiten
 API:
 
 - `GET /api/catalog` liefert feste `presets` und parametrisierbare `operations`.
+  Seine `datasets` enthalten ausserdem `function_name` (etwa `ADD(4,4,5)`),
+  `function_id`, `task_id` und die Referenz-`metadata`. `function_id` gruppiert
+  Vektorsätze derselben Referenzfunktion unabhängig von Seed, Anzeigename und
+  Stichprobengrösse. Operationsparameter einschliesslich Vorzeichen, Überlauf
+  und Statusport gehören zur Funktionsidentität. `task_id` beschreibt weiterhin
+  die konkrete Trainingsaufgabe mit ihren tatsächlichen N+M-Zeilen.
 - `POST /api/operations/variant` nimmt das Operationsobjekt entgegen und liefert
   `operation`, `interface` und `expression` ohne Vektorerzeugung oder Speicherung.
 - `POST /api/datasets` mit `{"operation": {...}, "samples": 256, "seed": 1}`

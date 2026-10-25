@@ -106,6 +106,26 @@ Geprüft am 25. Oktober 2026:
 
 Die automatische Browserprüfung deckt keine physische Touchbedienung ab.
 
+### Eigenständige Funktionsdefinitionen
+
+Nach der Ergänzung der Funktionsübersicht am 25. Oktober 2026:
+
+- Die vollständige Python-Suite besteht mit **58 Tests**, davon **9 HTTP-Tests**.
+  Die neuen Fälle speichern ADD(1,1,2), ADD(4,4,5), ADD(8,8,9) und ADD(1,1,16)
+  gleichzeitig ohne eine vorhandene Schaltung. Nach einem tatsächlichen
+  HTTP-Serverneustart sind alle vier mit eigener Funktionskennung und korrekter
+  Referenz abrufbar. Weitere Stichproben derselben Definition bleiben derselben
+  Funktion zugeordnet und einzeln ladbar; signed ist eine separate Definition.
+- **11 JavaScript-Tests**, Syntaxprüfung und `git diff --check` bestehen weiterhin.
+- Im Browser auf einer leeren temporären Testbibliothek alle drei gewünschten
+  ADD-Funktionen nacheinander gespeichert, nebeneinander angezeigt, Seite neu
+  geladen und ADD(4,4,5) wieder geöffnet. Danach ADD(1,1,16) als vierte Funktion
+  gespeichert. Namen, Bitbreiten, Tabellenstatus und fehlende Schaltungsimplementierung
+  wurden korrekt angezeigt. ADD(8,8,9) ist mit 256 Vektoren als Stichprobe
+  gespeichert und trotzdem als vollständige Referenzfunktion definiert.
+
+![Drei gleichzeitig definierte ADD-Funktionen](definierte-funktionen.png)
+
 ## Tatsächliche Suchergebnisse
 
 Alle folgenden Programme wurden vom TinyLanguage-Backend gefunden und gegen

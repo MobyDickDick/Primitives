@@ -32,7 +32,8 @@
 <label>Ausdruck<textarea id="expression" rows="2" spellcheck="false">x0 ^ x1</textarea></label>
 <p id="expression-hint" class="hint"><code>x0…x(N−1)</code> einzelne Bits · <code>x</code> ganze Eingabe · <code>a,b</code> untere/obere Hälfte. N zählt alle Eingangsbits zusammen, M die Ergebnisbits. Bitreihenfolge: LSB zuerst. Name, Bitanzahl und Ausdruck lassen sich direkt bearbeiten; danach «Vektoren erzeugen» klicken.</p>
 <label>Maximale Anzahl Vektoren<input id="samples" type="number" min="1" max="65536" value="256"></label>
-<button id="generate" class="secondary full">Vektoren erzeugen</button>
+<button id="generate" class="secondary full">Funktion speichern &amp; Vektoren erzeugen</button>
+<p class="hint">Jede Breitenkombination ist eine eigene Funktion, z. B. ADD(1,1,2), ADD(4,4,5) und ADD(8,8,9). Sie bleiben nebeneinander unter „Definierte Funktionen“ gespeichert. Auch ungewöhnliche Kombinationen wie ADD(1,1,16) sind erlaubt.</p>
 <details><summary>Eigene Vektoren importieren</summary><p class="hint">JSON mit name, inputs, outputs und rows. Jede Zeile enthält N+M Bits.</p><input id="import" type="file" accept=".json,application/json"><label>Oder Zeilen direkt eingeben<textarea id="raw-rows" rows="4" placeholder="[[0,0,0],[1,0,1],[0,1,1],[1,1,0]]"></textarea></label><button id="import-rows" class="secondary full">Zeilen übernehmen</button></details>
 <div id="dataset-summary" class="summary">Noch keine Vektoren erzeugt.</div>
 </section>
@@ -46,6 +47,7 @@
 </section>
 </aside>
 <div class="content">
+<section class="card"><div class="section-title"><h2>Definierte Funktionen</h2></div><p class="hint">Hier stehen deine gespeicherten Funktionen mit ihren eigenen Bitbreiten. Eine Funktion ist sofort definiert; ihre NAND-Schaltung wird anschliessend über „Evolution starten“ gesucht. Öffnen lädt genau den gewählten Vektorsatz.</p><div id="functions" class="library"></div></section>
 <section class="card result"><div class="section-title"><span class="number">03</span><h2>Das Programm</h2><button id="export-program" class="text-button" disabled>JSON exportieren ↓</button></div>
 <div id="empty" class="empty"><div>⊼</div><h3>Ein Gatter. Unzählige Möglichkeiten.</h3><p>Erzeuge Vektoren und starte die Evolution.<br>Oder öffne ein gespeichertes Programm.</p></div>
 <div id="program" hidden><div id="metrics" class="metrics"></div><p id="program-name" class="hint"></p><button id="new-width-variant" class="secondary">Neue Breitenvariante</button><button id="repair-program" class="secondary" disabled>Restfälle exakt korrigieren</button><details id="correction-details" hidden><summary id="correction-summary"></summary><p class="hint">Diese Eingaben werden durch zusätzliche NAND-Gatter erkannt und korrigiert. Alle anderen Eingaben verhalten sich wie zuvor. Bei Stichproben gilt die Prüfung weiterhin nur für die vorhandenen Testfälle.</p><ul id="correction-cases" class="hint"></ul></details><div class="code-line"><code id="notation"></code></div>

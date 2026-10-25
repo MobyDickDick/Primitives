@@ -106,6 +106,28 @@ class ServerTests(unittest.TestCase):
             self.assertEqual(caught.exception.code, 400)
             caught.exception.close()
 
+    def test_defined_functions_survive_server_restart_without_search(self):
+        expected = {"ADD(1,1,2)", "ADD(4,4,5)", "ADD(8,8,9)", "ADD(1,1,16)"}
+        for a, b, c in ((1, 1, 2), (4, 4, 5), (8, 8, 9), (1, 1, 16)):
+            saved = self.request("/api/datasets", {"operation": {"definition": "ADD", "parameters": {
+                "a_bits": a, "b_bits": b, "result_bits": c}}})
+            self.assertEqual(saved["dataset"]["name"], f"ADD({a},{b},{c})")
+        self.server.shutdown()
+        self.server.server_close()
+        self.server.executor.shutdown()
+        self.thread.join(timeout=5)
+        self.server = make_server(0, self.tmp.name, background=False)
+        self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
+        self.thread.start()
+        self.base = f"http://127.0.0.1:{self.server.server_port}"
+        catalog = self.request("/api/catalog")
+        self.assertEqual(catalog["programs"], [])
+        self.assertEqual({d["function_name"] for d in catalog["datasets"]}, expected)
+        self.assertEqual(len({d["function_id"] for d in catalog["datasets"]}), 4)
+        for entry in catalog["datasets"]:
+            ds = self.request("/api/datasets/" + entry["id"])
+            self.assertEqual(ds["metadata"]["operation"], entry["metadata"]["operation"])
+
     def test_infix_parse_api(self):
         for expression in ("(1) ⊼ ((2) ⊼ (3))", "(1,(2,3))"):
             parsed = self.request("/api/parse", {"expression": expression, "inputs": 3})

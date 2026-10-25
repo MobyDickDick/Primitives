@@ -13,11 +13,29 @@ sind umgesetzt. Als Nächstes folgt PRIM-04 mit TinyCPU-Operationsbeispielen.
 
 ## Bitbreiten bei jeder Schaltung ändern
 
+Unter **Definierte Funktionen** stehen gespeicherte Funktionen nebeneinander,
+auch solange noch keine NAND-Schaltung gesucht wurde. Beispielsweise sind
+**ADD(1,1,2)**, **ADD(4,4,5)** und **ADD(8,8,9)** drei eigenständige Funktionen.
+Eine Operation wählen, die drei Breiten einstellen und **Funktion speichern &
+Vektoren erzeugen** klicken. Der Name folgt automatisch den Breiten; er kann
+auch von Hand geändert werden. **Funktion öffnen** lädt eine gespeicherte
+Definition samt zugehörigen Vektoren wieder in den Editor und für die Evolution.
+Auch **ADD(1,1,16)** ist erlaubt; die Zweckmässigkeit der gewählten Breiten
+bleibt beim Nutzer. Es gelten nur die technischen Limits von je 32 Gesamtbits
+für Eingänge bzw. Ausgänge.
+
+Mehrere Vektorsätze derselben Funktion (etwa unterschiedliche Stichproben)
+stehen in deren Auswahlfeld. Die Funktionsidentität hängt von der Referenz und
+ihren Parametern ab; Seed und Vektoranzahl erzeugen keine weitere Funktion.
+Vorzeichen, Überlaufregel und zusätzlicher Statusausgang unterscheiden dagegen
+Definitionen auch bei gleichen Breiten. Grössere Funktionen sind ebenso
+definiert, wenn für die Suche zunächst nur eine Stichprobe gespeichert wird.
+
 Eine Schaltung öffnen und **Neue Breitenvariante** wählen. Bei bekannten
 Operationen erscheint deren parametrisierte Referenz, bei eigenen Ausdrücken
 eine bearbeitbare Schnittstelle. Eine Schaltung ohne Rechenreferenz kann als
 bitweise NAND-Referenz mit breiteren Anschlüssen verwendet werden. Anschliessend
-die Breiten anpassen, **Vektoren erzeugen** und **Evolution starten** wählen.
+die Breiten anpassen, **Funktion speichern & Vektoren erzeugen** und **Evolution starten** wählen.
 Die neue Aufgabenvariante benötigt eine passende NAND-Implementierung; die bisherige
 Verdrahtung wird durch die Breitenwahl nicht automatisch zu einem breiteren Addierer.
 

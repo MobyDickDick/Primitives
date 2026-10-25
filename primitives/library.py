@@ -8,6 +8,7 @@ import re
 import threading
 from .circuit import Circuit
 from .dataset import Dataset
+from .operations import operation_label
 
 
 def digest(obj):
@@ -21,6 +22,17 @@ def slug(name):
 def task_id(dataset):
     # Labels, generation seeds and metadata do not change the actual task.
     return digest([dataset.inputs, dataset.outputs, dataset.rows])
+
+
+def function_id(dataset):
+    """A reference function exists independently of its sampled vectors or circuits."""
+    meta = dataset.metadata
+    if "operation" in meta:
+        return digest(["operation", meta["operation"]])
+    if "expression" in meta or "reference_circuit" in meta:
+        return digest([dataset.inputs, dataset.outputs, meta.get("interface"),
+                       meta.get("expression"), meta.get("reference_circuit"), meta.get("oracle_file")])
+    return task_id(dataset)
 
 
 def fitness(circuit, dataset):
@@ -216,6 +228,8 @@ class Library:
 
     def datasets(self):
         return [{"id": p.stem, "name": d.name, "inputs": d.inputs, "outputs": d.outputs,
-                 "count": len(d.rows), "exhaustive": d.exhaustive}
+                 "count": len(d.rows), "exhaustive": d.exhaustive,
+                 "function_id": function_id(d), "task_id": task_id(d), "metadata": d.metadata,
+                 "function_name": operation_label(d.metadata["operation"]) if "operation" in d.metadata else d.name}
                 for p in sorted((self.root / "datasets").glob("*.json")) for d in [self.load_dataset(p.stem)]]
 

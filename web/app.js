@@ -2,7 +2,7 @@
 const $ = id => document.getElementById(id);
 const state = { dataset: null, datasetId: null, result: null, bits: [], timer: null, job: null, librarySignature: null,
   positions: [], selectedRef: 0, layoutToken: 0, layoutDirty: false, routing: null, drag: null,
-  camera: null, cameraTouched: false, wires: {}, selectedWire: null, wireNotice: "", operations: {}, presets: {}, referenceCircuit: null, formMode: "legacy" };
+  camera: null, cameraTouched: false, wires: {}, selectedWire: null, wireNotice: "", operations: {}, presets: {}, referenceCircuit: null, formMode: "legacy", autoName: false, functionSignature: null };
 const svgNS = "http://www.w3.org/2000/svg";
 const int = id => Number($(id).value);
 const presetLabels = { mul: "MUL(2,2,4)" };
@@ -75,6 +75,8 @@ function chooseOperation(definition, parameters = null) {
   const p = parameters || { a_bits: op.defaults[0], b_bits: op.defaults[1], result_bits: op.defaults[2] };
   $("a-bits").value = p.a_bits; $("b-bits").value = p.b_bits || 1; $("result-bits").value = p.result_bits;
   $("signed").checked = Boolean(p.signed); $("overflow").value = p.overflow || "wrap"; $("result-flag").checked = Boolean(p.flag);
+  const label = `${definition}(${p.a_bits}${op.operands === 2 ? `,${p.b_bits}` : ""},${p.result_bits})`;
+  state.autoName = !parameters || [label, definition.toLowerCase(), definition].includes($("dataset-name").value);
   $("task-mode").value = "operation"; updateDefinition();
 }
 function updateDefinition() {
@@ -88,6 +90,7 @@ function updateDefinition() {
   let n = int("inputs"), m = int("outputs"), description = "";
   if (mode === "operation") {
     const op = operationRequest(), p = op.parameters;
+    if (state.autoName) $("dataset-name").value = `${op.definition}(${p.a_bits}${p.b_bits ? `,${p.b_bits}` : ""},${p.result_bits})`;
     n = p.a_bits + (p.b_bits || 0); m = p.result_bits + Number(p.flag);
     $("b-bits-label").hidden = state.operations[op.definition]?.operands !== 2;
     $("flag-label").hidden = !["ADD", "SUB", "MUL"].includes(op.definition);
@@ -99,7 +102,7 @@ function updateDefinition() {
     description = `${spec.inputs.map(p => `${p.name}[${p.bits}]`).join(", ")} → ${spec.outputs.map(p => `${p.name}[${p.bits}]`).join(", ")} · LSB zuerst.`;
   }
   if (mode !== "legacy") { $("inputs").value = n; $("outputs").value = m; }
-  $("variant-description").textContent = description + (mode === "legacy" ? "" : ` Referenz/Vektorvorlage; eine passende NAND-Implementierung wird separat gesucht. ${n <= 16 ? `Vollständige Tabelle: ${2 ** n} Eingaben.` : `2^${n} Eingaben: maximal 65536 Vektoren als Stichprobe.`}`);
+  $("variant-description").textContent = description + (mode === "legacy" ? "" : ` Diese Breitenkombination wird als eigene Funktion gespeichert. ${n <= 16 ? `Vollständige Tabelle: ${2 ** n} Eingaben möglich.` : `2^${n} Eingaben: maximal 65536 Vektoren als Stichprobe.`}`);
   state.formMode = mode;
 }
 function restoreDefinition(ds) {
@@ -171,10 +174,60 @@ async function setDataset(obj) {
   datasetSummary(saved.dataset); restoreDefinition(saved.dataset);
   $("export-dataset").disabled = false;
   renderTable();
+  await refresh();
+}
+function renderFunctions(catalog) {
+  const signature = JSON.stringify([catalog.datasets, catalog.programs.map(p => [p.id, p.dataset_id, p.task_id])]);
+  if (signature === state.functionSignature) return;
+  state.functionSignature = signature;
+  const groups = new Map();
+  for (const dataset of catalog.datasets) {
+    const key = dataset.function_id || dataset.id;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(dataset);
+  }
+  $("functions").replaceChildren();
+  if (!groups.size) $("functions").append(el("p", "Noch keine Funktion gespeichert. Links eine Operation und ihre Bitbreiten wählen und speichern.", "hint"));
+  for (const datasets of [...groups.values()].sort((a, b) => a[0].function_name.localeCompare(b[0].function_name))) {
+    datasets.sort((a, b) => b.count - a.count || a.id.localeCompare(b.id));
+    const first = datasets[0], entry = el("div", undefined, "library-entry function-entry");
+    const p = first.metadata?.operation?.parameters;
+    entry.append(el("strong", first.function_name));
+    if (p) entry.append(el("small", `${p.signed ? "Zweierkomplement" : "unsigned"} · ${p.overflow === "wrap" ? "Abschneiden" : "Überlauffehler"}${p.flag ? " · Statusausgang" : ""}`));
+    const select = el("select"); select.setAttribute("aria-label", `Vektorsatz für ${first.function_name}`);
+    for (const ds of datasets) select.add(new Option(`${ds.count} Vektoren · ${ds.exhaustive ? "vollständig" : "Stichprobe"} · ${ds.name} · ${ds.id.slice(-12)}`, ds.id));
+    if (datasets.some(ds => ds.id === state.datasetId)) select.value = state.datasetId;
+    entry.append(select);
+    const info = el("small"), button = el("button", "Funktion öffnen", "secondary function-open");
+    function selected() { return datasets.find(d => d.id === select.value); }
+    function program() { return catalog.programs.find(p => p.task_id === selected().task_id); }
+    function describe() {
+      const ds = selected(), implementation = program();
+      info.textContent = `${ds.inputs} Eingangsbits → ${ds.outputs} Ausgangsbits · ${implementation ? `Schaltung: ${verification(implementation.fitness)}` : "Funktion definiert · keine Schaltung für diesen Vektorsatz"}`;
+    }
+    select.addEventListener("change", describe); describe();
+    button.addEventListener("click", async () => {
+      clearError();
+      try {
+        const ds = selected(), data = await api(`/api/datasets/${ds.id}`);
+        stopAnimation(); state.dataset = data; state.datasetId = ds.id;
+        datasetSummary(data); restoreDefinition(data); $("export-dataset").disabled = false;
+        const implementation = program();
+        if (implementation) showProgram(implementation);
+        else {
+          state.result = null; $("program").hidden = true; $("empty").hidden = false;
+          $("export-program").disabled = true; $("repair-program").disabled = true; renderTable();
+        }
+        if (!state.job) $("job-status").textContent = `${ds.function_name} geladen · bereit für die Evolution.`;
+      } catch (err) { error(err); }
+    });
+    entry.append(info, button); $("functions").append(entry);
+  }
 }
 async function refresh() {
   const catalog = await api("/api/catalog");
   if (!catalog.operations) throw new Error("Die neuen Bitbreitenfunktionen benötigen einen Neustart des lokalen Webservers. Danach die Seite neu laden.");
+  if (catalog.datasets.some(ds => !ds.function_id)) throw new Error("Die Funktionsübersicht benötigt einen Neustart des lokalen Webservers. Danach die Seite neu laden.");
   state.operations = catalog.operations;
   state.presets = catalog.presets;
   if (!$("preset").options.length) {
@@ -188,7 +241,7 @@ async function refresh() {
       $("mul-hint").hidden = name !== "mul";
       if (!p) return;
       if (catalog.operations[name.toUpperCase()]) {
-        chooseOperation(name.toUpperCase()); $("dataset-name").value = presetLabels[name] || name; return;
+        chooseOperation(name.toUpperCase()); return;
       }
       $("task-mode").value = "legacy"; updateDefinition();
       $("inputs").value = p.inputs; $("outputs").value = p.outputs;
@@ -200,6 +253,7 @@ async function refresh() {
     }
   }
   $("background-status").textContent = `Hintergrundsuche · ${catalog.background.message} · ${catalog.background.attempts} Durchgänge`;
+  renderFunctions(catalog);
   const signature = JSON.stringify(catalog.programs.map(p => [p.id, p.frozen]));
   if (signature === state.librarySignature) return;
   state.librarySignature = signature;
@@ -618,6 +672,7 @@ $("task-mode").addEventListener("change", async () => {
     updateDefinition();
   } catch (err) { $("task-mode").value = state.formMode; error(err); }
 });
+$("dataset-name").addEventListener("input", () => { state.autoName = false; });
 $("operation").addEventListener("change", () => chooseOperation($("operation").value));
 for (const id of ["a-bits", "b-bits", "result-bits", "signed", "overflow", "result-flag"]) $(id).addEventListener("input", updateDefinition);
 for (const [id, side] of [["add-input-port", "inputs"], ["add-output-port", "outputs"]]) action(id, () => {
@@ -644,7 +699,8 @@ action("new-width-variant", async () => {
       outputs: result.circuit.outputs.map((_, i) => ({ name: `out${i}`, bits: 1, overflow: "wrap" })) });
     $("task-mode").value = "circuit"; updateDefinition();
   }
-  $("dataset-name").value = `${ds?.name || "NAND"} – Breitenvariante`.slice(0, 120);
+  if ($("task-mode").value === "operation") { state.autoName = true; updateDefinition(); }
+  else $("dataset-name").value = `${ds?.name || "NAND"} – Breitenvariante`.slice(0, 120);
   $("variant-description").append(document.createTextNode(" Breiten jetzt anpassen und neue Vektoren erzeugen."));
   $("task-mode").focus(); $("task-mode").scrollIntoView({ block: "center", behavior: "smooth" });
 });
