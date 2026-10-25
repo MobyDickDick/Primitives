@@ -12,12 +12,15 @@ from .dataset import Dataset, PRESETS, generate
 from .evolution import SearchConfig
 from .library import Library
 from .runner import ROOT, search, tiny_interpreter
+from .background import BackgroundOptimizer
+from .repair import repair_result
 
 
-def make_server(port=8765, data_dir=None):
+def make_server(port=8765, data_dir=None, *, background=True):
     library = Library(data_dir or ROOT / "data")
     jobs, lock = {}, threading.Lock()
     executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="evolution")
+    optimizer = BackgroundOptimizer(library, enabled=background)
 
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, fmt, *args):
@@ -44,7 +47,8 @@ def make_server(port=8765, data_dir=None):
                     except ValueError:
                         tiny = False
                     self.send_data({"presets": {k: {"inputs": v[0], "outputs": v[1], "expression": v[2]} for k, v in PRESETS.items()},
-                                    "datasets": library.datasets(), "programs": library.programs(), "tiny_available": tiny})
+                                    "datasets": library.datasets(), "programs": library.programs(), "tiny_available": tiny,
+                                    "background": optimizer.status()})
                 elif path.startswith("/api/datasets/"):
                     self.send_data(library.load_dataset(path.rsplit("/", 1)[1]).to_dict())
                 elif path.startswith("/api/programs/"):
@@ -92,6 +96,19 @@ def make_server(port=8765, data_dir=None):
                     circuit = Circuit.from_dict(obj["circuit"])
                     values = circuit.wires(obj["bits"])
                     self.send_data({"wires": values, "outputs": [values[o] for o in circuit.outputs]})
+                elif path.startswith("/api/programs/") and path.endswith("/frozen"):
+                    setting = library.set_frozen(path.split("/")[-2], obj["frozen"])
+                    if setting["frozen"]:
+                        optimizer.cancel_task(setting["task_id"])
+                    self.send_data(setting)
+                elif path == "/api/repair":
+                    old = library.load_program(obj["program_id"])
+                    dataset = library.load_dataset(old["dataset_id"])
+                    corrected = repair_result(old, dataset)
+                    if corrected is old:
+                        raise ValueError("Keine Restfallkorrektur möglich: erforderlich sind 1–4 fehlerhafte Eingaben, höchstens ein Viertel der Testfälle und maximal 512 Gatter.")
+                    corrected.pop("comparison", None)
+                    self.send_data(library.save_program(corrected, dataset))
                 elif path == "/api/search":
                     dataset = library.load_dataset(obj["dataset_id"]) if "dataset_id" in obj else Dataset.from_dict(obj["dataset"])
                     config = SearchConfig(**obj.get("config", {}))
@@ -103,6 +120,7 @@ def make_server(port=8765, data_dir=None):
                             raise ValueError("Eine Suche läuft bereits. Bitte deren Ergebnis abwarten.")
                         key = uuid.uuid4().hex
                         jobs[key] = {"status": "queued", "started": time.monotonic()}
+                        optimizer.pause()
 
                     def work():
                         with lock:
@@ -114,6 +132,10 @@ def make_server(port=8765, data_dir=None):
                         except Exception as exc:
                             with lock:
                                 jobs[key].update(status="failed", error=str(exc))
+                        finally:
+                            with lock:
+                                if not any(j["status"] in ("queued", "running") for j in jobs.values()):
+                                    optimizer.resume()
                     executor.submit(work)
                     self.send_data({"job_id": key}, 202)
                 else:
@@ -121,9 +143,26 @@ def make_server(port=8765, data_dir=None):
             except (ValueError, TypeError, KeyError, FileNotFoundError, RecursionError) as exc:
                 self.send_data({"error": str(exc)}, 400)
 
-    server = ThreadingHTTPServer(("127.0.0.1", port), Handler)
+    class LocalServer(ThreadingHTTPServer):
+        def serve_forever(self, poll_interval=0.5):
+            optimizer.start()
+            try:
+                super().serve_forever(poll_interval)
+            finally:
+                optimizer.close()
+
+        def shutdown(self):
+            optimizer.close()
+            super().shutdown()
+
+        def server_close(self):
+            optimizer.close()
+            super().server_close()
+
+    server = LocalServer(("127.0.0.1", port), Handler)
     server.daemon_threads = True
     server.executor = executor
+    server.optimizer = optimizer
     return server
 
 

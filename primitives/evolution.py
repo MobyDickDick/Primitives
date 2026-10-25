@@ -1,6 +1,7 @@
 """Bit-parallel fitness, library grafting and the optional Python search backend."""
 from dataclasses import dataclass, asdict
 import random
+import time
 from .circuit import Circuit
 
 
@@ -11,6 +12,8 @@ class SearchConfig:
     generations: int = 200
     seed: int = 1
     backend: str = "tiny"
+    repair_cases: int = 0
+    optimize: bool = False
 
     def validate(self):
         for name, lo, hi in (("gates", 1, 128), ("population", 2, 256), ("generations", 1, 20000), ("seed", 0, 2**31-1)):
@@ -21,6 +24,12 @@ class SearchConfig:
             raise ValueError("backend muss tiny oder python sein.")
         if self.population * self.generations > 500000:
             raise ValueError("Pro Lauf sind höchstens 500000 Kandidaten erlaubt.")
+        if type(self.repair_cases) is not int or not 0 <= self.repair_cases <= 4:
+            raise ValueError("repair_cases muss zwischen 0 und 4 liegen.")
+        if type(self.optimize) is not bool:
+            raise ValueError("optimize muss ein Wahrheitswert sein.")
+        if self.optimize and self.backend != "python":
+            raise ValueError("Strukturoptimierung verwendet das Python-Backend.")
 
 
 def genome_circuit(genome, n, m):
@@ -29,7 +38,7 @@ def genome_circuit(genome, n, m):
 
 
 class Problem:
-    def __init__(self, dataset, config, library=()):
+    def __init__(self, dataset, config, library=(), incumbent=None, time_budget=None):
         config.validate()
         self.dataset, self.config = dataset, config
         self.n, self.m, self.g = dataset.inputs, dataset.outputs, config.gates
@@ -46,6 +55,20 @@ class Problem:
         self.error_weight = (self.g + 1) ** 2
         self.history, self.evaluations = [], 0
         self.best_score = None
+        self.incumbent = incumbent
+        self.deadline = time.monotonic() + time_budget if time_budget is not None else None
+
+    def initial_genome(self):
+        c = self.incumbent.compact() if self.incumbent else None
+        if c is None or c.inputs != self.n or len(c.outputs) != self.m or len(c.gates) > self.g:
+            return self.specimen()
+        genes = [ref for pair in c.gates for ref in pair]
+        for i in range(len(c.gates), self.g):
+            genes.extend(self.rng.randrange(self.n + i) for _ in range(2))
+        return genes + list(c.outputs)
+
+    def expired(self):
+        return self.deadline is not None and time.monotonic() >= self.deadline
 
     def bound(self, gene):
         return self.n + (gene // 2 if gene < 2*self.g else self.g)
@@ -108,13 +131,16 @@ class Problem:
 
 def search_python(problem):
     p, rng = problem, problem.rng
-    parent, mate = p.specimen(), p.specimen()
+    parent, mate = p.initial_genome(), p.specimen()
     score = p.score(parent)
     p.trace(0, score)
     generation = 0
-    while generation < p.config.generations and score >= p.error_weight:
+    while (generation < p.config.generations and not p.expired()
+           and (p.config.optimize or score >= p.error_weight)):
         generation += 1
         for _ in range(p.config.population):
+            if p.expired():
+                break
             candidate = list(parent)
             if rng.random() < 0.15:
                 candidate = p.specimen()
@@ -128,7 +154,7 @@ def search_python(problem):
             rank = p.score(candidate)
             if rank <= score:
                 mate, parent, score = parent, candidate, rank
-            if score < p.error_weight:
+            if score < p.error_weight and not p.config.optimize:
                 break
         p.trace(generation, score)
     return p.result(parent, generation)

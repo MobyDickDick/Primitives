@@ -1,9 +1,10 @@
-"""Content-addressed local library; names describe observed, not assumed behaviour."""
+"""Local library retaining the best circuit for each set of assignments."""
 from datetime import datetime, timezone
 import hashlib
 import json
 from pathlib import Path
 import re
+import threading
 from .circuit import Circuit
 from .dataset import Dataset
 
@@ -14,6 +15,37 @@ def digest(obj):
 
 def slug(name):
     return re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")[:60] or "programm"
+
+
+def task_id(dataset):
+    # Labels, generation seeds and metadata do not change the actual task.
+    return digest([dataset.inputs, dataset.outputs, dataset.rows])
+
+
+def fitness(circuit, dataset):
+    """Recheck saved and new circuits against the same assignment bits."""
+    if circuit.inputs != dataset.inputs or len(circuit.outputs) != dataset.outputs:
+        raise ValueError("Programm und Datensatz haben verschiedene Bitbreiten.")
+    columns = [0] * (dataset.inputs + dataset.outputs)
+    for i, row in enumerate(dataset.rows):
+        for j, bit in enumerate(row):
+            columns[j] |= bit << i
+    values = columns[:dataset.inputs]
+    mask = (1 << len(dataset.rows)) - 1
+    for a, b in circuit.gates:
+        values.append(mask ^ (values[a] & values[b]))
+    errors = sum((values[o] ^ target).bit_count()
+                 for o, target in zip(circuit.outputs, columns[dataset.inputs:]))
+    total = len(dataset.rows) * dataset.outputs
+    return {"errors": errors, "total_bits": total, "accuracy": (total - errors) / total,
+            "exact_on_dataset": errors == 0,
+            "verified_truth_table": errors == 0 and dataset.exhaustive,
+            "gates": len(circuit.active()), "depth": circuit.depth}
+
+
+def rank(program):
+    f = program["fitness"]
+    return f["errors"], f["gates"], f["depth"]
 
 
 def write_json(path, data):
@@ -33,6 +65,7 @@ def write_json(path, data):
 class Library:
     def __init__(self, root):
         self.root = Path(root)
+        self._lock = threading.RLock()
 
     def save_dataset(self, dataset):
         key = f"{slug(dataset.name)}-{digest(dataset.to_dict())}"
@@ -48,12 +81,47 @@ class Library:
         if not isinstance(key, str) or not re.fullmatch(r"[a-z0-9-]{1,180}", key):
             raise ValueError("Ungültige Bibliothekskennung.")
 
-    def save_program(self, result, dataset):
+    def _settings(self):
+        path = self.root / "task-settings.json"
+        return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+    def is_frozen(self, key):
+        with self._lock:
+            return self._settings().get(key, {}).get("frozen", False)
+
+    def set_frozen(self, program_id, frozen):
+        if type(frozen) is not bool:
+            raise ValueError("frozen muss ein Wahrheitswert sein.")
+        with self._lock:
+            program = self.load_program(program_id)
+            settings = self._settings()
+            settings[program["task_id"]] = {"frozen": frozen}
+            write_json(self.root / "task-settings.json", settings)
+            return {"task_id": program["task_id"], "frozen": frozen}
+
+    def save_program(self, result, dataset, *, background=False):
+        with self._lock:
+            if background and self.is_frozen(task_id(dataset)):
+                return None
+            return self._save_program(result, dataset)
+
+    def _save_program(self, result, dataset):
+        c = Circuit.from_dict(result["circuit"])
+        result = {**result, "fitness": fitness(c, dataset)}
+        previous = next((p for p in self.programs() if p["task_id"] == task_id(dataset)), None)
+        comparison = None
+        if previous:
+            comparison = {"accepted": rank(result) < rank(previous), "previous_id": previous["id"],
+                          "previous_fitness": previous["fitness"], "candidate_fitness": result["fitness"]}
+            if not comparison["accepted"]:
+                return {**previous, "comparison": comparison}
         dataset_id = self.save_dataset(dataset)
-        c, f = Circuit.from_dict(result["circuit"]), result["fitness"]
+        f = result["fitness"]
         status = "exakt" if f["verified_truth_table"] else "stichprobe" if f["exact_on_dataset"] else "annaeherung"
         key = f"{slug(dataset.name)}-{c.inputs}zu{len(c.outputs)}-g{len(c.gates)}-t{c.depth}-{status}-{digest([c.to_dict(), dataset_id])}"
         obj = {**result, "id": key, "name": key, "dataset_id": dataset_id,
+               "task_id": task_id(dataset),
+               "frozen": self.is_frozen(task_id(dataset)),
                "dataset_name": dataset.name, "created_at": datetime.now(timezone.utc).isoformat(), "schema": 1}
         try:
             obj["expressions"] = c.expressions()
@@ -63,16 +131,32 @@ class Library:
         if path.exists():
             obj["created_at"] = self.load_program(key)["created_at"]
         write_json(path, obj)
-        return obj
+        return {**obj, "comparison": comparison} if comparison else obj
 
     def load_program(self, key):
         self._key(key)
         obj = json.loads((self.root / "programs" / f"{key}.json").read_text(encoding="utf-8"))
         Circuit.from_dict(obj["circuit"])
+        obj["task_id"] = task_id(self.load_dataset(obj["dataset_id"]))
+        obj["frozen"] = self.is_frozen(obj["task_id"])
         return obj
 
     def programs(self):
-        return [self.load_program(p.stem) for p in sorted((self.root / "programs").glob("*.json"))]
+        # Older versions remain loadable by ID; the catalog shows one winner per task.
+        with self._lock:
+            winners, datasets = {}, {}
+            programs = [self.load_program(p.stem) for p in sorted((self.root / "programs").glob("*.json"))]
+            for program in sorted(programs, key=lambda p: (p["created_at"], p["id"])):
+                dataset_id = program["dataset_id"]
+                if dataset_id not in datasets:
+                    datasets[dataset_id] = self.load_dataset(dataset_id)
+                dataset = datasets[dataset_id]
+                key = task_id(dataset)
+                program["task_id"] = key
+                program["fitness"] = fitness(Circuit.from_dict(program["circuit"]), dataset)
+                if key not in winners or rank(program) < rank(winners[key]):
+                    winners[key] = program
+            return sorted(winners.values(), key=lambda p: p["id"])
 
     def datasets(self):
         return [{"id": p.stem, "name": d.name, "inputs": d.inputs, "outputs": d.outputs,

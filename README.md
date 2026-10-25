@@ -30,3 +30,57 @@ Verbotszeilen: Eine auf allen 16 Eingaben korrekte Schaltung liefert diese Werte
 Die fertige Wahrheitstabelle lässt sich auch über **Eigene Vektoren importieren**
 aus [`examples/mul-2-2-4.json`](examples/mul-2-2-4.json) laden.
 Auf der Kommandozeile bleibt die Vorlage über `--preset mul` verfügbar.
+
+## Retests und Bausteinbibliothek
+
+Ein erneuter Suchlauf prüft das neue Programm gegen das bisher beste Programm
+auf denselben Zuordnungsvektoren. Es gewinnt zuerst die kleinere Zahl falscher
+Ausgangsbits, danach die kleinere Gatterzahl und schliesslich die geringere Tiefe.
+Bei Gleichstand oder einem schlechteren Ergebnis bleibt die bisherige Version
+erhalten. Die Oberfläche zeigt nach dem Retest beide Fehlerzahlen und die Auswahl.
+
+Die Bibliothek zeigt pro Aufgabe nur die beste Version, auch bei bereits
+vorhandenen Doppeleinträgen. Eine Aufgabe wird durch Eingangsbits, Ausgangsbits
+und Zuordnungsvektoren bestimmt; Name und Seed ändern diese Identität nicht.
+Andere Vektoren oder Bitbreiten bleiben eigenständige Aufgaben. Bereits gespeicherte
+Versionen bleiben über ihre Kennung ladbar.
+
+## Wenige Restfälle exakt korrigieren
+
+Die Browseroberfläche aktiviert standardmässig **Wenige Restfälle exakt korrigieren**.
+Nach einem Suchlauf werden bis zu vier fehlerhafte Eingaben korrigiert, sofern sie
+höchstens 25 % der Testfälle ausmachen. Die Korrektur erkennt die genaue Eingabe
+und erzwingt nur dort die Sollbits. Sie besteht aus normalen NAND-Gattern und
+funktioniert deshalb auch im Schaltbild und im JSON-Export. Zusätzliche Gatter
+zählen vollständig zur Gatterzahl und können das eingestellte Suchbudget
+überschreiten; die Gesamtgrenze bleibt bei 512 Gattern.
+
+Ein gespeichertes Programm lässt sich auch auswählen und direkt über
+**Restfälle exakt korrigieren** ergänzen. Die Oberfläche zeigt die korrigierten
+Eingaben und die zusätzlichen Gatter an. Alle vorhandenen Vektoren werden danach
+erneut geprüft. Eine korrigierte Stichprobe bleibt eine Stichprobe und wird nicht
+als vollständige Wahrheitstabelle bezeichnet.
+
+## Hintergrundsuche und Frozen
+
+Solange der Webserver läuft, sucht er automatisch reihum für alle Aufgaben der
+Bibliothek weiter. Ein separater Python-Prozess läuft unter Windows mit
+Idle-Priorität (ohne zusätzliches Fenster), unter Unix mit `nice +15`.
+Jeder Durchgang hat höchstens 0,6 Sekunden für die Evolution und insgesamt
+4 Sekunden inklusive Start, Bewertung und Korrektur. Danach folgen mindestens
+5 Sekunden Pause. Es läuft höchstens ein Hintergrundprozess gleichzeitig.
+
+Die Suche startet bei der bisherigen Lösung, sofern diese ins Gatterbudget passt,
+und optimiert auch nach Erreichen von null Fehlern weiter. Neue Seeds variieren
+die Durchgänge. Bessere Ergebnisse werden erst nach Gegenprüfung übernommen;
+die Bibliothek zeigt weiterhin eine Version pro Aufgabe. Bei manuellen Suchläufen
+wird der Hintergrundprozess abgebrochen und erst anschliessend wieder gestartet.
+
+Die Checkbox **Frozen** an jedem Bibliothekseintrag stoppt den laufenden
+Hintergrunddurchgang für diese Aufgabe und verhindert weitere automatische
+Versuche. Die Einstellung gilt für die Aufgabe, bleibt beim Ersetzen der Version
+und nach einem Neustart erhalten und lässt sich jederzeit wieder aufheben.
+Explizite manuelle Suchläufe und Korrekturen bleiben möglich. Beim Beenden des
+Servers wird auch der Hintergrundprozess beendet. Der Browser muss für die
+Hintergrundsuche nicht geöffnet sein; eine geöffnete Seite aktualisiert den
+Bibliotheksstatus alle fünf Sekunden.

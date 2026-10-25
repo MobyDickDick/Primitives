@@ -1,6 +1,6 @@
 "use strict";
 const $ = id => document.getElementById(id);
-const state = { dataset: null, datasetId: null, result: null, bits: [], timer: null, job: null };
+const state = { dataset: null, datasetId: null, result: null, bits: [], timer: null, job: null, librarySignature: null };
 const svgNS = "http://www.w3.org/2000/svg";
 const int = id => Number($(id).value);
 const presetLabels = { mul: "MUL(2,2,4)" };
@@ -71,13 +71,19 @@ async function refresh() {
       $("job-status").textContent = "TinyLanguage ist noch nicht eingerichtet. Python ist bereit.";
     }
   }
+  $("background-status").textContent = `Hintergrundsuche · ${catalog.background.message} · ${catalog.background.attempts} Durchgänge`;
+  const signature = JSON.stringify(catalog.programs.map(p => [p.id, p.frozen]));
+  if (signature === state.librarySignature) return;
+  state.librarySignature = signature;
   $("library").replaceChildren();
   if (!catalog.programs.length) $("library").append(el("p", "Deine Bibliothek wächst mit jedem Suchlauf.", "hint"));
   for (const program of catalog.programs) {
-    const button = el("button");
+    const entry = el("div", undefined, "library-entry");
+    const button = el("button", undefined, "library-open");
     button.append(el("strong", `${program.dataset_name} · ${program.circuit.inputs}:${program.circuit.outputs.length}`));
     button.append(el("small", `${program.fitness.gates} Gatter · Tiefe ${program.fitness.depth} · ${(program.fitness.accuracy * 100).toFixed(1)} %`));
     button.append(el("span", verification(program.fitness), `badge${program.fitness.verified_truth_table ? "" : " warn"}`));
+    if (program.correction) button.append(el("small", `${program.correction.cases.length} ${program.correction.cases.length === 1 ? "Restfall" : "Restfälle"} durch NAND-Gatter korrigiert`));
     button.append(el("small", program.id));
     button.addEventListener("click", async () => {
       clearError();
@@ -89,7 +95,20 @@ async function refresh() {
         showProgram(program);
       } catch (err) { error(err); }
     });
-    $("library").append(button);
+    const label = el("label", undefined, "check-label frozen-control");
+    const frozen = el("input"); frozen.type = "checkbox"; frozen.checked = program.frozen;
+    frozen.setAttribute("aria-label", `Frozen: ${program.dataset_name} ${program.circuit.inputs}:${program.circuit.outputs.length}`);
+    label.append(frozen, document.createTextNode("Frozen · Hintergrundsuche stoppen"));
+    frozen.addEventListener("change", async () => {
+      clearError(); frozen.disabled = true;
+      try {
+        await api(`/api/programs/${program.id}/frozen`, { frozen: frozen.checked });
+        await refresh();
+      } catch (err) { frozen.checked = program.frozen; error(err); }
+      finally { frozen.disabled = false; }
+    });
+    entry.append(button, label);
+    $("library").append(entry);
   }
 }
 function verification(f) {
@@ -108,6 +127,13 @@ function showProgram(result) {
     const cell = el("div", undefined, "metric"); cell.append(el("strong", value), el("span", label)); $("metrics").append(cell);
   }
   $("program-name").textContent = result.fitness ? `${verification(result.fitness)} · ${result.id || "Suchergebnis"}` : "Eigenes Klammerprogramm · NAND verknüpft jeweils beide Argumente.";
+  $("repair-program").disabled = !result.id || !result.fitness?.errors || Boolean(state.job);
+  $("correction-details").hidden = !result.correction;
+  $("correction-cases").replaceChildren();
+  if (result.correction) {
+    $("correction-summary").textContent = `${result.correction.cases.length} ${result.correction.cases.length === 1 ? "Restfall" : "Restfälle"} exakt korrigiert · ${result.correction.added_gates} zusätzliche NAND-Gatter`;
+    for (const c of result.correction.cases) $("correction-cases").append(el("li", `(${c.inputs.join(",")}) → (${c.expected.join(",")}), zuvor (${c.actual.join(",")})`));
+  }
   $("notation").textContent = result.expressions ? result.expressions.map((s, i) => `y${i} = ${s}`).join("  ;  ") : "Gatterliste im JSON-Export verfügbar.";
   renderSimulation(); renderTable(); renderHistory();
 }
@@ -196,9 +222,10 @@ action("import-rows", () => setDataset({ name: $("dataset-name").value, inputs: 
 $("import").addEventListener("change", async event => { clearError(); try { if (event.target.files[0]) await setDataset(JSON.parse(await event.target.files[0].text())); } catch (err) { error(err); } });
 action("evolve", async () => {
   if (!state.datasetId) throw new Error("Bitte zuerst Zuordnungsvektoren erzeugen.");
-  const config = { gates: int("gates"), population: int("population"), generations: int("generations"), seed: int("seed"), backend: $("backend").value };
+  const config = { gates: int("gates"), population: int("population"), generations: int("generations"), seed: int("seed"), backend: $("backend").value, repair_cases: $("auto-repair").checked ? 4 : 0 };
   const { job_id } = await api("/api/search", { dataset_id: state.datasetId, config });
   state.job = job_id; $("evolve").disabled = true;
+  $("repair-program").disabled = true;
   $("job-status").textContent = "Suche läuft …";
   async function poll() {
     try {
@@ -207,12 +234,18 @@ action("evolve", async () => {
       if (job.status === "done") {
         state.job = null; $("evolve").disabled = false;
         showProgram(job.result); await refresh();
-        $("job-status").textContent = `${verification(job.result.fitness)} · Programm gespeichert.`;
+        const comparison = job.result.comparison;
+        if (comparison) {
+          const before = comparison.previous_fitness, after = comparison.candidate_fitness;
+          $("job-status").textContent = `Retest: bisher ${before.errors}, neu ${after.errors} fehlerhafte Ausgangsbits · ${comparison.accepted ? "Bessere Version übernommen." : "Bisherige Version beibehalten."}`;
+        } else $("job-status").textContent = `${verification(job.result.fitness)} · Programm gespeichert.`;
       } else if (job.status === "failed") {
         state.job = null; $("evolve").disabled = false; $("job-status").textContent = "Suche fehlgeschlagen."; error(new Error(job.error));
+        $("repair-program").disabled = !state.result?.id || !state.result?.fitness?.errors;
       } else setTimeout(poll, 700);
     } catch (err) {
       state.job = null; $("evolve").disabled = false; $("job-status").textContent = "Verbindung zur Suche unterbrochen."; error(err);
+      $("repair-program").disabled = !state.result?.id || !state.result?.fitness?.errors;
     }
   }
   setTimeout(poll, 250);
@@ -222,6 +255,14 @@ action("parse", async () => {
   showProgram({ circuit, expressions: [$("nand-expression").value] });
 });
 action("refresh", refresh);
+action("repair-program", async () => {
+  $("repair-program").disabled = true;
+  try {
+    const result = await api("/api/repair", { program_id: state.result.id });
+    showProgram(result); await refresh();
+    $("job-status").textContent = `${verification(result.fitness)} · Beste Version nach Restfallkorrektur geladen.`;
+  } finally { $("repair-program").disabled = !state.result?.id || !state.result?.fitness?.errors || Boolean(state.job); }
+});
 action("export-program", () => download(`${state.result.id || "nand-programm"}.json`, state.result));
 action("export-dataset", () => download(`${state.datasetId}.json`, state.dataset));
 $("step").addEventListener("input", () => { stopAnimation(); renderSimulation(); });
@@ -234,3 +275,4 @@ $("play").addEventListener("click", () => {
   }, 450);
 });
 refresh().catch(error);
+setInterval(() => { if (!document.hidden) refresh().catch(() => {}); }, 5000);
