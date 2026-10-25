@@ -10,10 +10,11 @@
 <aside>
 <section class="card"><div class="section-title"><span class="number">01</span><h2>Zuordnungsvektoren</h2></div>
 <label>Vorlage<select id="preset"></select></label>
+<p id="mul-hint" class="hint" hidden><strong>MUL(2,2,4)</strong>: a und b haben je 2 Bits (0–3), c = a * b hat 4 Bits. N = 2 + 2 = 4, M = 4. Mit mindestens 16 Vektoren werden alle Eingaben geprüft. Mögliche Ergebnisse: 0, 1, 2, 3, 4, 6, 9; alle anderen 4-Bit-Werte kommen als Sollausgabe nicht vor.</p>
 <div class="pair"><label>Eingangsbits N<input id="inputs" type="number" min="1" max="32" value="2"></label><label>Ausgangsbits M<input id="outputs" type="number" min="1" max="32" value="1"></label></div>
 <label>Name<input id="dataset-name" value="xor" maxlength="120"></label>
 <label>Ausdruck<textarea id="expression" rows="2" spellcheck="false">x0 ^ x1</textarea></label>
-<p class="hint"><code>x0…xN</code> einzelne Bits · <code>x</code> ganze Eingabe · <code>a,b</code> untere/obere Hälfte. Bitreihenfolge: LSB zuerst.</p>
+<p class="hint"><code>x0…x(N−1)</code> einzelne Bits · <code>x</code> ganze Eingabe · <code>a,b</code> untere/obere Hälfte. N zählt alle Eingangsbits zusammen, M die Ergebnisbits. Bitreihenfolge: LSB zuerst. Name, Bitanzahl und Ausdruck lassen sich direkt bearbeiten; danach «Vektoren erzeugen» klicken.</p>
 <label>Maximale Anzahl Vektoren<input id="samples" type="number" min="1" max="65536" value="256"></label>
 <button id="generate" class="secondary full">Vektoren erzeugen</button>
 <details><summary>Eigene Vektoren importieren</summary><p class="hint">JSON mit name, inputs, outputs und rows. Jede Zeile enthält N+M Bits.</p><input id="import" type="file" accept=".json,application/json"><label>Oder Zeilen direkt eingeben<textarea id="raw-rows" rows="4" placeholder="[[0,0,0],[1,0,1],[0,1,1],[1,1,0]]"></textarea></label><button id="import-rows" class="secondary full">Zeilen übernehmen</button></details>

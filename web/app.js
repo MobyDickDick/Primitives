@@ -3,6 +3,7 @@ const $ = id => document.getElementById(id);
 const state = { dataset: null, datasetId: null, result: null, bits: [], timer: null, job: null };
 const svgNS = "http://www.w3.org/2000/svg";
 const int = id => Number($(id).value);
+const presetLabels = { mul: "MUL(2,2,4)" };
 
 function el(tag, text, className) {
   const node = document.createElement(tag);
@@ -55,14 +56,15 @@ async function setDataset(obj) {
 async function refresh() {
   const catalog = await api("/api/catalog");
   if (!$("preset").options.length) {
-    for (const name of Object.keys(catalog.presets)) $("preset").add(new Option(name.toUpperCase(), name));
+    for (const name of Object.keys(catalog.presets)) $("preset").add(new Option(presetLabels[name] || name.toUpperCase(), name));
     $("preset").add(new Option("Eigener Ausdruck", "custom"));
     $("preset").value = "xor";
     $("preset").addEventListener("change", () => {
-      const p = catalog.presets[$("preset").value];
+      const name = $("preset").value, p = catalog.presets[name];
+      $("mul-hint").hidden = name !== "mul";
       if (!p) return;
       $("inputs").value = p.inputs; $("outputs").value = p.outputs;
-      $("dataset-name").value = $("preset").value; $("expression").value = p.expression;
+      $("dataset-name").value = presetLabels[name] || name; $("expression").value = p.expression;
     });
     if (!catalog.tiny_available) {
       $("backend").value = "python";
