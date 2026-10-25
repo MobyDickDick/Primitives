@@ -157,6 +157,49 @@ class RetestTests(unittest.TestCase):
         self.assertEqual(deleted["program_ids"], [])
         self.assertEqual(self.library.datasets(), [])
 
+    def test_function_details_apply_to_samples_exports_and_old_circuits_without_new_ids(self):
+        old = self.save(self.approximate)
+        best = self.save(self.exact)
+        sample_id = self.library.save_dataset(preset("and", samples=2, seed=8))
+        ids = {old["dataset_id"], sample_id}
+        key = function_id(self.dataset)
+        updated = self.library.update_function(key, "  Mein UND  ", "Zwei Bits verknüpfen.\nFür den Handtest.")
+        self.assertEqual(set(updated["dataset_ids"]), ids)
+        library = Library(self.tmp.name)
+        self.assertEqual({d["id"] for d in library.datasets()}, ids)
+        for d in library.datasets():
+            self.assertEqual(d["function_name"], "Mein UND")
+            self.assertEqual(d["description"], updated["description"])
+        for program in (old, best):
+            loaded = library.load_program(program["id"])
+            self.assertEqual(loaded["dataset_name"], "Mein UND")
+            self.assertEqual(loaded["dataset_metadata"]["description"], updated["description"])
+            self.assertEqual(loaded["circuit"], program["circuit"])
+        document = library.dataset_document(library.load_dataset(sample_id))
+        imported = Dataset.from_dict(document)
+        self.assertEqual(function_id(imported), key)
+        self.assertEqual(imported.name, "Mein UND")
+        self.assertEqual(imported.metadata["description"], updated["description"])
+        # A background retest keeps using the original stored dataset, avoiding copies.
+        self.assertEqual(library.save_program(self.result(self.exact), self.dataset)["id"], best["id"])
+        self.assertEqual({d["id"] for d in library.datasets()}, ids)
+
+    def test_function_details_validate_text_clear_description_and_stay_isolated(self):
+        self.library.save_dataset(self.dataset)
+        other_id = self.library.save_dataset(preset("or"))
+        key = function_id(self.dataset)
+        for name, description in [(" ", ""), ("x" * 121, ""), (None, ""), ("ok", None), ("ok", "x" * 4001)]:
+            with self.subTest(name=str(name)[:12]), self.assertRaises(ValueError):
+                self.library.update_function(key, name, description)
+        with self.assertRaises(ValueError): self.library.update_function("../outside", "ok", "")
+        with self.assertRaises(FileNotFoundError): self.library.update_function("000000000000", "ok", "")
+        self.library.update_function(key, "Name", "Beschreibung")
+        self.library.update_function(key, "Name", "")
+        self.assertEqual(next(d for d in self.library.datasets() if d["function_id"] == key)["description"], "")
+        self.assertEqual(self.library.dataset_document(self.library.load_dataset(other_id))["name"], "or")
+        self.library.delete_function(key)
+        self.assertNotIn(key, self.library._function_details())
+
 
 if __name__ == "__main__":
     unittest.main()

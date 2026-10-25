@@ -445,3 +445,24 @@ Geprüft am 25. Oktober 2026:
   wurde visuell geprüft; physische Touchbedienung wurde nicht getestet.
 
 ![Sprungschleife mit Ergebnis im Ablaufdebugger](ablaufdebugger-prim08.png)
+
+## Funktionsbeschriftung, Seitenaufteilung und integrierte Hilfe
+
+- `python -m unittest discover -s tests`: **140 Tests erfolgreich**.
+  Neue Bibliotheks- und HTTP-Tests prüfen Namen und mehrzeilige Beschreibungen,
+  gemeinsame Beschriftung mehrerer Vektorsätze, Neustart, Export/Import,
+  unveränderte Kennungen und historische Schaltungen, Hintergrund-Retests,
+  Textgrenzen, leere Beschreibungen und das Entfernen verwaister Beschriftungen.
+- `node --test tests/test_*.js`: **22 Tests erfolgreich**;
+  `node --check web/app.js` und `git diff --check` bestehen.
+- Browserprüfung mit getrennter Testbibliothek und deaktivierter Hintergrundsuche:
+  XOR mit Beschreibung gespeichert, umbenannt, nach Server- und Browserneustart
+  wiedergefunden und über Name bzw. Beschreibung gefiltert. Ein Suchlauf liefert
+  eine vollständig geprüfte Schaltung; „Schaltung ansehen“ lädt sie mit Vektoren.
+  Metadaten- und Formelentwürfe bleiben beim Wechsel zur Hilfe und zurück erhalten.
+  Hilfethemen sind direkt verlinkbar; die Browserkonsole meldet keine Fehler.
+- Desktopansicht bei 1280 Pixeln und schmale Hilfeansicht bei 375 Pixeln visuell
+  geprüft; auf der schmalen Ansicht kein horizontaler Seitenüberlauf.
+  Physische Touchbedienung wurde nicht geprüft.
+
+![Funktionsübersicht mit editierbaren Beschriftungen](oberflaeche-funktionen.png)

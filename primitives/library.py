@@ -7,7 +7,7 @@ from pathlib import Path
 import re
 import threading
 from .circuit import Circuit
-from .dataset import Dataset
+from .dataset import Dataset, validate_description
 from .operations import operation_label
 from .blocks import BlockBundle
 
@@ -98,6 +98,35 @@ class Library:
         with self._lock:
             return Dataset.from_dict(json.loads((self.root / "datasets" / f"{key}.json").read_text(encoding="utf-8")))
 
+    def _function_details(self):
+        path = self.root / "function-details.json"
+        return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+    def dataset_document(self, dataset):
+        """Apply editable labels at the boundary, keeping stored IDs and search inputs stable."""
+        with self._lock:
+            details = self._function_details().get(function_id(dataset))
+            document = dataset.to_dict()
+            if details is not None:
+                document = {**document, "name": details["name"],
+                            "metadata": {**document["metadata"], "description": details["description"]}}
+            return document
+
+    def update_function(self, key, name, description):
+        if not isinstance(key, str) or not re.fullmatch(r"[a-f0-9]{12}", key):
+            raise ValueError("Ungültige Funktionskennung.")
+        if not isinstance(name, str) or not name.strip() or len(name) > 120:
+            raise ValueError("Der Funktionsname braucht 1–120 Zeichen.")
+        description = validate_description(description)
+        with self._lock:
+            ids = [d["id"] for d in self.datasets() if d["function_id"] == key]
+            if not ids:
+                raise FileNotFoundError("Funktion nicht gefunden.")
+            details = self._function_details()
+            details[key] = {"name": name.strip(), "description": description}
+            write_json(self.root / "function-details.json", details)
+            return {"function_id": key, "dataset_ids": ids, **details[key]}
+
     def delete_function(self, key):
         """Remove all vector sets and private circuits; retain shared implementations."""
         if not isinstance(key, str) or not re.fullmatch(r"[a-f0-9]{12}", key):
@@ -132,6 +161,10 @@ class Library:
                 settings.pop(task, None)
             if (self.root / "task-settings.json").exists():
                 write_json(self.root / "task-settings.json", settings)
+            details = self._function_details()
+            if key in details:
+                del details[key]
+                write_json(self.root / "function-details.json", details)
             return {"function_id": key, "dataset_ids": sorted(dataset_ids), "program_ids": sorted(program_ids)}
 
     def save_block(self, bundle):
@@ -276,6 +309,7 @@ class Library:
         if path.exists():
             obj["created_at"] = self.load_program(key)["created_at"]
         write_json(path, obj)
+        obj = self.load_program(key)
         return {**obj, "comparison": comparison} if comparison else obj
 
     def load_program(self, key):
@@ -294,6 +328,9 @@ class Library:
         dataset = self.load_dataset(obj["dataset_id"])
         obj["task_id"] = task_id(dataset)
         obj["dataset_metadata"] = dataset.metadata
+        document = self.dataset_document(dataset)
+        obj["dataset_name"] = document["name"]
+        obj["dataset_metadata"] = document["metadata"]
         obj["frozen"] = self.is_frozen(obj["task_id"])
         return obj
 
@@ -323,9 +360,11 @@ class Library:
 
     def datasets(self):
         with self._lock:
-            return [{"id": p.stem, "name": d.name, "inputs": d.inputs, "outputs": d.outputs,
+            return [{"id": p.stem, "name": doc["name"], "inputs": d.inputs, "outputs": d.outputs,
                      "count": len(d.rows), "exhaustive": d.exhaustive,
-                     "function_id": function_id(d), "task_id": task_id(d), "metadata": d.metadata,
-                     "function_name": operation_label(d.metadata["operation"]) if "operation" in d.metadata else d.name}
-                    for p in sorted((self.root / "datasets").glob("*.json")) for d in [self.load_dataset(p.stem)]]
+                     "function_id": function_id(d), "task_id": task_id(d), "metadata": doc["metadata"],
+                     "function_name": doc["name"], "description": doc["metadata"].get("description", ""),
+                     "operation_label": operation_label(d.metadata["operation"]) if "operation" in d.metadata else None}
+                    for p in sorted((self.root / "datasets").glob("*.json")) for d in [self.load_dataset(p.stem)]
+                    for doc in [self.dataset_document(d)]]
 

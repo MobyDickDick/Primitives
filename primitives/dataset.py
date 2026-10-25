@@ -16,6 +16,12 @@ def integer(vector):
     return sum(b << i for i, b in enumerate(vector))
 
 
+def validate_description(value):
+    if not isinstance(value, str) or len(value) > 4000:
+        raise ValueError("Die Beschreibung muss Text mit höchstens 4000 Zeichen sein.")
+    return value.strip()
+
+
 @dataclass
 class Dataset:
     name: str
@@ -44,6 +50,7 @@ class Dataset:
         self.rows = [list(k + v) for k, v in sorted(unique.items())]
         if not isinstance(self.metadata, dict):
             raise ValueError("metadata muss ein Objekt sein.")
+        validate_description(self.metadata.get("description", ""))
         if "interface" in self.metadata:
             self.metadata = {**self.metadata, "interface": interface(self.metadata["interface"], self.inputs, self.outputs)}
         if "program" in self.metadata:

@@ -1,6 +1,29 @@
 # Primitives
 generate simple Programms
 
+## Übersichtliche Webseiten und Hilfe
+
+Die Navigation teilt die Oberfläche in **Funktionen**, **Editor**, **Evolution**,
+**Schaltbild**, **Bausteine** und **Hilfe**. Seitenwechsel erhalten die aktuellen
+Eingaben, Handtests und laufenden Aufträge. Oben steht immer, welche Vektoren
+geladen sind; diese werden für die nächste Suche verwendet. Änderungen im Editor
+müssen zuerst gespeichert werden. Nach einem Neuladen eine gespeicherte Funktion
+erneut öffnen.
+
+Unter **Funktionen → Name & Beschreibung** lassen sich Funktionen umbenennen und
+mit einem mehrzeiligen Beschreibungstext versehen. Die Angaben gelten für alle
+Vektorsätze derselben Referenz und bleiben nach einem Serverneustart erhalten.
+Kennungen, Sollwerte und vorhandene Schaltungen bleiben erhalten. Auch neue
+Funktionen haben im Editor ein Beschreibungsfeld. Namen dürfen 120 Zeichen,
+Beschreibungen 4000 Zeichen enthalten. Die JSON-Exporte enthalten den aktuellen
+Namen und die Beschreibung in `metadata.description`.
+
+Die integrierte **Hilfe** enthält Einstieg, Formeln und Programme, Bitbreiten,
+Prüfstatus, Evolution, Schaltbildbedienung, Bausteine sowie Export und Import.
+Sie ist über die Hauptnavigation und den Link am Seitenende erreichbar.
+Für diese Erweiterung den laufenden Webserver neu starten und die Browserseite
+neu laden.
+
 ## Geplante Erweiterungen
 
 Die [Erweiterungs-Issues](docs/ERWEITERUNGEN.md) beschreiben Zoom, verschiebbare

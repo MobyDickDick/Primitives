@@ -71,6 +71,37 @@ class ServerTests(unittest.TestCase):
         self.assertGreater(state["result"]["comparison"]["candidate_fitness"]["errors"], 0)
         self.assertEqual([p["id"] for p in self.request("/api/catalog")["programs"]], [saved["id"]])
 
+    def test_function_names_descriptions_and_portable_documents(self):
+        obj = {"name": "Meine Addition", "description": "Zwei Bits addieren.",
+               "operation": {"definition": "ADD", "parameters": {"a_bits": 1, "b_bits": 1, "result_bits": 2}}}
+        saved = self.request("/api/datasets", obj)
+        entry = self.request("/api/catalog")["datasets"][0]
+        self.assertEqual(entry["function_name"], obj["name"])
+        self.assertEqual(entry["description"], obj["description"])
+        key = entry["function_id"]
+        result = self.request(f"/api/functions/{key}/details", {"name": "Addition mit Übertrag", "description": "Ergebnis: 0 bis 2.\nZwei Ausgangsbits."})
+        self.assertEqual(result["dataset_ids"], [saved["id"]])
+        document = self.request("/api/datasets/" + saved["id"])
+        self.assertEqual(document["name"], result["name"])
+        self.assertEqual(document["metadata"]["description"], result["description"])
+        self.assertEqual(document["rows"], saved["dataset"]["rows"])
+        # Saving the loaded reference from the editor can update its labels again.
+        resaved = self.request("/api/datasets", {**obj, "name": "Neu aus dem Editor", "description": ""})
+        self.assertEqual(resaved["dataset"]["name"], "Neu aus dem Editor")
+        for item in self.request("/api/catalog")["datasets"]:
+            self.assertEqual(item["function_name"], "Neu aus dem Editor")
+            self.assertEqual(item["description"], "")
+        for invalid in ({"name": " "}, {"name": "ok", "description": 2}, {"name": "ok", "description": "x" * 4001}):
+            with self.assertRaises(HTTPError) as caught:
+                self.request(f"/api/functions/{key}/details", invalid)
+            self.assertEqual(caught.exception.code, 400)
+            caught.exception.close()
+        with urlopen(self.base + "/#hilfe") as response:
+            page = response.read().decode()
+        self.assertIn('id="page-help"', page)
+        self.assertIn('id="page-functions"', page)
+        self.assertIn('id="dataset-description"', page)
+
     def test_source_debug_step_continue_stop_reset_and_isolation(self):
         from test_program_debug import PORTS, SUM
         obj = {"interface": PORTS, "program": {"version": 1, "source": SUM}, "x": 5}

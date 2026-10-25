@@ -8,6 +8,46 @@ const svgNS = "http://www.w3.org/2000/svg";
 const int = id => Number($(id).value);
 const presetLabels = { mul: "MUL(2,2,4)" };
 
+const pageRoutes = { functions: "funktionen", editor: "editor", evolution: "evolution", circuit: "schaltbild", blocks: "bausteine", help: "hilfe" };
+function showPage(page, push = true) {
+  if (!pageRoutes[page]) page = "functions";
+  state.page = page;
+  for (const key of Object.keys(pageRoutes)) $(`page-${key}`).hidden = key !== page;
+  for (const link of document.querySelectorAll(".page-nav a")) {
+    if (link.dataset.page === page) link.setAttribute("aria-current", "page");
+    else link.removeAttribute("aria-current");
+  }
+  if (push && location.hash !== `#${pageRoutes[page]}`) history.pushState(null, "", `#${pageRoutes[page]}`);
+  window.scrollTo(0, 0);
+  if (page === "circuit" && state.result) requestAnimationFrame(() => {
+    if (!state.cameraTouched) state.camera = CircuitViewport.fit(graphBounds(), graphSize());
+    renderCamera();
+  });
+}
+function pageFromHash() {
+  const hash = location.hash.slice(1);
+  const page = hash.startsWith("hilfe-") ? "help" : Object.keys(pageRoutes).find(key => pageRoutes[key] === hash) || "functions";
+  showPage(page, false);
+  if (hash.startsWith("hilfe-")) requestAnimationFrame(() => document.getElementById(hash)?.scrollIntoView());
+}
+function updateContext() {
+  const ds = state.dataset;
+  const text = ds ? `Geladen: ${ds.name} · ${ds.inputs} → ${ds.outputs} Bits · ${ds.rows.length} Vektoren` : "Keine Funktion geladen. Öffne eine Funktion oder lege im Editor eine neue an.";
+  $("active-function").textContent = text;
+  $("search-task").textContent = text;
+  $("activity-status").textContent = state.vectorJob ? "Vektorerzeugung läuft …" : state.job ? "Evolution läuft …" : "";
+}
+document.addEventListener("click", event => {
+  const link = event.target.closest('a[href^="#"]');
+  if (!link || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+  const page = Object.keys(pageRoutes).find(key => `#${pageRoutes[key]}` === link.getAttribute("href"));
+  if (!page) return;
+  event.preventDefault(); showPage(page);
+  $(`heading-${page}`).focus({ preventScroll: true });
+});
+window.addEventListener("hashchange", pageFromHash);
+window.addEventListener("popstate", pageFromHash);
+
 function portRow(side, port, expression = "0") {
   const row = el("div", undefined, "port-editor"); row.dataset.side = side;
   function field(label, key, value, type = "text") {
@@ -94,6 +134,7 @@ function updateDefinition() {
   const mode = $("task-mode").value, formula = mode === "formula", program = mode === "program", named = formula || program || mode === "named" || mode === "circuit";
   $("formula-editor").hidden = !formula;
   $("source-program-editor").hidden = !program;
+  $("editor-guide").hidden = formula || program;
   const options = $("named-options"); options.classList.toggle("formula-mode", formula || program);
   if (formula || program) {
     const home = $(program ? "source-program-ports" : "formula-ports");
@@ -142,6 +183,7 @@ function updateDefinition() {
 }
 function restoreDefinition(ds) {
   $("dataset-name").value = ds.name; $("inputs").value = ds.inputs; $("outputs").value = ds.outputs;
+  $("dataset-description").value = ds.metadata?.description || "";
   const meta = ds.metadata || {};
   $("preset").value = meta.operation ? (state.presets[meta.operation.definition.toLowerCase()] ? meta.operation.definition.toLowerCase() : `op:${meta.operation.definition}`) : "custom";
   if (meta.hierarchy) {
@@ -169,6 +211,7 @@ function restoreDefinition(ds) {
   }
 }
 function datasetSummary(ds) {
+  updateContext();
   const ports = ds.metadata?.interface;
   const mapping = ports ? ` · ${ports.inputs.map(p => `${p.name}[${p.bits}]`).join(" + ")} → ${ports.outputs.map(p => `${p.name}[${p.bits}]`).join(" + ")}` : "";
   $("dataset-summary").textContent = `${ds.name} · ${ds.rows.length} Vektoren · ${ds.inputs}:${ds.outputs} · ${ds.exhaustive ? "vollständige Wahrheitstabelle" : "Stichprobe"}${mapping}`;
@@ -224,6 +267,7 @@ async function acceptDataset(saved) {
   datasetSummary(saved.dataset); restoreDefinition(saved.dataset);
   $("export-dataset").disabled = false;
   renderTable();
+  $("editor-save-status").textContent = `„${saved.dataset.name}“ gespeichert. Unter Evolution kannst du jetzt eine Schaltung suchen.`;
   await refresh();
 }
 async function deleteFunction(functionId, name, count) {
@@ -250,6 +294,8 @@ async function deleteFunction(functionId, name, count) {
 function renderFunctions(catalog) {
   const signature = JSON.stringify([catalog.datasets, catalog.programs.map(p => [p.id, p.dataset_id, p.task_id])]);
   if (signature === state.functionSignature) return;
+  // Background refreshes must not discard an open metadata form or its draft.
+  if ($("functions").querySelector(".function-edit[open]")) return;
   state.functionSignature = signature;
   const groups = new Map();
   for (const dataset of catalog.datasets) {
@@ -258,15 +304,21 @@ function renderFunctions(catalog) {
     groups.get(key).push(dataset);
   }
   $("functions").replaceChildren();
-  if (!groups.size) $("functions").append(el("p", "Noch keine Funktion gespeichert. Links eine Operation und ihre Bitbreiten wählen und speichern.", "hint"));
+  if (!groups.size) $("functions").append(el("p", "Noch keine Funktion gespeichert. Im Editor eine Vorlage, Formel oder ein Programm wählen und speichern.", "hint"));
   for (const datasets of [...groups.values()].sort((a, b) => a[0].function_name.localeCompare(b[0].function_name))) {
     datasets.sort((a, b) => b.count - a.count || a.id.localeCompare(b.id));
     const first = datasets[0], entry = el("div", undefined, "library-entry function-entry");
+    entry.dataset.search = `${first.function_name} ${first.description || ""} ${first.operation_label || ""}`.toLocaleLowerCase("de");
     const p = first.metadata?.operation?.parameters;
     entry.append(el("strong", first.function_name));
+    entry.append(el("p", first.description || "Noch keine Beschreibung.", "function-description"));
+    if (first.operation_label) entry.append(el("code", first.operation_label, "function-formula"));
     if (p) entry.append(el("small", `${p.signed ? "Zweierkomplement" : "unsigned"} · ${p.overflow === "wrap" ? "Abschneiden" : "Überlauffehler"}${p.flag ? " · Statusausgang" : ""}`));
-    if (first.metadata?.formula) entry.append(el("code", first.metadata.formula.source, "function-formula"));
-    if (first.metadata?.program) entry.append(el("code", first.metadata.program.source, "function-formula"));
+    const reference = first.metadata?.formula?.source || first.metadata?.program?.source;
+    if (reference) {
+      const details = el("details"), summary = el("summary", "Rechenvorschrift anzeigen");
+      details.append(summary, el("code", reference, "function-formula")); entry.append(details);
+    }
     const select = el("select"); select.setAttribute("aria-label", `Vektorsatz für ${first.function_name}`);
     for (const ds of datasets) select.add(new Option(`${ds.count} Vektoren · ${ds.exhaustive ? "vollständig" : "Stichprobe"} · ${ds.name} · ${ds.id.slice(-12)}`, ds.id));
     if (datasets.some(ds => ds.id === state.datasetId)) select.value = state.datasetId;
@@ -286,13 +338,14 @@ function renderFunctions(catalog) {
         stopAnimation(); state.dataset = data; state.datasetId = ds.id;
         datasetSummary(data); restoreDefinition(data); $("export-dataset").disabled = false;
         const implementation = program();
-        if (implementation) showProgram(implementation);
+        if (implementation) showProgram(implementation, false);
         else {
           state.result = null; $("program").hidden = true; $("empty").hidden = false;
           $("save-block-program").disabled = true;
           $("export-program").disabled = true; $("repair-program").disabled = true; renderTable();
         }
         if (!state.job) $("job-status").textContent = `${ds.function_name} geladen · bereit für die Evolution.`;
+        showPage("editor");
       } catch (err) { error(err); }
     });
     const remove = el("button", "Funktion löschen", "danger function-delete");
@@ -303,11 +356,64 @@ function renderFunctions(catalog) {
       catch (err) { error(err); }
       finally { remove.disabled = false; }
     });
-    entry.append(info, button, remove); $("functions").append(entry);
+    const edit = el("details", undefined, "function-edit"), form = el("form");
+    edit.append(el("summary", "Name & Beschreibung"));
+    const nameLabel = el("label", "Name"), nameInput = el("input");
+    nameInput.value = first.function_name; nameInput.maxLength = 120; nameInput.required = true;
+    nameLabel.append(nameInput);
+    const descriptionLabel = el("label", "Beschreibung"), description = el("textarea");
+    description.value = first.description || ""; description.maxLength = 4000; description.rows = 4;
+    descriptionLabel.append(description);
+    const save = el("button", "Angaben speichern", "secondary"), cancel = el("button", "Abbrechen", "text-button");
+    save.type = "submit"; cancel.type = "button";
+    cancel.addEventListener("click", () => { nameInput.value = first.function_name; description.value = first.description || ""; edit.open = false; });
+    form.append(nameLabel, descriptionLabel, save, cancel); edit.append(form);
+    form.addEventListener("submit", async event => {
+      event.preventDefault(); clearError(); save.disabled = true;
+      try {
+        const updated = await api(`/api/functions/${first.function_id}/details`, { name: nameInput.value, description: description.value });
+        if (updated.dataset_ids.includes(state.datasetId)) {
+          const previous = state.dataset;
+          state.dataset = { ...previous, name: updated.name, metadata: { ...previous.metadata, description: updated.description } };
+          if ($("dataset-name").value === previous.name) $("dataset-name").value = updated.name;
+          if ($("dataset-description").value === (previous.metadata?.description || "")) $("dataset-description").value = updated.description;
+          datasetSummary(state.dataset); renderTable();
+        }
+        if (state.result && updated.dataset_ids.includes(state.result.dataset_id)) {
+          state.result.dataset_name = updated.name;
+          state.result.dataset_metadata = { ...state.result.dataset_metadata, description: updated.description };
+          $("block-name").value = updated.name;
+        }
+        edit.open = false; await refresh();
+      } catch (err) { error(err); }
+      finally { save.disabled = false; }
+    });
+    const view = el("button", "Schaltung ansehen", "secondary");
+    view.disabled = !program();
+    select.addEventListener("change", () => { view.disabled = !program(); });
+    view.addEventListener("click", async () => {
+      try {
+        const ds = selected(), data = await api(`/api/datasets/${ds.id}`);
+        state.dataset = data; state.datasetId = ds.id; datasetSummary(data); restoreDefinition(data);
+        $("export-dataset").disabled = false; showProgram(program());
+      } catch (err) { error(err); }
+    });
+    entry.append(info, button, view, edit, remove); $("functions").append(entry);
   }
+  filterFunctions();
 }
+function filterFunctions() {
+  const query = $("function-search").value.trim().toLocaleLowerCase("de");
+  const entries = [...$("functions").children].filter(entry => entry.classList.contains("function-entry"));
+  for (const entry of entries) entry.hidden = !entry.dataset.search.includes(query);
+  const count = entries.filter(entry => !entry.hidden).length;
+  $("function-count").textContent = `${count} von ${entries.length} Funktionen`;
+  $("function-no-match").hidden = !entries.length || count > 0;
+}
+$("function-search").addEventListener("input", filterFunctions);
 async function refresh() {
   const catalog = await api("/api/catalog");
+  updateContext();
   if (!catalog.operations) throw new Error("Die neuen Bitbreitenfunktionen benötigen einen Neustart des lokalen Webservers. Danach die Seite neu laden.");
   if (catalog.datasets.some(ds => !ds.function_id)) throw new Error("Die Funktionsübersicht benötigt einen Neustart des lokalen Webservers. Danach die Seite neu laden.");
   state.operations = catalog.operations;
@@ -339,7 +445,7 @@ async function refresh() {
   $("background-status").textContent = `Hintergrundsuche · ${catalog.background.message} · ${catalog.background.attempts} Durchgänge`;
   renderFunctions(catalog);
   renderBlocks(catalog.blocks || []);
-  const signature = JSON.stringify(catalog.programs.map(p => [p.id, p.frozen]));
+  const signature = JSON.stringify(catalog.programs.map(p => [p.id, p.frozen, p.dataset_name, p.dataset_metadata?.description]));
   if (signature === state.librarySignature) return;
   state.librarySignature = signature;
   $("library").replaceChildren();
@@ -381,7 +487,8 @@ async function refresh() {
 function verification(f) {
   return f.verified_truth_table ? "Vollständig geprüft" : f.exact_on_dataset ? "Passt zur Stichprobe" : "Annäherung";
 }
-function showProgram(result) {
+function showProgram(result, navigate = true) {
+  if (navigate) showPage("circuit");
   stopAnimation(); state.result = result; state.debug = null; $("block-debug").hidden = true;
   if (result.hierarchy) {
     inspectBlock(result.hierarchy);
@@ -811,11 +918,13 @@ $("task-mode").addEventListener("change", async () => {
   } catch (err) { $("task-mode").value = state.formMode; error(err); }
 });
 function newFormula() {
+  showPage("editor"); $("dataset-description").value = "";
   state.autoName = false; $("dataset-name").value = "Eigene Summe"; $("preset").value = "custom";
   editPorts({ inputs: [{ name: "a", bits: 4 }, { name: "b", bits: 4 }], outputs: [{ name: "c", bits: 5 }] });
   $("formula-source").value = "a + b"; $("task-mode").value = "formula"; updateDefinition();
 }
 async function editAsFormula() {
+  showPage("editor");
   let spec, expressions;
   if (state.formMode === "operation") {
     const v = await api("/api/operations/variant", operationRequest()); spec = v.interface; expressions = v.expression;
@@ -849,6 +958,7 @@ for (const [id, side] of [["add-input-port", "inputs"], ["add-output-port", "out
   container.append(portRow(side, { name: `${side === "inputs" ? "in" : "out"}${container.children.length}`, bits: 1 })); updateDefinition();
 });
 action("new-width-variant", async () => {
+  showPage("editor");
   const result = state.result;
   const ds = result.dataset_id ? await api(`/api/datasets/${result.dataset_id}`) : null;
   const family = ds && Object.entries(state.presets).find(([name, p]) => state.operations[name.toUpperCase()] &&
@@ -877,7 +987,7 @@ async function saveDefinition() {
   if (state.vectorJob) throw new Error("Die Vektorerzeugung läuft bereits. Bitte abwarten oder abbrechen.");
   if ($("task-mode").value === "formula") await syncFormula();
   updateDefinition();
-  const obj = { name: $("dataset-name").value, inputs: int("inputs"), outputs: int("outputs"),
+  const obj = { name: $("dataset-name").value, description: $("dataset-description").value, inputs: int("inputs"), outputs: int("outputs"),
     expression: $("expression").value, samples: int("samples"), seed: int("seed") };
   const mode = $("task-mode").value;
   if (mode === "operation") obj.operation = operationRequest();
@@ -910,6 +1020,7 @@ const sourceProgramExamples = {
   zero: 'jump_zero(n, "zero")\nreturn n\nlabel("zero")\nreturn 42'
 };
 function newSourceProgram() {
+  showPage("editor"); $("dataset-description").value = "";
   state.autoName = false; $("preset").value = "custom";
   const example = $("source-program-example").value;
   $("dataset-name").value = example === "bits" ? "Bitreihenfolge umkehren" : example === "if" ? "Auswahl mit if/else" : example === "zero" ? "Auswahl mit Zero-Sprung" : example === "jump" ? "Summe mit Rücksprung" : `Summe mit ${example}`;
@@ -918,6 +1029,7 @@ function newSourceProgram() {
   $("task-mode").value = "program"; updateDefinition();
 }
 function vectorControls(busy) {
+  updateContext();
   for (const id of ["generate", "save-source-program", "save-formula"]) $(id).disabled = busy;
   $("evolve").disabled = busy || Boolean(state.job);
   $("cancel-vectors").disabled = !busy;
@@ -1030,7 +1142,7 @@ action("cancel-vectors", async () => {
 });
 action("generate", saveDefinition);
 action("save-formula", saveDefinition);
-action("import-rows", () => setDataset({ name: $("dataset-name").value, inputs: int("inputs"), outputs: int("outputs"), rows: JSON.parse($("raw-rows").value) }));
+action("import-rows", () => setDataset({ name: $("dataset-name").value, description: $("dataset-description").value, inputs: int("inputs"), outputs: int("outputs"), rows: JSON.parse($("raw-rows").value) }));
 $("import").addEventListener("change", async event => { clearError(); try {
   if (event.target.files[0]) { const obj = JSON.parse(await event.target.files[0].text()); await setDataset(obj.dataset || obj); }
 } catch (err) { error(err); } });
@@ -1043,6 +1155,7 @@ action("evolve", async () => {
     ({ job_id } = await api("/api/search", { dataset_id: state.datasetId, config }));
   } catch (err) { $("evolve").disabled = false; throw err; }
   state.job = job_id; $("cancel-search").disabled = false;
+  updateContext();
   $("repair-program").disabled = true;
   $("job-status").textContent = "Suche läuft …";
   async function poll() {
@@ -1051,7 +1164,7 @@ action("evolve", async () => {
       $("job-status").textContent = job.status === "cancelling" ? "Suche wird abgebrochen …" : `Suche läuft · ${job.elapsed_seconds} s`;
       if (job.status === "done") {
         state.job = null; $("evolve").disabled = false; $("cancel-search").disabled = true;
-        showProgram(job.result); await refresh();
+        showProgram(job.result, state.page === "evolution"); await refresh();
         const comparison = job.result.comparison;
         if (comparison) {
           const before = comparison.previous_fitness, after = comparison.candidate_fitness;
@@ -1059,6 +1172,7 @@ action("evolve", async () => {
         } else $("job-status").textContent = `${verification(job.result.fitness)} · Programm gespeichert.`;
       } else if (job.status === "failed" || job.status === "cancelled") {
         state.job = null; $("evolve").disabled = false; $("cancel-search").disabled = true;
+        updateContext();
         $("job-status").textContent = job.status === "cancelled" ? "Suche abgebrochen. Bisherige Programme bleiben erhalten." : "Suche fehlgeschlagen.";
         if (job.status === "failed") error(new Error(job.error));
         $("repair-program").disabled = !state.result?.id || !state.result?.fitness?.errors;
@@ -1197,5 +1311,6 @@ $("play").addEventListener("click", () => {
   }, 450);
 });
 BlockDebug.init();
+pageFromHash();
 refresh().catch(error);
 setInterval(() => { if (!document.hidden) refresh().catch(() => {}); }, 5000);

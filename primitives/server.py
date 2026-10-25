@@ -8,11 +8,11 @@ import time
 from urllib.parse import urlsplit
 import uuid
 from .circuit import Circuit, parse_expression
-from .dataset import Dataset, PRESETS, generate
+from .dataset import Dataset, PRESETS, generate, validate_description
 from .operations import OPERATIONS, generate_operation, operation_variant
 from .formula import parse_formula, python_expressions, to_formula
 from .evolution import SearchCancelled, SearchConfig, check_cancelled
-from .library import Library
+from .library import Library, function_id
 from .runner import ROOT, search, tiny_interpreter
 from .background import BackgroundOptimizer
 from .repair import repair_result
@@ -56,7 +56,7 @@ def make_server(port=8765, data_dir=None, *, background=True):
                                     "datasets": library.datasets(), "programs": library.programs(), "tiny_available": tiny,
                                     "background": optimizer.status()})
                 elif path.startswith("/api/datasets/"):
-                    self.send_data(library.load_dataset(path.rsplit("/", 1)[1]).to_dict())
+                    self.send_data(library.dataset_document(library.load_dataset(path.rsplit("/", 1)[1])))
                 elif path.startswith("/api/blocks/"):
                     self.send_data(library.load_block(path.rsplit("/", 1)[1]).to_dict())
                 elif path.startswith("/api/programs/"):
@@ -121,6 +121,7 @@ def make_server(port=8765, data_dir=None, *, background=True):
                             raise ValueError("Unbekannte Debugaktion.")
                     self.send_data({"id": key, **result})
                 elif path == "/api/datasets":
+                    description = validate_description(obj["description"]) if "description" in obj else None
                     if "rows" in obj:
                         dataset = Dataset.from_dict(obj)
                     elif "operation" in obj:
@@ -131,8 +132,14 @@ def make_server(port=8765, data_dir=None, *, background=True):
                         dataset = generate(obj["name"], obj["inputs"], obj["outputs"], obj.get("expression"),
                                            obj.get("samples"), obj.get("seed", 1), ports=obj.get("interface"),
                                            reference_circuit=obj.get("reference_circuit"), formula=obj.get("formula"), program=obj.get("program"))
+                    if description is not None:
+                        dataset.metadata = {**dataset.metadata, "description": description}
                     key = library.save_dataset(dataset)
-                    self.send_data({"id": key, "dataset": dataset.to_dict()})
+                    if description is not None:
+                        library.update_function(function_id(dataset), dataset.name, description)
+                    self.send_data({"id": key, "dataset": library.dataset_document(dataset)})
+                elif path.startswith("/api/functions/") and path.endswith("/details") and len(path.split("/")) == 5:
+                    self.send_data(library.update_function(path.split("/")[-2], obj.get("name"), obj.get("description", "")))
                 elif path.startswith("/api/functions/") and path.endswith("/delete") and len(path.split("/")) == 5:
                     with lock:
                         if any(j["status"] in ("queued", "running", "cancelling") for j in jobs.values()):
@@ -144,6 +151,7 @@ def make_server(port=8765, data_dir=None, *, background=True):
                             optimizer.resume()
                     self.send_data(deleted)
                 elif path == "/api/datasets/generate":
+                    description = validate_description(obj["description"]) if "description" in obj else None
                     if "program" not in obj:
                         raise ValueError("Dieser Auftrag benötigt eine Programmreferenz.")
                     with lock:
@@ -163,10 +171,14 @@ def make_server(port=8765, data_dir=None, *, background=True):
                                                samples=obj.get("samples"), seed=obj.get("seed", 1),
                                                ports=obj.get("interface"), program=obj["program"],
                                                cancel_event=cancellations[key])
+                            if description is not None:
+                                dataset.metadata = {**dataset.metadata, "description": description}
                             with lock:
                                 if cancellations[key].is_set(): raise ProgramCancelled()
                                 dataset_id = library.save_dataset(dataset)
-                                jobs[key].update(status="done", result={"id": dataset_id, "dataset": dataset.to_dict()})
+                                if description is not None:
+                                    library.update_function(function_id(dataset), dataset.name, description)
+                                jobs[key].update(status="done", result={"id": dataset_id, "dataset": library.dataset_document(dataset)})
                         except ProgramCancelled:
                             with lock:
                                 jobs[key].update(status="cancelled")

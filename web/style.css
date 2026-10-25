@@ -17,3 +17,21 @@
 #source-debug-code { max-height: 24rem; overflow: auto; padding: .8rem; background: #f3f6f4; }
 .source-debug-current { background: #d3edb8; color: #173d25; font-weight: bold; }
 #source-debug-variables, #source-debug-result { white-space: pre-wrap; overflow-wrap: anywhere; }
+
+/* Each work area has its own page; shared state stays in the running app. */
+.intro{margin-bottom:24px}h1{font-size:34px;letter-spacing:-1px}
+.page-nav{position:sticky;top:0;z-index:5;display:flex;gap:6px;flex-wrap:wrap;padding:7px;background:#fff;border:1px solid var(--line);border-radius:12px}
+.page-nav a{padding:12px 20px;border-radius:7px;text-decoration:none;font-weight:600;color:var(--muted)}
+.page-nav a:hover{background:#edf4e7;color:var(--green)}.page-nav a[aria-current=page]{background:var(--green);color:#fff}
+a{color:var(--green);text-underline-offset:3px}a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--green);outline-offset:3px}
+.active-context{display:flex;justify-content:space-between;gap:12px;padding:15px 4px;color:var(--muted);font-size:12px;line-height:1.6;overflow-wrap:anywhere}
+#activity-status{color:var(--green);font-weight:600}.page-heading{margin:20px 0 24px}.page-heading h1{font-size:25px;letter-spacing:-.5px;margin-bottom:0}.page-heading p{color:var(--muted);line-height:1.7;margin-bottom:0}
+.editor-layout,.search-layout{display:grid;grid-template-columns:minmax(300px,380px) minmax(0,1fr);gap:24px}.editor-layout>div,.search-layout>div{min-width:0}
+.page-actions{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:22px}.button-link{display:inline-block;text-decoration:none;border:1px solid var(--green);border-radius:7px;padding:11px 16px;background:var(--green);color:white;font-size:12px;font-weight:600}.button-link.secondary{background:#fff;color:var(--green);border-color:var(--line)}
+#functions{grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr))}.function-description{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6;font-size:12px;color:#52686b;margin:0}.function-formula{display:block;max-height:180px;overflow:auto;margin-top:8px}
+.function-description{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}.help-topics .card{scroll-margin-top:100px}.help-index{top:80px}
+.function-edit{margin-top:4px;padding-top:10px}.function-edit summary{font-size:12px;font-weight:600;color:var(--green)}.function-edit form{margin-top:15px}.function-edit textarea,#dataset-description{font-family:inherit;line-height:1.6}.function-edit label{margin-bottom:12px}.function-edit button{padding:9px}.function-entry details{margin-top:0}.function-entry .function-delete{margin-top:auto}.function-entry strong{overflow-wrap:anywhere}.optional{font-weight:400;color:var(--muted)}
+.help-layout{display:grid;grid-template-columns:230px minmax(0,1fr);gap:24px;align-items:start}.help-index{position:sticky;top:20px}.help-index a{display:block;margin-top:18px;font-size:12px}.help-topics{min-width:0}.help-topics .card{scroll-margin-top:20px;line-height:1.85}.help-topics h2{font-size:19px}.help-topics p,.help-topics li,.help-topics dd{color:#52686b}.help-topics li{margin:10px 0}.help-topics code{font-size:12px;background:#edf4e7;padding:2px 4px;overflow-wrap:anywhere}.help-topics dt{font-weight:600;color:var(--green);margin-top:12px}.help-topics dd{margin-left:0}.graph-instructions{margin:0 0 16px;padding:10px;border:1px solid var(--line);border-radius:7px}
+#editor-guide p{line-height:1.8;color:var(--muted)}.search-layout .library{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+@media(max-width:850px){.editor-layout,.search-layout{grid-template-columns:1fr}.help-layout{grid-template-columns:1fr}.help-index{position:static}.help-index a{display:inline-block;margin-right:18px}.page-nav a{padding:10px 14px}.intro{margin-bottom:18px}}
+@media(max-width:550px){h1{font-size:28px}.page-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px}.page-nav a{text-align:center;padding:10px 4px;font-size:12px}.active-context{display:block}.active-context span{display:block}.page-heading h2{font-size:23px}.pair{gap:8px}.help-topics ol,.help-topics ul{padding-left:22px}.graph-toolbar button{padding:9px}.page-actions{gap:8px}.function-edit .text-button{margin-top:6px}}
