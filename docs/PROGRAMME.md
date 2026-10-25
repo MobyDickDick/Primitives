@@ -1,9 +1,10 @@
-# Mehrschrittige Programme als Vektorquelle (PRIM-07)
+# Mehrschrittige Programme und Ablaufdebugger (PRIM-07/08)
 
 **Mehrschrittiges Programm definieren** öffnet den Programmeditor. Ein- und
 Ergebnisports erhalten eigene Namen, Bitbreiten, Vorzeichen und Überlaufregeln.
 Die Beispiele **Summe for**, **Summe while**, **Auswahl if/else** und
-**Bitreihenfolge umkehren** lassen sich direkt einsetzen.
+**Bitreihenfolge umkehren**, **Summe · Rücksprung** und **Auswahl · Zero-Sprung**
+lassen sich direkt einsetzen.
 **Programm speichern & Vektoren erzeugen** speichert die
 Funktion unter **Definierte Funktionen**, sobald alle angeforderten Eingaben
 erfolgreich berechnet sind. **Funktion öffnen** stellt Quelle, Schnittstelle,
@@ -89,7 +90,7 @@ else:
 return c
 ```
 
-Die [vier Beispieltabellen](../examples/programs/) prüfen jeweils alle
+Die [sechs Beispieltabellen](../examples/programs/) prüfen jeweils alle
 16 Eingaben von n[4]. Ihre `.prim`-Quellen und `interface.json` liegen daneben;
 `python tools/export_programs.py` erzeugt sie reproduzierbar neu.
 
@@ -170,11 +171,94 @@ for i in range(len(a)):
 return pack(r)
 ```
 
-Nicht unterstützt sind Fliesskommazahlen, `/`, Strings, allgemeine Listen, Attribute,
+Nicht unterstützt sind Fliesskommazahlen, `/`, Strings als Rechenwerte, allgemeine Listen, Attribute,
 Imports, eigene Funktionen, Rekursion, I/O, `break`, `continue`, Schleifen-`else`,
-Labels und explizite Sprünge. Labels und Ablaufdebugger sind PRIM-08.
+Unterprogrammaufrufe und fehlerabhängige Sprünge.
 Schleifen im Quelltext erzeugen keine Rückkopplung im NAND-Netz. Dauerhafter
 Zustand benötigt das separat geplante Registermodell.
+
+## Labels und Sprünge (PRIM-08)
+
+Sprachversion 1 erlaubt folgende eigenständige Anweisungen. Die Klammernotation
+ist Syntax des begrenzten Interpreters. Labels sind feste Zeichenketten mit
+1–32 Zeichen: ASCII-Buchstabe, danach Buchstaben, Ziffern oder `_`.
+
+| Anweisung | Wirkung |
+|---|---|
+| `label("ziel")` | Im ganzen Programm eindeutiges Sprungziel |
+| `goto("ziel")` | Unbedingter Sprung |
+| `jump_if(bedingung, "ziel")` | Springt bei einem Wert ungleich null |
+| `jump_zero(a, "ziel")` | Springt bei a = 0 (TinyCPU: Zero) |
+| `jump_nonzero(a, "ziel")` | Springt bei a ≠ 0 (TinyCPU: NotZero) |
+| `jump_negative(a, "ziel")` | Springt bei a < 0 (TinyCPU: Negative) |
+
+Die Bedingungen lesen den angegebenen Integer-Ausdruck, kein implizites
+Flagregister. Negative Eingänge benötigen Zweierkomplement; lokale Zwischenwerte
+können ebenfalls negativ sein. Ein Fehlerregister und Fehler-Sprungbefehle sind
+nicht unterstützt. Die Zuordnung bedeutet keine vollständige TinyCPU-ISA-Kompatibilität.
+
+```text
+s = 0
+i = 0
+label("loop")
+jump_if(i >= n, "done")
+s += i
+i += 1
+goto("loop")
+label("done")
+return s
+```
+
+Dies berechnet die Summe 0 bis n−1, auch für n=0. Das zweite Beispiel nimmt
+den Sprung bei n=0; bei n>0 wird die Eingabe unverändert zurückgegeben:
+
+```text
+jump_zero(n, "zero")
+return n
+label("zero")
+return 42
+```
+
+Unbekannte/doppelte Labels, dynamische Ziele und ungültige Namen werden vor
+dem Lauf abgelehnt, auch in unerreichbarem Code. Ein Ziel muss im selben oder
+einem umgebenden Block liegen. Das Einspringen von aussen oder aus Nachbarblöcken
+in `if`, `else`, `while` oder `for` ist verboten. Ein Rücksprung vor eine
+`for`-Anweisung initialisiert deren range-Zustand neu. Lokale Variablen behalten
+innerhalb einer Eingabe ihre Werte. Wird eine erste Zuweisung übersprungen,
+liefert das Lesen der noch ungesetzten Variable einen Fehler mit Quellposition.
+Genommene Rückwärtssprünge zählen zusätzlich als Iteration. Labels selbst sind
+begrenzte Leerschritte. Dieselben Abbruchprüfungen und Budgets gelten wie bisher.
+
+## Ablaufdebugger für eine Testeingabe
+
+Unter **Programmablauf debuggen** eine unsigned Eingangsbitkombination `x`
+eintragen. Sie kombiniert alle Eingangsports LSB-first gemäss Portreihenfolge;
+die dekodierten Werte erscheinen unter **Variablen**. **Start** übernimmt Quelle,
+Ports und Budgets und hält vor der ersten Anweisung. Änderungen im Editor oder
+Eingabefeld gelten erst nach einem neuen Start. Die Debugquelle bleibt separat sichtbar.
+
+- **Eine Programmanweisung** führt genau eine interne Anweisung aus.
+- **Fortsetzen** arbeitet in Abschnitten von höchstens 100 Anweisungen bis
+  zur Rückgabe, zum Fehler oder zu **Stoppen**. Der aktuelle Abschnitt endet
+  vor dem Stoppen. Derselbe Zustand kann danach fortgesetzt werden.
+- **Zurücksetzen** stellt dieselbe übernommene Eingabe und Quelle mit frischen
+  Variablen, Arrays, Schleifenzuständen und Budgets wieder her.
+
+Markiert wird die nächste Quellzeile; nach Rückgabe/Fehler bleibt die letzte
+Anweisung sichtbar. PC ist der nullbasierte Index der internen Anweisung.
+Strukturierte Kontrollen erzeugen interne Anweisungen (`test`, `jump`,
+`iteration`, `range`, `next`), die dieselbe Quellzeile markieren können.
+Labels erscheinen als `label`, explizite Sprünge als `branch`.
+**Programmanweisungen** zählt diese Anweisungen; **Budgetschritte** zählt auch
+Ausdrücke und Arrayarbeit. Grosse Integer werden exakt angezeigt. **Ergebnis**
+zeigt die rohe Rückgabe und die kodierten Portwerte nach Breite/Überlaufregel.
+Ein Ausgabeüberlauf wird als Fehler angezeigt. Direkte Ausführung und Debugger
+verwenden denselben Interpreter. NAND-Gatterschritte im Schaltbild untersuchen
+weiterhin separat die gefundene kombinatorische Schaltung.
+
+Debuggen speichert keine Vektoren und ändert keine Funktion. Sitzungen sind
+flüchtig und werden beim Serverneustart verworfen. Ein Server hält höchstens
+32 Sitzungen; weitere Starts verdrängen die älteste Sitzung.
 
 ## Budgets und Fehler
 
@@ -187,7 +271,7 @@ Zustand benötigt das separat geplante Registermodell.
 Jede ausgeführte interne Anweisung und jeder besuchte Ausdrucksknoten verbraucht
 einen Schritt. Schleifenprüfungen und interne Kontrollübergänge zählen mit;
 eine leere bzw. endlose Schleife kann das Budget nicht umgehen. Jede tatsächlich
-betretene Schleifeniteration verbraucht zusätzlich eine Iteration. Auch
+betretene Schleifeniteration und jeder genommene Rückwärtssprung verbrauchen zusätzlich eine Iteration. Auch
 Rückgabeausdrücke zählen mit. Höhere Bitbreiten benötigen häufig Stichproben
 oder angepasste Budgets. Eine erfolgreiche Stichprobe bleibt eine Stichprobe.
 
@@ -249,3 +333,13 @@ Budgets, `metadata.interface` die Ports und `metadata.seed` den Stichprobenseed.
 Es wird keine zusätzliche Ausdrucks-/Operations-/Schaltungsreferenz behauptet.
 Quelltext, Sprachversion und Schnittstelle bestimmen die Funktionsidentität;
 Seed, Vektoranzahl und Ausführungsbudgets erzeugen keine weitere Funktion.
+
+`POST /api/source-debug/start` mit `program`, `interface` und `x` liefert eine
+Sitzungskennung `id` und den Anfangszustand. `POST /api/source-debug/{id}/{aktion}`
+mit `{}` unterstützt `step`, `continue`, `stop`, `reset` und `close`.
+`continue` führt maximal 100 Anweisungen aus. Zustände sind `paused`, `stopped`,
+`done` oder `failed`; gestoppte Sitzungen können fortgesetzt werden. Antworten
+enthalten PC, Quellzeile, Variablen, Zähler und gegebenenfalls Ergebnis/Fehler.
+Validierungsfehler liefern HTTP 400, Laufzeitfehler stehen in `error`.
+Integer-Variablen und rohe Rückgaben sind für exakte JSON-Darstellung
+Dezimalstrings, Bit-Arrays bleiben Listen und kodierte Portwerte Zahlen.

@@ -67,6 +67,58 @@ class ServerTests(unittest.TestCase):
         self.assertGreater(state["result"]["comparison"]["candidate_fitness"]["errors"], 0)
         self.assertEqual([p["id"] for p in self.request("/api/catalog")["programs"]], [saved["id"]])
 
+    def test_source_debug_step_continue_stop_reset_and_isolation(self):
+        from test_program_debug import PORTS, SUM
+        obj = {"interface": PORTS, "program": {"version": 1, "source": SUM}, "x": 5}
+        first = self.request("/api/source-debug/start", obj)
+        second = self.request("/api/source-debug/start", {**obj, "x": 0})
+        key = first["id"]
+        self.assertEqual(first["variables"], {"n": "5"})
+        self.assertEqual(first["steps"], 0)
+        step = self.request(f"/api/source-debug/{key}/step", {})
+        self.assertEqual(step["variables"]["s"], "0")
+        stopped = self.request(f"/api/source-debug/{key}/stop", {})
+        self.assertEqual(stopped["status"], "stopped")
+        self.assertEqual(stopped["pc"], step["pc"])
+        reset = self.request(f"/api/source-debug/{key}/reset", {})
+        self.assertEqual(reset, first)
+        done = self.request(f"/api/source-debug/{key}/continue", {})
+        self.assertEqual(done["status"], "done")
+        self.assertEqual(done["result"], ["10"])
+        self.assertEqual(done["outputs"], {"c": 10})
+        other = self.request(f'/api/source-debug/{second["id"]}/continue', {})
+        self.assertEqual(other["result"], ["0"])
+        self.assertEqual(self.request("/api/catalog")["datasets"], [])
+        self.assertEqual(self.request(f"/api/source-debug/{key}/close", {})["status"], "closed")
+        with self.assertRaises(HTTPError) as caught:
+            self.request(f"/api/source-debug/{key}/step", {})
+        caught.exception.close()
+
+    def test_source_debug_limits_compile_errors_and_session_cap(self):
+        from test_program_debug import PORTS
+        obj = {"interface": PORTS, "x": 3, "program": {"version": 1,
+               "source": 'label("loop")\ngoto("loop")\nreturn 0', "limits": {"steps": 1000}}}
+        first = self.request("/api/source-debug/start", obj)
+        key = first["id"]
+        state = self.request(f"/api/source-debug/{key}/continue", {})
+        self.assertEqual(state["instructions"], 100)
+        self.assertEqual(state["status"], "paused")
+        self.assertEqual(self.request(f"/api/source-debug/{key}/stop", {})["status"], "stopped")
+        for _ in range(10):
+            state = self.request(f"/api/source-debug/{key}/continue", {})
+            if state["status"] == "failed": break
+        self.assertEqual(state["status"], "failed")
+        self.assertIn("Anweisungsbudget", state["error"])
+        with self.assertRaises(HTTPError) as caught:
+            self.request("/api/source-debug/start", {**obj, "program": {"version": 1, "source": 'goto("missing")\nreturn 0'}})
+        caught.exception.close()
+        for _ in range(32):
+            latest = self.request("/api/source-debug/start", {**obj, "program": {"version": 1, "source": "return n"}})
+        with self.assertRaises(HTTPError) as caught:
+            self.request(f"/api/source-debug/{key}/reset", {})
+        caught.exception.close()
+        self.assertEqual(self.request(f'/api/source-debug/{latest["id"]}/continue', {})["result"], ["3"])
+
     def test_contradiction_and_origin_rejected(self):
         for obj, headers in (({"name": "bad", "inputs": 1, "outputs": 1, "rows": [[0, 0], [0, 1]]}, {}),
                              ({}, {"Origin": "https://foreign.invalid"})):

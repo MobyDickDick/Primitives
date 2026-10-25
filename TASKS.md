@@ -13,7 +13,7 @@ Die Kennungen sind Dokumentationskennungen; GitHub-Issues wurden noch nicht ange
 - [x] [PRIM-05: Wiederverwendbare Unterprogramm-Bausteine](docs/ERWEITERUNGEN.md#prim-05).
 - [x] [PRIM-06: Unterprogramm-Boxen und interaktives Debugging](docs/ERWEITERUNGEN.md#prim-06).
 - [x] [PRIM-07: Mehrschrittige Programme mit if/else, while und for](docs/ERWEITERUNGEN.md#prim-07).
-- [ ] [PRIM-08: Labels, Sprungbefehle und Ablaufdebugger](docs/ERWEITERUNGEN.md#prim-08).
+- [x] [PRIM-08: Labels, Sprungbefehle und Ablaufdebugger](docs/ERWEITERUNGEN.md#prim-08).
 
 ## Etappe 1 – lauffähige Spielwiese
 
@@ -71,7 +71,8 @@ Die Kennungen sind Dokumentationskennungen; GitHub-Issues wurden noch nicht ange
 - [ ] Zustandsübergänge visualisieren und mit Zähler / Toggle-Register testen.
 - [ ] Evolution auf zeitabhängige Aufgaben erweitern.
 
-Nächste Erweiterungsaufgabe: PRIM-08, Labels, Sprungbefehle und Ablaufdebugger.
+Die acht Erweiterungspakete PRIM-01 bis PRIM-08 sind umgesetzt.
+Nächster offener Entwicklungspunkt: Elternpopulation mit Turnierselektion (Etappe 2).
 Für die Suchentwicklung bleiben Suchrobustheit und unabhängige Prüfvektoren
 vor einer starken Erhöhung der Zahlbreiten empfohlen.
 

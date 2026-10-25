@@ -12,7 +12,7 @@ PRIM-01 (Zoom und Navigation), PRIM-02 (verschiebbare Leitungen) und PRIM-03
 sind ebenso wie PRIM-04 (TinyCPU-Operationsbeispiele), PRIM-05 (wiederverwendbare
 Unterprogramm-Bausteine) und PRIM-06 (Unterprogramm-Boxen und interaktives
 Debugging) sowie PRIM-07 (mehrschrittige Programme) umgesetzt.
-Als Nächstes folgt PRIM-08 mit Labels, Sprüngen und Ablaufdebugger.
+PRIM-08 ergänzt Labels, bedingte/unbedingte Sprünge und einen Ablaufdebugger.
 
 ## Mehrschrittige Programme
 
@@ -41,8 +41,17 @@ Ports und Budgets bleiben beim Wiederöffnen und Export/Import erhalten.
 
 Die erzeugten Sollvektoren können direkt für die kombinatorische NAND-Suche
 verwendet werden. [PROGRAMME.md](docs/PROGRAMME.md) beschreibt Syntax,
-Zahlensemantik, Grenzen sowie CLI/API. [Vier vollständige Beispiele](examples/programs/)
+Zahlensemantik, Grenzen sowie CLI/API. [Sechs vollständige Beispiele](examples/programs/)
 enthalten auch die editierbaren Programmquellen.
+
+Im Programmeditor öffnet **Programmablauf debuggen** einen Lauf für eine
+Testeingabe: **Start**, **Eine Programmanweisung**, **Fortsetzen**, **Stoppen** und
+**Zurücksetzen** zeigen Quellzeile, Programmzähler, Variablen und Ergebnis.
+`label("ziel")`, `goto("ziel")` sowie `jump_if(bedingung, "ziel")` erlauben Sprünge;
+`jump_zero`, `jump_nonzero` und `jump_negative` prüfen explizite Zahlenwerte.
+Die Beispiele **Summe · Rücksprung** und **Auswahl · Zero-Sprung** sind direkt
+wählbar. Budgets begrenzen auch Sprungschleifen. Einzelheiten und Blockgrenzen
+stehen in [PROGRAMME.md](docs/PROGRAMME.md#labels-und-sprünge-prim-08).
 
 ## Verschachtelte Unterprogramm-Bausteine
 

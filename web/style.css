@@ -12,3 +12,8 @@
 .content,aside{min-width:0}
 #source-program{font-size:14px;line-height:1.6;tab-size:4;white-space:pre;overflow-x:auto}#save-source-program{margin-top:15px}
 .function-entry .function-delete{margin-top:0;padding:9px;text-align:center;background:#fff1ec;border-color:#d89489;color:var(--red)}.function-entry .function-delete:hover:enabled{background:#fbe0d8;border-color:var(--red)}
+
+.source-debug-toolbar { display: flex; flex-wrap: wrap; gap: .5rem; }
+#source-debug-code { max-height: 24rem; overflow: auto; padding: .8rem; background: #f3f6f4; }
+.source-debug-current { background: #d3edb8; color: #173d25; font-weight: bold; }
+#source-debug-variables, #source-debug-result { white-space: pre-wrap; overflow-wrap: anywhere; }

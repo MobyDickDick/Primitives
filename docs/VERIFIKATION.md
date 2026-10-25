@@ -383,3 +383,41 @@ Geprüft am 25. Oktober 2026:
 
 ![Programmeditor in der schmalen Browseransicht](programme-prim07.png)
 
+
+## Labels, Sprünge und Ablaufdebugger (PRIM-08)
+
+Geprüft am 25. Oktober 2026:
+
+- `python -m unittest discover -s tests -v`: **128 Tests erfolgreich**, darunter
+  **20 HTTP-Integrationstests** und tatsächliche TinyLanguage-Läufe. Die Sandbox
+  sperrt Loopback-Verbindungen (WinError 10013); der erfolgreiche Gesamtlauf
+  erfolgte mit freigegebenen lokalen Verbindungen.
+- Sechs neue Kernprüfungen vergleichen Vorwärts-/Rückwärtssprünge und beide Pfade
+  aller vier Bedingungen auf allen 16 Eingaben mit unabhängiger Arithmetik.
+  Direkte Ausführung, Einzelschritte und 100er-Abschnitte liefern bei Sprüngen,
+  strukturierten Kontrollen und Arrays identische Ergebnisse und Budgetzähler.
+- Unbekannte/doppelte/dynamische Ziele, ungültige Syntax, nicht erlaubte
+  Blockeintritte, übersprungene Initialisierungen, For-Neustart, Ausgabeüberlauf,
+  ungültige Testeingaben, alle drei Budgets und Abbruch werden geprüft.
+  Reset stellt Variablen, Arrays und Zähler exakt wieder her; alte Snapshots
+  werden durch spätere Arrayänderungen nicht rückwirkend verändert.
+- Zwei neue HTTP-Tests prüfen Start, Schritt, Fortsetzen, Stoppen, Reset und
+  Schliessen, unabhängige Sitzungen, die Grenze von 100 Anweisungen pro Aufruf,
+  begrenzte Endlosschleifen und das Verdrängen alter Sitzungen beim 33. Start.
+  Debuggen speichert keine Datensätze. Beide neuen Beispieldateien samt Quellen
+  werden im bestehenden Archiv-/CLI-Test reproduziert.
+- `node --test tests/test_*.js`: **22 Tests erfolgreich**. Vier neue UI-Tests
+  prüfen die übernommene Quelle beim Reset, Endergebnis und Bedienzustände,
+  Stoppen während einer ausstehenden Anfrage, Netzwerkfehler und literale
+  Quelltextdarstellung. `node --check web/app.js` und
+  `git -c core.whitespace=cr-at-eol diff --check` bestehen (TinyCPU-Dokument mit CRLF).
+- Browserprüfung mit temporärer Bibliothek und deaktivierter Hintergrundsuche:
+  Sprungsumme bei n=5 liefert 10, Einzelschritt ändert PC und Variablen korrekt,
+  Reset stellt PC 0 und leere lokale Variablen wieder her. Eine laufende
+  Rücksprungschleife lässt sich stoppen und bei kleinerem Budget begrenzt beenden.
+  Ein fehlendes Label erscheint vor Ausführungsbeginn als Fehler. Zero-Auswahl
+  liefert bei n=0 den Wert 42 und bei n=5 den Wert 5. Alle 16 Vektoren wurden
+  gespeichert; Neuladen und Wiederöffnen erhalten die Quelle. Die Desktopansicht
+  wurde visuell geprüft; physische Touchbedienung wurde nicht getestet.
+
+![Sprungschleife mit Ergebnis im Ablaufdebugger](ablaufdebugger-prim08.png)

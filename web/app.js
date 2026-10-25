@@ -905,12 +905,14 @@ const sourceProgramExamples = {
   for: "s = 0\nfor i in range(n):\n    s += i\nreturn s",
   while: "s = 0\ni = 0\nwhile i < n:\n    s += i\n    i += 1\nreturn s",
   if: "if n < 8:\n    if n == 0:\n        c = 1\n    else:\n        c = n * 2\nelse:\n    c = n - 1\nreturn c",
-  bits: "# Vier Eingangsbits in umgekehrter Reihenfolge ausgeben\na = bits(n, 4)  # Index 0 ist das niederwertigste Bit\nreturn pack(a[::-1])"
+  bits: "# Vier Eingangsbits in umgekehrter Reihenfolge ausgeben\na = bits(n, 4)  # Index 0 ist das niederwertigste Bit\nreturn pack(a[::-1])",
+  jump: 's = 0\ni = 0\nlabel("loop")\njump_if(i >= n, "done")\ns += i\ni += 1\ngoto("loop")\nlabel("done")\nreturn s',
+  zero: 'jump_zero(n, "zero")\nreturn n\nlabel("zero")\nreturn 42'
 };
 function newSourceProgram() {
   state.autoName = false; $("preset").value = "custom";
   const example = $("source-program-example").value;
-  $("dataset-name").value = example === "bits" ? "Bitreihenfolge umkehren" : example === "if" ? "Auswahl mit if/else" : `Summe mit ${example}`;
+  $("dataset-name").value = example === "bits" ? "Bitreihenfolge umkehren" : example === "if" ? "Auswahl mit if/else" : example === "zero" ? "Auswahl mit Zero-Sprung" : example === "jump" ? "Summe mit Rücksprung" : `Summe mit ${example}`;
   editPorts({ inputs: [{ name: "n", bits: 4 }], outputs: [{ name: "c", bits: 8 }] });
   $("source-program").value = sourceProgramExamples[example];
   $("task-mode").value = "program"; updateDefinition();
@@ -952,6 +954,75 @@ async function generateProgramVectors(obj) {
 action("new-source-program", () => { newSourceProgram(); $("source-program").focus(); });
 action("load-source-program-example", newSourceProgram);
 action("save-source-program", saveDefinition);
+
+const sourceDebug = { id: null, source: "", running: false, busy: false, pending: null, snapshot: null, runToken: 0 };
+function sourceDebugControls() {
+  const active = sourceDebug.snapshot && ["paused", "stopped"].includes(sourceDebug.snapshot.status);
+  $("source-debug-start").disabled = sourceDebug.busy || sourceDebug.running;
+  $("source-debug-step").disabled = !active || sourceDebug.busy || sourceDebug.running;
+  $("source-debug-continue").disabled = !active || sourceDebug.busy || sourceDebug.running;
+  $("source-debug-reset").disabled = !sourceDebug.id || sourceDebug.busy || sourceDebug.running;
+  $("source-debug-stop").disabled = !sourceDebug.running;
+}
+function renderSourceDebug(snapshot) {
+  sourceDebug.snapshot = snapshot;
+  const names = { paused: "Bereit", stopped: "Gestoppt", done: "Beendet", failed: "Fehler" };
+  $("source-debug-status").textContent = `${sourceDebug.running && snapshot.status === "paused" ? "Läuft" : names[snapshot.status]} · PC ${snapshot.pc} · Zeile ${snapshot.line} · ${snapshot.operation} · ${snapshot.instructions} Programmanweisungen · ${snapshot.steps} Budgetschritte · ${snapshot.iterations} Iterationen${snapshot.error ? ` · ${snapshot.error}` : ""}`;
+  $("source-debug-code").replaceChildren(...sourceDebug.source.split("\n").map((line, index) => {
+    const row = el("span", `${index + 1 === snapshot.line ? "▶" : " "} ${String(index + 1).padStart(3)}  ${line}\n`);
+    if (index + 1 === snapshot.line) row.className = "source-debug-current";
+    return row;
+  }));
+  $("source-debug-variables").textContent = Object.entries(snapshot.variables).map(([name, value]) => `${name} = ${Array.isArray(value) ? JSON.stringify(value) : value}`).join("\n") || "–";
+  $("source-debug-result").textContent = snapshot.result ? `return ${snapshot.result.join(", ")}\n${snapshot.outputs ? `Portwerte (kodiert): ${JSON.stringify(snapshot.outputs)}` : ""}` : "–";
+  sourceDebugControls();
+}
+async function sourceDebugRequest(command) {
+  sourceDebug.busy = true; sourceDebugControls();
+  try {
+    sourceDebug.pending = api(`/api/source-debug/${sourceDebug.id}/${command}`, {});
+    const snapshot = await sourceDebug.pending;
+    renderSourceDebug(snapshot);
+    return snapshot;
+  } finally { sourceDebug.pending = null; sourceDebug.busy = false; sourceDebugControls(); }
+}
+action("source-debug-start", async () => {
+  sourceDebug.busy = true; sourceDebugControls();
+  try {
+    const source = $("source-program").value;
+    const snapshot = await api("/api/source-debug/start", {
+      interface: readPorts().spec, x: int("source-debug-input"),
+      program: { version: 1, source, limits: { steps: int("source-program-steps"),
+        iterations: int("source-program-iterations"), total_steps: int("source-program-total") } }
+    });
+    const previous = sourceDebug.id;
+    sourceDebug.id = snapshot.id; sourceDebug.source = source;
+    renderSourceDebug(snapshot);
+    if (previous) api(`/api/source-debug/${previous}/close`, {}).catch(() => {});
+  } finally { sourceDebug.busy = false; sourceDebugControls(); }
+});
+action("source-debug-step", () => sourceDebugRequest("step"));
+action("source-debug-reset", () => sourceDebugRequest("reset"));
+action("source-debug-continue", async () => {
+  const token = ++sourceDebug.runToken;
+  sourceDebug.running = true; sourceDebugControls();
+  try {
+    while (sourceDebug.running && token === sourceDebug.runToken) {
+      const snapshot = await sourceDebugRequest("continue");
+      if (["done", "failed"].includes(snapshot.status)) break;
+      await new Promise(resolve => setTimeout(resolve, 30));
+    }
+  } finally {
+    if (token === sourceDebug.runToken) sourceDebug.running = false;
+    sourceDebugControls();
+  }
+});
+action("source-debug-stop", async () => {
+  sourceDebug.runToken += 1;
+  sourceDebug.running = false;
+  if (sourceDebug.pending) await sourceDebug.pending;
+  await sourceDebugRequest("stop");
+});
 action("cancel-vectors", async () => {
   if (!state.vectorJob || state.vectorJob === "starting") return;
   const result = await api(`/api/jobs/${state.vectorJob}/cancel`, {});

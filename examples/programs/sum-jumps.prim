@@ -1,0 +1,9 @@
+s = 0
+i = 0
+label("loop")
+jump_if(i >= n, "done")
+s += i
+i += 1
+goto("loop")
+label("done")
+return s

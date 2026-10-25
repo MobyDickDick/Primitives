@@ -128,12 +128,12 @@ vorgesehen, für Programmablauf [PRIM-07/08](ERWEITERUNGEN.md#prim-07).
 | 0x1a | `XOR_ADDRESS_REGISTER` | Teiloperation: XOR als Referenz; Speicherzugriff und Akkumulator benötigen Zustand. |
 | 0x1b | `XOR_ADDRESS_REGISTER_PLUS_OFFSET` | Teiloperation: XOR als Referenz; Speicherzugriff und Akkumulator benötigen Zustand. Adressaddition entspricht ADD, mit zusätzlicher Adressprüfung. |
 | 0x1c | `NOT` | Direkt kombinatorischer Rechenkern NOT; Akkumulator und Gültigkeit bleiben Zustand. |
-| 0x1d | `JUMP_ADDRESS` | Benötigt Programmablauf (PRIM-07/08) und einen Programmzähler. |
-| 0x1e | `JUMP_ZERO` | Teiloperation: Bedingung IsZero verfügbar; PC und Gültigkeit benötigen PRIM-07/08. |
-| 0x1f | `JUMP_NOT_ZERO` | Teiloperation: Bedingung IsNonZero verfügbar; PC und Gültigkeit benötigen PRIM-07/08. |
-| 0x20 | `JUMP_NEGATIVE` | Teiloperation: Bedingung IsNegative verfügbar; PC und Gültigkeit benötigen PRIM-07/08. |
-| 0x21 | `JUMP_ERROR` | Benötigt Programmablauf (PRIM-07/08) und gespeicherte Fehlerflags. |
-| 0x22 | `JUMP_NOT_ERROR` | Benötigt Programmablauf (PRIM-07/08) und gespeicherte Fehlerflags. |
+| 0x1d | `JUMP_ADDRESS` | PRIM-08: `goto("label")` mit geprüftem Labelziel im Programmreferenz-Interpreter; keine CPU-Speicheradresse. |
+| 0x1e | `JUMP_ZERO` | PRIM-08: `jump_zero(a, "label")` prüft den expliziten Wert a = 0. |
+| 0x1f | `JUMP_NOT_ZERO` | PRIM-08: `jump_nonzero(a, "label")` prüft den expliziten Wert a ≠ 0. |
+| 0x20 | `JUMP_NEGATIVE` | PRIM-08: `jump_negative(a, "label")` prüft a < 0; kein implizites Flagregister. |
+| 0x21 | `JUMP_ERROR` | Nicht unterstützt: gespeichertes Fehlerregister fehlt. |
+| 0x22 | `JUMP_NOT_ERROR` | Nicht unterstützt: gespeichertes Fehlerregister fehlt. |
 | 0x23 | `LOAD_CONST` | Benötigt Register-/Speicherzustand und Gültigkeitsbits; erst mit Registermodell. |
 | 0x24 | `LOAD_ADDRESS` | Benötigt Register-/Speicherzustand und Gültigkeitsbits; erst mit Registermodell. |
 | 0x25 | `LOAD_ADDRESS_REGISTER` | Benötigt Register-/Speicherzustand und Gültigkeitsbits; erst mit Registermodell. |

@@ -17,12 +17,13 @@ from .runner import ROOT, search, tiny_interpreter
 from .background import BackgroundOptimizer
 from .repair import repair_result
 from .blocks import BlockBundle
-from .program import ProgramCancelled
+from .program import Program, ProgramCancelled
 
 
 def make_server(port=8765, data_dir=None, *, background=True):
     library = Library(data_dir or ROOT / "data")
     jobs, cancellations, lock = {}, {}, threading.Lock()
+    debuggers = {}
     executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="evolution")
     optimizer = BackgroundOptimizer(library, enabled=background)
 
@@ -94,7 +95,32 @@ def make_server(port=8765, data_dir=None, *, background=True):
                 path = urlsplit(self.path).path
                 if "program" in obj and any(k in obj for k in ("rows", "expression", "formula", "operation", "reference_circuit", "block")):
                     raise ValueError("Programmreferenz nicht mit anderen Referenzen oder rows kombinieren.")
-                if path == "/api/datasets":
+                if path == "/api/source-debug/start":
+                    execution = Program(obj["program"], obj["interface"]).debug(obj["x"])
+                    with lock:
+                        # Sessions are ephemeral; cap abandoned browser sessions.
+                        if len(debuggers) >= 32:
+                            debuggers.pop(next(iter(debuggers)))
+                        key = uuid.uuid4().hex
+                        debuggers[key] = execution
+                    self.send_data({"id": key, **execution.snapshot()})
+                elif path.startswith("/api/source-debug/") and len(path.split("/")) == 5:
+                    _, _, _, key, action = path.split("/")
+                    with lock:
+                        execution = debuggers[key]
+                        if action == "close":
+                            del debuggers[key]
+                            result = {"status": "closed"}
+                        elif action == "reset":
+                            result = execution.reset()
+                        elif action == "stop":
+                            result = execution.stop()
+                        elif action in ("step", "continue"):
+                            result = execution.step(1 if action == "step" else 100)
+                        else:
+                            raise ValueError("Unbekannte Debugaktion.")
+                    self.send_data({"id": key, **result})
+                elif path == "/api/datasets":
                     if "rows" in obj:
                         dataset = Dataset.from_dict(obj)
                     elif "operation" in obj:

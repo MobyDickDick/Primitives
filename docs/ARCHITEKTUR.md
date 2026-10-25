@@ -127,6 +127,15 @@ Sprachversion, Budgets und Portsemantik sind im Datensatz enthalten; die
 Evolution selbst erhält unverändert kombinatorische Bitvektoren.
 [PROGRAMME.md](PROGRAMME.md) legt Grammatik, Semantik und Schnittstellen fest.
 
+Labels und bedingte/unbedingte Sprünge werden vor dem Lauf in dieselbe
+Anweisungsliste aufgelöst. Die Prüfung verhindert Sprünge in fremde oder tiefere
+Blöcke. Ein Generator hält vor jeder internen Anweisung; direkte Ausführung
+verbraucht ihn vollständig, Debugsitzungen halten ihn samt lokalen Variablen,
+Iteratoren und Budget im Speicher. Die Debug-API führt maximal 100 Anweisungen
+je Fortsetzen-Aufruf aus. Stoppen hält den Zustand an, Reset erzeugt ihn neu.
+Höchstens 32 flüchtige Sitzungen verhindern unbegrenzte Ansammlung verlassener
+Browserläufe. Debuggen speichert keine Vektoren und verändert keine NAND-Schaltung.
+
 ## Geplante Rückkopplung
 
 Eine reine NAND-Schleife ohne Verzögerung besitzt nicht zwingend einen eindeutigen

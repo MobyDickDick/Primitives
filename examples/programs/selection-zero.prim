@@ -1,0 +1,4 @@
+jump_zero(n, "zero")
+return n
+label("zero")
+return 42

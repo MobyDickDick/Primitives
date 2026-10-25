@@ -53,7 +53,7 @@
 </aside>
 <div class="content">
 <section id="source-program-editor" class="card" hidden><div class="section-title"><h2>Mehrschrittiges Programm</h2></div>
-<label>Beispiel<select id="source-program-example"><option value="for">Summe 0 bis n−1 · for</option><option value="while">Summe 0 bis n−1 · while</option><option value="if">Auswahl · verschachteltes if/else</option><option value="bits">Bitreihenfolge umkehren · Bit-Array</option></select></label>
+<label>Beispiel<select id="source-program-example"><option value="for">Summe 0 bis n−1 · for</option><option value="while">Summe 0 bis n−1 · while</option><option value="if">Auswahl · verschachteltes if/else</option><option value="bits">Bitreihenfolge umkehren · Bit-Array</option><option value="jump">Summe · Rücksprung</option><option value="zero">Auswahl · Zero-Sprung</option></select></label>
 <button id="load-source-program-example" class="secondary">Beispiel einsetzen</button>
 <label>Programmtext · Sprachversion 1<textarea id="source-program" rows="12" spellcheck="false">s = 0
 for i in range(n):
@@ -64,6 +64,14 @@ return s</textarea></label>
 <div class="pair"><label>Anweisungsbudget je Eingabe<input id="source-program-steps" type="number" min="1" max="100000" value="10000"></label><label>Iterationsbudget je Eingabe<input id="source-program-iterations" type="number" min="1" max="100000" value="10000"></label></div>
 <label>Gesamtbudget der Vektorerzeugung<input id="source-program-total" type="number" min="1" max="5000000" value="1000000"></label>
 <div id="source-program-ports"></div>
+<details id="source-debugger"><summary>Programmablauf debuggen</summary>
+<p class="hint">Eine Anweisung ist ein Schritt der Programmreferenz. NAND-Gatterschritte im Schaltbild sind davon unabhängig. Start übernimmt Quelle, Ports und Budgets; Änderungen danach erfordern einen neuen Start.</p>
+<label>Testeingabe x (unsigned, alle Eingangsports LSB-first zusammengefasst)<input id="source-debug-input" type="number" min="0" max="4294967295" value="5"></label>
+<div class="source-debug-toolbar"><button id="source-debug-start" class="secondary">Start</button><button id="source-debug-step" disabled>Eine Programmanweisung</button><button id="source-debug-continue" disabled>Fortsetzen</button><button id="source-debug-stop" disabled>Stoppen</button><button id="source-debug-reset" disabled>Zurücksetzen</button></div>
+<p id="source-debug-status" role="status" class="hint">Noch kein Programmlauf gestartet.</p>
+<pre id="source-debug-code" aria-label="Programm mit aktueller Anweisung"></pre>
+<div class="pair"><div><h3>Variablen</h3><pre id="source-debug-variables">–</pre></div><div><h3>Ergebnis</h3><pre id="source-debug-result">–</pre></div></div>
+</details>
 <button id="save-source-program" class="primary">Programm speichern &amp; Vektoren erzeugen</button>
 <button id="cancel-vectors" class="danger" disabled>■ Vektorerzeugung abbrechen</button>
 <p id="vector-job-status" class="hint" role="status">Bereit. Ein Datensatz wird erst nach erfolgreicher vollständiger Erzeugung gespeichert.</p>

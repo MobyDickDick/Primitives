@@ -1,9 +1,10 @@
 """Versioned, bounded integer/bit-array programs. ASTs are interpreted, never executed."""
 import ast
+import copy
 import keyword
 import operator
 import re
-from .ports import decode, interface
+from .ports import decode, encode, interface
 
 
 DEFAULT_LIMITS = {"steps": 10000, "iterations": 10000, "total_steps": 1000000}
@@ -20,6 +21,7 @@ BINOPS = {ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul,
 CMP = {ast.Eq: operator.eq, ast.NotEq: operator.ne, ast.Lt: operator.lt,
        ast.LtE: operator.le, ast.Gt: operator.gt, ast.GtE: operator.ge}
 RESERVED = set(FUNCTION_ARITY) | {"range"}
+JUMPS = {"goto", "jump_if", "jump_zero", "jump_nonzero", "jump_negative"}
 
 
 class ProgramCancelled(ValueError):
@@ -60,12 +62,23 @@ class Program:
             raise ValueError("Programm ist zu komplex (höchstens 2000 Syntaxknoten).")
         self.locals = set()
         self.code = []
+        self.labels, self.references = {}, []
         self._compile(tree.body, 0)
+        for index, target, scope, node in self.references:
+            if target not in self.labels:
+                self._error(node, f"unbekanntes Label {target}.")
+            destination, target_scope = self.labels[target]
+            if scope[:len(target_scope)] != target_scope:
+                self._error(node, "Sprung darf keinen Block betreten; Ziel muss im selben oder einem umgebenden Block liegen.")
+            self.code[index][1][1] = destination
         if not any(op == "return" for op, _, _ in self.code):
             raise ValueError("Programm braucht eine return-Anweisung.")
         allowed = self.inputs | self.locals
+        commands = {id(n.value.func) for n in ast.walk(tree)
+                    if isinstance(n, ast.Expr) and isinstance(n.value, ast.Call)}
         for node in ast.walk(tree):
-            if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load) and node.id not in allowed | RESERVED:
+            if (isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load)
+                    and node.id not in allowed | RESERVED and id(node) not in commands):
                 self._error(node, f"unbekannte Variable {node.id}.")
 
     @staticmethod
@@ -129,11 +142,29 @@ class Program:
         self.code.append((op, arg, node))
         return len(self.code) - 1
 
-    def _compile(self, statements, depth):
+    def _compile(self, statements, depth, scope=()):
         if depth > 16:
             self._error(statements[0], "höchstens 16 verschachtelte Kontrollstrukturen erlaubt.")
         for node in statements:
-            if isinstance(node, ast.Assign) and len(node.targets) == 1:
+            if (isinstance(node, ast.Expr) and isinstance(node.value, ast.Call)
+                    and isinstance(node.value.func, ast.Name) and node.value.func.id in JUMPS | {"label"}):
+                call, name = node.value, node.value.func.id
+                arity = 1 if name in ("label", "goto") else 2
+                if (call.keywords or len(call.args) != arity or not isinstance(call.args[-1], ast.Constant)
+                        or not isinstance(call.args[-1].value, str)
+                        or not re.fullmatch(r"[a-zA-Z][a-zA-Z0-9_]{0,31}", call.args[-1].value)):
+                    self._error(node, 'Sprungsyntax: label("ziel"), goto("ziel") oder jump_if(bedingung, "ziel"); Label braucht einen Bezeichner.')
+                target = call.args[-1].value
+                if name == "label":
+                    if target in self.labels:
+                        self._error(node, f"doppeltes Label {target}.")
+                    self.labels[target] = (len(self.code), scope)
+                    self._emit("label", target, node)
+                else:
+                    condition = self._expr(call.args[0]) if arity == 2 else None
+                    index = self._emit("branch", [condition, None, name], node)
+                    self.references.append((index, target, scope, node))
+            elif isinstance(node, ast.Assign) and len(node.targets) == 1:
                 self._emit("assign", (self._assignment_target(node.targets[0]), self._expr(node.value)), node)
             elif isinstance(node, ast.AugAssign) and type(node.op) in BINOPS:
                 target = self._assignment_target(node.target)
@@ -148,15 +179,15 @@ class Program:
                 self._emit("return", [self._expr(v) for v in values], node)
             elif isinstance(node, ast.If):
                 branch = self._emit("test", [self._expr(node.test), None], node)
-                self._compile(node.body, depth + 1)
+                self._compile(node.body, depth + 1, scope + ((node.lineno, "body"),))
                 end = self._emit("jump", None, node)
                 self.code[branch][1][1] = len(self.code)
-                self._compile(node.orelse, depth + 1)
+                self._compile(node.orelse, depth + 1, scope + ((node.lineno, "else"),))
                 self.code[end] = ("jump", len(self.code), node)
             elif isinstance(node, ast.While) and not node.orelse:
                 start = self._emit("test", [self._expr(node.test), None], node)
                 self._emit("iteration", None, node)
-                self._compile(node.body, depth + 1)
+                self._compile(node.body, depth + 1, scope + ((node.lineno, "body"),))
                 self._emit("jump", start, node)
                 self.code[start][1][1] = len(self.code)
             elif (isinstance(node, ast.For) and not node.orelse and isinstance(node.iter, ast.Call)
@@ -165,7 +196,7 @@ class Program:
                 name = self._target(node.target)
                 init = self._emit("range", [name, [self._expr(a) for a in node.iter.args], None], node)
                 start = self._emit("next", [name, init, None], node)
-                self._compile(node.body, depth + 1)
+                self._compile(node.body, depth + 1, scope + ((node.lineno, "body"),))
                 self._emit("jump", start, node)
                 self.code[init][1][2] = start
                 self.code[start][1][2] = len(self.code)
@@ -176,6 +207,19 @@ class Program:
         return Budget(self.spec["limits"], cancel_event)
 
     def run(self, x, budget=None):
+        execution = self._execute(x, budget)
+        while True:
+            try:
+                next(execution)
+            except StopIteration as end:
+                return end.value
+
+    def debug(self, x):
+        return Execution(self, x)
+
+    def _execute(self, x, budget=None):
+        if type(x) is not int or not 0 <= x < 2 ** sum(p["bits"] for p in self.ports["inputs"]):
+            raise ValueError("Testeingabe x muss eine gültige unsigned Eingangsbitkombination sein.")
         budget = budget if budget is not None else self.budget()
         budget.start()
         env = {p["name"]: decode(x, p) for p in self.ports["inputs"]}
@@ -285,6 +329,7 @@ class Program:
         try:
             while pc < len(self.code):
                 op, arg, node = self.code[pc]
+                yield pc, env
                 budget.tick(node)
                 pc += 1
                 if op == "assign":
@@ -302,6 +347,13 @@ class Program:
                     if not scalar(value(arg[0]), arg[0]): pc = arg[1]
                 elif op == "jump":
                     pc = arg
+                elif op == "branch":
+                    condition = scalar(value(arg[0]), arg[0]) if arg[0] is not None else 1
+                    taken = condition == 0 if arg[2] == "jump_zero" else condition < 0 if arg[2] == "jump_negative" else condition != 0
+                    if taken:
+                        if arg[1] <= pc - 1:
+                            budget.iteration(node)
+                        pc = arg[1]
                 elif op == "iteration":
                     budget.iteration(node)
                 elif op == "range":
@@ -325,6 +377,62 @@ class Program:
             inputs = ', '.join(f"{p['name']}={decode(x, p)}" for p in self.ports['inputs'])
             raise ValueError(f"Eingabe x={x} ({inputs}), "
                              f"Zeile {node.lineno}, Spalte {node.col_offset + 1}: {exc}") from exc
+
+
+class Execution:
+    """One bounded execution, shared by instruction stepping and normal runs."""
+    def __init__(self, program, x):
+        self.program, self.x = program, x
+        self.reset()
+
+    def reset(self):
+        self.budget = self.program.budget()
+        self.iterator = self.program._execute(self.x, self.budget)
+        self.status, self.result, self.error = "paused", None, None
+        self.pc, self.env = next(self.iterator)
+        self.instructions = 0
+        return self.snapshot()
+
+    def step(self, count=1):
+        if type(count) is not int or not 1 <= count <= 100:
+            raise ValueError("Debugschritte pro Aufruf: 1–100.")
+        if self.status in ("done", "failed"):
+            return self.snapshot()
+        self.status = "paused"
+        for _ in range(count):
+            try:
+                self.instructions += 1
+                self.pc, self.env = next(self.iterator)
+            except StopIteration as end:
+                self.result = end.value
+                try:
+                    self.encoded = {p["name"]: encode(v, p, self.x)
+                                    for p, v in zip(self.program.ports["outputs"], self.result)}
+                    self.status = "done"
+                except ValueError as exc:
+                    self.status, self.error = "failed", str(exc)
+                break
+            except ValueError as exc:
+                self.status, self.error = "failed", str(exc)
+                break
+        return self.snapshot()
+
+    def stop(self):
+        if self.status == "paused":
+            self.status = "stopped"
+        return self.snapshot()
+
+    def snapshot(self):
+        op, _, node = self.program.code[self.pc]
+        # Copy arrays: later mutations must never change an earlier snapshot.
+        return {"status": self.status, "x": self.x, "pc": self.pc,
+                "line": node.lineno, "operation": op,
+                "source": self.program.spec["source"].splitlines()[node.lineno - 1],
+                "variables": {k: copy.deepcopy(v) if isinstance(v, list) else str(v) for k, v in self.env.items()},
+                "result": None if self.result is None else [str(v) for v in self.result],
+                "outputs": getattr(self, "encoded", None) if self.status == "done" else None,
+                "error": self.error, "instructions": self.instructions,
+                "steps": self.budget.steps, "iterations": self.budget.iterations}
 
 
 class Budget:

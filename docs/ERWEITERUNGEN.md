@@ -2,7 +2,7 @@
 
 Diese acht Arbeitspakete konkretisieren die Erweiterungswünsche vom
 25. Oktober 2026. Sie sind lokale Planungs-Issues; auf GitHub wurden noch keine
-Issues angelegt. PRIM-01 bis PRIM-07 sind umgesetzt; PRIM-08 ist offen.
+Issues angelegt. PRIM-01 bis PRIM-08 sind umgesetzt.
 
 Die Kennungen PRIM-01 bis PRIM-08 sind Dokumentationskennungen, keine GitHub-Issue-Nummern.
 
@@ -17,7 +17,7 @@ Die Kennungen PRIM-01 bis PRIM-08 sind Dokumentationskennungen, keine GitHub-Iss
 | [PRIM-05](#prim-05) | Wiederverwendbare Unterprogramm-Bausteine (umgesetzt) | 4 | PRIM-03 |
 | [PRIM-06](#prim-06) | Unterprogramm-Boxen und Debugging (umgesetzt) | 4 | PRIM-05; PRIM-01/02 berücksichtigen |
 | [PRIM-07](#prim-07) | Mehrschrittige Programme und Kontrollstrukturen (umgesetzt) | 6 | PRIM-03 |
-| [PRIM-08](#prim-08) | Sprungbefehle und Ablaufdebugger | 6 | PRIM-07 |
+| [PRIM-08](#prim-08) | Sprungbefehle und Ablaufdebugger (umgesetzt) | 6 | PRIM-07 |
 
 Empfohlene Reihenfolge: PRIM-01 → PRIM-02 für die Bedienung; danach PRIM-03 als
 Grundlage. Anschliessend können Operationsbeispiele (PRIM-04), Bausteine
@@ -372,7 +372,7 @@ Neues Parser-/Interpretermodul neben `primitives/dataset.py`, Erzeugungs-API und
 
 ## PRIM-08 – Programmmodus: Labels, Sprungbefehle und schrittweise Ausführung ergänzen
 
-**Status:** geplant, nicht implementiert.
+**Status:** umgesetzt am 25. Oktober 2026.
 
 ### Ziel
 Kurze Programme mit unbedingten und bedingten Sprüngen ermöglichen und ihren Ablauf beim Debuggen sichtbar machen.
@@ -388,10 +388,30 @@ Kurze Programme mit unbedingten und bedingten Sprüngen ermöglichen und ihren A
 - TinyCPU-Sprungbedingungen sinnvoll zuordnen: z. B. Zero/NotZero/Negative. Fehlerabhängige Sprünge setzen ein ausdrücklich modelliertes Fehlerregister voraus und werden bis dahin als nicht unterstützt ausgewiesen. Keine vollständige TinyCPU-ISA-Kompatibilität aus einer ähnlichen Syntax ableiten.
 
 ### Abnahme
-- [ ] Vorwärts-/Rückwärtssprünge sowie beide Pfade bedingter Sprünge funktionieren.
-- [ ] Unbekannte Ziele und Endlosschleifen führen zu verständlichen, begrenzten Fehlern.
-- [ ] Gesamtausführung und Einzelschritte liefern dasselbe Endergebnis.
-- [ ] Reset stellt für dieselbe Eingabe denselben Anfangszustand her.
+- [x] Vorwärts-/Rückwärtssprünge sowie beide Pfade bedingter Sprünge funktionieren.
+- [x] Unbekannte Ziele und Endlosschleifen führen zu verständlichen, begrenzten Fehlern.
+- [x] Gesamtausführung und Einzelschritte liefern dasselbe Endergebnis.
+- [x] Reset stellt für dieselbe Eingabe denselben Anfangszustand her.
+
+### Umsetzung
+
+`label("ziel")`, `goto("ziel")`, `jump_if(bedingung, "ziel")` und die
+Zahlbedingungen `jump_zero`, `jump_nonzero`, `jump_negative` erweitern
+Sprachversion 1. Vor dem Lauf werden Namen, Ziele und Blockgrenzen geprüft.
+Sprünge bleiben im selben Block oder verlassen ihn; das Einspringen in einen
+anderen Block wird abgelehnt. Rückwärtssprünge zählen gegen Schritte und Iterationen.
+
+Direkte Ausführung und Debugger verwenden dieselbe Zwischenrepräsentation und
+denselben unterbrechbaren Interpreter. Der Programmeditor bietet Start,
+Einzelschritt, Fortsetzen, Stoppen und Reset mit Quellzeile, PC, Variablen,
+Budgetzählern und Ergebnis. Die Debugquelle bleibt von späteren Editoränderungen
+unabhängig. Temporäre API-Sitzungen speichern keine Datensätze; Fortsetzen ist
+auf 100 Anweisungen pro Aufruf begrenzt. Zwei zusätzliche vollständige Beispiele
+zeigen eine Rücksprungschleife und beide Pfade einer Zero-Bedingung.
+Fehlersprünge bleiben ohne Fehlerregister ausdrücklich nicht unterstützt.
+
+Syntax und Bedienung stehen in [PROGRAMME.md](PROGRAMME.md), Prüfungen in
+[VERIFIKATION.md](VERIFIKATION.md#labels-sprünge-und-ablaufdebugger-prim-08).
 
 ### Abhängigkeiten
 [PRIM-07](#prim-07); die Befehlszuordnung ergänzt die Übernahmematrix aus [PRIM-04](#prim-04). Das in `docs/ARCHITEKTUR.md` geplante Registermodell bleibt für dauerhaft zustandsbehaftete Schaltungen erforderlich.
