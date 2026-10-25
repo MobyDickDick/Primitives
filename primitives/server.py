@@ -95,9 +95,9 @@ def make_server(port=8765, data_dir=None, *, background=True):
                     self.send_data({"circuit": circuit.to_dict(), "expressions": circuit.expressions()})
                 elif path in ("/api/layout/load", "/api/layout/save"):
                     circuit = Circuit.from_dict(obj["circuit"])
-                    positions = (library.save_layout(circuit, obj["positions"]) if path.endswith("/save")
-                                 else library.load_layout(circuit))
-                    self.send_data({"positions": positions})
+                    if path.endswith("/save"):
+                        library.save_layout(circuit, obj["positions"], obj.get("wires", {}))
+                    self.send_data(library.load_layout_data(circuit))
                 elif path == "/api/evaluate":
                     circuit = Circuit.from_dict(obj["circuit"])
                     values = circuit.wires(obj["bits"])

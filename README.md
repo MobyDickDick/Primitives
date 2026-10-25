@@ -7,7 +7,8 @@ Die [Erweiterungs-Issues](docs/ERWEITERUNGEN.md) beschreiben Zoom, verschiebbare
 Leitungen, TinyCPU-Operationsbeispiele, variable Bitbreiten, Unterprogramm-Boxen
 mit Debugging sowie mehrschrittige Programme mit Kontrollstrukturen und Sprüngen.
 Die acht Arbeitspakete enthalten Umfang, Abnahmekriterien und Abhängigkeiten.
-PRIM-01 (Zoom und Navigation) ist umgesetzt; die weiteren Aufgaben sind geplant.
+PRIM-01 (Zoom und Navigation) und PRIM-02 (verschiebbare Leitungen) sind umgesetzt;
+als Nächstes folgt PRIM-03 mit variablen Bitbreiten.
 
 ## Beispiele anpassen
 
@@ -109,7 +110,24 @@ NAND-Eingang, damit sich die beiden Zuleitungen nicht unnötig kreuzen.
 Mit **Automatisch anordnen** wird die Anordnung neu berechnet.
 Bei komplexen Schaltungen können Leitungskreuzungen weiterhin vorkommen.
 
-**Layout speichern** sichert die Positionen pro Schaltung im Datenverzeichnis
+Auch Leitungen lassen sich bearbeiten: Ein waagrechtes Segment nach oben/unten,
+ein senkrechtes nach links/rechts ziehen. Bei einer geraden Leitung entstehen
+dabei zusätzliche Knicke. Die kurzen Anschlussstücke bleiben an den Boxen fest.
+Die breite unsichtbare Trefferfläche funktioniert auch beim Zoomen. Tab wählt
+Leitungssegmente; die Pfeiltasten verschieben sie um 10, mit Shift um 40 Einheiten.
+Die beiden NAND-Eingänge bleiben auch bei gleicher Quelle getrennt bearbeitbar.
+
+Wege durch Boxen werden abgelehnt; der letzte gültige Weg bleibt erhalten.
+Beim Boxverschieben bleiben die inneren Stützpunkte an ihrem Ort und die
+Anschlussstücke werden angepasst. Ist der manuelle Weg dadurch blockiert,
+erscheint die Leitung orange gestrichelt und wird vorübergehend automatisch
+geführt. Die manuellen Stützpunkte bleiben erhalten und werden wieder verwendet,
+sobald der Weg frei ist. **Leitung zurücksetzen** oder Entf am gewählten Segment
+entfernt nur dessen manuellen Leitungsweg. **Automatisch anordnen** setzt alle
+Boxen und manuellen Leitungswege zurück. Rücksetzungen mit **Layout speichern**
+sichern, wenn sie nach erneutem Öffnen gelten sollen.
+
+**Layout speichern** sichert Boxpositionen und manuelle Leitungswege pro Schaltung im Datenverzeichnis
 des lokalen Servers. Sie werden beim erneuten Öffnen automatisch geladen und
 bleiben nach einem Serverneustart erhalten. Änderungen der Eingangswerte oder
 des Simulationsschritts verändern die Positionen nicht. Eine andere Schaltung

@@ -40,6 +40,32 @@ Geprüft am 25. Oktober 2026:
 Der Mausanker der Rad-Zoomfunktion ist durch die Geometrietests geprüft;
 eine physische Touchpad-Zoomgeste wurde nicht manuell getestet.
 
+## Manuelle Leitungswege (PRIM-02)
+
+Geprüft am 25. Oktober 2026:
+
+- `node --test tests/test_graph.js tests/test_viewport.js`: **11 Tests erfolgreich**.
+  Neue Fälle prüfen Knicke in geraden Leitungen, feste Endpunkte, stabile logische
+  Portkennungen, getrennte doppelte NAND-Eingänge, Anschlussanpassung bei
+  Boxbewegungen, Hindernisse, temporäre automatische Führung und Wiederherstellung.
+- `python -m unittest discover -s tests -v`: **46 Tests erfolgreich**, einschliesslich
+  **7 HTTP-Tests**. Neue HTTP-Fälle prüfen Leitungswege nach einem tatsächlichen
+  Serverneustart, Legacy-Layouts, getrennte Eingangskennungen und die Ablehnung
+  ungültiger Wege ohne Überschreiben des zuvor gespeicherten Layouts.
+  Wegen der Loopback-Sperre der Sandbox wurde die Python-Suite ausserhalb ausgeführt.
+- `node --check web/app.js` und `git diff --check`: erfolgreich.
+- Browserprüfung auf temporärem lokalem Server ohne Hintergrundsuche: gerade
+  Leitung bei 125 % ziehen (60 Bildschirmpixel entsprechen 48 Schaltungseinheiten),
+  per Tastatur weiter verschieben, Signal umschalten, speichern und erneut öffnen.
+  Bei etwa 71 % wurde einer von zwei NAND-Eingangsdrähten derselben Quelle
+  unabhängig verschoben (45 Pixel entsprechen rund 63,16 Einheiten). Anschliessend
+  Box verschoben und Gatterschritte durchlaufen; manuelle Wege blieben erhalten.
+  Entf sowie „Automatisch anordnen“ setzen die Wege zurück. Ein ungültiger Weg
+  durch eine Box wird mit sichtbarer Meldung abgelehnt.
+
+Maus und Tastatur wurden praktisch geprüft; Touch verwendet dieselben
+Pointer-Ereignisse, wurde aber nicht an einem Touchgerät geprüft.
+
 ## Tatsächliche Suchergebnisse
 
 Alle folgenden Programme wurden vom TinyLanguage-Backend gefunden und gegen

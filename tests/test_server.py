@@ -99,6 +99,45 @@ class ServerTests(unittest.TestCase):
             self.assertEqual(response.headers.get_content_type(), "text/javascript")
             self.assertIn(b"CircuitViewport", response.read())
 
+    def test_manual_wire_layout_restart_legacy_and_validation(self):
+        from primitives.circuit import Circuit
+        from primitives.library import Library, digest, write_json
+        circuit = {"inputs": 1, "gates": [[0, 0]], "outputs": [1]}
+        positions = [{"x": 40, "y": 150}, {"x": 330, "y": 150}, {"x": 620, "y": 150}]
+        points = [{"x": 236, "y": 150}, {"x": 260, "y": 150}, {"x": 260, "y": 132}, {"x": 330, "y": 132}]
+        wires = {"0:1:0": points, "0:1:1": [{"x": p["x"], "y": p["y"] + 36} for p in points]}
+        body = {"circuit": circuit, "positions": positions, "wires": wires}
+        saved = self.request("/api/layout/save", body)
+        self.assertEqual(saved, {"positions": positions, "wires": wires})
+        self.assertEqual(self.request("/api/layout/load", {"circuit": circuit}), saved)
+        self.assertEqual(Library(self.tmp.name).load_layout_data(Circuit.from_dict(circuit)), saved)
+        # Restart the actual HTTP server against the same directory.
+        self.server.shutdown()
+        self.server.server_close()
+        self.server.executor.shutdown()
+        self.thread.join(timeout=5)
+        self.server = make_server(0, self.tmp.name, background=False)
+        self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
+        self.thread.start()
+        self.base = f"http://127.0.0.1:{self.server.server_port}"
+        self.assertEqual(self.request("/api/layout/load", {"circuit": circuit}), saved)
+        for invalid in ([], {"0:1:2": points}, {"1:1:0": points}, {"0:1:0": []},
+                        {"0:1:0": points * 33}, {"0:1:0": [{"x": True, "y": 5}, {"x": 1, "y": 5}]},
+                        {"0:1:0": [{"x": float("inf"), "y": 5}, {"x": 1, "y": 5}]},
+                        {"0:1:0": [{"x": -1, "y": 5}, {"x": 1, "y": 5}]},
+                        {"0:1:0": [{"x": 1, "y": 5}, {"x": 2, "y": 6}]}):
+            with self.subTest(invalid=invalid):
+                with self.assertRaises(HTTPError) as caught:
+                    self.request("/api/layout/save", {**body, "wires": invalid})
+                self.assertEqual(caught.exception.code, 400)
+                caught.exception.close()
+                self.assertEqual(self.request("/api/layout/load", {"circuit": circuit}), saved)
+        # A positions-only file from schema 1 must remain loadable.
+        write_json(Library(self.tmp.name).root / "layouts" / f"{digest(circuit)}.json",
+                   {"schema": 1, "positions": positions})
+        self.assertEqual(self.request("/api/layout/load", {"circuit": circuit}), {"positions": positions, "wires": {}})
+        self.assertEqual(self.request("/api/layout/save", {"circuit": circuit, "positions": positions})["wires"], {})
+
     def test_cancel_search_and_restart(self):
         from primitives.runner import tiny_interpreter
         backends = ["python"]

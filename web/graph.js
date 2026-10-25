@@ -44,10 +44,11 @@ globalThis.CircuitGraph = (() => {
   function connections(c, positions) {
     return nodes(c).flatMap(node => {
       // NAND is commutative: the upper source always uses the upper port.
-      const sources = [...node.sources].sort((a, b) => positions[a].y - positions[b].y || a - b);
-      return sources.map((source, port) => ({ source, target: node.ref, port,
+      const sources = node.sources.map((source, port) => ({ source, port }))
+        .sort((a, b) => positions[a.source].y - positions[b.source].y || a.source - b.source || a.port - b.port);
+      return sources.map(({ source, port }, slot) => ({ source, target: node.ref, port, id: `${source}:${node.ref}:${port}`,
         start: { x: positions[source].x + width, y: positions[source].y },
-        end: { x: positions[node.ref].x, y: positions[node.ref].y + (sources.length === 2 ? (port ? 18 : -18) : 0) } }));
+        end: { x: positions[node.ref].x, y: positions[node.ref].y + (sources.length === 2 ? (slot ? 18 : -18) : 0) } }));
     });
   }
 
@@ -168,12 +169,57 @@ globalThis.CircuitGraph = (() => {
     throw new Error("Keine freie Zuleitung gefunden. Bitte die Boxen weiter auseinanderziehen.");
   }
 
-  function routes(c, positions) {
+  function validPoints(points) {
+    return Array.isArray(points) && points.length >= 2 && points.length <= 128 && points.every((p, i) =>
+      p && Number.isFinite(p.x) && Number.isFinite(p.y) && p.x >= 0 && p.y >= 0 && p.x <= 100000 && p.y <= 100000 &&
+      (!i || p.x === points[i - 1].x || p.y === points[i - 1].y));
+  }
+
+  function manualPath(edge, points) {
+    if (!validPoints(points)) return null;
+    if (!distance(edge.start, points[0]) && !distance(edge.end, points.at(-1))) return points;
+    // Keep the interior in world coordinates; only reconnect the two terminal leads.
+    const inside = points.slice(1, -1);
+    if (!inside.length) return null;
+    const start = { x: edge.start.x + 18, y: edge.start.y }, end = { x: edge.end.x - 18, y: edge.end.y };
+    return simplify([edge.start, start, { x: start.x, y: inside[0].y }, ...inside,
+      { x: end.x, y: inside.at(-1).y }, end, edge.end]);
+  }
+
+  function usablePath(edge, points, positions) {
+    if (!validPoints(points) || distance(points[0], edge.start) || distance(points.at(-1), edge.end)) return false;
+    // Leads must leave to the right and enter from the left, outside the clearance.
+    if (points[1].y !== edge.start.y || points[1].x < edge.start.x + 18 ||
+        points.at(-2).y !== edge.end.y || points.at(-2).x > edge.end.x - 18) return false;
+    const boxes = positions.map(p => ({ left: p.x, right: p.x + width, top: p.y - height / 2, bottom: p.y + height / 2 }));
+    return points.slice(1).every((p, i) => clear(points[i], p, boxes));
+  }
+
+  function moveSegment(points, index, point) {
+    let a = points[index], b = points[index + 1];
+    const vertical = a.x === b.x;
+    const prefix = points.slice(0, index + 1), suffix = points.slice(index + 1);
+    // A straight wire has no bends yet: create two while retaining terminal stubs.
+    if (!vertical && index === 0) { a = { x: a.x + 18, y: a.y }; prefix.push(a); }
+    if (!vertical && index === points.length - 2) { b = { x: b.x - 18, y: b.y }; suffix.unshift(b); }
+    const first = vertical ? { x: point.x, y: a.y } : { x: a.x, y: point.y };
+    const last = vertical ? { x: point.x, y: b.y } : { x: b.x, y: point.y };
+    return simplify([...prefix, first, last, ...suffix]);
+  }
+
+  function routes(c, positions, wires = {}) {
     const obstacles = rectangles(positions), paths = [];
     const edges = connections(c, positions);
-    edges.forEach(edge => paths.push(route(edge, obstacles,
-      paths.filter((_, i) => edges[i].source !== edge.source))));
-    return edges.map((edge, i) => ({ ...edge, points: paths[i], path: paths[i].map((p, j) => `${j ? "L" : "M"} ${p.x} ${p.y}`).join(" ") }));
+    const blocked = [];
+    edges.forEach(edge => {
+      const manual = wires[edge.id] && manualPath(edge, wires[edge.id]);
+      const usable = manual && usablePath(edge, manual, positions);
+      blocked.push(Boolean(wires[edge.id]) && !usable);
+      paths.push(usable ? manual : route(edge, obstacles, paths.filter((_, i) => edges[i].source !== edge.source)));
+    });
+    return edges.map((edge, i) => ({ ...edge, manual: Boolean(wires[edge.id]), blocked: blocked[i], points: paths[i],
+      path: paths[i].map((p, j) => `${j ? "L" : "M"} ${p.x} ${p.y}`).join(" ") }));
   }
-  return { width, height, boxName, nodes, automatic, valid, canPlace, connections, routes, rectangles, clear };
+  return { width, height, boxName, nodes, automatic, valid, canPlace, connections, routes, rectangles, clear,
+    validPoints, manualPath, usablePath, moveSegment };
 })();

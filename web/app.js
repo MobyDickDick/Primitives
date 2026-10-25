@@ -2,7 +2,7 @@
 const $ = id => document.getElementById(id);
 const state = { dataset: null, datasetId: null, result: null, bits: [], timer: null, job: null, librarySignature: null,
   positions: [], selectedRef: 0, layoutToken: 0, layoutDirty: false, routing: null, drag: null,
-  camera: null, cameraTouched: false };
+  camera: null, cameraTouched: false, wires: {}, selectedWire: null, wireNotice: "" };
 const svgNS = "http://www.w3.org/2000/svg";
 const int = id => Number($(id).value);
 const presetLabels = { mul: "MUL(2,2,4)" };
@@ -120,14 +120,15 @@ function showProgram(result) {
   stopAnimation(); state.result = result;
   const c = result.circuit;
   state.positions = CircuitGraph.automatic(c); state.selectedRef = 0;
+  state.wires = {}; state.selectedWire = null; state.wireNotice = "";
   state.layoutDirty = false; state.routing = null; state.drag = null;
   state.camera = null; state.cameraTouched = false;
   const layoutToken = ++state.layoutToken;
   $("layout-status").textContent = "Automatische Anordnung. Gespeichertes Layout wird geladen …";
-  api("/api/layout/load", { circuit: c }).then(({ positions }) => {
+  api("/api/layout/load", { circuit: c }).then(({ positions, wires = {} }) => {
     if (layoutToken !== state.layoutToken || state.layoutDirty || state.drag) return;
     if (CircuitGraph.valid(c, positions) && positions.every((p, ref) => CircuitGraph.canPlace(positions, ref, p))) {
-      state.positions = positions; state.routing = null;
+      state.positions = positions; state.wires = wires; state.routing = null;
       if (!state.cameraTouched) state.camera = null;
       renderSimulation();
       $("layout-status").textContent = "Gespeichertes Layout geladen.";
@@ -177,17 +178,33 @@ function renderSimulation() {
   $("step-label").textContent = `${step}/${c.gates.length}`;
   const graph = $("graph"), positions = state.positions, list = CircuitGraph.nodes(c);
   const focusedRef = document.activeElement?.closest?.("#graph [data-node]")?.getAttribute("data-node");
+  const focusedWire = document.activeElement?.closest?.("#graph [data-wire]");
+  const wireFocus = focusedWire && [focusedWire.getAttribute("data-wire"), focusedWire.getAttribute("data-segment")];
   graph.replaceChildren();
-  if (!state.routing) state.routing = CircuitGraph.routes(c, positions);
+  if (!state.routing) state.routing = CircuitGraph.routes(c, positions, state.wires);
   if (!state.camera) state.camera = CircuitViewport.fit(graphBounds(), graphSize());
   renderCamera();
   for (const wire of state.routing) {
     const known = ready(wire.source), bit = result.wires[wire.source];
     const path = svg("path", { d: wire.path, fill: "none", stroke: !known ? "#d8dfd4" : bit ? "#3e8c54" : "#99a8a0",
-      "stroke-width": known && bit ? 2.5 : 1.5, "stroke-linejoin": "round", class: "signal-wire", "data-source": wire.source, "data-target": wire.target });
+      "stroke-width": wire.id === state.selectedWire ? 4 : known && bit ? 2.5 : 1.5, "stroke-linejoin": "round",
+      class: `signal-wire${wire.blocked ? " blocked" : ""}${wire.id === state.selectedWire ? " selected" : ""}`,
+      "data-source": wire.source, "data-target": wire.target, "data-port": wire.port });
     path.append(svg("title", {}, `Box ${wire.source} → Box ${wire.target}: ${known ? bit : "noch nicht ausgewertet"}`));
     graph.append(path);
   }
+  // Wide hit areas keep thin wires usable at every zoom level. Boxes are painted last.
+  for (const wire of state.routing) wire.points.slice(1).forEach((b, index) => {
+    const a = wire.points[index];
+    if (a.x === b.x && a.y === b.y) return;
+    const hit = svg("path", { d: `M ${a.x} ${a.y} L ${b.x} ${b.y}`, fill: "none", stroke: "transparent",
+      "stroke-width": 14, "vector-effect": "non-scaling-stroke", "data-wire": wire.id, "data-segment": index,
+      class: `wire-hit ${a.x === b.x ? "vertical" : "horizontal"}`, tabindex: 0, role: "button",
+      "aria-label": `Leitung Box ${wire.source} zu Box ${wire.target}, Eingang ${wire.port + 1}, Segment ${index + 1}. Ziehen oder Pfeiltasten; Entf setzt die Leitung zurück.` });
+    hit.addEventListener("focus", () => { state.selectedWire = wire.id; updateWireStatus(); });
+    graph.append(hit);
+  });
+  updateWireStatus();
   const valueAt = ref => ready(ref) ? result.wires[ref] : "·";
   list.forEach(node => {
     const { ref, kind, index, sources } = node, { x, y } = positions[ref];
@@ -213,13 +230,32 @@ function renderSimulation() {
       : `Box ${selected.ref} ist Ausgang y${selected.index} und übernimmt den Wert von Box ${signal}: ${valueAt(signal)}.`;
   }
   if (focusedRef !== undefined) graph.querySelector(`[data-node="${focusedRef}"]`)?.focus({ preventScroll: true });
+  else if (wireFocus) graph.querySelector(`[data-wire="${wireFocus[0]}"][data-segment="${wireFocus[1]}"]`)?.focus({ preventScroll: true });
+}
+
+function updateWireStatus() {
+  const wire = state.routing?.find(w => w.id === state.selectedWire);
+  $("reset-wire").disabled = !wire?.manual;
+  const blocked = state.routing?.filter(w => w.blocked).length || 0;
+  $("wire-status").textContent = (wire ? `Leitung Box ${wire.source} → Box ${wire.target}, Eingang ${wire.port + 1}${wire.manual ? " · manueller Weg" : " · automatischer Weg"}. ` : "") +
+    (blocked ? `${blocked} manuelle Wege sind durch Boxen oder Anschlüsse blockiert (orange gestrichelt). Vorübergehend automatisch geführt; gespeicherte Stützpunkte bleiben erhalten.` : state.wireNotice || "Leitungssegmente quer zu ihrer Richtung ziehen. Anschlüsse bleiben fest; Wege durch Boxen werden abgelehnt.");
+}
+
+function moveWire(wire, index, original, point) {
+  const points = CircuitGraph.moveSegment(original, index, point);
+  if (!CircuitGraph.usablePath(wire, points, state.positions)) {
+    state.wireNotice = "Dieser Weg ist ungültig oder führt durch eine Box. Der letzte gültige Leitungsweg bleibt erhalten.";
+    updateWireStatus();
+    return false;
+  }
+  state.wires[wire.id] = points; layoutChanged(); renderSimulation(); return true;
 }
 
 function toggleInput(ref) {
   stopAnimation(); state.bits[ref] ^= 1; renderSimulation(); renderTable();
 }
 function layoutChanged() {
-  state.layoutDirty = true; state.routing = null;
+  state.layoutDirty = true; state.routing = null; state.wireNotice = "";
   $("layout-status").textContent = "Layout geändert · noch nicht gespeichert.";
 }
 function moveBox(ref, x, y) {
@@ -297,7 +333,18 @@ function renderHistory() {
 const graphElement = $("graph");
 graphElement.addEventListener("pointerdown", event => {
   const node = event.target.closest("[data-node]");
+  const segment = event.target.closest("[data-wire]");
   if (!state.camera || state.drag || ![0, 1].includes(event.button)) return;
+  if (segment && event.button === 0) {
+    event.preventDefault(); stopAnimation();
+    const wire = state.routing.find(w => w.id === segment.getAttribute("data-wire"));
+    state.selectedWire = wire.id; state.wireNotice = ""; segment.focus({ preventScroll: true });
+    const matrix = graphElement.getScreenCTM().inverse();
+    state.drag = { kind: "wire", wire, index: Number(segment.getAttribute("data-segment")),
+      points: wire.points.map(p => ({ ...p })), matrix, start: new DOMPoint(event.clientX, event.clientY).matrixTransform(matrix),
+      pointerId: event.pointerId, clientX: event.clientX, clientY: event.clientY, moved: false };
+    graphElement.setPointerCapture(event.pointerId); renderSimulation(); return;
+  }
   if (!node || event.button === 1) {
     event.preventDefault(); graphElement.focus({ preventScroll: true });
     state.drag = { kind: "pan", pointerId: event.pointerId, camera: { ...state.camera },
@@ -307,6 +354,7 @@ graphElement.addEventListener("pointerdown", event => {
   }
   event.preventDefault(); stopAnimation();
   const ref = Number(node.getAttribute("data-node"));
+  state.selectedWire = null;
   state.selectedRef = ref; node.focus({ preventScroll: true });
   const matrix = graphElement.getScreenCTM().inverse();
   const start = new DOMPoint(event.clientX, event.clientY).matrixTransform(matrix);
@@ -325,6 +373,13 @@ graphElement.addEventListener("pointermove", event => {
   if (Math.hypot(event.clientX - drag.clientX, event.clientY - drag.clientY) < 5 && !drag.moved) return;
   drag.moved = true;
   const point = new DOMPoint(event.clientX, event.clientY).matrixTransform(drag.matrix);
+  if (drag.kind === "wire") {
+    const a = drag.points[drag.index], b = drag.points[drag.index + 1];
+    moveWire(drag.wire, drag.index, drag.points, a.x === b.x
+      ? { x: a.x + point.x - drag.start.x, y: a.y }
+      : { x: a.x, y: a.y + point.y - drag.start.y });
+    return;
+  }
   if (moveBox(drag.ref, drag.origin.x + point.x - drag.start.x, drag.origin.y + point.y - drag.start.y)) renderSimulation();
 });
 function finishBoxDrag(event) {
@@ -334,6 +389,7 @@ function finishBoxDrag(event) {
   graphElement.classList.remove("panning");
   if (graphElement.hasPointerCapture(event.pointerId)) graphElement.releasePointerCapture(event.pointerId);
   if (drag.kind === "pan") return;
+  if (drag.kind === "wire") { renderSimulation(); return; }
   if (!drag.moved && event.type === "pointerup" && drag.ref < state.result.circuit.inputs) toggleInput(drag.ref);
   else renderSimulation();
 }
@@ -364,6 +420,19 @@ graphElement.addEventListener("keydown", event => {
     return;
   }
   const node = event.target.closest("[data-node]");
+  const segment = event.target.closest("[data-wire]");
+  if (segment) {
+    const wire = state.routing.find(w => w.id === segment.getAttribute("data-wire"));
+    state.selectedWire = wire.id;
+    if (["Delete", "Backspace"].includes(event.key)) { event.preventDefault(); resetWire(); }
+    else if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) {
+      event.preventDefault(); stopAnimation();
+      const index = Number(segment.getAttribute("data-segment")), a = wire.points[index], delta = event.shiftKey ? 40 : 10;
+      moveWire(wire, index, wire.points, { x: a.x + (event.key === "ArrowRight" ? delta : event.key === "ArrowLeft" ? -delta : 0),
+        y: a.y + (event.key === "ArrowDown" ? delta : event.key === "ArrowUp" ? -delta : 0) });
+    }
+    return;
+  }
   if (!node) {
     if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) {
       event.preventDefault();
@@ -389,19 +458,27 @@ graphElement.addEventListener("keydown", event => {
 action("save-layout", async () => {
   const token = state.layoutToken, circuit = state.result.circuit;
   const positions = state.positions.map(p => ({ ...p }));
+  const wires = JSON.parse(JSON.stringify(state.wires));
   $("save-layout").disabled = true;
   try {
-    await api("/api/layout/save", { circuit, positions });
+    await api("/api/layout/save", { circuit, positions, wires });
     if (token !== state.layoutToken) return;
-    state.layoutDirty = JSON.stringify(positions) !== JSON.stringify(state.positions);
+    state.layoutDirty = JSON.stringify(positions) !== JSON.stringify(state.positions) || JSON.stringify(wires) !== JSON.stringify(state.wires);
     $("layout-status").textContent = state.layoutDirty ? "Layout gespeichert. Weitere Änderungen sind noch nicht gespeichert." : "Layout gespeichert · wird beim Öffnen dieser Schaltung wiederhergestellt.";
   } finally { $("save-layout").disabled = false; }
 });
 action("auto-layout", () => {
   stopAnimation(); state.positions = CircuitGraph.automatic(state.result.circuit);
+  state.wires = {}; state.selectedWire = null;
   state.camera = null; state.cameraTouched = false;
   layoutChanged(); renderSimulation();
 });
+
+function resetWire() {
+  if (!state.selectedWire || !state.wires[state.selectedWire]) return;
+  delete state.wires[state.selectedWire]; layoutChanged(); renderSimulation();
+}
+action("reset-wire", resetWire);
 
 action("generate", () => setDataset({ name: $("dataset-name").value, inputs: int("inputs"), outputs: int("outputs"), expression: $("expression").value, samples: int("samples"), seed: int("seed") }));
 action("import-rows", () => setDataset({ name: $("dataset-name").value, inputs: int("inputs"), outputs: int("outputs"), rows: JSON.parse($("raw-rows").value) }));

@@ -78,11 +78,17 @@ class Library:
         return Dataset.from_dict(json.loads((self.root / "datasets" / f"{key}.json").read_text(encoding="utf-8")))
 
     def load_layout(self, circuit):
+        return self.load_layout_data(circuit)["positions"]
+
+    def load_layout_data(self, circuit):
         path = self.root / "layouts" / f"{digest(circuit.to_dict())}.json"
         with self._lock:
-            return json.loads(path.read_text(encoding="utf-8"))["positions"] if path.exists() else None
+            if not path.exists():
+                return {"positions": None, "wires": {}}
+            data = json.loads(path.read_text(encoding="utf-8"))
+            return {"positions": data["positions"], "wires": data.get("wires", {})}
 
-    def save_layout(self, circuit, positions):
+    def save_layout(self, circuit, positions, wires=None):
         count = circuit.inputs + len(circuit.gates) + len(circuit.outputs)
         if not isinstance(positions, list) or len(positions) != count:
             raise ValueError("Für jede Box wird eine Position benötigt.")
@@ -93,9 +99,29 @@ class Library:
                            or not 0 <= point[k] <= 100000 for k in ("x", "y"))):
                 raise ValueError("Ungültige Boxposition.")
             cleaned.append({"x": point["x"], "y": point["y"]})
+        # Logical input indices are stable even when the renderer swaps visual ports.
+        connections = {f"{source}:{circuit.inputs + i}:{port}"
+                       for i, sources in enumerate(circuit.gates) for port, source in enumerate(sources)}
+        connections.update(f"{source}:{circuit.inputs + len(circuit.gates) + i}:0"
+                           for i, source in enumerate(circuit.outputs))
+        wires = {} if wires is None else wires
+        if not isinstance(wires, dict) or not set(wires) <= connections:
+            raise ValueError("Ungültige Leitungskennung.")
+        cleaned_wires = {}
+        for key, points in wires.items():
+            if not isinstance(points, list) or not 2 <= len(points) <= 128:
+                raise ValueError("Eine Leitung benötigt 2–128 Stützpunkte.")
+            for i, point in enumerate(points):
+                if (not isinstance(point, dict) or set(point) != {"x", "y"}
+                        or any(type(point[k]) not in (int, float) or not math.isfinite(point[k])
+                               or not 0 <= point[k] <= 100000 for k in ("x", "y"))):
+                    raise ValueError("Ungültiger Leitungsstützpunkt.")
+                if i and point["x"] != points[i - 1]["x"] and point["y"] != points[i - 1]["y"]:
+                    raise ValueError("Leitungssegmente müssen waagrecht oder senkrecht sein.")
+            cleaned_wires[key] = [{"x": p["x"], "y": p["y"]} for p in points]
         with self._lock:
             write_json(self.root / "layouts" / f"{digest(circuit.to_dict())}.json",
-                       {"schema": 1, "positions": cleaned})
+                       {"schema": 2, "positions": cleaned, "wires": cleaned_wires})
         return cleaned
 
     @staticmethod
