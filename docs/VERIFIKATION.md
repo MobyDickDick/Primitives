@@ -3,6 +3,46 @@
 Stand: 25. Oktober 2026. Geprüft mit Python 3.14.5 und der vorhandenen
 TinyLanguage-Laufzeit unter Windows.
 
+## Funktionen löschen
+
+Geprüft am 25. Oktober 2026: **120 Python-Tests** mit
+`python -m unittest discover -s tests` erfolgreich (für lokale HTTP-Verbindungen
+ausserhalb der Sandbox). **18 JavaScript-Tests** mit `node --test tests/test_*.js`,
+`node --check web/app.js` und `git diff --check` bestehen ebenfalls.
+
+- Löschen entfernt sämtliche Stichproben/Vektorsätze und alle privaten
+  Schaltungsversionen; erneutes Laden aus einer neuen Library-Instanz bestätigt
+  die dauerhafte Entfernung. Unbekannte und ungültige Kennungen ändern keine Daten.
+- Bei identischen Zuordnungsvektoren bleibt eine gemeinsam verwendete Schaltung
+  samt älteren Versionen und Frozen-Einstellung der verbleibenden Funktion
+  zugeordnet. Separat gespeicherte Unterprogramm-Bausteine bleiben lesbar.
+- Der HTTP-Test startet einen echten Hintergrundprozess, löscht dessen Funktion
+  und prüft, dass der Prozess beendet wird und keine Daten wieder angelegt werden.
+  Fremde Browser-Ursprünge und das Löschen während eines manuellen Auftrags
+  werden abgewiesen; nach dessen Abbruch ist Löschen möglich.
+- Die JavaScript-Tests prüfen Bestätigen/Abbrechen, fehlgeschlagene Serveraufrufe,
+  den Schutz laufender Aufträge und das Leeren einer betroffenen Ansicht samt
+  deaktivierten Exporten. Eine andere geöffnete Funktion bleibt geladen.
+
+## Kommentare und Bit-Arrays im Programmeditor
+
+Geprüft am 25. Oktober 2026: **115 Python-Tests erfolgreich**
+(99 Kern-/CLI-Tests innerhalb der Sandbox, 16 HTTP-Tests separat ausserhalb
+der Sandbox, da sie lokale Socket-Verbindungen blockiert). Ausserdem bestehen
+die **13 JavaScript-Tests**, `node --check web/app.js` und `git diff --check`.
+
+- Kommentare in eigenen Zeilen und am Zeilenende bleiben im Quelltext erhalten
+  und verbrauchen keine Ausführungsschritte.
+- Bitumkehr über Arrayindizes wird für alle 16 Eingaben gegen eine unabhängige
+  Referenz geprüft; die neue archivierte Beispielquelle samt Vektoren ist reproduzierbar.
+- Literale, Wiederholungen, Verkettungen, Ausschnitte, Kopien/Referenzen,
+  Einzelbit-Zuweisungen, `bits`, `pack`, `len`, negative Zahlen und mehrere
+  Ergebnisports sind abgedeckt. Lokaler Arrayzustand bleibt je Eingabe unabhängig.
+- Ungültige Bitwerte, Typen, Indizes, Breiten und Ausschnittschritte sowie
+  übergrosse Arrays und Budgetüberschreitungen werden mit Quellort abgewiesen.
+- Der HTTP-Test erzeugt die kommentierte Bitumkehr asynchron und prüft alle
+  Vektoren sowie die unveränderte Quelle beim Import und erneuten Abruf.
+
 ## Unterprogramm-Boxen und Debugging (PRIM-06)
 
 Aktueller Gesamtstand: **94 Python-Tests** mit

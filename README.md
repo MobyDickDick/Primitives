@@ -29,6 +29,11 @@ return s
 
 Das entspricht `for (i=0; i<n; i++)` und berechnet die Summe von 0 bis n−1.
 Die Oberfläche bietet dasselbe Beispiel mit while und eine Auswahl mit if/else.
+Kommentare mit `#` sowie Bit-Arrays wie `[0, 1, 0]` oder `[0] * 4` sind erlaubt.
+Mit `bits(n, 4)` werden Zahlen in Bits zerlegt, mit `a[i]` gelesen bzw.
+`a[i] = 1` geändert und mit `pack(a)` wieder als Zahl ausgegeben.
+Index 0 ist das niederwertigste Bit. Das Editorbeispiel **Bitreihenfolge umkehren**
+beschreibt die Funktion kurz als `return pack(bits(n, 4)[::-1])`.
 Jede Eingabe startet mit frischem lokalem Zustand. Budgets begrenzen Anweisungen,
 Iterationen und die gesamte Erzeugung; **Vektorerzeugung abbrechen** stoppt den
 Auftrag. Fehler und Abbruch speichern keinen neuen Datensatz. Quelle, Sprachversion,
@@ -36,7 +41,7 @@ Ports und Budgets bleiben beim Wiederöffnen und Export/Import erhalten.
 
 Die erzeugten Sollvektoren können direkt für die kombinatorische NAND-Suche
 verwendet werden. [PROGRAMME.md](docs/PROGRAMME.md) beschreibt Syntax,
-Zahlensemantik, Grenzen sowie CLI/API. [Drei vollständige Beispiele](examples/programs/)
+Zahlensemantik, Grenzen sowie CLI/API. [Vier vollständige Beispiele](examples/programs/)
 enthalten auch die editierbaren Programmquellen.
 
 ## Verschachtelte Unterprogramm-Bausteine
@@ -136,6 +141,15 @@ ihren Parametern ab; Seed und Vektoranzahl erzeugen keine weitere Funktion.
 Vorzeichen, Überlaufregel und zusätzlicher Statusausgang unterscheiden dagegen
 Definitionen auch bei gleichen Breiten. Grössere Funktionen sind ebenso
 definiert, wenn für die Suche zunächst nur eine Stichprobe gespeichert wird.
+
+Zum Aufräumen unter **Definierte Funktionen** auf **Funktion löschen** klicken.
+Nach Bestätigung werden alle Vektorsätze dieser Funktion und ihre ausschliesslich
+zugehörigen Schaltungen einschliesslich älterer Versionen dauerhaft entfernt.
+Gemeinsam mit anderen Funktionen verwendete Schaltungen bleiben diesen zugeordnet;
+separat gespeicherte Unterprogramm-Bausteine bleiben erhalten. Die Hintergrundsuche
+wird während des Löschens gestoppt. Einen laufenden manuellen Auftrag vorher
+abwarten oder abbrechen. Eine gerade gelöschte Funktion wird auch aus der
+geöffneten Vektor-/Schaltungsansicht entfernt.
 
 Eine Schaltung öffnen und **Neue Breitenvariante** wählen. Bei bekannten
 Operationen erscheint deren parametrisierte Referenz, bei eigenen Ausdrücken

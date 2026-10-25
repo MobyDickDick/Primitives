@@ -107,6 +107,16 @@ def make_server(port=8765, data_dir=None, *, background=True):
                                            reference_circuit=obj.get("reference_circuit"), formula=obj.get("formula"), program=obj.get("program"))
                     key = library.save_dataset(dataset)
                     self.send_data({"id": key, "dataset": dataset.to_dict()})
+                elif path.startswith("/api/functions/") and path.endswith("/delete") and len(path.split("/")) == 5:
+                    with lock:
+                        if any(j["status"] in ("queued", "running", "cancelling") for j in jobs.values()):
+                            raise ValueError("Zum Löschen zuerst den laufenden Auftrag abwarten oder abbrechen.")
+                        optimizer.pause()
+                        try:
+                            deleted = library.delete_function(path.split("/")[-2])
+                        finally:
+                            optimizer.resume()
+                    self.send_data(deleted)
                 elif path == "/api/datasets/generate":
                     if "program" not in obj:
                         raise ValueError("Dieser Auftrag benötigt eine Programmreferenz.")
@@ -208,15 +218,16 @@ def make_server(port=8765, data_dir=None, *, background=True):
                         optimizer.cancel_task(setting["task_id"])
                     self.send_data(setting)
                 elif path == "/api/repair":
-                    old = library.load_program(obj["program_id"])
-                    dataset = library.load_dataset(old["dataset_id"])
-                    corrected = repair_result(old, dataset)
-                    if corrected is old:
-                        raise ValueError("Keine Restfallkorrektur möglich: erforderlich sind 1–4 fehlerhafte Eingaben, höchstens ein Viertel der Testfälle und maximal 512 Gatter.")
-                    corrected.pop("comparison", None)
-                    self.send_data(library.save_program(corrected, dataset))
+                    with lock:
+                        old = library.load_program(obj["program_id"])
+                        dataset = library.load_dataset(old["dataset_id"])
+                        corrected = repair_result(old, dataset)
+                        if corrected is old:
+                            raise ValueError("Keine Restfallkorrektur möglich: erforderlich sind 1–4 fehlerhafte Eingaben, höchstens ein Viertel der Testfälle und maximal 512 Gatter.")
+                        corrected.pop("comparison", None)
+                        saved = library.save_program(corrected, dataset)
+                    self.send_data(saved)
                 elif path == "/api/search":
-                    dataset = library.load_dataset(obj["dataset_id"]) if "dataset_id" in obj else Dataset.from_dict(obj["dataset"])
                     config = SearchConfig(**obj.get("config", {}))
                     config.validate()
                     if config.backend == "tiny":
@@ -224,6 +235,7 @@ def make_server(port=8765, data_dir=None, *, background=True):
                     with lock:
                         if any(j["status"] in ("queued", "running", "cancelling") for j in jobs.values()):
                             raise ValueError("Ein Auftrag läuft bereits. Bitte abwarten oder abbrechen.")
+                        dataset = library.load_dataset(obj["dataset_id"]) if "dataset_id" in obj else Dataset.from_dict(obj["dataset"])
                         key = uuid.uuid4().hex
                         jobs[key] = {"status": "queued", "started": time.monotonic()}
                         cancellations[key] = threading.Event()

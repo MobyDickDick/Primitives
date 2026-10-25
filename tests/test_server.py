@@ -3,12 +3,15 @@ import tempfile
 import threading
 import time
 import unittest
+from unittest.mock import patch
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 from primitives.server import make_server
 from primitives.runner import ROOT
 from primitives.blocks import BlockBundle
 from primitives.circuit import Circuit
+from primitives.dataset import preset
+from primitives.library import Library, function_id
 
 
 class ServerTests(unittest.TestCase):
@@ -113,6 +116,82 @@ class ServerTests(unittest.TestCase):
         self.assertEqual(job["status"], "done", job)
         self.assertTrue(job["result"]["fitness"]["verified_truth_table"])
         self.assertEqual(job["result"]["dataset_metadata"], xor["dataset"]["metadata"])
+
+    def test_bit_array_program_generation_and_roundtrip(self):
+        source = "# Bitreihenfolge umkehren\na = bits(n, 4)  # LSB-first\nreturn pack(a[::-1])"
+        obj = {"name": "Bitumkehr", "inputs": 4, "outputs": 4,
+               "interface": {"inputs": [{"name": "n", "bits": 4}], "outputs": [{"name": "c", "bits": 4}]},
+               "program": {"version": 1, "source": source}}
+        job = self.wait_job(self.request("/api/datasets/generate", obj)["job_id"])
+        self.assertEqual(job["status"], "done", job)
+        saved = job["result"]
+        ds = saved["dataset"]
+        self.assertEqual(ds["metadata"]["program"]["source"], source)
+        self.assertEqual(len(ds["rows"]), 16)
+        self.assertTrue(all(row[4:] == row[:4][::-1] for row in ds["rows"]))
+        self.assertEqual(self.request("/api/datasets", ds), saved)
+        self.assertEqual(self.request("/api/datasets/" + saved["id"]), ds)
+
+    def test_delete_function_stops_background_and_persists(self):
+        library = Library(self.tmp.name)
+        dataset = preset("and")
+        saved = library.save_program({"circuit": Circuit(2, (), (0,)).to_dict()}, dataset)
+        sample_id = library.save_dataset(preset("and", samples=2, seed=8))
+        other_id = library.save_dataset(preset("or"))
+        optimizer = self.server.optimizer
+        optimizer.enabled = True
+        optimizer._next_due = 0
+        optimizer.tick()
+        worker = optimizer._process
+        self.assertIsNotNone(worker)
+        path = f"/api/functions/{function_id(dataset)}/delete"
+        # The deletion endpoint applies the same origin checks as other mutations.
+        with self.assertRaises(HTTPError) as caught:
+            self.request(path, {}, {"Origin": "https://foreign.invalid"})
+        self.assertEqual(caught.exception.code, 400)
+        caught.exception.close()
+        deleted = self.request(path, {})
+        self.assertEqual(set(deleted["dataset_ids"]), {saved["dataset_id"], sample_id})
+        self.assertEqual(deleted["program_ids"], [saved["id"]])
+        self.assertIsNotNone(worker.poll())
+        self.assertIsNone(optimizer._process)
+        optimizer._next_due = 0
+        optimizer.tick()
+        self.assertIsNone(optimizer._process)
+        catalog = self.request("/api/catalog")
+        self.assertEqual([d["id"] for d in catalog["datasets"]], [other_id])
+        self.assertEqual(catalog["programs"], [])
+        self.assertEqual([d["id"] for d in Library(self.tmp.name).datasets()], [other_id])
+        for endpoint in ("/api/datasets/" + saved["dataset_id"], "/api/programs/" + saved["id"]):
+            with self.assertRaises(HTTPError) as caught: self.request(endpoint)
+            self.assertEqual(caught.exception.code, 404)
+            caught.exception.close()
+
+    def test_delete_function_rejects_active_job_then_allows_after_cancel(self):
+        saved = self.request("/api/datasets", preset("and").to_dict())
+        path = f"/api/functions/{function_id(preset('and'))}/delete"
+        # Hold the worker until the active-job rejection has been checked.
+        entered, release = threading.Event(), threading.Event()
+        def waiting_search(*args, **kwargs):
+            entered.set()
+            release.wait(5)
+            from primitives.evolution import check_cancelled
+            check_cancelled(kwargs["cancel_event"])
+        with patch("primitives.server.search", side_effect=waiting_search):
+            key = self.request("/api/search", {"dataset_id": saved["id"], "config": {"backend": "python"}})["job_id"]
+            try:
+                self.assertTrue(entered.wait(5))
+                with self.assertRaises(HTTPError) as caught: self.request(path, {})
+                self.assertEqual(caught.exception.code, 400)
+                self.assertIn("laufenden Auftrag", caught.exception.read().decode())
+                caught.exception.close()
+                self.assertEqual(len(self.request("/api/catalog")["datasets"]), 1)
+                self.request(f"/api/jobs/{key}/cancel", {})
+            finally:
+                release.set()
+            self.assertEqual(self.wait_job(key)["status"], "cancelled")
+        self.request(path, {})
+        self.assertEqual(self.request("/api/catalog")["datasets"], [])
 
     def test_source_program_cancel_errors_and_no_partial_datasets(self):
         ports = {"inputs": [{"name": "n", "bits": 16}], "outputs": [{"name": "c", "bits": 8}]}

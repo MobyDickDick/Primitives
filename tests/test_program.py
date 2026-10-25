@@ -78,13 +78,75 @@ class ProgramTests(unittest.TestCase):
         self.assertEqual(Program(spec("return 0 < n < 16 and not (n == 3)"), PORTS).run(3), [0])
         self.assertEqual(Program(spec("return abs(-n) if n else max(1, min(2, 3))"), PORTS).run(0), [2])
 
+    def test_comments_preserve_source_and_do_not_consume_budget(self):
+        source = "# Beschreibung: unveränderte Ausgabe\n\nreturn n  # niederwertige Bits\n# Ende\n"
+        ds = vectors(source)
+        self.assertEqual(ds.metadata["program"]["source"], source)
+        self.assertEqual(Dataset.from_dict(ds.to_dict()).metadata["program"]["source"], source)
+        self.assertEqual(Program(spec(source, steps=2), PORTS).run(9), [9])
+
+    def test_bit_arrays_all_inputs_and_fresh_state(self):
+        source = "a = bits(n, 4)\nr = [0] * len(a)\nfor i in range(len(a)):\n    r[i] = a[3-i]\nreturn pack(r)"
+        for row in vectors(source).rows:
+            n = integer(row[:4])
+            self.assertEqual(integer(row[4:]), int(f"{n:04b}"[::-1], 2))
+        p = Program(spec("a = [0, 0]\na[0] = n & 1\na[1] ^= 1\nreturn pack(a)"), PORTS)
+        self.assertEqual([p.run(n) for n in (1, 0, 1)], [[3], [2], [3]])
+
+    def test_bit_array_literals_slices_concatenation_and_aliases(self):
+        source = "a = [True, False] + 2 * [1]\nb = a\nb[1] = 1\nreturn pack(a[1:4:2]) + pack(a[::-1])"
+        self.assertEqual(Program(spec(source), PORTS).run(0), [18])
+        self.assertEqual(Program(spec("return pack([]) + len([0] * 0)"), PORTS).run(0), [0])
+        self.assertEqual(Program(spec("return pack(bits(-2, 4))"), PORTS).run(0), [14])
+        self.assertEqual(Program(spec("return pack(bits(31, 4))"), PORTS).run(0), [15])
+        self.assertEqual(Program(spec("return pack(bits(n, 128))"), PORTS).run(15), [15])
+
+    def test_bit_array_errors_are_bounded_and_located(self):
+        cases = [
+            ("return pack([2])", "nur 0 und 1"),
+            ("return pack([[0]])", "ganze Zahl"),
+            ("return n[0]", "Bit-Array erforderlich"),
+            ("a = [0]\nreturn a[1]", "Arrayindex"),
+            ("a = [0]\na[-1] = 1\nreturn 0", "Arrayindex"),
+            ("a = [0]\na[0] = 2\nreturn 0", "nur 0 und 1"),
+            ("a[0] = 1\nreturn 0", "noch nicht zugewiesen"),
+            ("return pack([0] * (2 ** 32))", "128 Bits"),
+            ("return pack([0] * -1)", "nichtnegative"),
+            ("a = [0] * 128\nreturn pack(a + [1])", "128 Bits"),
+            ("return pack(bits(n, 0))", "Bitbreite"),
+            ("return pack(bits(n, 129))", "Bitbreite"),
+            ("return pack([0][::0])", "Schritt"),
+            ("return [1]", "ganze Zahl"),
+            ("return [1] - [0]", "ganze Zahl"),
+            ("return abs([1])", "ganze Zahl"),
+            ("return len(n)", "Bit-Array erforderlich"),
+            ("if [0]:\n    return 1\nreturn 0", "ganze Zahl"),
+            ("for i in range([0]):\n    c = i\nreturn 0", "ganze Zahl"),
+        ]
+        for source, message in cases:
+            with self.subTest(source=source), self.assertRaisesRegex(ValueError, f"Eingabe x=15.*Zeile .*{message}"):
+                Program(spec(source), PORTS).run(15)
+        with self.assertRaisesRegex(ValueError, "128 Bits"):
+            Program(spec("return pack([" + ",".join(["0"] * 129) + "])"), PORTS)
+        with self.assertRaisesRegex(ValueError, "Anweisungsbudget"):
+            Program(spec("return pack(bits(n, 128))", steps=50), PORTS).run(0)
+
+    def test_bit_array_outputs_use_existing_port_rules(self):
+        ports = {"inputs": [{"name": "n", "bits": 4}],
+                 "outputs": [{"name": "lo", "bits": 2}, {"name": "hi", "bits": 2}]}
+        ds = vectors("a = bits(n, 4)\nreturn pack(a[:2]), pack(a[2:])", ports)
+        self.assertTrue(all(row[:4] == row[4:] for row in ds.rows))
+        self.assertEqual(vectors("return pack(bits(n, 4))").rows, vectors("return n").rows)
+
     def test_reject_host_access_and_invalid_syntax_before_any_execution(self):
-        for source in ("import os\nreturn 0", "return n.real", "return __import__('os')", "return [n][0]",
+        for source in ("import os\nreturn 0", "return n.real", "return __import__('os')", "return [0].append(1)",
                        "if False:\n    open('x')\nreturn 0", "return (lambda: 0)()", "return 1.5", "return 'x'",
                        "def f():\n    return 0\nreturn 0", "for i in [1,2]:\n    c = i\nreturn c",
                        "return n / 2", "return abs", "while True:\n    break\nreturn 0", "n = 1\nreturn n",
                        "return missing", "a = b = 0\nreturn a", "return 1, 2", "c = 0",
-                       "if n\n    return 1", "for i in range(1):\nreturn 0", "return n[0]"):
+                       "if n\n    return 1", "for i in range(1):\nreturn 0", "return [v for v in range(n)]",
+                       "a = [0]\na[:] = [1]\nreturn 0", "bits = 1\nreturn bits", "return bits(n)",
+                       "return pack([1], 2)", "return bits(n, width=4)"):
             with self.subTest(source=source), self.assertRaises(ValueError):
                 Program(spec(source), PORTS)
 

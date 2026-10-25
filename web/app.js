@@ -226,6 +226,27 @@ async function acceptDataset(saved) {
   renderTable();
   await refresh();
 }
+async function deleteFunction(functionId, name, count) {
+  clearError();
+  if (state.job || state.vectorJob) throw new Error("Zum Löschen zuerst den laufenden Auftrag abwarten oder abbrechen.");
+  if (!confirm(`Funktion „${name}“ wirklich löschen?\n\nAlle ${count} gespeicherten Vektorsätze und die ausschliesslich dafür gespeicherten Schaltungen werden dauerhaft gelöscht. Separat gespeicherte Bausteine bleiben erhalten.`)) return;
+  const deleted = await api(`/api/functions/${functionId}/delete`, {});
+  if (deleted.dataset_ids.includes(state.datasetId)) {
+    state.dataset = null; state.datasetId = null;
+    $("export-dataset").disabled = true;
+    $("dataset-summary").textContent = "Funktion gelöscht. Neue Vektoren erzeugen oder eine Funktion öffnen.";
+    $("table-info").textContent = "Keine Vektoren geladen.";
+  }
+  if (state.result && (deleted.program_ids.includes(state.result.id) || deleted.dataset_ids.includes(state.result.dataset_id))) {
+    stopAnimation(); state.debug = null; state.result = null; ++state.layoutToken;
+    $("block-debug").hidden = true;
+    $("program").hidden = true; $("empty").hidden = false;
+    for (const id of ["save-block-program", "export-program", "repair-program"]) $(id).disabled = true;
+  }
+  renderTable();
+  $("job-status").textContent = `Funktion „${name}“ gelöscht.`;
+  await refresh();
+}
 function renderFunctions(catalog) {
   const signature = JSON.stringify([catalog.datasets, catalog.programs.map(p => [p.id, p.dataset_id, p.task_id])]);
   if (signature === state.functionSignature) return;
@@ -274,7 +295,15 @@ function renderFunctions(catalog) {
         if (!state.job) $("job-status").textContent = `${ds.function_name} geladen · bereit für die Evolution.`;
       } catch (err) { error(err); }
     });
-    entry.append(info, button); $("functions").append(entry);
+    const remove = el("button", "Funktion löschen", "danger function-delete");
+    remove.setAttribute("aria-label", `Funktion ${first.function_name} löschen`);
+    remove.addEventListener("click", async () => {
+      remove.disabled = true;
+      try { await deleteFunction(first.function_id, first.function_name, datasets.length); }
+      catch (err) { error(err); }
+      finally { remove.disabled = false; }
+    });
+    entry.append(info, button, remove); $("functions").append(entry);
   }
 }
 async function refresh() {
@@ -875,12 +904,13 @@ async function saveDefinition() {
 const sourceProgramExamples = {
   for: "s = 0\nfor i in range(n):\n    s += i\nreturn s",
   while: "s = 0\ni = 0\nwhile i < n:\n    s += i\n    i += 1\nreturn s",
-  if: "if n < 8:\n    if n == 0:\n        c = 1\n    else:\n        c = n * 2\nelse:\n    c = n - 1\nreturn c"
+  if: "if n < 8:\n    if n == 0:\n        c = 1\n    else:\n        c = n * 2\nelse:\n    c = n - 1\nreturn c",
+  bits: "# Vier Eingangsbits in umgekehrter Reihenfolge ausgeben\na = bits(n, 4)  # Index 0 ist das niederwertigste Bit\nreturn pack(a[::-1])"
 };
 function newSourceProgram() {
   state.autoName = false; $("preset").value = "custom";
   const example = $("source-program-example").value;
-  $("dataset-name").value = example === "if" ? "Auswahl mit if/else" : `Summe mit ${example}`;
+  $("dataset-name").value = example === "bits" ? "Bitreihenfolge umkehren" : example === "if" ? "Auswahl mit if/else" : `Summe mit ${example}`;
   editPorts({ inputs: [{ name: "n", bits: 4 }], outputs: [{ name: "c", bits: 8 }] });
   $("source-program").value = sourceProgramExamples[example];
   $("task-mode").value = "program"; updateDefinition();

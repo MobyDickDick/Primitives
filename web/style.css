@@ -11,3 +11,4 @@
 .debug-panel{background:#f1f6ec;border:1px solid #c9d9bf;border-radius:8px;padding:14px;margin:0 0 18px}.debug-inputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px}.debug-inputs label{margin-bottom:6px}.debug-outputs{font:12px Consolas,monospace;line-height:1.8;margin:10px 0;overflow-wrap:anywhere}#debug-path{font-size:12px;align-self:center;overflow-wrap:anywhere}.graph-node.instance{cursor:pointer}.node-port{font:9px Consolas,monospace}
 .content,aside{min-width:0}
 #source-program{font-size:14px;line-height:1.6;tab-size:4;white-space:pre;overflow-x:auto}#save-source-program{margin-top:15px}
+.function-entry .function-delete{margin-top:0;padding:9px;text-align:center;background:#fff1ec;border-color:#d89489;color:var(--red)}.function-entry .function-delete:hover:enabled{background:#fbe0d8;border-color:var(--red)}

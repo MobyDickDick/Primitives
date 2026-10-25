@@ -6,7 +6,7 @@ from unittest.mock import patch
 from primitives.circuit import Circuit
 from primitives.dataset import Dataset, generate, preset
 from primitives.evolution import SearchConfig
-from primitives.library import Library, fitness, write_json
+from primitives.library import Library, fitness, function_id, write_json
 from primitives.runner import ROOT, search
 
 
@@ -99,6 +99,63 @@ class RetestTests(unittest.TestCase):
             result = search(self.dataset, SearchConfig(backend="python"), self.library)
         self.assertEqual(result["id"], old["id"])
         self.assertFalse(result["comparison"]["accepted"])
+
+    def test_delete_function_removes_all_samples_and_historical_programs(self):
+        old = self.save(self.approximate)
+        best = self.save(self.exact)
+        sampled = preset("and", samples=2, seed=8)
+        sample_id = self.library.save_dataset(sampled)
+        other = self.save(self.exact, preset("or"))
+        self.library.set_frozen(best["id"], True)
+        block = self.library.block_from_program(best["id"], "Bleibender Baustein")
+        deleted = self.library.delete_function(function_id(self.dataset))
+        self.assertEqual(set(deleted["dataset_ids"]), {old["dataset_id"], sample_id})
+        self.assertEqual(set(deleted["program_ids"]), {old["id"], best["id"]})
+        reloaded = Library(self.tmp.name)
+        self.assertEqual([p["id"] for p in reloaded.programs()], [other["id"]])
+        self.assertEqual([d["id"] for d in reloaded.datasets()], [other["dataset_id"]])
+        self.assertFalse(reloaded.is_frozen(best["task_id"]))
+        self.assertEqual(reloaded.load_block(block.root).to_dict(), block.to_dict())
+        for key in deleted["dataset_ids"]:
+            with self.assertRaises(FileNotFoundError): reloaded.load_dataset(key)
+        for key in deleted["program_ids"]:
+            with self.assertRaises(FileNotFoundError): reloaded.load_program(key)
+
+    def test_delete_function_preserves_circuits_shared_with_other_function(self):
+        old = self.save(self.approximate)
+        best = self.save(self.exact)
+        equivalent = generate("AND anders beschrieben", 2, 1, "x1 & x0")
+        self.assertNotEqual(function_id(self.dataset), function_id(equivalent))
+        equivalent_id = self.library.save_dataset(equivalent)
+        self.library.set_frozen(best["id"], True)
+        deleted = self.library.delete_function(function_id(self.dataset))
+        self.assertEqual(deleted["program_ids"], [])
+        reloaded = Library(self.tmp.name)
+        self.assertEqual([d["id"] for d in reloaded.datasets()], [equivalent_id])
+        for program in (old, best):
+            saved = reloaded.load_program(program["id"])
+            self.assertEqual(saved["dataset_id"], equivalent_id)
+            self.assertEqual(saved["dataset_name"], equivalent.name)
+            self.assertEqual(saved["dataset_metadata"], equivalent.metadata)
+            self.assertTrue(saved["frozen"])
+        self.assertEqual(reloaded.programs()[0]["id"], best["id"])
+        # Deleting the final reference now removes both circuit versions too.
+        deleted = reloaded.delete_function(function_id(equivalent))
+        self.assertEqual(set(deleted["program_ids"]), {old["id"], best["id"]})
+        self.assertEqual(reloaded.programs(), [])
+
+    def test_delete_function_without_circuit_and_invalid_ids(self):
+        key = self.library.save_dataset(self.dataset)
+        for invalid in ("../outside", "AND", None):
+            with self.subTest(key=invalid), self.assertRaises(ValueError):
+                self.library.delete_function(invalid)
+        with self.assertRaises(FileNotFoundError):
+            self.library.delete_function("000000000000")
+        self.assertEqual(self.library.load_dataset(key).to_dict(), self.dataset.to_dict())
+        deleted = self.library.delete_function(function_id(self.dataset))
+        self.assertEqual(deleted["dataset_ids"], [key])
+        self.assertEqual(deleted["program_ids"], [])
+        self.assertEqual(self.library.datasets(), [])
 
 
 if __name__ == "__main__":

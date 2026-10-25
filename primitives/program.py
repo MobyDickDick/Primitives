@@ -1,4 +1,4 @@
-"""Versioned, bounded integer programs. ASTs are interpreted, never executed."""
+"""Versioned, bounded integer/bit-array programs. ASTs are interpreted, never executed."""
 import ast
 import keyword
 import operator
@@ -8,15 +8,18 @@ from .ports import decode, interface
 
 DEFAULT_LIMITS = {"steps": 10000, "iterations": 10000, "total_steps": 1000000}
 MAX_LIMITS = {"steps": 100000, "iterations": 100000, "total_steps": 5000000}
+MAX_ARRAY_BITS = 128
 FUNCTIONS = {"abs": abs, "min": min, "max": max, "div": operator.floordiv,
              "mod": operator.mod, "xor": operator.xor}
+FUNCTION_ARITY = {name: 1 if name == "abs" else 2 for name in FUNCTIONS}
+FUNCTION_ARITY.update(bits=2, pack=1, len=1)
 BINOPS = {ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul,
           ast.FloorDiv: operator.floordiv, ast.Mod: operator.mod, ast.Pow: operator.pow,
           ast.BitAnd: operator.and_, ast.BitOr: operator.or_, ast.BitXor: operator.xor,
           ast.LShift: operator.lshift, ast.RShift: operator.rshift}
 CMP = {ast.Eq: operator.eq, ast.NotEq: operator.ne, ast.Lt: operator.lt,
        ast.LtE: operator.le, ast.Gt: operator.gt, ast.GtE: operator.ge}
-RESERVED = set(FUNCTIONS) | {"range"}
+RESERVED = set(FUNCTION_ARITY) | {"range"}
 
 
 class ProgramCancelled(ValueError):
@@ -42,13 +45,13 @@ def program_spec(spec):
 
 
 class Program:
-    """Small Python-style grammar: assignment, return, if/else, while, range-for."""
+    """Bounded Python-style assignments, bit arrays, return, if/else and loops."""
     def __init__(self, spec, ports):
         self.spec = program_spec(spec)
         self.ports = interface(ports)
         self.inputs = {p["name"] for p in self.ports["inputs"]}
         if RESERVED & {p["name"] for side in ("inputs", "outputs") for p in self.ports[side]}:
-            raise ValueError("range, abs, min, max, div, mod und xor sind im Programmmodus reserviert.")
+            raise ValueError("range, abs, min, max, div, mod, xor, bits, pack und len sind im Programmmodus reserviert.")
         try:
             tree = ast.parse(self.spec["source"])
         except (SyntaxError, RecursionError, ValueError) as exc:
@@ -78,6 +81,13 @@ class Program:
             self._error(node, "höchstens 64 lokale Variablen erlaubt.")
         return node.id
 
+    def _assignment_target(self, node):
+        if isinstance(node, ast.Subscript) and isinstance(node.value, ast.Name) and not isinstance(node.slice, ast.Slice):
+            self._target(node.value)
+            self._expr(node.slice)
+            return node
+        return self._target(node)
+
     def _expr(self, node, depth=0):
         if depth > 32:
             self._error(node, "Ausdruck zu tief verschachtelt.")
@@ -96,12 +106,21 @@ class Program:
             children = [node.left, *node.comparators]
         elif isinstance(node, ast.IfExp):
             children = [node.test, node.body, node.orelse]
-        elif (isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id in FUNCTIONS
-              and not node.keywords and ((node.func.id == "abs" and len(node.args) == 1)
-              or (node.func.id != "abs" and len(node.args) == 2))):
+        elif isinstance(node, ast.List):
+            if len(node.elts) > MAX_ARRAY_BITS:
+                self._error(node, "Bit-Arrays dürfen höchstens 128 Bits enthalten.")
+            children = node.elts
+        elif isinstance(node, ast.Subscript):
+            children = [node.value]
+            if isinstance(node.slice, ast.Slice):
+                children += [v for v in (node.slice.lower, node.slice.upper, node.slice.step) if v is not None]
+            else:
+                children.append(node.slice)
+        elif (isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id in FUNCTION_ARITY
+              and not node.keywords and len(node.args) == FUNCTION_ARITY[node.func.id]):
             children = node.args
         else:
-            self._error(node, "nicht erlaubter Ausdruck; nur ganze Zahlen und freigegebene Operatoren/Funktionen verwenden.")
+            self._error(node, "nicht erlaubter Ausdruck; nur ganze Zahlen, Bit-Arrays und freigegebene Operatoren/Funktionen verwenden.")
         for child in children:
             self._expr(child, depth + 1)
         return node
@@ -115,12 +134,13 @@ class Program:
             self._error(statements[0], "höchstens 16 verschachtelte Kontrollstrukturen erlaubt.")
         for node in statements:
             if isinstance(node, ast.Assign) and len(node.targets) == 1:
-                self._emit("assign", (self._target(node.targets[0]), self._expr(node.value)), node)
+                self._emit("assign", (self._assignment_target(node.targets[0]), self._expr(node.value)), node)
             elif isinstance(node, ast.AugAssign) and type(node.op) in BINOPS:
-                name = self._target(node.target)
-                expr = ast.copy_location(ast.BinOp(left=ast.copy_location(ast.Name(id=name, ctx=ast.Load()), node.target),
+                target = self._assignment_target(node.target)
+                left = ast.copy_location(ast.Name(id=target, ctx=ast.Load()), node.target) if isinstance(target, str) else target
+                expr = ast.copy_location(ast.BinOp(left=left,
                                                   op=node.op, right=node.value), node)
-                self._emit("assign", (name, self._expr(expr)), node)
+                self._emit("assign", (target, self._expr(expr)), node)
             elif isinstance(node, ast.Return) and node.value is not None:
                 values = node.value.elts if isinstance(node.value, ast.Tuple) else [node.value]
                 if len(values) != len(self.ports["outputs"]):
@@ -162,6 +182,28 @@ class Program:
         iterators = {}
         pc = 0
 
+        def scalar(result, node):
+            if type(result) not in (int, bool):
+                self._error(node, "ganze Zahl erforderlich; Bit-Arrays mit pack(a) umwandeln.")
+            return int(result)
+
+        def array(result, node):
+            if not isinstance(result, list):
+                self._error(node, "Bit-Array erforderlich; Zahlen mit bits(n, breite) umwandeln.")
+            return result
+
+        def bit(result, node):
+            result = scalar(result, node)
+            if result not in (0, 1):
+                self._error(node, "Bit-Array erlaubt nur 0 und 1.")
+            return result
+
+        def index(items, result, node):
+            result = scalar(result, node)
+            if not 0 <= result < len(items):
+                self._error(node, f"Arrayindex {result} ausserhalb 0…{len(items) - 1}.")
+            return result
+
         def value(node):
             budget.tick(node)
             if isinstance(node, ast.Constant):
@@ -172,29 +214,69 @@ class Program:
                 result = env[node.id]
             elif isinstance(node, ast.BinOp):
                 a, b = value(node.left), value(node.right)
-                if type(node.op) in (ast.Pow, ast.LShift, ast.RShift) and not 0 <= b <= 32:
-                    self._error(node, "Exponent/Schiebeweite muss zwischen 0 und 32 liegen.")
-                result = BINOPS[type(node.op)](a, b)
+                if isinstance(node.op, ast.Add) and isinstance(a, list) and isinstance(b, list):
+                    if len(a) + len(b) > MAX_ARRAY_BITS:
+                        self._error(node, "Bit-Arrays dürfen höchstens 128 Bits enthalten.")
+                    result = a + b
+                elif isinstance(node.op, ast.Mult) and (isinstance(a, list) or isinstance(b, list)):
+                    items, count = (a, b) if isinstance(a, list) else (b, a)
+                    count = scalar(count, node)
+                    if count < 0 or len(items) * count > MAX_ARRAY_BITS:
+                        self._error(node, "Arraywiederholung braucht eine nichtnegative Anzahl und höchstens 128 Bits.")
+                    result = items * count if items else []
+                else:
+                    a, b = scalar(a, node), scalar(b, node)
+                    if type(node.op) in (ast.Pow, ast.LShift, ast.RShift) and not 0 <= b <= 32:
+                        self._error(node, "Exponent/Schiebeweite muss zwischen 0 und 32 liegen.")
+                    result = BINOPS[type(node.op)](a, b)
             elif isinstance(node, ast.UnaryOp):
                 result = {ast.USub: operator.neg, ast.UAdd: operator.pos,
-                          ast.Not: operator.not_, ast.Invert: operator.invert}[type(node.op)](value(node.operand))
+                          ast.Not: operator.not_, ast.Invert: operator.invert}[type(node.op)](scalar(value(node.operand), node.operand))
             elif isinstance(node, ast.BoolOp):
-                result = bool(value(node.values[0]))
+                result = bool(scalar(value(node.values[0]), node.values[0]))
                 for child in node.values[1:]:
-                    if isinstance(node.op, ast.And): result = result and bool(value(child))
-                    else: result = result or bool(value(child))
+                    if isinstance(node.op, ast.And): result = result and bool(scalar(value(child), child))
+                    else: result = result or bool(scalar(value(child), child))
             elif isinstance(node, ast.Compare):
-                a, result = value(node.left), True
+                a, result = scalar(value(node.left), node.left), True
                 for op, child in zip(node.ops, node.comparators):
-                    b = value(child)
+                    b = scalar(value(child), child)
                     if not CMP[type(op)](a, b):
                         result = False
                         break
                     a = b
             elif isinstance(node, ast.IfExp):
-                result = value(node.body) if value(node.test) else value(node.orelse)
-            else:  # Calls have been restricted to integer functions during validation.
-                result = FUNCTIONS[node.func.id](*(value(a) for a in node.args))
+                result = value(node.body) if scalar(value(node.test), node.test) else value(node.orelse)
+            elif isinstance(node, ast.List):
+                result = [bit(value(child), child) for child in node.elts]
+            elif isinstance(node, ast.Subscript):
+                items = array(value(node.value), node.value)
+                if isinstance(node.slice, ast.Slice):
+                    parts = [scalar(value(v), v) if v is not None else None
+                             for v in (node.slice.lower, node.slice.upper, node.slice.step)]
+                    if parts[2] == 0:
+                        self._error(node, "Array-Schritt darf nicht 0 sein.")
+                    result = items[slice(*parts)]
+                else:
+                    result = items[index(items, value(node.slice), node.slice)]
+            else:  # Calls have been restricted during validation.
+                args = [value(a) for a in node.args]
+                name = node.func.id
+                if name == "bits":
+                    number, width = [scalar(a, node) for a in args]
+                    if not 1 <= width <= MAX_ARRAY_BITS:
+                        self._error(node, "Bitbreite für bits muss zwischen 1 und 128 liegen.")
+                    result = [(number >> i) & 1 for i in range(width)]
+                elif name in ("pack", "len"):
+                    items = array(args[0], node)
+                    result = len(items) if name == "len" else sum(b << i for i, b in enumerate(items))
+                else:
+                    result = FUNCTIONS[name](*(scalar(a, node) for a in args))
+            if isinstance(result, list):
+                # Charge bounded bulk work too, including copies/slices/conversions.
+                for _ in result:
+                    budget.tick(node)
+                return result
             if type(result) not in (int, bool) or abs(result) > 2**128:
                 self._error(node, "Ganzzahlergebnis überschreitet den Bereich −2^128…2^128.")
             return int(result)
@@ -206,17 +288,24 @@ class Program:
                 budget.tick(node)
                 pc += 1
                 if op == "assign":
-                    env[arg[0]] = value(arg[1])
+                    result = value(arg[1])
+                    if isinstance(arg[0], str):
+                        env[arg[0]] = result
+                    else:
+                        target = arg[0]
+                        items = array(value(target.value), target.value)
+                        i = index(items, value(target.slice), target.slice)
+                        items[i] = bit(result, target)
                 elif op == "return":
-                    return [value(v) for v in arg]
+                    return [scalar(value(v), v) for v in arg]
                 elif op == "test":
-                    if not value(arg[0]): pc = arg[1]
+                    if not scalar(value(arg[0]), arg[0]): pc = arg[1]
                 elif op == "jump":
                     pc = arg
                 elif op == "iteration":
                     budget.iteration(node)
                 elif op == "range":
-                    args = [value(a) for a in arg[1]]
+                    args = [scalar(value(a), a) for a in arg[1]]
                     start, stop, step = (0, args[0], 1) if len(args) == 1 else (*args, 1) if len(args) == 2 else args
                     if step == 0: self._error(node, "range-Schritt darf nicht 0 sein.")
                     iterators[arg[2]] = [start, stop, step]

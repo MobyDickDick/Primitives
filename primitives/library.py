@@ -89,12 +89,50 @@ class Library:
 
     def save_dataset(self, dataset):
         key = f"{slug(dataset.name)}-{digest(dataset.to_dict())}"
-        write_json(self.root / "datasets" / f"{key}.json", dataset.to_dict())
+        with self._lock:
+            write_json(self.root / "datasets" / f"{key}.json", dataset.to_dict())
         return key
 
     def load_dataset(self, key):
         self._key(key)
-        return Dataset.from_dict(json.loads((self.root / "datasets" / f"{key}.json").read_text(encoding="utf-8")))
+        with self._lock:
+            return Dataset.from_dict(json.loads((self.root / "datasets" / f"{key}.json").read_text(encoding="utf-8")))
+
+    def delete_function(self, key):
+        """Remove all vector sets and private circuits; retain shared implementations."""
+        if not isinstance(key, str) or not re.fullmatch(r"[a-f0-9]{12}", key):
+            raise ValueError("Ungültige Funktionskennung.")
+        with self._lock:
+            datasets = self.datasets()
+            removed = [d for d in datasets if d["function_id"] == key]
+            if not removed:
+                raise FileNotFoundError("Funktion nicht gefunden.")
+            dataset_ids = {d["id"] for d in removed}
+            tasks = {d["task_id"] for d in removed}
+            remaining = {d["task_id"]: d for d in datasets if d["id"] not in dataset_ids}
+            # Include historical versions, not only the winners shown in the catalog.
+            programs = [(p, self.load_program(p.stem)) for p in sorted((self.root / "programs").glob("*.json"))]
+            program_ids = []
+            for path, program in programs:
+                if program["dataset_id"] not in dataset_ids:
+                    continue
+                replacement = remaining.get(program["task_id"])
+                if replacement:
+                    # Equal assignment vectors share one implementation, even across functions.
+                    program.update(dataset_id=replacement["id"], dataset_name=replacement["name"],
+                                   dataset_metadata=replacement["metadata"])
+                    write_json(path, program)
+                else:
+                    path.unlink()
+                    program_ids.append(program["id"])
+            for dataset_id in dataset_ids:
+                (self.root / "datasets" / f"{dataset_id}.json").unlink()
+            settings = self._settings()
+            for task in tasks - remaining.keys():
+                settings.pop(task, None)
+            if (self.root / "task-settings.json").exists():
+                write_json(self.root / "task-settings.json", settings)
+            return {"function_id": key, "dataset_ids": sorted(dataset_ids), "program_ids": sorted(program_ids)}
 
     def save_block(self, bundle):
         if not isinstance(bundle, BlockBundle):
@@ -241,6 +279,10 @@ class Library:
         return {**obj, "comparison": comparison} if comparison else obj
 
     def load_program(self, key):
+        with self._lock:
+            return self._load_program(key)
+
+    def _load_program(self, key):
         self._key(key)
         obj = json.loads((self.root / "programs" / f"{key}.json").read_text(encoding="utf-8"))
         circuit = Circuit.from_dict(obj["circuit"])
@@ -280,9 +322,10 @@ class Library:
             return sorted(winners.values(), key=lambda p: p["id"])
 
     def datasets(self):
-        return [{"id": p.stem, "name": d.name, "inputs": d.inputs, "outputs": d.outputs,
-                 "count": len(d.rows), "exhaustive": d.exhaustive,
-                 "function_id": function_id(d), "task_id": task_id(d), "metadata": d.metadata,
-                 "function_name": operation_label(d.metadata["operation"]) if "operation" in d.metadata else d.name}
-                for p in sorted((self.root / "datasets").glob("*.json")) for d in [self.load_dataset(p.stem)]]
+        with self._lock:
+            return [{"id": p.stem, "name": d.name, "inputs": d.inputs, "outputs": d.outputs,
+                     "count": len(d.rows), "exhaustive": d.exhaustive,
+                     "function_id": function_id(d), "task_id": task_id(d), "metadata": d.metadata,
+                     "function_name": operation_label(d.metadata["operation"]) if "operation" in d.metadata else d.name}
+                    for p in sorted((self.root / "datasets").glob("*.json")) for d in [self.load_dataset(p.stem)]]
 

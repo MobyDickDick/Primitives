@@ -2,8 +2,9 @@
 
 **Mehrschrittiges Programm definieren** öffnet den Programmeditor. Ein- und
 Ergebnisports erhalten eigene Namen, Bitbreiten, Vorzeichen und Überlaufregeln.
-Die Beispiele **Summe for**, **Summe while** und **Auswahl if/else** lassen sich
-direkt einsetzen. **Programm speichern & Vektoren erzeugen** speichert die
+Die Beispiele **Summe for**, **Summe while**, **Auswahl if/else** und
+**Bitreihenfolge umkehren** lassen sich direkt einsetzen.
+**Programm speichern & Vektoren erzeugen** speichert die
 Funktion unter **Definierte Funktionen**, sobald alle angeforderten Eingaben
 erfolgreich berechnet sind. **Funktion öffnen** stellt Quelle, Schnittstelle,
 Budgets, Seed und Vektoranzahl wieder her. Export/Import erhält diese Daten.
@@ -19,12 +20,16 @@ Eine Programmreferenz ist sofort nutzbar, auch ohne gefundene NAND-Schaltung.
 Die Sprache verwendet Python-ähnliche Einrückung. Sie wird von einem eigenen
 Interpreter ausgeführt; es wird kein Python-Programm mit `eval` oder `exec`
 gestartet. Vier Leerzeichen pro Block sind empfohlen. Leerzeilen und
-`# Kommentare` sind erlaubt. Bezeichner beginnen mit einem ASCII-Buchstaben,
+`# Kommentare` sind erlaubt, auch am Ende einer Anweisung. Kommentare bleiben
+beim Speichern, Wiederöffnen und Export/Import im Quelltext erhalten und
+verbrauchen keine Ausführungsschritte. Bezeichner beginnen mit einem ASCII-Buchstaben,
 gefolgt von höchstens 31 Buchstaben, Ziffern oder Unterstrichen.
 
 ```text
 Anweisung    := Name = Ausdruck
+             | Name[Index] = Ausdruck  # einzelnes Bit setzen
              | Name += Ausdruck        # ebenso -=, *=, //=, %=, **=, &=, |=, ^=, <<=, >>=
+             | Name[Index] ^= Ausdruck # z. B. einzelnes Bit invertieren
              | return Ausdruck [, Ausdruck ...]
              | if Ausdruck: Block [else: Block]
              | while Ausdruck: Block
@@ -84,14 +89,14 @@ else:
 return c
 ```
 
-Die [drei Beispieltabellen](../examples/programs/) prüfen jeweils alle
+Die [vier Beispieltabellen](../examples/programs/) prüfen jeweils alle
 16 Eingaben von n[4]. Ihre `.prim`-Quellen und `interface.json` liegen daneben;
 `python tools/export_programs.py` erzeugt sie reproduzierbar neu.
 
 ## Zahlen und Ausdrücke
 
 Eingänge werden gemäss Ports unsigned oder als Zweierkomplement dekodiert.
-Lokale Werte sind ganze Zahlen im Bereich −2^128 bis 2^128; Zwischenrechnungen
+Lokale Zahlen sind ganze Zahlen im Bereich −2^128 bis 2^128; Zwischenrechnungen
 werden nicht auf die Portbreite abgeschnitten. Erst die Ausgabe wird gemäss
 Ergebnisport geprüft bzw. modulo 2^Breite abgeschnitten. LSB-first, maximal
 32 Eingangs- und 32 Ausgangsbits sowie 65536 Vektoren gelten weiterhin.
@@ -105,6 +110,8 @@ Erlaubt sind Integer-/Bool-Literale, Variablen, Klammern und:
 | Vergleiche | `==`, `!=`, `<`, `<=`, `>`, `>=`, auch verkettet |
 | Bedingungen | `and`, `or`, `not`; `a if bedingung else b` |
 | Funktionen | `abs(a)`, `min(a,b)`, `max(a,b)`, `div(a,b)`, `mod(a,b)`, `xor(a,b)` |
+| Bit-Arrays | `[0, 1]`, `[0] * n`, `a + b`, `a[i]`, `a[start:stop:step]` |
+| Arrayfunktionen | `bits(zahl, breite)`, `pack(a)`, `len(a)` |
 
 `**` bedeutet Potenz, `^` bedeutet XOR. `//` und `div` runden ab, z. B.
 −7 // 3 = −3 und −7 % 3 = 2. Das entspricht der bisherigen Ausdruckssyntax;
@@ -114,7 +121,56 @@ Boolesche Ergebnisse werden 0 oder 1, Bedingungen prüfen null/nicht null.
 `and` und `or` liefern 0/1 und werten den zweiten Operanden nur bei Bedarf aus.
 Funktionsnamen und `range` sind für Ports und lokale Namen reserviert.
 
-Nicht unterstützt sind Fliesskommazahlen, `/`, Strings, Listen, Attribute,
+### Bit-Arrays für kurze Funktionsbeschreibungen
+
+Bit-Arrays sind eindimensional und enthalten ausschliesslich 0 oder 1
+(auch `False`/`True`). Ein Array enthält höchstens 128 Bits; leere Arrays
+sind erlaubt. Literale, Wiederholungen und Verkettungen erzeugen Arrays:
+`a = [0, 1, 0]`, `a = [0] * 4`, `a + [1]`. Die Wiederholungsanzahl muss
+nichtnegativ sein; die maximale Länge wird vor dem Anlegen geprüft.
+
+`bits(n, breite)` zerlegt eine Zahl in 1–128 Bits, **LSB-first**:
+`bits(6, 4)` ergibt `[0, 1, 1, 0]`. Index 0 ist das niederwertigste Bit.
+Es werden die unteren Bits verwendet; negative Zahlen erscheinen im
+Zweierkomplement, z. B. `bits(-2, 4)` ergibt `[0, 1, 1, 1]`.
+`pack(a)` bildet die nichtnegative Zahl aus dem Array, `len(a)` dessen Länge.
+`pack([])` ist 0. Für Ergebnisports weiterhin ganze Zahlen zurückgeben:
+`return pack(a)`. Vorzeichen und Überlauf werden danach wie bisher anhand
+des Ergebnisports geprüft; `pack` interpretiert kein Vorzeichen.
+
+Einzelne Bits lassen sich mit `a[i]` lesen und mit `a[i] = 1` oder
+`a[i] ^= 1` ändern. Indizes müssen zwischen 0 und `len(a)-1` liegen;
+negative Einzelindizes sind Fehler. `b = a` verweist wie in Python auf
+dasselbe Array; `b = a[:]` erstellt eine unabhängige Kopie.
+Alle Arrays starten für jede Programmeingabe neu.
+
+Ausschnitte folgen der Python-Schreibweise: `a[1:3]` nimmt die Bits 1 und 2,
+`a[:2]` die ersten beiden Bits und `a[::-1]` kehrt die Reihenfolge um.
+Negative Ausschnittgrenzen sind erlaubt; Grenzen werden auf die Arraylänge
+begrenzt. Ein Schritt von 0 ist ungültig. Zuweisungen an ganze Ausschnitte,
+verschachtelte Arrays und Methoden wie `append` sind nicht erlaubt.
+Rechenoperatoren und Bedingungen erwarten Zahlen; Arraywerte vorher mit
+`pack(a)` oder `len(a)` umwandeln. Schleifen verwenden `range(len(a))`.
+
+Beispiel für n[4], das die Bitreihenfolge umkehrt (6 → 6, 3 → 12):
+
+```text
+# Vier Eingangsbits in umgekehrter Reihenfolge ausgeben
+a = bits(n, 4)  # Index 0 ist das niederwertigste Bit
+return pack(a[::-1])
+```
+
+Dasselbe mit einzeln gesetzten Bits:
+
+```text
+a = bits(n, 4)
+r = [0] * len(a)
+for i in range(len(a)):
+    r[i] = a[len(a) - 1 - i]
+return pack(r)
+```
+
+Nicht unterstützt sind Fliesskommazahlen, `/`, Strings, allgemeine Listen, Attribute,
 Imports, eigene Funktionen, Rekursion, I/O, `break`, `continue`, Schleifen-`else`,
 Labels und explizite Sprünge. Labels und Ablaufdebugger sind PRIM-08.
 Schleifen im Quelltext erzeugen keine Rückkopplung im NAND-Netz. Dauerhafter
@@ -135,7 +191,12 @@ betretene Schleifeniteration verbraucht zusätzlich eine Iteration. Auch
 Rückgabeausdrücke zählen mit. Höhere Bitbreiten benötigen häufig Stichproben
 oder angepasste Budgets. Eine erfolgreiche Stichprobe bleibt eine Stichprobe.
 
+Jedes Bit eines ausgewerteten Arrayergebnisses verbraucht zusätzlich einen
+Schritt, auch beim Lesen einer Arrayvariable, Kopieren oder Umwandeln mit `bits`.
+Damit zählen auch Arrayoperationen gegen die Budgets und prüfen auf Abbruch.
+
 Weitere feste Grenzen: 16000 Quellzeichen, 2000 Syntaxknoten, 64 lokale Namen,
+128 Bits je Array,
 16 verschachtelte Kontrollstrukturen und Ausdruckstiefe 32. Nicht unterstützte
 Syntax wird vor der Ausführung geprüft, auch in unerreichbaren Zweigen.
 Laufzeitfehler enthalten Eingabe x, dekodierte Portwerte und Quellzeile/-spalte;
