@@ -1,6 +1,14 @@
 # Primitives
 generate simple Programms
 
+## Geplante Erweiterungen
+
+Die [Erweiterungs-Issues](docs/ERWEITERUNGEN.md) beschreiben Zoom, verschiebbare
+Leitungen, TinyCPU-Operationsbeispiele, variable Bitbreiten, Unterprogramm-Boxen
+mit Debugging sowie mehrschrittige Programme mit Kontrollstrukturen und Sprüngen.
+Die acht Arbeitspakete enthalten Umfang, Abnahmekriterien und Abhängigkeiten.
+PRIM-01 (Zoom und Navigation) ist umgesetzt; die weiteren Aufgaben sind geplant.
+
 ## Beispiele anpassen
 
 In der Browseroberfläche eine **Vorlage** auswählen, **Name**, **Eingangsbits N**,
@@ -72,6 +80,22 @@ erneut geprüft. Eine korrigierte Stichprobe bleibt eine Stichprobe und wird nic
 als vollständige Wahrheitstabelle bezeichnet.
 
 ## Interaktives Schaltbild
+
+Das Schaltbild wird beim Öffnen vollständig eingepasst. **+** und **−** ändern
+den Zoom, **100 %** stellt die Originalgrösse her und **Alles einpassen** zeigt
+die gesamte Schaltung samt Leitungen. Der Zoombereich reicht von 0,1 % bis 400 %.
+Mit **Strg + Mausrad** oder einer Touchpad-Zoomgeste wird um den Mauszeiger
+gezoomt. Ohne Strg scrollt das Mausrad weiterhin die Seite.
+
+Zum Verschieben des Ausschnitts eine freie Fläche ziehen oder die mittlere
+Maustaste verwenden. Ist das Schaltbild selbst fokussiert, verschieben die
+Pfeiltasten den Ausschnitt; **Shift** vergrössert die Schritte. **+ / −**, **0**
+und **F** bedienen Zoom, Originalgrösse und Einpassen auch mit der Tastatur.
+Bei einer ausgewählten Box verschieben die Pfeiltasten weiterhin die Box.
+Zoom und Ausschnitt bleiben beim Umschalten von Signalen und bei Gatterschritten
+erhalten. Sie verändern die gespeicherten Boxpositionen nicht und werden beim
+Öffnen einer anderen Schaltung neu eingepasst. **Automatisch anordnen** passt
+die neue Anordnung ebenfalls ein.
 
 Alle Boxen sind eindeutig ab 0 nummeriert. Eine NAND-Box zeigt beispielsweise
 `Box 2 ⊼ Box 3`; darunter steht separat ihr berechneter Signalwert. Anklicken

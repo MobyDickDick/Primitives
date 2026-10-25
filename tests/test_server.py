@@ -95,6 +95,9 @@ class ServerTests(unittest.TestCase):
             caught.exception.close()
         with urlopen(self.base + "/graph.js") as response:
             self.assertIn(b"CircuitGraph", response.read())
+        with urlopen(self.base + "/viewport.js") as response:
+            self.assertEqual(response.headers.get_content_type(), "text/javascript")
+            self.assertIn(b"CircuitViewport", response.read())
 
     def test_cancel_search_and_restart(self):
         from primitives.runner import tiny_interpreter

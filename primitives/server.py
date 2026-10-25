@@ -58,9 +58,9 @@ def make_server(port=8765, data_dir=None, *, background=True):
                         job = dict(jobs[path.rsplit("/", 1)[1]])
                     job["elapsed_seconds"] = round(time.monotonic() - job.pop("started"), 1)
                     self.send_data(job)
-                elif path in ("/", "/app.js", "/graph.js", "/style.css"):
+                elif path in ("/", "/app.js", "/graph.js", "/viewport.js", "/style.css"):
                     name = "index.html" if path == "/" else path[1:]
-                    content_type = {"index.html": "text/html; charset=utf-8", "app.js": "text/javascript; charset=utf-8", "graph.js": "text/javascript; charset=utf-8", "style.css": "text/css; charset=utf-8"}[name]
+                    content_type = {"index.html": "text/html; charset=utf-8", "app.js": "text/javascript; charset=utf-8", "graph.js": "text/javascript; charset=utf-8", "viewport.js": "text/javascript; charset=utf-8", "style.css": "text/css; charset=utf-8"}[name]
                     self.send_data((ROOT / "web" / name).read_bytes(), content_type=content_type)
                 else:
                     self.send_data({"error": "Nicht gefunden."}, 404)

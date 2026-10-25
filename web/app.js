@@ -1,7 +1,8 @@
 "use strict";
 const $ = id => document.getElementById(id);
 const state = { dataset: null, datasetId: null, result: null, bits: [], timer: null, job: null, librarySignature: null,
-  positions: [], selectedRef: 0, layoutToken: 0, layoutDirty: false, routing: null, drag: null };
+  positions: [], selectedRef: 0, layoutToken: 0, layoutDirty: false, routing: null, drag: null,
+  camera: null, cameraTouched: false };
 const svgNS = "http://www.w3.org/2000/svg";
 const int = id => Number($(id).value);
 const presetLabels = { mul: "MUL(2,2,4)" };
@@ -120,12 +121,15 @@ function showProgram(result) {
   const c = result.circuit;
   state.positions = CircuitGraph.automatic(c); state.selectedRef = 0;
   state.layoutDirty = false; state.routing = null; state.drag = null;
+  state.camera = null; state.cameraTouched = false;
   const layoutToken = ++state.layoutToken;
   $("layout-status").textContent = "Automatische Anordnung. Gespeichertes Layout wird geladen …";
   api("/api/layout/load", { circuit: c }).then(({ positions }) => {
     if (layoutToken !== state.layoutToken || state.layoutDirty || state.drag) return;
     if (CircuitGraph.valid(c, positions) && positions.every((p, ref) => CircuitGraph.canPlace(positions, ref, p))) {
-      state.positions = positions; state.routing = null; renderSimulation();
+      state.positions = positions; state.routing = null;
+      if (!state.cameraTouched) state.camera = null;
+      renderSimulation();
       $("layout-status").textContent = "Gespeichertes Layout geladen.";
     } else $("layout-status").textContent = "Automatische Anordnung. Das Layout kann auf diesem Rechner gespeichert werden.";
   }).catch(err => {
@@ -173,14 +177,10 @@ function renderSimulation() {
   $("step-label").textContent = `${step}/${c.gates.length}`;
   const graph = $("graph"), positions = state.positions, list = CircuitGraph.nodes(c);
   const focusedRef = document.activeElement?.closest?.("#graph [data-node]")?.getAttribute("data-node");
-  const width = Math.max(600, ...positions.map(p => p.x + CircuitGraph.width + 44));
-  const height = Math.max(300, ...positions.map(p => p.y + CircuitGraph.height / 2 + 44));
   graph.replaceChildren();
-  // Keep the coordinate system stable until a drag ends.
-  if (!state.drag) {
-    graph.setAttribute("viewBox", `0 0 ${width} ${height}`); graph.setAttribute("width", width); graph.setAttribute("height", height);
-  }
   if (!state.routing) state.routing = CircuitGraph.routes(c, positions);
+  if (!state.camera) state.camera = CircuitViewport.fit(graphBounds(), graphSize());
+  renderCamera();
   for (const wire of state.routing) {
     const known = ready(wire.source), bit = result.wires[wire.source];
     const path = svg("path", { d: wire.path, fill: "none", stroke: !known ? "#d8dfd4" : bit ? "#3e8c54" : "#99a8a0",
@@ -227,6 +227,35 @@ function moveBox(ref, x, y) {
   if (!CircuitGraph.canPlace(state.positions, ref, point)) return false;
   state.positions[ref] = point; layoutChanged(); return true;
 }
+function graphSize() {
+  const rect = $("graph").getBoundingClientRect();
+  return { width: Math.max(1, rect.width), height: Math.max(1, rect.height) };
+}
+function graphBounds() {
+  const points = state.positions.flatMap(p => [{ x: p.x, y: p.y - CircuitGraph.height / 2 },
+    { x: p.x + CircuitGraph.width, y: p.y + CircuitGraph.height / 2 }]);
+  for (const wire of state.routing || []) points.push(...wire.points);
+  return { left: Math.min(...points.map(p => p.x)), right: Math.max(...points.map(p => p.x)),
+    top: Math.min(...points.map(p => p.y)), bottom: Math.max(...points.map(p => p.y)) };
+}
+function renderCamera() {
+  if (!state.camera) return;
+  const { x, y, scale } = state.camera, size = graphSize();
+  $("graph").setAttribute("viewBox", `${x - size.width / (2 * scale)} ${y - size.height / (2 * scale)} ${size.width / scale} ${size.height / scale}`);
+  $("zoom-level").textContent = `${Number((scale * 100).toFixed(scale < 0.1 ? 1 : 0))} %`;
+  $("zoom-out").disabled = scale <= CircuitViewport.minScale;
+  $("zoom-in").disabled = scale >= CircuitViewport.maxScale;
+}
+function zoomGraph(scale, point) {
+  if (!state.camera || state.drag) return;
+  state.camera = CircuitViewport.zoom(state.camera, graphSize(), scale, point);
+  state.cameraTouched = true; renderCamera();
+}
+function fitGraph() {
+  if (!state.result || state.drag) return;
+  state.camera = CircuitViewport.fit(graphBounds(), graphSize());
+  state.cameraTouched = true; renderCamera();
+}
 function renderTable() {
   $("vectors").replaceChildren();
   if (!state.dataset) return;
@@ -268,13 +297,20 @@ function renderHistory() {
 const graphElement = $("graph");
 graphElement.addEventListener("pointerdown", event => {
   const node = event.target.closest("[data-node]");
-  if (!node || event.button !== 0 || state.drag) return;
+  if (!state.camera || state.drag || ![0, 1].includes(event.button)) return;
+  if (!node || event.button === 1) {
+    event.preventDefault(); graphElement.focus({ preventScroll: true });
+    state.drag = { kind: "pan", pointerId: event.pointerId, camera: { ...state.camera },
+      clientX: event.clientX, clientY: event.clientY };
+    graphElement.classList.add("panning"); graphElement.setPointerCapture(event.pointerId);
+    return;
+  }
   event.preventDefault(); stopAnimation();
   const ref = Number(node.getAttribute("data-node"));
   state.selectedRef = ref; node.focus({ preventScroll: true });
   const matrix = graphElement.getScreenCTM().inverse();
   const start = new DOMPoint(event.clientX, event.clientY).matrixTransform(matrix);
-  state.drag = { ref, pointerId: event.pointerId, start, matrix, origin: { ...state.positions[ref] },
+  state.drag = { kind: "box", ref, pointerId: event.pointerId, start, matrix, origin: { ...state.positions[ref] },
     clientX: event.clientX, clientY: event.clientY, moved: false };
   graphElement.setPointerCapture(event.pointerId);
   renderSimulation();
@@ -282,6 +318,10 @@ graphElement.addEventListener("pointerdown", event => {
 graphElement.addEventListener("pointermove", event => {
   const drag = state.drag;
   if (!drag || event.pointerId !== drag.pointerId) return;
+  if (drag.kind === "pan") {
+    state.camera = CircuitViewport.pan(drag.camera, event.clientX - drag.clientX, event.clientY - drag.clientY);
+    state.cameraTouched = true; renderCamera(); return;
+  }
   if (Math.hypot(event.clientX - drag.clientX, event.clientY - drag.clientY) < 5 && !drag.moved) return;
   drag.moved = true;
   const point = new DOMPoint(event.clientX, event.clientY).matrixTransform(drag.matrix);
@@ -291,15 +331,50 @@ function finishBoxDrag(event) {
   const drag = state.drag;
   if (!drag || event.pointerId !== drag.pointerId) return;
   state.drag = null;
+  graphElement.classList.remove("panning");
   if (graphElement.hasPointerCapture(event.pointerId)) graphElement.releasePointerCapture(event.pointerId);
+  if (drag.kind === "pan") return;
   if (!drag.moved && event.type === "pointerup" && drag.ref < state.result.circuit.inputs) toggleInput(drag.ref);
   else renderSimulation();
 }
 graphElement.addEventListener("pointerup", finishBoxDrag);
 graphElement.addEventListener("pointercancel", finishBoxDrag);
+graphElement.addEventListener("lostpointercapture", finishBoxDrag);
+graphElement.addEventListener("auxclick", event => { if (event.button === 1) event.preventDefault(); });
+graphElement.addEventListener("wheel", event => {
+  // Leave normal scrolling to the page; Ctrl+wheel also covers trackpad pinch.
+  if (!event.ctrlKey || !state.camera) return;
+  event.preventDefault();
+  const rect = graphElement.getBoundingClientRect();
+  const delta = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? rect.height : 1);
+  zoomGraph(state.camera.scale * Math.exp(-Math.max(-300, Math.min(300, delta)) * 0.002),
+    { x: event.clientX - rect.left, y: event.clientY - rect.top });
+}, { passive: false });
+new ResizeObserver(() => renderCamera()).observe(graphElement);
+action("zoom-in", () => zoomGraph(state.camera.scale * 1.25));
+action("zoom-out", () => zoomGraph(state.camera.scale / 1.25));
+action("zoom-reset", () => zoomGraph(1));
+action("zoom-fit", fitGraph);
 graphElement.addEventListener("keydown", event => {
+  if (event.ctrlKey || event.metaKey || event.altKey || !state.camera || state.drag) return;
+  if (["+", "=", "-", "0", "f", "F"].includes(event.key)) {
+    event.preventDefault();
+    if (event.key.toLowerCase() === "f") fitGraph();
+    else zoomGraph(event.key === "0" ? 1 : state.camera.scale * (event.key === "-" ? 0.8 : 1.25));
+    return;
+  }
   const node = event.target.closest("[data-node]");
-  if (!node) return;
+  if (!node) {
+    if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) {
+      event.preventDefault();
+      const delta = event.shiftKey ? 160 : 40;
+      state.camera = CircuitViewport.pan(state.camera,
+        event.key === "ArrowRight" ? -delta : event.key === "ArrowLeft" ? delta : 0,
+        event.key === "ArrowDown" ? -delta : event.key === "ArrowUp" ? delta : 0);
+      state.cameraTouched = true; renderCamera();
+    }
+    return;
+  }
   const ref = Number(node.getAttribute("data-node"));
   if (["Enter", " "].includes(event.key)) {
     event.preventDefault(); state.selectedRef = ref;
@@ -324,6 +399,7 @@ action("save-layout", async () => {
 });
 action("auto-layout", () => {
   stopAnimation(); state.positions = CircuitGraph.automatic(state.result.circuit);
+  state.camera = null; state.cameraTouched = false;
   layoutChanged(); renderSimulation();
 });
 

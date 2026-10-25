@@ -1,5 +1,20 @@
 # Aufgabenliste
 
+## Erweiterungs-Issues vom 25. Oktober 2026
+
+Ausgearbeitete lokale Planungs-Issues mit Umfang, Abnahmekriterien und
+Abhängigkeiten stehen in [docs/ERWEITERUNGEN.md](docs/ERWEITERUNGEN.md).
+Die Kennungen sind Dokumentationskennungen; GitHub-Issues wurden noch nicht angelegt.
+
+- [x] [PRIM-01: Zoom und Navigation](docs/ERWEITERUNGEN.md#prim-01).
+- [ ] [PRIM-02: Verbindungsdrähte verschieben und speichern](docs/ERWEITERUNGEN.md#prim-02).
+- [ ] [PRIM-03: Variable Operand- und Ausgangsbitbreiten](docs/ERWEITERUNGEN.md#prim-03).
+- [ ] [PRIM-04: TinyCPU-Operationen und gängige Beispiele](docs/ERWEITERUNGEN.md#prim-04).
+- [ ] [PRIM-05: Wiederverwendbare Unterprogramm-Bausteine](docs/ERWEITERUNGEN.md#prim-05).
+- [ ] [PRIM-06: Unterprogramm-Boxen und interaktives Debugging](docs/ERWEITERUNGEN.md#prim-06).
+- [ ] [PRIM-07: Mehrschrittige Programme mit if/else, while und for](docs/ERWEITERUNGEN.md#prim-07).
+- [ ] [PRIM-08: Labels, Sprungbefehle und Ablaufdebugger](docs/ERWEITERUNGEN.md#prim-08).
+
 ## Etappe 1 – lauffähige Spielwiese
 
 - [x] Projekt starten und TinyLanguage-Eignung praktisch prüfen.

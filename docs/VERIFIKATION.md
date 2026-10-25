@@ -18,6 +18,28 @@ Laufzeit wird der entsprechende Test ausdrücklich übersprungen.
 
 `node --check web/app.js`: JavaScript-Syntaxprüfung erfolgreich.
 
+## Zoom und Navigation (PRIM-01)
+
+Geprüft am 25. Oktober 2026:
+
+- `node --test tests/test_graph.js tests/test_viewport.js`: **7 Tests erfolgreich**.
+  Neben dem bisherigen Routing prüfen sie Zoom um einen festen Mauspunkt,
+  Zoomgrenzen, Verschieben bei verschiedenen Massstäben und vollständiges
+  Einpassen breiter/hoher Schaltungen bei schmalen und breiten Ansichtsgrössen.
+- `python -m unittest discover -s tests -p test_server.py -v`: **6 Tests erfolgreich**,
+  einschliesslich Auslieferung von `viewport.js` und Layout-Persistenz. Die lokalen
+  HTTP-Tests wurden ausserhalb der Sandbox ausgeführt, da diese Loopback-Verbindungen blockiert.
+- `node --check web/app.js` und `node --check web/viewport.js`: erfolgreich.
+- Browserprüfung auf einem temporären lokalen Server ohne Hintergrundsuche:
+  Einpassen, 100 %, 125 %, Verschieben des Ausschnitts per Maus, Tastaturzoom,
+  Boxziehen bei etwa 65 % und 125 %, Signalwechsel und Gatterschritte ohne
+  Zurücksetzen der Ansicht sowie Speichern und erneutes Laden der Boxpositionen.
+  Beim Ziehen um 35 Bildschirmpixel bei 125 % bewegte sich die Box korrekt um
+  28 Schaltungskoordinaten; der Ausschnitt blieb unverändert.
+
+Der Mausanker der Rad-Zoomfunktion ist durch die Geometrietests geprüft;
+eine physische Touchpad-Zoomgeste wurde nicht manuell getestet.
+
 ## Tatsächliche Suchergebnisse
 
 Alle folgenden Programme wurden vom TinyLanguage-Backend gefunden und gegen
