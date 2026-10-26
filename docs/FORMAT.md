@@ -389,6 +389,23 @@ Die vollständigen Rechenregeln und Unterschiede zum CPU-Zustandsmodell sind in
 
 ## Mehrschrittige Programmreferenzen
 
+Zusätzlich gibt es **Sprachversion 2** mit `parameters` (konkrete
+Ganzzahlwerte), `interface` (symbolische Breiten) und optional `conditions`
+(Liste von Parameterbedingungen). `metadata.interface` bleibt die daraus
+berechnete konkrete Schnittstelle. Quelle, Parameterwerte, symbolische Ports
+und Bedingungen gehören zur Funktionsidentität; Budgets und Stichprobenauswahl
+nicht. Import und Debugstart prüfen Bedingungen und Portkonsistenz erneut.
+Eigene Funktionen verwenden `def add<w>(a,b):`, Aufrufe `add<8>(a,b)`;
+`assert` kann zusätzliche Bedingungen je Aufruf festhalten.
+
+**Abstrakte Templates** sind eigene Dokumente mit `schema: 1`,
+`kind: "template"`, `name`, `description`, `parameters` als Liste von Namen,
+symbolischer `interface`, `source`, `limits` und `conditions`.
+Sie enthalten keine konkreten Parameterwerte und keine Vektoren und werden
+separat unter `data/templates` abgelegt. Konkrete Instanzen enthalten alle
+zur Auswertung nötigen Angaben und benötigen die Template-Bibliothek nicht.
+[TEMPLATES.md](TEMPLATES.md) beschreibt Bedingungen, Beispiele und API.
+
 Optionales `metadata.program` enthält `version: 1`, `source` und die
 Ausführungsbudgets `limits.steps`, `limits.iterations`, `limits.total_steps`.
 Es benötigt `metadata.interface` mit benannten Ports und ersetzt eine

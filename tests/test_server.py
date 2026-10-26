@@ -76,6 +76,70 @@ class ServerTests(unittest.TestCase):
         self.assertGreater(state["result"]["comparison"]["candidate_fitness"]["errors"], 0)
         self.assertEqual([p["id"] for p in self.request("/api/catalog")["programs"]], [saved["id"]])
 
+    def test_template_specialization_generation_debug_and_roundtrip(self):
+        from test_templates import template
+        spec = template(2)
+        abstract = {"schema": 1, "kind": "template", "name": "Abstrakte Addition", "parameters": ["n"],
+                    **{k: spec[k] for k in ("source", "limits", "interface", "conditions")}}
+        saved_template = self.request("/api/templates", abstract)
+        self.assertEqual(self.request("/api/catalog")["datasets"], [])
+        self.assertEqual(self.request("/api/catalog")["templates"][0]["parameters"], ["n"])
+        portable = self.request("/api/templates/" + saved_template["id"])
+        self.assertEqual(portable["parameters"], ["n"])
+        self.assertEqual(self.request("/api/templates", portable)["id"], saved_template["id"])
+        concrete = self.request("/api/templates/specialize", {"template_id": saved_template["id"], "parameters": {"n": 8}})
+        self.assertEqual(concrete["inputs"], 16)
+        with self.assertRaises(HTTPError) as caught:
+            self.request("/api/templates/specialize", {"template_id": saved_template["id"], "parameters": {"n": 6}})
+        self.assertEqual(caught.exception.code, 400)
+        caught.exception.close()
+        specialized = self.request("/api/templates/specialize", {"program": spec})
+        self.assertEqual((specialized["inputs"], specialized["outputs"]), (4, 3))
+        self.assertEqual(specialized["interface"]["outputs"][0]["bits"], 3)
+        request = {**specialized, "name": "Rekursiver Addierer", "samples": 16}
+        job = self.request("/api/datasets/generate", request)
+        deadline = time.monotonic() + 5
+        while time.monotonic() < deadline:
+            state = self.request("/api/jobs/" + job["job_id"])
+            if state["status"] in ("done", "failed"):
+                break
+            time.sleep(.02)
+        self.assertEqual(state["status"], "done", state)
+        saved = state["result"]
+        loaded = self.request("/api/datasets/" + saved["id"])
+        self.assertEqual(loaded["metadata"]["program"]["interface"], spec["interface"])
+        self.assertEqual(self.request("/api/datasets", loaded)["dataset"], loaded)
+        debug = self.request("/api/source-debug/start", {
+            "program": spec, "interface": specialized["interface"], "x": 15})
+        final = self.request(f'/api/source-debug/{debug["id"]}/continue', {})
+        self.assertEqual(final["status"], "done", final)
+        self.assertEqual(final["result"], ["6"])
+
+    def test_manual_circuit_edits_recheck_vectors_and_drop_search_claims(self):
+        ds = self.request("/api/datasets", {"name": "nand", "inputs": 2, "outputs": 1,
+                                             "expression": "1-(x0 & x1)"})
+        original = {"inputs": 2, "gates": [[0, 1]], "outputs": [2]}
+        edited = {"inputs": 2, "gates": [[0, 0]], "outputs": [2]}
+        checked = self.request("/api/circuits/check", {"circuit": original, "dataset_id": ds["id"]})
+        self.assertTrue(checked["fitness"]["verified_truth_table"])
+        changed = self.request("/api/circuits/check", {"circuit": edited, "dataset_id": ds["id"],
+                                                     "search": {"ancestry": "stale"}, "fitness": checked["fitness"]})
+        self.assertEqual(changed["fitness"]["errors"], 1)
+        self.assertTrue(changed["manual_edit"])
+        self.assertNotIn("search", changed)
+        self.assertNotIn("id", changed)
+        self.assertNotIn("hierarchy", changed)
+        self.assertEqual(self.request("/api/catalog")["programs"], [])
+        standalone = self.request("/api/circuits/check", {"circuit": edited})
+        self.assertNotIn("fitness", standalone)
+        for bad in ({"inputs": 2, "gates": [[2, 0]], "outputs": [2]},
+                    {"inputs": 2, "gates": [], "outputs": [2]},
+                    {"inputs": 1, "gates": [], "outputs": [0]}):
+            with self.assertRaises(HTTPError) as caught:
+                self.request("/api/circuits/check", {"circuit": bad, "dataset_id": ds["id"]})
+            self.assertEqual(caught.exception.code, 400)
+            caught.exception.close()
+
     def test_search_restarts_islands_and_saved_diversity(self):
         config = {"backend": "python", "gates": 1, "population": 6, "generations": 4,
                   "restarts": 2, "islands": 3, "migration_interval": 1}

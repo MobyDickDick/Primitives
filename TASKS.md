@@ -1,5 +1,17 @@
 # Aufgabenliste
 
+## Templates und Ergebnisbearbeitung vom 26. Oktober 2026
+
+- [x] Abstrakte Templates separat speichern, exportieren und importieren.
+- [x] Konkrete Instanzen mit Parameterwerten, symbolischen Breiten und `add<8>(a,b)`.
+- [x] Bedingungen wie `is_power_of_two(n)` und Aufrufbedingungen mit `assert`.
+- [x] Rekursive Funktionen, gemeinsame Budgets, Beispiel, CLI/API und Tests.
+- [x] NAND-Gatterliste editieren, prüfen, anzeigen und als JSON/Baustein sichern.
+- [x] [Editor und Logisim-Anbindung bewerten](docs/EDITIEREN-LOGISIM.md).
+- [ ] `.circ`-Export mit Pins und NANDs implementieren und in Logisim praktisch prüfen.
+- [ ] Rückimport des eigenen Exportprofils und funktionalen Roundtrip prüfen.
+- [ ] Direkte Anschlussbearbeitung im Diagramm mit Undo/Redo ergänzen.
+
 ## Erweiterungs-Issues vom 25. Oktober 2026
 
 Ausgearbeitete lokale Planungs-Issues mit Umfang, Abnahmekriterien und

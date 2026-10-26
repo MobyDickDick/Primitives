@@ -187,6 +187,10 @@ PRESETS = {
 def generate(name, inputs, outputs, expression=None, samples=None, seed=1, *, oracle=None, ports=None, reference_circuit=None, formula=None, edge_inputs=None, program=None, cancel_event=None):
     if any(type(w) is not int or not 1 <= w <= 32 for w in (inputs, outputs)):
         raise ValueError("N und M müssen zwischen 1 und 32 liegen.")
+    if program is not None:
+        from .program import Program
+        prepared = Program(program, ports)
+        ports = prepared.ports
     ports = interface(ports, inputs, outputs) if ports is not None else None
     if ports is not None and oracle is not None:
         raise ValueError("Benannte Ports werden nur für Ausdrücke unterstützt.")
@@ -195,7 +199,7 @@ def generate(name, inputs, outputs, expression=None, samples=None, seed=1, *, or
         from .program import Program
         if not ports or any(v is not None for v in (expression, formula, oracle, reference_circuit)):
             raise ValueError("Programm braucht eine eigene benannte Schnittstelle ohne andere Referenz.")
-        interpreter = Program(program, ports)
+        interpreter = prepared
         budget = interpreter.budget(cancel_event)
     if formula is not None:
         if not ports or oracle is not None or reference_circuit is not None:

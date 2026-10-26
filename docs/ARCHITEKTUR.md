@@ -43,6 +43,7 @@ Evolution                  Fitness / Bausteine
 | `tools/verify_tinycpu.py` | Optionaler direkter Abgleich mit einem lokalen TinyCPU-Interpreter |
 | `primitives/formula.py` | Eigene arithmetische Ergebnisformeln und explizite Syntaxübersetzung |
 | `primitives/program.py` | Begrenzter Integer-Interpreter für Zuweisungen, return, if/else, while und for |
+| `primitives/templates.py` | Abstrakte Templates, Bedingungen und Konkretisierung mit symbolischen Ports |
 | `tools/export_programs.py` | Reproduzierbare vollständige Programmbeispiele samt Quellen |
 | `primitives/evolution.py` | Genom, Fitness, Bibliothekskomposition, Python-Backend |
 | `primitives/ancestry.py` | Kandidatenidentitäten, Vorfahren, Quellenschnappschüsse und Nachbearbeitung |

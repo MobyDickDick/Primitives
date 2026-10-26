@@ -12,12 +12,13 @@ from .dataset import Dataset, PRESETS, generate, validate_description
 from .operations import OPERATIONS, generate_operation, operation_variant
 from .formula import parse_formula, python_expressions, to_formula
 from .evolution import SearchCancelled, SearchConfig, check_cancelled
-from .library import Library, function_id
+from .library import Library, function_id, fitness
 from .runner import ROOT, search, tiny_interpreter
 from .background import BackgroundOptimizer
 from .repair import repair_result
 from .blocks import BlockBundle
 from .program import Program, ProgramCancelled
+from .templates import Template
 
 
 def make_server(port=8765, data_dir=None, *, background=True):
@@ -52,13 +53,15 @@ def make_server(port=8765, data_dir=None, *, background=True):
                     except ValueError:
                         tiny = False
                     self.send_data({"presets": {k: {"inputs": v[0], "outputs": v[1], "expression": v[2]} for k, v in PRESETS.items()},
-                                    "operations": OPERATIONS, "blocks": library.blocks(),
+                                    "operations": OPERATIONS, "blocks": library.blocks(), "templates": library.templates(),
                                     "datasets": library.datasets(), "programs": library.programs(), "tiny_available": tiny,
                                     "background": optimizer.status()})
                 elif path.startswith("/api/datasets/"):
                     self.send_data(library.dataset_document(library.load_dataset(path.rsplit("/", 1)[1])))
                 elif path.startswith("/api/blocks/"):
                     self.send_data(library.load_block(path.rsplit("/", 1)[1]).to_dict())
+                elif path.startswith("/api/templates/"):
+                    self.send_data(library.load_template(path.rsplit("/", 1)[1]).to_dict())
                 elif path.startswith("/api/programs/"):
                     self.send_data(library.load_program(path.rsplit("/", 1)[1]))
                 elif path.startswith("/api/jobs/"):
@@ -95,7 +98,29 @@ def make_server(port=8765, data_dir=None, *, background=True):
                 path = urlsplit(self.path).path
                 if "program" in obj and any(k in obj for k in ("rows", "expression", "formula", "operation", "reference_circuit", "block")):
                     raise ValueError("Programmreferenz nicht mit anderen Referenzen oder rows kombinieren.")
-                if path == "/api/source-debug/start":
+                if path == "/api/templates":
+                    template = Template(obj)
+                    key = library.save_template(template)
+                    self.send_data({"id": key, "template": template.to_dict()})
+                elif path == "/api/templates/specialize":
+                    program = (library.load_template(obj["template_id"]).instantiate(obj.get("parameters"))
+                               if "template_id" in obj else Program(obj["program"], obj.get("interface")))
+                    self.send_data({"program": program.spec, "interface": program.ports,
+                                    "inputs": sum(p["bits"] for p in program.ports["inputs"]),
+                                    "outputs": sum(p["bits"] for p in program.ports["outputs"])})
+                elif path == "/api/circuits/check":
+                    circuit = Circuit.from_dict(obj["circuit"])
+                    result = {"circuit": circuit.to_dict(), "manual_edit": True}
+                    try:
+                        result["expressions"] = circuit.expressions()
+                    except ValueError:
+                        result["expressions"] = None
+                    if obj.get("dataset_id"):
+                        dataset = library.load_dataset(obj["dataset_id"])
+                        result.update(dataset_id=obj["dataset_id"], dataset_name=dataset.name,
+                                      dataset_metadata=dataset.metadata, fitness=fitness(circuit, dataset))
+                    self.send_data(result)
+                elif path == "/api/source-debug/start":
                     execution = Program(obj["program"], obj["interface"]).debug(obj["x"])
                     with lock:
                         # Sessions are ephemeral; cap abandoned browser sessions.

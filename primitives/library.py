@@ -10,6 +10,7 @@ from .circuit import Circuit
 from .dataset import Dataset, validate_description
 from .operations import operation_label
 from .blocks import BlockBundle
+from .templates import Template
 
 
 def digest(obj):
@@ -29,6 +30,9 @@ def function_id(dataset):
     """A reference function exists independently of its sampled vectors or circuits."""
     meta = dataset.metadata
     if "program" in meta:
+        if meta["program"]["version"] == 2:
+            return digest(["template", dataset.inputs, dataset.outputs, meta["interface"],
+                           {k: v for k, v in meta["program"].items() if k != "limits"}])
         return digest(["program", dataset.inputs, dataset.outputs, meta["interface"],
                        meta["program"]["version"], meta["program"]["source"]])
     if "hierarchy" in meta:
@@ -97,6 +101,23 @@ class Library:
         self._key(key)
         with self._lock:
             return Dataset.from_dict(json.loads((self.root / "datasets" / f"{key}.json").read_text(encoding="utf-8")))
+
+    def save_template(self, template):
+        document = template.to_dict()
+        key = f"{slug(document['name'])}-{digest(document)}"
+        with self._lock:
+            write_json(self.root / "templates" / f"{key}.json", document)
+        return key
+
+    def load_template(self, key):
+        self._key(key)
+        with self._lock:
+            return Template(json.loads((self.root / "templates" / f"{key}.json").read_text(encoding="utf-8")))
+
+    def templates(self):
+        with self._lock:
+            return [{"id": p.stem, **self.load_template(p.stem).to_dict()}
+                    for p in sorted((self.root / "templates").glob("*.json"))]
 
     def _function_details(self):
         path = self.root / "function-details.json"

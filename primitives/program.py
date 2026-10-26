@@ -1,9 +1,11 @@
 """Versioned, bounded integer/bit-array programs. ASTs are interpreted, never executed."""
 import ast
 import copy
+import io
 import keyword
 import operator
 import re
+import tokenize
 from .ports import decode, encode, interface
 
 
@@ -22,6 +24,101 @@ CMP = {ast.Eq: operator.eq, ast.NotEq: operator.ne, ast.Lt: operator.lt,
        ast.LtE: operator.le, ast.Gt: operator.gt, ast.GtE: operator.ge}
 RESERVED = set(FUNCTION_ARITY) | {"range"}
 JUMPS = {"goto", "jump_if", "jump_zero", "jump_nonzero", "jump_negative"}
+MAX_CALL_DEPTH = 32
+
+
+def template_source(source):
+    """Lower f<n>(a,b) to f(n, a,b), preserving all source coordinates.
+
+    Tokenization keeps comments/strings and ordinary comparisons untouched.
+    Right-to-left rewriting also handles nested template calls.
+    """
+    tokens = [t for t in tokenize.generate_tokens(io.StringIO(source).readline)
+              if t.type not in (tokenize.NL, tokenize.NEWLINE, tokenize.INDENT,
+                                tokenize.DEDENT, tokenize.COMMENT, tokenize.ENDMARKER)]
+    names = {tokens[i + 1].string for i, token in enumerate(tokens[:-1]) if token.string == "def"}
+    spellings = [t.string for t in tokens]
+    offsets, offset = [], 0
+    for line in source.splitlines(keepends=True):
+        offsets.append(offset)
+        offset += len(line)
+    chars = list(source)
+
+    def replace(index, value):
+        token = tokens[index]
+        chars[offsets[token.start[0] - 1] + token.start[1]] = value
+        spellings[index] = value.strip()
+
+    for i in range(len(tokens) - 2, -1, -1):
+        if tokens[i].type != tokenize.NAME or spellings[i] not in names or spellings[i + 1] != "<":
+            continue
+        depth = 0
+        for j in range(i + 2, len(tokens) - 1):
+            text = spellings[j]
+            if text == ">" and depth == 0 and spellings[j + 1] == "(":
+                replace(i + 1, "(")
+                replace(j, ",")
+                replace(j + 1, " ")
+                break
+            if text in ("(", "[", "{"):
+                depth += 1
+            elif text in (")", "]", "}"):
+                depth -= 1
+                if depth < 0:
+                    break
+            elif depth == 0 and text in (":", ";", "return", "def", "="):
+                break
+    return "".join(chars)
+
+
+def identifier(name):
+    return (isinstance(name, str) and re.fullmatch(r"[a-zA-Z][a-zA-Z0-9_]{0,31}", name)
+            and not keyword.iskeyword(name) and name not in RESERVED | JUMPS | {"label"})
+
+
+def specialize_interface(spec, parameters):
+    """Evaluate bounded integer width expressions without eval or host calls."""
+    def width(text):
+        if type(text) is int:
+            return text
+        if not isinstance(text, str) or not 1 <= len(text) <= 128:
+            raise ValueError("Template-Breite braucht eine ganze Zahl oder einen Parameterausdruck.")
+        try:
+            tree = ast.parse(text, mode="eval")
+            if sum(1 for _ in ast.walk(tree)) > 64:
+                raise ValueError("Template-Breitenausdruck zu komplex.")
+
+            def visit(node):
+                if isinstance(node, ast.Constant) and type(node.value) is int:
+                    result = node.value
+                elif isinstance(node, ast.Name) and node.id in parameters:
+                    result = parameters[node.id]
+                elif isinstance(node, ast.BinOp) and type(node.op) in (ast.Add, ast.Sub, ast.Mult, ast.FloorDiv, ast.Mod, ast.Pow):
+                    a, b = visit(node.left), visit(node.right)
+                    if isinstance(node.op, ast.Pow) and not 0 <= b <= 16:
+                        raise ValueError("Template-Exponent muss zwischen 0 und 16 liegen.")
+                    result = BINOPS[type(node.op)](a, b)
+                else:
+                    raise ValueError("Template-Breite: nur Parameter, ganze Zahlen, +, -, *, //, % und ** erlaubt.")
+                if abs(result) > 2**32:
+                    raise ValueError("Template-Breitenergebnis zu gross.")
+                return result
+
+            return visit(tree.body)
+        except (SyntaxError, ArithmeticError, RecursionError) as exc:
+            raise ValueError(f"Ungültige Template-Breite {text!r}.") from exc
+
+    if not isinstance(spec, dict):
+        raise ValueError("Template braucht eine Schnittstelle.")
+    concrete = copy.deepcopy(spec)
+    for side in ("inputs", "outputs"):
+        if not isinstance(concrete.get(side), list):
+            raise ValueError("Template braucht inputs und outputs.")
+        for port in concrete[side]:
+            if not isinstance(port, dict):
+                raise ValueError("Jeder Template-Port muss ein Objekt sein.")
+            port["bits"] = width(port.get("bits"))
+    return interface(concrete)
 
 
 class ProgramCancelled(ValueError):
@@ -29,9 +126,11 @@ class ProgramCancelled(ValueError):
 
 
 def program_spec(spec):
-    if not isinstance(spec, dict) or type(spec.get("version")) is not int or spec["version"] != 1:
-        raise ValueError("Programm braucht Sprachversion 1.")
-    if set(spec) - {"version", "source", "limits"}:
+    if not isinstance(spec, dict) or type(spec.get("version")) is not int or spec["version"] not in (1, 2):
+        raise ValueError("Programm braucht Sprachversion 1 oder 2.")
+    version = spec["version"]
+    extra = {"parameters", "interface", "conditions"} if version == 2 else set()
+    if set(spec) - ({"version", "source", "limits"} | extra):
         raise ValueError("Unbekannte Programmparameter.")
     source = spec.get("source")
     if not isinstance(source, str) or not source.strip() or len(source) > 16000:
@@ -43,23 +142,81 @@ def program_spec(spec):
     for key, value in limits.items():
         if type(value) is not int or not 1 <= value <= MAX_LIMITS[key]:
             raise ValueError(f"Programmbudget {key}: 1–{MAX_LIMITS[key]} erforderlich.")
-    return {"version": 1, "source": source, "limits": limits}
+    result = {"version": version, "source": source, "limits": limits}
+    if version == 2:
+        parameters = spec.get("parameters")
+        if (not isinstance(parameters, dict) or len(parameters) > 16
+                or any(not identifier(k) or k == "is_power_of_two" or type(v) is not int or not 0 <= v <= 32 for k, v in parameters.items())):
+            raise ValueError("Template braucht parameters: höchstens 16 benannte ganzzahlige Parameter von 0 bis 32.")
+        if "conditions" in spec:
+            from .templates import conditions
+            result["conditions"] = conditions(spec["conditions"], set(parameters), parameters)
+        specialize_interface(spec.get("interface"), parameters)
+        result.update(parameters=dict(parameters), interface=copy.deepcopy(spec["interface"]))
+    return result
 
 
 class Program:
     """Bounded Python-style assignments, bit arrays, return, if/else and loops."""
-    def __init__(self, spec, ports):
+    def __init__(self, spec, ports=None):
         self.spec = program_spec(spec)
-        self.ports = interface(ports)
-        self.inputs = {p["name"] for p in self.ports["inputs"]}
+        self.parameters = self.spec.get("parameters", {})
+        self.ports = (specialize_interface(self.spec["interface"], self.parameters)
+                      if self.spec["version"] == 2 else interface(ports))
+        if self.spec["version"] == 2 and ports is not None:
+            if specialize_interface(ports, self.parameters) != self.ports:
+                raise ValueError("Template und konkrete Schnittstelle stimmen nicht überein.")
+        self.inputs = {p["name"] for p in self.ports["inputs"]} | set(self.parameters)
+        if set(self.parameters) & {p["name"] for side in ("inputs", "outputs") for p in self.ports[side]}:
+            raise ValueError("Template-Parameter und Ports brauchen verschiedene Namen.")
         if RESERVED & {p["name"] for side in ("inputs", "outputs") for p in self.ports[side]}:
             raise ValueError("range, abs, min, max, div, mod, xor, bits, pack und len sind im Programmmodus reserviert.")
         try:
-            tree = ast.parse(self.spec["source"])
-        except (SyntaxError, RecursionError, ValueError) as exc:
+            source = template_source(self.spec["source"]) if self.spec["version"] == 2 else self.spec["source"]
+            tree = ast.parse(source)
+        except (SyntaxError, RecursionError, ValueError, tokenize.TokenError, IndentationError) as exc:
             raise ValueError(f"Programm: Zeile {getattr(exc, 'lineno', 1)}, Spalte {getattr(exc, 'offset', 1)}: ungültige Syntax.") from exc
         if sum(1 for _ in ast.walk(tree)) > 2000:
             raise ValueError("Programm ist zu komplex (höchstens 2000 Syntaxknoten).")
+        self.functions = {}
+        definitions = [n for n in tree.body if isinstance(n, ast.FunctionDef)] if self.spec["version"] == 2 else []
+        if len(definitions) > 16:
+            raise ValueError("Höchstens 16 Template-Funktionen erlaubt.")
+        for node in definitions:
+            args = node.args
+            names = [a.arg for a in args.args]
+            if (not identifier(node.name) or node.name in self.functions or node.name in self.inputs
+                    or node.name in {p["name"] for p in self.ports["outputs"]}
+                    or node.decorator_list or node.returns or getattr(node, "type_params", [])
+                    or args.posonlyargs or args.vararg or args.kwarg or args.kwonlyargs or args.defaults
+                    or not 1 <= len(names) <= 16 or len(set(names)) != len(names)
+                    or any(not identifier(n) for n in names) or any(a.annotation for a in args.args)):
+                self._error(node, "Funktion braucht einen eindeutigen Namen und 1–16 einfache Argumente ohne Annotationen oder Vorgaben.")
+            child = object.__new__(Program)
+            child.spec, child.ports = self.spec, self.ports
+            child.parameters, child.functions = self.parameters, self.functions
+            child.arguments = names
+            child.inputs = set(names) | set(self.parameters)
+            self.functions[node.name] = child
+        if set(self.functions) & {a for child in self.functions.values() for a in child.arguments}:
+            raise ValueError("Funktionsargumente dürfen keine Funktionsnamen verdecken.")
+        # Curried notation add(n)(a,b) is syntax sugar for add(n,a,b).
+        class Calls(ast.NodeTransformer):
+            def visit_Call(visitor, node):
+                node = visitor.generic_visit(node)
+                if (isinstance(node.func, ast.Call) and isinstance(node.func.func, ast.Name)
+                        and node.func.func.id in self.functions and not node.func.keywords):
+                    return ast.copy_location(ast.Call(func=node.func.func,
+                        args=node.func.args + node.args, keywords=node.keywords), node)
+                return node
+        tree = Calls().visit(tree)
+        for node in definitions:
+            self.functions[node.name]._compile_body(ast.Module(body=node.body, type_ignores=[]), 1)
+        self._compile_body(ast.Module(body=[n for n in tree.body if n not in definitions], type_ignores=[]),
+                           len(self.ports["outputs"]))
+
+    def _compile_body(self, tree, return_count):
+        self.return_count = return_count
         self.locals = set()
         self.code = []
         self.labels, self.references = {}, []
@@ -74,8 +231,7 @@ class Program:
         if not any(op == "return" for op, _, _ in self.code):
             raise ValueError("Programm braucht eine return-Anweisung.")
         allowed = self.inputs | self.locals
-        commands = {id(n.value.func) for n in ast.walk(tree)
-                    if isinstance(n, ast.Expr) and isinstance(n.value, ast.Call)}
+        commands = {id(n.func) for n in ast.walk(tree) if isinstance(n, ast.Call)}
         for node in ast.walk(tree):
             if (isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load)
                     and node.id not in allowed | RESERVED and id(node) not in commands):
@@ -87,7 +243,7 @@ class Program:
 
     def _target(self, node):
         if (not isinstance(node, ast.Name) or not re.fullmatch(r"[a-zA-Z][a-zA-Z0-9_]{0,31}", node.id)
-                or keyword.iskeyword(node.id) or node.id in RESERVED | self.inputs):
+                or keyword.iskeyword(node.id) or node.id in RESERVED | self.inputs | set(self.functions)):
             self._error(node, "lokaler Bezeichner erforderlich; Eingänge sind schreibgeschützt.")
         self.locals.add(node.id)
         if len(self.locals) > 64:
@@ -132,6 +288,9 @@ class Program:
         elif (isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id in FUNCTION_ARITY
               and not node.keywords and len(node.args) == FUNCTION_ARITY[node.func.id]):
             children = node.args
+        elif (isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id in self.functions
+              and not node.keywords and len(node.args) == len(self.functions[node.func.id].arguments)):
+            children = node.args
         else:
             self._error(node, "nicht erlaubter Ausdruck; nur ganze Zahlen, Bit-Arrays und freigegebene Operatoren/Funktionen verwenden.")
         for child in children:
@@ -174,9 +333,11 @@ class Program:
                 self._emit("assign", (target, self._expr(expr)), node)
             elif isinstance(node, ast.Return) and node.value is not None:
                 values = node.value.elts if isinstance(node.value, ast.Tuple) else [node.value]
-                if len(values) != len(self.ports["outputs"]):
+                if len(values) != self.return_count:
                     self._error(node, "return braucht genau einen Wert je Ergebnisport, in Portreihenfolge.")
                 self._emit("return", [self._expr(v) for v in values], node)
+            elif isinstance(node, ast.Assert) and node.msg is None and self.spec["version"] == 2:
+                self._emit("require", self._expr(node.test), node)
             elif isinstance(node, ast.If):
                 branch = self._emit("test", [self._expr(node.test), None], node)
                 self._compile(node.body, depth + 1, scope + ((node.lineno, "body"),))
@@ -217,12 +378,13 @@ class Program:
     def debug(self, x):
         return Execution(self, x)
 
-    def _execute(self, x, budget=None):
+    def _execute(self, x, budget=None, *, env=None, depth=0):
         if type(x) is not int or not 0 <= x < 2 ** sum(p["bits"] for p in self.ports["inputs"]):
             raise ValueError("Testeingabe x muss eine gültige unsigned Eingangsbitkombination sein.")
         budget = budget if budget is not None else self.budget()
-        budget.start()
-        env = {p["name"]: decode(x, p) for p in self.ports["inputs"]}
+        if env is None:
+            budget.start()
+            env = {**self.parameters, **{p["name"]: decode(x, p) for p in self.ports["inputs"]}}
         iterators = {}
         pc = 0
 
@@ -306,7 +468,19 @@ class Program:
             else:  # Calls have been restricted during validation.
                 args = [value(a) for a in node.args]
                 name = node.func.id
-                if name == "bits":
+                if name in self.functions:
+                    if depth >= MAX_CALL_DEPTH:
+                        self._error(node, "Aufruftiefe überschritten (höchstens 32 Funktionsaufrufe).")
+                    function = self.functions[name]
+                    local = {**self.parameters, **dict(zip(function.arguments, (scalar(a, node) for a in args)))}
+                    execution = function._execute(x, budget, env=local, depth=depth + 1)
+                    while True:
+                        try:
+                            next(execution)
+                        except StopIteration as end:
+                            result = end.value[0]
+                            break
+                elif name == "bits":
                     number, width = [scalar(a, node) for a in args]
                     if not 1 <= width <= MAX_ARRAY_BITS:
                         self._error(node, "Bitbreite für bits muss zwischen 1 und 128 liegen.")
@@ -343,6 +517,9 @@ class Program:
                         items[i] = bit(result, target)
                 elif op == "return":
                     return [scalar(value(v), v) for v in arg]
+                elif op == "require":
+                    if not scalar(value(arg), arg):
+                        self._error(node, "Funktionsbedingung nicht erfüllt: " + self.spec["source"].splitlines()[node.lineno - 1].strip())
                 elif op == "test":
                     if not scalar(value(arg[0]), arg[0]): pc = arg[1]
                 elif op == "jump":

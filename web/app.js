@@ -58,7 +58,7 @@ function portRow(side, port, expression = "0") {
     input.addEventListener("input", updateDefinition);
   }
   field(side === "inputs" ? "Eingangsname" : "Ergebnisname", "name", port.name);
-  field("Bits", "bits", port.bits, "number");
+  field("Bits", "bits", port.bits, $("task-mode").value === "template" || typeof port.bits === "string" ? "text" : "number");
   const signed = el("label", undefined, "check-label"), check = el("input");
   check.type = "checkbox"; check.checked = Boolean(port.signed); check.dataset.field = "signed";
   signed.append(check, document.createTextNode("Zweierkomplement")); row.append(signed);
@@ -95,7 +95,8 @@ function readPorts() {
   const spec = { inputs: [], outputs: [] }, expressions = {};
   for (const row of document.querySelectorAll(".port-editor")) {
     const get = key => row.querySelector(`[data-field="${key}"]`);
-    const port = { name: get("name").value, bits: Number(get("bits").value), signed: get("signed").checked };
+    const width = get("bits").value.trim();
+    const port = { name: get("name").value, bits: /^\d+$/.test(width) ? Number(width) : width, signed: get("signed").checked };
     if (row.dataset.side === "outputs") {
       port.overflow = get("overflow").value; expressions[port.name] = get("expression").value;
     }
@@ -131,9 +132,10 @@ function chooseOperation(definition, parameters = null) {
   $("task-mode").value = "operation"; updateDefinition();
 }
 function updateDefinition() {
-  const mode = $("task-mode").value, formula = mode === "formula", program = mode === "program", named = formula || program || mode === "named" || mode === "circuit";
+  const mode = $("task-mode").value, formula = mode === "formula", template = mode === "template", program = mode === "program" || template, named = formula || program || mode === "named" || mode === "circuit";
   $("formula-editor").hidden = !formula;
   $("source-program-editor").hidden = !program;
+  $("template-options").hidden = !template;
   $("editor-guide").hidden = formula || program;
   const options = $("named-options"); options.classList.toggle("formula-mode", formula || program);
   if (formula || program) {
@@ -167,7 +169,9 @@ function updateDefinition() {
     if (p.flag) description += ["SUB", "DEC"].includes(op.definition) && !p.signed ? " Borrow: Ergebnis < 0; Abschneiden positiver hoher Bits setzt Borrow nicht." : ` Statusbit: ausserhalb des Ergebnisbereichs (${p.signed || op.definition === "MUL" ? "Overflow" : "Carry"}).`;
   } else if (named) {
     const { spec } = readPorts();
-    n = spec.inputs.reduce((v, p) => v + p.bits, 0); m = spec.outputs.reduce((v, p) => v + p.bits, 0);
+    if (!template) {
+      n = spec.inputs.reduce((v, p) => v + p.bits, 0); m = spec.outputs.reduce((v, p) => v + p.bits, 0);
+    }
     description = `${spec.inputs.map(p => `${p.name}[${p.bits}]`).join(", ")} → ${spec.outputs.map(p => `${p.name}[${p.bits}]`).join(", ")} · LSB zuerst.`;
   } else if (mode === "block") {
     const root = state.referenceBlock?.definitions[state.referenceBlock.root];
@@ -178,7 +182,7 @@ function updateDefinition() {
     } else description = "Unterprogramm-Baustein öffnen, um seine Referenz zu verwenden.";
   }
   if (mode !== "legacy") { $("inputs").value = n; $("outputs").value = m; }
-  $("variant-description").textContent = description + (mode === "legacy" ? "" : ` Diese Breitenkombination wird als eigene Funktion gespeichert. ${n <= 16 ? `Vollständige Tabelle: ${2 ** n} Eingaben möglich.` : `2^${n} Eingaben: maximal 65536 Vektoren als Stichprobe.`}`);
+  $("variant-description").textContent = description + (template ? " Parameter und Breiten vor dem Speichern prüfen; beim Speichern erfolgt die Prüfung erneut." : mode === "legacy" ? "" : ` Diese Breitenkombination wird als eigene Funktion gespeichert. ${n <= 16 ? `Vollständige Tabelle: ${2 ** n} Eingaben möglich.` : `2^${n} Eingaben: maximal 65536 Vektoren als Stichprobe.`}`);
   state.formMode = mode;
 }
 function restoreDefinition(ds) {
@@ -191,9 +195,13 @@ function restoreDefinition(ds) {
   } else if (meta.operation && state.operations[meta.operation.definition]) chooseOperation(meta.operation.definition, meta.operation.parameters);
   else if (meta.interface) {
     state.referenceCircuit = meta.reference_circuit || null;
-    editPorts(meta.interface, typeof meta.expression === "object" ? meta.expression : { [meta.interface.outputs[0].name]: meta.expression || "0" });
-    $("task-mode").value = meta.program ? "program" : meta.formula ? "formula" : meta.reference_circuit ? "circuit" : "named";
+    $("task-mode").value = meta.program?.version === 2 ? "template" : meta.program ? "program" : meta.formula ? "formula" : meta.reference_circuit ? "circuit" : "named";
+    editPorts(meta.program?.interface || meta.interface, typeof meta.expression === "object" ? meta.expression : { [meta.interface.outputs[0].name]: meta.expression || "0" });
     if (meta.program) {
+      if (meta.program.version === 2) {
+        $("template-parameters").value = JSON.stringify(meta.program.parameters, null, 2);
+        $("template-conditions").value = (meta.program.conditions || []).join("\n");
+      }
       $("source-program").value = meta.program.source;
       const example = Object.entries(sourceProgramExamples).find(([, source]) => source.trim() === meta.program.source.trim());
       if (example) $("source-program-example").value = example[0];
@@ -444,6 +452,7 @@ async function refresh() {
   }
   $("background-status").textContent = `Hintergrundsuche · ${catalog.background.message} · ${catalog.background.attempts} Durchgänge`;
   renderFunctions(catalog);
+  renderTemplates(catalog.templates || []);
   renderBlocks(catalog.blocks || []);
   const signature = JSON.stringify(catalog.programs.map(p => [p.id, p.frozen, p.dataset_name, p.dataset_metadata?.description]));
   if (signature === state.librarySignature) return;
@@ -498,6 +507,8 @@ function showProgram(result, navigate = true) {
     $("block-status").textContent = "Die geöffnete NAND-Schaltung ist flach. Sie kann als neuer Baustein gespeichert werden.";
   }
   const c = result.circuit;
+  $("circuit-source").value = JSON.stringify(c, null, 2);
+  $("circuit-edit-status").textContent = result.manual_edit ? "Manueller Entwurf. Zum Aufbewahren JSON exportieren oder unter Bausteine speichern." : "Gatteranschlüsse bearbeiten, dann prüfen und anzeigen.";
   state.positions = CircuitGraph.automatic(c); state.selectedRef = 0;
   state.wires = {}; state.selectedWire = null; state.wireNotice = "";
   state.layoutDirty = false; state.routing = null; state.drag = null;
@@ -526,7 +537,7 @@ function showProgram(result, navigate = true) {
   for (const [value, label] of metrics) {
     const cell = el("div", undefined, "metric"); cell.append(el("strong", value), el("span", label)); $("metrics").append(cell);
   }
-  $("program-name").textContent = result.fitness ? `${verification(result.fitness)} · ${result.id || "Suchergebnis"}` : "Eigenes NAND-Programm · ⊼ steht zwischen den beiden Argumenten.";
+  $("program-name").textContent = result.fitness ? `${verification(result.fitness)} · ${result.manual_edit ? "Manueller Entwurf" : result.id || "Suchergebnis"}` : result.manual_edit ? "Manueller Entwurf · Struktur geprüft, ohne Sollvektoren." : "Eigenes NAND-Programm · ⊼ steht zwischen den beiden Argumenten.";
   $("repair-program").disabled = !result.id || !result.fitness?.errors || Boolean(state.job);
   $("correction-details").hidden = !result.correction;
   $("correction-cases").replaceChildren();
@@ -930,6 +941,7 @@ action("reset-wire", resetWire);
 $("task-mode").addEventListener("change", async () => {
   clearError();
   try {
+    if ($("task-mode").value === "template") { newTemplate(); return; }
     if ($("task-mode").value === "program") {
       if (state.formMode !== "program") newSourceProgram();
       updateDefinition(); return;
@@ -1030,12 +1042,12 @@ async function saveDefinition() {
     if (!state.referenceBlock) throw new Error("Zuerst einen gespeicherten Unterprogramm-Baustein öffnen.");
     obj.block = state.referenceBlock;
   }
-  else if (mode === "named" || mode === "circuit" || mode === "formula" || mode === "program") {
+  else if (mode === "named" || mode === "circuit" || mode === "formula" || mode === "program" || mode === "template") {
     const { spec, expressions } = readPorts(); obj.interface = spec; obj.expression = expressions;
-    if (mode === "program") {
+    if (mode === "program" || mode === "template") {
       delete obj.expression;
-      obj.program = { version: 1, source: $("source-program").value, limits: {
-        steps: int("source-program-steps"), iterations: int("source-program-iterations"), total_steps: int("source-program-total") } };
+      obj.program = readSourceProgram();
+      if (mode === "template") Object.assign(obj, await specializeTemplate());
       return generateProgramVectors(obj);
     }
     if (mode === "formula") obj.formula = $("formula-source").value;
@@ -1054,6 +1066,117 @@ const sourceProgramExamples = {
   jump: 's = 0\ni = 0\nlabel("loop")\njump_if(i >= n, "done")\ns += i\ni += 1\ngoto("loop")\nlabel("done")\nreturn s',
   zero: 'jump_zero(n, "zero")\nreturn n\nlabel("zero")\nreturn 42'
 };
+const recursiveAdderSource = `# Addition zweier n-Bit-Zahlen, Ergebnis mit Übertrag
+# w ist die Bitbreite; Basisfall: ein Bit.
+def obereHaelfte<k>(a):
+    return a // (2 ** k)
+
+def untereHaelfte<k>(a):
+    return a % (2 ** k)
+
+def add<w>(a, b):
+    assert w > 0 and (w & (w - 1)) == 0
+    assert 0 <= a < 2 ** w and 0 <= b < 2 ** w
+    if w == 1:
+        return 2 * (a & b) + xor(a, b)
+    k = w // 2
+    a1 = obereHaelfte<k>(a)
+    a2 = untereHaelfte<k>(a)
+    b1 = obereHaelfte<k>(b)
+    b2 = untereHaelfte<k>(b)
+    c0 = add<w - k>(a1, b1)
+    c1 = c0 + 1
+    d0 = add<k>(a2, b2)
+    rest = d0 % (2 ** k)
+    carry = d0 // (2 ** k)
+    if carry == 0:
+        return c0 * (2 ** k) + rest
+    else:
+        return c1 * (2 ** k) + rest
+
+return add<n>(a, b)`;
+function readSourceProgram() {
+  const program = { version: 1, source: $("source-program").value, limits: {
+    steps: int("source-program-steps"), iterations: int("source-program-iterations"), total_steps: int("source-program-total") } };
+  if ($("task-mode").value === "template") Object.assign(program, {
+    version: 2, parameters: JSON.parse($("template-parameters").value), interface: readPorts().spec,
+    conditions: $("template-conditions").value.split("\n").map(s => s.trim()).filter(Boolean)
+  });
+  return program;
+}
+async function specializeTemplate() {
+  const result = await api("/api/templates/specialize", { program: readSourceProgram() });
+  $("inputs").value = result.inputs; $("outputs").value = result.outputs;
+  let call = result.program.source.split("\n").findLast(line => line.startsWith("return "))?.slice(7) || "";
+  for (const [name, value] of Object.entries(result.program.parameters)) call = call.replace(new RegExp(`\\b${name}\\b`, "g"), String(value));
+  $("template-status").textContent = `${call ? `Konkreter Aufruf: ${call} · ` : ""}${Object.entries(result.program.parameters).map(([k,v]) => `${k}=${v}`).join(", ")} · Bedingungen erfüllt · ${result.inputs} → ${result.outputs} Bits · ${result.inputs <= 16 ? `${2 ** result.inputs} Eingaben für eine vollständige Tabelle` : "Stichprobe (mehr als 65536 Eingaben)"}.`;
+  return result;
+}
+function newTemplate() {
+  showPage("editor"); state.autoName = false; $("preset").value = "custom";
+  $("task-mode").value = "template";
+  $("dataset-name").value = "Rekursiver Addierer";
+  $("dataset-description").value = "Addiert zwei n-Bit-Zahlen durch rekursive Halbierung. n muss eine Zweierpotenz sein; das Ergebnis hat n+1 Bits.";
+  $("template-parameters").value = '{"n": 4}';
+  $("template-conditions").value = "n >= 1\nis_power_of_two(n)";
+  $("inputs").value = 8; $("outputs").value = 5;
+  editPorts({inputs: [{name: "a", bits: "n"}, {name: "b", bits: "n"}], outputs: [{name: "c", bits: "n+1"}]});
+  $("source-program").value = recursiveAdderSource;
+  $("source-program-steps").value = 10000; $("source-program-iterations").value = 10000;
+  $("source-program-total").value = 1000000;
+  $("template-status").textContent = "n=4 vorbereitet. Parameter und Breiten prüfen oder direkt speichern.";
+  updateDefinition();
+}
+action("new-template", newTemplate);
+action("specialize-template", specializeTemplate);
+$("template-parameters").addEventListener("input", () => { $("template-status").textContent = "Parameter geändert. Breiten erneut prüfen oder speichern."; });
+$("template-conditions").addEventListener("input", () => { $("template-status").textContent = "Bedingungen geändert. Konkretisierung erneut prüfen oder speichern."; });
+function abstractTemplate() {
+  const spec = readSourceProgram();
+  return { schema: 1, kind: "template", name: $("dataset-name").value, description: $("dataset-description").value,
+    parameters: Object.keys(spec.parameters), interface: spec.interface, source: spec.source, limits: spec.limits,
+    conditions: spec.conditions };
+}
+function openTemplate(doc) {
+  showPage("editor"); $("task-mode").value = "template"; state.autoName = false; $("preset").value = "custom";
+  $("dataset-name").value = doc.name; $("dataset-description").value = doc.description;
+  $("template-parameters").value = JSON.stringify(Object.fromEntries(doc.parameters.map(name => [name, 1])), null, 2);
+  $("template-conditions").value = doc.conditions.join("\n");
+  $("source-program").value = doc.source;
+  $("source-program-steps").value = doc.limits.steps; $("source-program-iterations").value = doc.limits.iterations;
+  $("source-program-total").value = doc.limits.total_steps;
+  editPorts(doc.interface); updateDefinition();
+  $("template-status").textContent = "Abstraktes Template geöffnet. Für die Konkretisierung Parameterwerte setzen, dann prüfen oder Vektoren erzeugen.";
+}
+function renderTemplates(templates) {
+  const signature = JSON.stringify(templates);
+  if (signature === state.templateSignature) return;
+  state.templateSignature = signature; $("templates").replaceChildren();
+  if (!templates.length) $("templates").append(el("p", "Noch keine abstrakten Templates gespeichert.", "hint"));
+  for (const doc of templates) {
+    const card = el("div", undefined, "library-entry function-entry");
+    card.append(el("strong", `${doc.name}<${doc.parameters.join(", ")}>`), el("small", doc.description),
+      el("small", doc.conditions.length ? `Bedingungen: ${doc.conditions.join("; ")}` : "Keine zusätzlichen Parameterbedingungen."));
+    const open = el("button", "Template öffnen & konkretisieren", "secondary");
+    open.addEventListener("click", () => openTemplate(doc)); card.append(open);
+    $("templates").append(card);
+  }
+}
+action("save-template", async () => {
+  const result = await api("/api/templates", abstractTemplate());
+  $("template-status").textContent = `Abstraktes Template „${result.template.name}“ gespeichert. Dabei wurden keine konkrete Funktion und keine Vektoren erzeugt.`;
+  await refresh();
+});
+action("export-template", () => download("abstraktes-template.json", abstractTemplate()));
+$("import-template").addEventListener("change", async event => {
+  clearError();
+  try {
+    if (!event.target.files[0]) return;
+    const saved = await api("/api/templates", JSON.parse(await event.target.files[0].text()));
+    openTemplate(saved.template); await refresh();
+  } catch (err) { error(err); }
+  finally { event.target.value = ""; }
+});
 function newSourceProgram() {
   showPage("editor"); $("dataset-description").value = "";
   state.autoName = false; $("preset").value = "custom";
@@ -1137,11 +1260,16 @@ action("source-debug-start", async () => {
   sourceDebug.busy = true; sourceDebugControls();
   try {
     const source = $("source-program").value;
-    const snapshot = await api("/api/source-debug/start", {
+    const request = {
       interface: readPorts().spec, x: int("source-debug-input"),
       program: { version: 1, source, limits: { steps: int("source-program-steps"),
         iterations: int("source-program-iterations"), total_steps: int("source-program-total") } }
-    });
+    };
+    if ($("task-mode").value === "template") {
+      const specialized = await specializeTemplate();
+      request.program = specialized.program; request.interface = specialized.interface;
+    }
+    const snapshot = await api("/api/source-debug/start", request);
     const previous = sourceDebug.id;
     sourceDebug.id = snapshot.id; sourceDebug.source = source;
     renderSourceDebug(snapshot);
@@ -1245,6 +1373,25 @@ action("export-program", async () => {
   const result = state.result;
   const dataset = result.dataset_id ? await api(`/api/datasets/${result.dataset_id}`) : null;
   download(`${result.id || "nand-programm"}.json`, dataset ? { ...result, dataset } : result);
+});
+
+async function applyCircuit(document) {
+  const circuit = document.circuit || document;
+  if (document.dataset) await setDataset(document.dataset);
+  const datasetId = document.dataset ? state.datasetId : state.result?.dataset_id || state.datasetId;
+  const result = await api("/api/circuits/check", { circuit, ...(datasetId ? { dataset_id: datasetId } : {}) });
+  showProgram(result);
+  $("circuit-edit-status").textContent = result.fitness ?
+    `${verification(result.fitness)} · ${result.fitness.errors} falsche Ausgangsbits in ${result.fitness.total_bits} geprüften Bits. Entwurf als JSON exportieren oder als Baustein speichern.` :
+    "Schaltungsstruktur geprüft; keine Sollvektoren geladen. Entwurf als JSON exportieren oder als Baustein speichern.";
+}
+action("apply-circuit", () => applyCircuit(JSON.parse($("circuit-source").value)));
+action("reset-circuit-source", () => { $("circuit-source").value = JSON.stringify(state.result.circuit, null, 2); });
+$("import-circuit").addEventListener("change", async event => {
+  clearError();
+  try { if (event.target.files[0]) await applyCircuit(JSON.parse(await event.target.files[0].text())); }
+  catch (err) { error(err); }
+  finally { event.target.value = ""; }
 });
 
 function inspectBlock(bundle) {

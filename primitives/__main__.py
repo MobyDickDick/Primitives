@@ -11,6 +11,8 @@ from .library import Library, write_json
 from .runner import ROOT, search
 from .server import serve
 from .blocks import BlockBundle
+from .program import Program
+from .templates import Template
 
 
 def main():
@@ -31,6 +33,8 @@ def main():
     formulas.add_argument("--formula", help="Eigene Formel, z.B. c=mod(a+b,2^4), e=div(a+b,2^4); ^ bedeutet Potenz")
     formulas.add_argument("--formula-file", type=Path, help="UTF-8-Datei mit eigener Formel")
     formulas.add_argument("--program-file", type=Path, help="UTF-8-Programm: Zuweisungen, return, if/else, while, for … in range(…)")
+    formulas.add_argument("--template-file", type=Path, help="JSON-Template (Sprachversion 2 mit parameters, interface und source); Bitanzahlen werden daraus berechnet")
+    gen.add_argument("--parameters", help='Konkrete Template-Parameter als JSON, z.B. {"n":8}; benötigt --template-file')
     gen.add_argument("--program-steps", type=int)
     gen.add_argument("--program-iterations", type=int)
     gen.add_argument("--program-total-steps", type=int)
@@ -101,9 +105,11 @@ def main():
         if args.command == "serve":
             serve(args.port, args.data_dir)
         elif args.command == "generate":
-            if not args.program_file and any(v is not None for v in (args.program_steps, args.program_iterations, args.program_total_steps)):
-                raise ValueError("Programmbudgets benötigen --program-file.")
-            if (args.operation or args.preset) and (args.interface or args.expressions or args.reference_circuit or args.formula is not None or args.formula_file or args.program_file):
+            if args.parameters is not None and not args.template_file:
+                raise ValueError("--parameters benötigt --template-file.")
+            if not (args.program_file or args.template_file) and any(v is not None for v in (args.program_steps, args.program_iterations, args.program_total_steps)):
+                raise ValueError("Programmbudgets benötigen --program-file oder --template-file.")
+            if (args.operation or args.preset) and (args.interface or args.expressions or args.reference_circuit or args.formula is not None or args.formula_file or args.program_file or args.template_file):
                 raise ValueError("Benannte eigene Referenzen nicht mit --operation/--preset kombinieren.")
             if not args.operation and (args.a_bits is not None or args.b_bits is not None or args.result_bits is not None or args.signed or args.flag or args.overflow != "wrap" or args.shift is not None):
                 raise ValueError("Breitenparameter und --signed/--flag/--overflow benötigen --operation; eigene Ports über --interface definieren.")
@@ -118,12 +124,27 @@ def main():
                 load = lambda p: json.loads(p.read_text(encoding="utf-8")) if p else None
                 formula = args.formula_file.read_text(encoding="utf-8") if args.formula_file else args.formula
                 program = None
-                if args.program_file:
+                if args.program_file or args.template_file:
                     if args.expressions or args.reference_circuit or args.expression is not None:
                         raise ValueError("Programm nicht mit anderen Referenzen kombinieren.")
-                    program = {"version": 1, "source": args.program_file.read_text(encoding="utf-8"),
-                               "limits": {k: v for k, v in {"steps": args.program_steps, "iterations": args.program_iterations,
-                                          "total_steps": args.program_total_steps}.items() if v is not None}}
+                    limits = {k: v for k, v in {"steps": args.program_steps, "iterations": args.program_iterations,
+                              "total_steps": args.program_total_steps}.items() if v is not None}
+                    if args.template_file:
+                        program = load(args.template_file)
+                        if isinstance(program, dict) and program.get("kind") == "template":
+                            if args.parameters is None:
+                                raise ValueError("Abstraktes Template braucht --parameters zur Konkretisierung.")
+                            program = Template(program).instantiate(json.loads(args.parameters)).spec
+                        elif args.parameters is not None and isinstance(program, dict):
+                            program = {**program, "parameters": json.loads(args.parameters)}
+                        if not isinstance(program, dict) or program.get("version") != 2:
+                            raise ValueError("--template-file braucht ein Template der Sprachversion 2.")
+                        program = {**program, "limits": {**program.get("limits", {}), **limits}}
+                        prepared = Program(program, load(args.interface))
+                        args.inputs = sum(p["bits"] for p in prepared.ports["inputs"])
+                        args.outputs = sum(p["bits"] for p in prepared.ports["outputs"])
+                    else:
+                        program = {"version": 1, "source": args.program_file.read_text(encoding="utf-8"), "limits": limits}
                 if formula is not None and (args.expressions or args.reference_circuit):
                     raise ValueError("Formel nicht mit --expressions oder --reference-circuit kombinieren.")
                 expression = args.expression if args.expression is not None else "x0 ^ x1"

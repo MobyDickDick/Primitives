@@ -3,6 +3,18 @@ generate simple Programms
 
 ## Übersichtliche Webseiten und Hilfe
 
+Neu: **Parametriertes Template definieren** unterstützt symbolische Portbreiten,
+eigene Funktionen und Rekursion, etwa `def add<w>(a,b):` mit `add<n>(a,b)`.
+Das Beispiel eines rekursiven Addierers ist direkt einsetzbar.
+[Templates und Beispiele](docs/TEMPLATES.md) beschreiben Syntax, Grenzen und CLI.
+
+Unter **Schaltbild → NAND-Schaltung bearbeiten oder importieren** lassen sich
+auch die tatsächlichen Gatteranschlüsse und Ausgänge im JSON bearbeiten und
+erneut prüfen. Entwürfe können als JSON exportiert oder als Bausteine gespeichert
+werden. Die [Bewertung von Editor und Logisim-Anbindung](docs/EDITIEREN-LOGISIM.md)
+erklärt, was bereits funktioniert und welche Import-/Export-Erweiterungen folgen
+sollten. Für die neuen Funktionen den Server neu starten und die Seite neu laden.
+
 Die Navigation teilt die Oberfläche in **Funktionen**, **Editor**, **Evolution**,
 **Schaltbild**, **Bausteine** und **Hilfe**. Seitenwechsel erhalten die aktuellen
 Eingaben, Handtests und laufenden Aufträge. Oben steht immer, welche Vektoren

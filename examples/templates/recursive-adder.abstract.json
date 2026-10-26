@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "kind": "template",
+  "name": "Rekursiver Addierer",
+  "description": "Addiert zwei n-Bit-Zahlen durch rekursive Halbierung; n muss eine Zweierpotenz sein. Ergebnis mit n+1 Bits.",
+  "parameters": [
+    "n"
+  ],
+  "interface": {
+    "inputs": [
+      {
+        "name": "a",
+        "bits": "n"
+      },
+      {
+        "name": "b",
+        "bits": "n"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "c",
+        "bits": "n+1"
+      }
+    ]
+  },
+  "source": "# Addition zweier n-Bit-Zahlen, Ergebnis mit Übertrag\n# w ist die Bitbreite; Basisfall: ein Bit.\ndef obereHaelfte<k>(a):\n    return a // (2 ** k)\n\ndef untereHaelfte<k>(a):\n    return a % (2 ** k)\n\ndef add<w>(a, b):\n    assert w > 0 and (w & (w - 1)) == 0\n    assert 0 <= a < 2 ** w and 0 <= b < 2 ** w\n    if w == 1:\n        return 2 * (a & b) + xor(a, b)\n    k = w // 2\n    a1 = obereHaelfte<k>(a)\n    a2 = untereHaelfte<k>(a)\n    b1 = obereHaelfte<k>(b)\n    b2 = untereHaelfte<k>(b)\n    c0 = add<w - k>(a1, b1)\n    c1 = c0 + 1\n    d0 = add<k>(a2, b2)\n    rest = d0 % (2 ** k)\n    carry = d0 // (2 ** k)\n    if carry == 0:\n        return c0 * (2 ** k) + rest\n    else:\n        return c1 * (2 ** k) + rest\n\nreturn add<n>(a, b)",
+  "limits": {
+    "steps": 10000,
+    "iterations": 10000,
+    "total_steps": 1000000
+  },
+  "conditions": [
+    "n >= 1",
+    "is_power_of_two(n)"
+  ]
+}

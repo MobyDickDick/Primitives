@@ -1,5 +1,9 @@
 # Mehrschrittige Programme und Ablaufdebugger (PRIM-07/08)
 
+Für symbolische Bitbreiten, eigene Funktionen wie `def add<w>(a,b):` und
+rekursive Aufrufe `add<n>(a,b)` gibt es zusätzlich
+[parametrierte Templates der Sprachversion 2](TEMPLATES.md).
+
 **Mehrschrittiges Programm definieren** öffnet den Programmeditor. Ein- und
 Ergebnisports erhalten eigene Namen, Bitbreiten, Vorzeichen und Überlaufregeln.
 Die Beispiele **Summe for**, **Summe while**, **Auswahl if/else** und
@@ -172,7 +176,7 @@ return pack(r)
 ```
 
 Nicht unterstützt sind Fliesskommazahlen, `/`, Strings als Rechenwerte, allgemeine Listen, Attribute,
-Imports, eigene Funktionen, Rekursion, I/O, `break`, `continue`, Schleifen-`else`,
+Imports, eigene Funktionen und Rekursion in Version 1, I/O, `break`, `continue`, Schleifen-`else`,
 Unterprogrammaufrufe und fehlerabhängige Sprünge.
 Schleifen im Quelltext erzeugen keine Rückkopplung im NAND-Netz. Dauerhafter
 Zustand benötigt das separat geplante Registermodell.
