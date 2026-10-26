@@ -1,5 +1,13 @@
 # Aufgabenliste
 
+## Rekursive Multiplikation vom 26. Oktober 2026
+
+- [x] `MUL<w>` aus vier vollständigen rekursiven Teilprodukten mit ADD/INC.
+- [x] Fehlerdarstellung `[0,1]` ab `a*b >= 2**w`, Ein-Bit-Basis AND.
+- [x] Instanzen für w=1,2,4 als verschachtelte F-Boxen und flache NAND-Netze.
+- [x] Vollständiger Vergleich aller Eingaben mit unabhängiger Multiplikation.
+- [x] Einmalige Bibliotheksmigration mit Template, Funktionen und Bausteinen.
+
 ## Bibliotheksbaum und Bit-Templates vom 26. Oktober 2026
 
 - [x] Gemeinsamer Verzeichnisbaum für Templates und Funktionen mit Suche.

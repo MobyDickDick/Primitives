@@ -22,6 +22,13 @@ Ergebnis bzw. Überlauf liefern sie Nullbits und ein gesetztes Fehlerbit.
 `CONCAT<k,q>(lo,hi)` bietet die Bitblock-Schreibweise `[lo,hi]` als Funktion.
 Siehe [rekursive Subtraktion und Fehlerdarstellung](docs/REKURSIVE-SUBTRAKTION.md).
 
+`MUL<w>` ergänzt die rekursive Multiplikation aus vier vollständigen
+Teilprodukten. Bei `a*b >= 2**w` liefert sie `[0,1]`, sonst `[a*b,0]`.
+Für `w=1,2,4` liegen vollständig geprüfte Instanzen mit verschachtelten
+F-Boxen und flachen NAND-Netzen vor. Nach dem Serverneustart erscheinen die
+Funktionen unter **Beispiele → Rekursion**, die F-Boxen unter
+**Unterprogramm-Bausteine**. Siehe [rekursive Multiplikation](docs/REKURSIVE-MULTIPLIKATION.md).
+
 Im Template-Editor übersetzt **Direkt in NAND übersetzen & speichern** feste
 Bit-Stufen konventionell: Schleifen werden für die gewählte Breite entrollt,
 `bits`/`pack` werden Verdrahtung und `& | ^` werden NAND-Gatter. Die vier neuen

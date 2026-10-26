@@ -2,7 +2,8 @@
 import json
 from pathlib import Path
 
-from .dataset import generate
+from .blocks import BlockBundle
+from .dataset import Dataset, generate
 from .library import function_id, write_json
 from .templates import Template
 from .synthesis import synthesize
@@ -13,7 +14,8 @@ def install_examples(library):
     installed = json.loads(marker.read_text(encoding="utf-8")) if marker.exists() else {}
     pending_arithmetic = not installed.get("arithmetic-v1")
     pending_recursion = not installed.get("recursive-checked-v1")
-    if not pending_arithmetic and not pending_recursion:
+    pending_mul = not installed.get("recursive-mul-v1")
+    if not pending_arithmetic and not pending_recursion and not pending_mul:
         return
     with library._lock:
         organization = library._organization()
@@ -22,7 +24,7 @@ def install_examples(library):
             {"id": "arithmetic", "parent": "examples", "name": "Grundrechenarten", "description": "Konventionelle Bit-Algorithmen: feste Stufen, Bitverdrahtung und boolesche Operationen."},
             {"id": "arithmetic-templates", "parent": "arithmetic", "name": "Templates", "description": "Addition, Subtraktion, Multiplikation und Division für parametrierbare unsigned Bitbreiten."},
             {"id": "arithmetic-functions", "parent": "arithmetic", "name": "Funktionen (4 Bit)", "description": "Konkrete Instanzen mit allen 256 Eingabekombinationen und direkt synthetisierten NAND-Netzen."},
-            {"id": "recursion", "parent": "examples", "name": "Rekursion", "description": "Rekursive Addition und Subtraktion mit Halbierung, Carry/Borrow und optionalem Nullwert bei Fehlern. Die Bit-Templates sind direkt in NAND übersetzbar."}]
+            {"id": "recursion", "parent": "examples", "name": "Rekursion", "description": "Rekursive Addition, Subtraktion und Multiplikation mit Halbierung und Fehlerbit. MUL für 1, 2 und 4 Bits mit F-Boxen und flachen NAND-Netzen."}]
         existing = {f["id"] for f in organization["folders"]}
         organization["folders"].extend(f for f in folders if f["id"] not in existing)
         # Save folders first; a partially interrupted installation can be retried.
@@ -30,7 +32,10 @@ def install_examples(library):
         source = Path(__file__).resolve().parents[1] / "examples" / "templates"
         recursive_checked = {"recursive-split-sub.abstract.json", "recursive-split-add-checked.abstract.json"}
         for path in sorted(source.glob("*.abstract.json")):
-            if path.name in recursive_checked:
+            if path.name == "recursive-split-mul.abstract.json":
+                if not pending_mul:
+                    continue
+            elif path.name in recursive_checked:
                 if not pending_recursion:
                     continue
             elif not pending_arithmetic:
@@ -48,7 +53,19 @@ def install_examples(library):
             dataset.metadata["description"] = template.document["description"]
             library.save_program({"circuit": circuit.to_dict(), "synthesis": {"method": "structural-bitwise", "version": 1}}, dataset)
             organization["entries"].setdefault(f"function:{function_id(dataset)}", "arithmetic-functions")
+        if pending_mul:
+            output = source.parent / "circuits" / "recursive-split-mul"
+            for width in (1, 2, 4):
+                prefix = output / f"mul-{width}"
+                hierarchy = BlockBundle(json.loads(prefix.with_suffix(".block.json").read_text(encoding="utf-8")))
+                library.save_block(hierarchy)
+                dataset = Dataset.from_dict(json.loads(prefix.with_suffix(".vectors.json").read_text(encoding="utf-8")))
+                circuit = json.loads(prefix.with_suffix(".circuit.json").read_text(encoding="utf-8"))
+                library.save_program({"circuit": circuit,
+                                      "synthesis": {"method": "hierarchy-expansion-and-simplification", "version": 1}}, dataset)
+                organization["entries"].setdefault(f"function:{function_id(dataset)}", "recursion")
         library._write_organization(organization)
         installed["arithmetic-v1"] = True
         installed["recursive-checked-v1"] = True
+        installed["recursive-mul-v1"] = True
         write_json(marker, installed)

@@ -1,5 +1,28 @@
 # Verifikation des ersten Prototyps
 
+## Rekursive Multiplikation mit F-Boxen
+
+Geprüft am 26. Oktober 2026: **184 Kern-/CLI-/Suchtests** innerhalb der Sandbox
+und **27 HTTP-Tests** mit freigegebenem lokalem Netzwerkzugriff erfolgreich,
+insgesamt **211 Python-Tests**. Ein HTTP-Test zum Löschen bestehender Funktionen
+erhielt beim freigegebenen Lauf einen Windows-Verbindungsabbruch (10053);
+der gezielte Wiederholungslauf bestand. Der erste vollständige Sandbox-Lauf
+war bei allen 27 HTTP-Tests durch die Socketberechtigung (10013) blockiert.
+
+`MUL<1>`, `MUL<2>` und `MUL<4>` sind für alle 4, 16 und 256 Eingabepaare
+gegen unabhängige Ganzzahlmultiplikation geprüft. Ausführbare Quelle,
+F-Box-Auswertung, expandiertes NAND-Netz, vereinfachtes flaches NAND-Netz
+und direkte Quellsynthese stimmen überein. Die vollständigen rekursiven
+Rohprodukte werden zusätzlich geprüft. Exakte Überlaufgrenzen, Ein-Bit-AND,
+Nullsetzung bei Fehlern, ungültige Breiten und die Gattergrenze sind abgedeckt.
+
+Die Bibliotheksmigration installiert das Template, drei flache Funktionen und
+drei portable F-Box-Pakete einmalig. Tests prüfen erneutes Laden, gelöschte
+Einträge und den Erhalt eigener Ordner. Der HTTP-Test öffnet die rekursive
+Vier-Bit-Hierarchie und prüft `4*4 -> [0,1]` über die API.
+Die Artefakte lassen sich bytegleich erneut erzeugen; `git diff --check` besteht.
+Siehe [Rekursive Multiplikation](REKURSIVE-MULTIPLIKATION.md).
+
 ## Bibliotheksbaum und strukturelle NAND-Synthese
 
 Geprüft am 26. Oktober 2026: **194 Python-Tests** einschliesslich **27 HTTP-Tests**
