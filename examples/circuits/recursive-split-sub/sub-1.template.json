@@ -1,0 +1,39 @@
+{
+  "version": 2,
+  "source": "# SUB<w>: unsigned Eingaben; bei a < b Ergebnis [const<w>(0), 1].\n# Intern bleiben modulare Differenz und Borrow bis zur letzten Stufe erhalten.\n\n# [lo, hi], LSB-first: Breiten muessen bei gepackten Zahlen explizit sein.\ndef CONCAT<lo_width, hi_width>(lo, hi):\n    assert lo_width > 0 and hi_width > 0 and lo_width + hi_width <= 128\n    return pack(bits(lo, lo_width) + bits(hi, hi_width))\n\ndef const<w>(value):\n    assert w > 0 and w <= 128\n    return pack(bits(value, w))\n\ndef Lower<k>(a):\n    assert k > 0 and (k & (k - 1)) == 0\n    return pack(bits(a, 2 * k)[:k])\n\ndef Higher<k>(a):\n    assert k > 0 and (k & (k - 1)) == 0\n    return pack(bits(a, 2 * k)[k:])\n\n# a - enable: w modulare Ergebnisbits plus ein Borrow-Bit.\ndef DEC<w>(a, enable):\n    assert w > 0\n    x = bits(a, w)\n    e = bits(enable, 1)\n    digit = x[0] ^ e[0]\n    borrow = (1 ^ x[0]) & e[0]\n    if w == 1:\n        return pack([digit, borrow])\n    tail = DEC<w - 1>(pack(x[1:]), borrow)\n    return CONCAT<1, w>(digit, tail)\n\n# a - b modulo 2**w plus Borrow. Diese Rekursion darf NICHT nullsetzen.\ndef SUB_raw<w>(a, b):\n    assert w > 0 and (w & (w - 1)) == 0\n    if w == 1:\n        x = bits(a, 1)\n        y = bits(b, 1)\n        return pack([x[0] ^ y[0], (1 ^ x[0]) & y[0]])\n\n    k = w // 2\n    a_lo = Lower<k>(a)\n    a_hi = Higher<k>(a)\n    b_lo = Lower<k>(b)\n    b_hi = Higher<k>(b)\n    lo = bits(SUB_raw<k>(a_lo, b_lo), k + 1)\n    hi = bits(SUB_raw<k>(a_hi, b_hi), k + 1)\n    adjusted = bits(DEC<k>(pack(hi[:k]), lo[k]), k + 1)\n    borrow = hi[k] | adjusted[k]\n    c_lo = pack(lo[:k])\n    c_hi = CONCAT<k, 1>(pack(adjusted[:k]), borrow)\n    return CONCAT<k, k + 1>(c_lo, c_hi)\n\ndef SUB<w>(a, b):\n    assert w > 0 and (w & (w - 1)) == 0\n    if w == 1:\n        x = bits(a, 1)\n        y = bits(b, 1)\n        # Resultat, Borrow: [a0 AND NOT b0, NOT a0 AND b0].\n        return pack([x[0] & (1 ^ y[0]), (1 ^ x[0]) & y[0]])\n    result = bits(SUB_raw<w>(a, b), w + 1)\n    valid = 1 ^ result[w]\n    for i in range(w):\n        result[i] = result[i] & valid\n    return CONCAT<w, 1>(pack(result[:w]), result[w])\n\nresult = bits(SUB<n>(a, b), n + 1)\nreturn pack(result[:n]), result[n]\n",
+  "limits": {
+    "steps": 100000,
+    "iterations": 10000,
+    "total_steps": 5000000
+  },
+  "conditions": [
+    "n >= 1",
+    "n <= 16",
+    "is_power_of_two(n)"
+  ],
+  "parameters": {
+    "n": 1
+  },
+  "interface": {
+    "inputs": [
+      {
+        "name": "a",
+        "bits": "n"
+      },
+      {
+        "name": "b",
+        "bits": "n"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "c",
+        "bits": "n"
+      },
+      {
+        "name": "err",
+        "bits": 1
+      }
+    ]
+  }
+}

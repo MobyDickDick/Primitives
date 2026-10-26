@@ -1,0 +1,39 @@
+{
+  "version": 2,
+  "source": "# ADD_checked<w>: bei a+b >= 2**w Ergebnis [const<w>(0), 1].\n# ADD behaelt intern die vollstaendige Summe einschliesslich Carry.\n\ndef CONCAT<lo_width, hi_width>(lo, hi):\n    assert lo_width > 0 and hi_width > 0 and lo_width + hi_width <= 128\n    return pack(bits(lo, lo_width) + bits(hi, hi_width))\n\ndef const<w>(value):\n    assert w > 0 and w <= 128\n    return pack(bits(value, w))\n\ndef Lower<k>(a):\n    assert k > 0 and (k & (k - 1)) == 0\n    return pack(bits(a, 2 * k)[:k])\n\ndef Higher<k>(a):\n    assert k > 0 and (k & (k - 1)) == 0\n    return pack(bits(a, 2 * k)[k:])\n\ndef INC<w>(a, enable):\n    assert w > 0\n    x = bits(a, w)\n    e = bits(enable, 1)\n    digit = x[0] ^ e[0]\n    carry = x[0] & e[0]\n    if w == 1:\n        return pack([digit, carry])\n    tail = INC<w - 1>(pack(x[1:]), carry)\n    return CONCAT<1, w>(digit, tail)\n\ndef ADD<w>(a, b):\n    assert w > 0 and (w & (w - 1)) == 0\n    if w == 1:\n        x = bits(a, 1)\n        y = bits(b, 1)\n        return pack([x[0] ^ y[0], x[0] & y[0]])\n\n    k = w // 2\n    lo = bits(ADD<k>(Lower<k>(a), Lower<k>(b)), k + 1)\n    hi_temp = ADD<k>(Higher<k>(a), Higher<k>(b))\n    hi = bits(INC<k + 1>(hi_temp, lo[k]), k + 2)\n    # hi[k+1] ist immer null; hi[k] ist der Enduebertrag.\n    c_lo = pack(lo[:k])\n    c_hi = pack(hi[:k + 1])\n    return CONCAT<k, k + 1>(c_lo, c_hi)\n\ndef ADD_checked<w>(a, b):\n    result = bits(ADD<w>(a, b), w + 1)\n    valid = 1 ^ result[w]\n    for i in range(w):\n        result[i] = result[i] & valid\n    return CONCAT<w, 1>(pack(result[:w]), result[w])\n\nresult = bits(ADD_checked<n>(a, b), n + 1)\nreturn pack(result[:n]), result[n]\n",
+  "limits": {
+    "steps": 100000,
+    "iterations": 10000,
+    "total_steps": 5000000
+  },
+  "conditions": [
+    "n >= 1",
+    "n <= 16",
+    "is_power_of_two(n)"
+  ],
+  "parameters": {
+    "n": 4
+  },
+  "interface": {
+    "inputs": [
+      {
+        "name": "a",
+        "bits": "n"
+      },
+      {
+        "name": "b",
+        "bits": "n"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "c",
+        "bits": "n"
+      },
+      {
+        "name": "err",
+        "bits": 1
+      }
+    ]
+  }
+}

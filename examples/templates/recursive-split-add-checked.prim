@@ -1,0 +1,55 @@
+# ADD_checked<w>: bei a+b >= 2**w Ergebnis [const<w>(0), 1].
+# ADD behaelt intern die vollstaendige Summe einschliesslich Carry.
+
+def CONCAT<lo_width, hi_width>(lo, hi):
+    assert lo_width > 0 and hi_width > 0 and lo_width + hi_width <= 128
+    return pack(bits(lo, lo_width) + bits(hi, hi_width))
+
+def const<w>(value):
+    assert w > 0 and w <= 128
+    return pack(bits(value, w))
+
+def Lower<k>(a):
+    assert k > 0 and (k & (k - 1)) == 0
+    return pack(bits(a, 2 * k)[:k])
+
+def Higher<k>(a):
+    assert k > 0 and (k & (k - 1)) == 0
+    return pack(bits(a, 2 * k)[k:])
+
+def INC<w>(a, enable):
+    assert w > 0
+    x = bits(a, w)
+    e = bits(enable, 1)
+    digit = x[0] ^ e[0]
+    carry = x[0] & e[0]
+    if w == 1:
+        return pack([digit, carry])
+    tail = INC<w - 1>(pack(x[1:]), carry)
+    return CONCAT<1, w>(digit, tail)
+
+def ADD<w>(a, b):
+    assert w > 0 and (w & (w - 1)) == 0
+    if w == 1:
+        x = bits(a, 1)
+        y = bits(b, 1)
+        return pack([x[0] ^ y[0], x[0] & y[0]])
+
+    k = w // 2
+    lo = bits(ADD<k>(Lower<k>(a), Lower<k>(b)), k + 1)
+    hi_temp = ADD<k>(Higher<k>(a), Higher<k>(b))
+    hi = bits(INC<k + 1>(hi_temp, lo[k]), k + 2)
+    # hi[k+1] ist immer null; hi[k] ist der Enduebertrag.
+    c_lo = pack(lo[:k])
+    c_hi = pack(hi[:k + 1])
+    return CONCAT<k, k + 1>(c_lo, c_hi)
+
+def ADD_checked<w>(a, b):
+    result = bits(ADD<w>(a, b), w + 1)
+    valid = 1 ^ result[w]
+    for i in range(w):
+        result[i] = result[i] & valid
+    return CONCAT<w, 1>(pack(result[:w]), result[w])
+
+result = bits(ADD_checked<n>(a, b), n + 1)
+return pack(result[:n]), result[n]

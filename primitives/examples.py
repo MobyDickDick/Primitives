@@ -11,7 +11,9 @@ from .synthesis import synthesize
 def install_examples(library):
     marker = library.root / "example-installations.json"
     installed = json.loads(marker.read_text(encoding="utf-8")) if marker.exists() else {}
-    if installed.get("arithmetic-v1"):
+    pending_arithmetic = not installed.get("arithmetic-v1")
+    pending_recursion = not installed.get("recursive-checked-v1")
+    if not pending_arithmetic and not pending_recursion:
         return
     with library._lock:
         organization = library._organization()
@@ -20,13 +22,19 @@ def install_examples(library):
             {"id": "arithmetic", "parent": "examples", "name": "Grundrechenarten", "description": "Konventionelle Bit-Algorithmen: feste Stufen, Bitverdrahtung und boolesche Operationen."},
             {"id": "arithmetic-templates", "parent": "arithmetic", "name": "Templates", "description": "Addition, Subtraktion, Multiplikation und Division für parametrierbare unsigned Bitbreiten."},
             {"id": "arithmetic-functions", "parent": "arithmetic", "name": "Funktionen (4 Bit)", "description": "Konkrete Instanzen mit allen 256 Eingabekombinationen und direkt synthetisierten NAND-Netzen."},
-            {"id": "recursion", "parent": "examples", "name": "Rekursion", "description": "Rekursiver Addierer als Beispiel für Funktionen und Parameterbedingungen. NAND-Implementierung über die Evolution suchen."}]
+            {"id": "recursion", "parent": "examples", "name": "Rekursion", "description": "Rekursive Addition und Subtraktion mit Halbierung, Carry/Borrow und optionalem Nullwert bei Fehlern. Die Bit-Templates sind direkt in NAND übersetzbar."}]
         existing = {f["id"] for f in organization["folders"]}
         organization["folders"].extend(f for f in folders if f["id"] not in existing)
         # Save folders first; a partially interrupted installation can be retried.
         library._write_organization(organization)
         source = Path(__file__).resolve().parents[1] / "examples" / "templates"
+        recursive_checked = {"recursive-split-sub.abstract.json", "recursive-split-add-checked.abstract.json"}
         for path in sorted(source.glob("*.abstract.json")):
+            if path.name in recursive_checked:
+                if not pending_recursion:
+                    continue
+            elif not pending_arithmetic:
+                continue
             template = Template(json.loads(path.read_text(encoding="utf-8")))
             key = library.save_template(template)
             organization["entries"].setdefault(f"template:{key}", "recursion" if path.name.startswith("recursive-") else "arithmetic-templates")
@@ -42,4 +50,5 @@ def install_examples(library):
             organization["entries"].setdefault(f"function:{function_id(dataset)}", "arithmetic-functions")
         library._write_organization(organization)
         installed["arithmetic-v1"] = True
+        installed["recursive-checked-v1"] = True
         write_json(marker, installed)

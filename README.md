@@ -16,6 +16,12 @@ Multiplikation und Division mit Rest und Statusbits. Der rekursive Addierer
 steht unter **Beispiele → Rekursion**. Spätere Starts erhalten die eigene
 Ordnerstruktur und stellen gelöschte Beispiele nicht erneut her.
 
+Unter **Beispiele → Rekursion** ergänzen `SUB<w>` und `ADD_checked<w>`
+die rekursive Halbierung mit Borrow-/Carry-Ausgleich. Bei negativem
+Ergebnis bzw. Überlauf liefern sie Nullbits und ein gesetztes Fehlerbit.
+`CONCAT<k,q>(lo,hi)` bietet die Bitblock-Schreibweise `[lo,hi]` als Funktion.
+Siehe [rekursive Subtraktion und Fehlerdarstellung](docs/REKURSIVE-SUBTRAKTION.md).
+
 Im Template-Editor übersetzt **Direkt in NAND übersetzen & speichern** feste
 Bit-Stufen konventionell: Schleifen werden für die gewählte Breite entrollt,
 `bits`/`pack` werden Verdrahtung und `& | ^` werden NAND-Gatter. Die vier neuen

@@ -231,6 +231,12 @@ die unabhängige Addition beider Hälften mit anschliessendem bedingtem,
 rekursivem Inkrementieren. Dazu gehören fertig erzeugte und vollständig
 geprüfte flache NAND-Instanzen für `ADD<1>`, `ADD<2>` und `ADD<4>`.
 
+Die [rekursive Subtraktion und Addition mit Fehlerbit](REKURSIVE-SUBTRAKTION.md)
+ergänzen `SUB<w>`, `ADD_checked<w>` sowie `CONCAT<lo_width,hi_width>(lo,hi)`
+für die Schreibweise `[lo,hi]`. Bei Unterlauf bzw. Überlauf liefern sie
+`w` Nullbits plus ein gesetztes Fehlerbit. Beide Templates erscheinen
+einmalig unter **Beispiele → Rekursion**, auch in bestehenden Bibliotheken.
+
 **Direkt in NAND übersetzen & speichern** konkretisiert das Template und
 übersetzt seinen tatsächlichen Quelltext. Es werden keine speziellen
 Rechenoperationen anhand des Template-Namens erkannt und keine Wahrheitstabellen

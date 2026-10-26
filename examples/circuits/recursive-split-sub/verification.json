@@ -1,0 +1,161 @@
+[
+  {
+    "name": "sub<1>",
+    "parameters": {
+      "n": 1
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 1,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 1,
+          "signed": false,
+          "offset": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 1,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "err",
+          "bits": 1,
+          "signed": false,
+          "offset": 1,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 8,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 6,
+      "depth": 3
+    },
+    "synthesis": {
+      "method": "structural-bitwise",
+      "version": 1
+    }
+  },
+  {
+    "name": "sub<2>",
+    "parameters": {
+      "n": 2
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 2,
+          "signed": false,
+          "offset": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 2,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "err",
+          "bits": 1,
+          "signed": false,
+          "offset": 2,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 48,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 25,
+      "depth": 9
+    },
+    "synthesis": {
+      "method": "structural-bitwise",
+      "version": 1
+    }
+  },
+  {
+    "name": "sub<4>",
+    "parameters": {
+      "n": 4
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 4,
+          "signed": false,
+          "offset": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "err",
+          "bits": 1,
+          "signed": false,
+          "offset": 4,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 1280,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 64,
+      "depth": 13
+    },
+    "synthesis": {
+      "method": "structural-bitwise",
+      "version": 1
+    }
+  }
+]
