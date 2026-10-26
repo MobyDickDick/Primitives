@@ -1,5 +1,9 @@
 # Rekursive Addition und flache NAND-Instanzen
 
+Für die entsprechende Subtraktion, die Bitblock-Verkettung `[c_lo,c_hi]`
+und `ADD_checked` mit Nullwert bei Überlauf siehe
+[Rekursive Subtraktion und Nullwert bei Fehlern](REKURSIVE-SUBTRAKTION.md).
+
 Die [editierbare Quelle](../examples/templates/recursive-split-add.prim) setzt
 die Addition durch unabhaengige Addition beider Haelften und anschliessendes
 bedingtes Inkrementieren der oberen Summe um. Das

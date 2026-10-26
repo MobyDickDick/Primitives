@@ -1,3 +1,4 @@
+import json
 import tempfile
 import unittest
 
@@ -59,7 +60,7 @@ class LibraryTreeTests(unittest.TestCase):
     def test_examples_install_once_preserve_edits_and_do_not_resurrect_deletions(self):
         library = self.library
         install_examples(library)
-        self.assertEqual(len(library.templates()), 5)
+        self.assertEqual(len(library.templates()), 8)
         self.assertEqual(len(library.datasets()), 4)
         self.assertEqual(len(library.programs()), 4)
         self.assertTrue(all(p["fitness"]["verified_truth_table"] for p in library.programs()))
@@ -71,6 +72,32 @@ class LibraryTreeTests(unittest.TestCase):
         install_examples(Library(library.root))
         self.assertEqual(library.tree(), before)
         self.assertEqual(len(library.datasets()), 3)
+
+    def test_recursive_templates_upgrade_existing_library_once_without_reinstalling_arithmetic(self):
+        library = self.library
+        organization = library._organization()
+        organization["folders"].extend([
+            {"id": "examples", "parent": None, "name": "Meine Beispiele", "description": "Meine Beschreibung"},
+            {"id": "recursion", "parent": "examples", "name": "Rekursion", "description": "Eigene Beschreibung"},
+        ])
+        library._write_organization(organization)
+        (library.root / "example-installations.json").write_text(
+            json.dumps({"arithmetic-v1": True}), encoding="utf-8")
+        install_examples(library)
+        self.assertEqual(len(library.templates()), 2)
+        self.assertEqual(len(library.datasets()), 0)
+        self.assertEqual(len(library.programs()), 0)
+        tree = library.tree()
+        self.assertEqual(next(f for f in tree["folders"] if f["id"] == "recursion")["description"],
+                         "Eigene Beschreibung")
+        self.assertTrue(all(folder == "recursion" for folder in tree["entries"].values()))
+        # A removed example must stay removed after the migration has completed.
+        template_file = next((library.root / "templates").glob("*.json"))
+        template_file.unlink()
+        after_delete = library.tree()
+        install_examples(Library(library.root))
+        self.assertEqual(len(library.templates()), 1)
+        self.assertEqual(library.tree(), after_delete)
 
 
 if __name__ == "__main__":
