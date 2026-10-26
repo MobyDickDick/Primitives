@@ -117,9 +117,10 @@ Frei formulierte Meldungen nach `assert` sind nicht Teil dieser Sprachversion.
   Teil der aktuellen Hauptprogrammanweisung. Deren gesamte Arbeit zählt zum
   angezeigten Budget. Ein Einzelschritt innerhalb der Aufrufkette ist noch
   nicht implementiert.
-- Die Auswertung erzeugt Referenzvektoren. Sie erzeugt noch keine strukturell
-  rekursive NAND-Hierarchie. Die konkreten NAND-Ergebnisse bleiben Gegenstand
-  der anschliessenden Suche. Parameter, die selbst Funktionen/Templates sind,
+- Die normale Auswertung erzeugt Referenzvektoren. Zusätzlich kann die unten
+  beschriebene Bit-Teilmenge direkt in ein flaches NAND-Netz übersetzt werden.
+  Eine strukturell rekursive NAND-Hierarchie wird dabei nicht erzeugt.
+  Parameter, die selbst Funktionen/Templates sind,
   und automatische Imports fremder Template-Bibliotheken sind noch offen.
 
 Spitze Klammern werden vor der AST-Prüfung in normale Aufrufe umgeschrieben.
@@ -155,3 +156,113 @@ Diese Felder können zusammen mit Name und Stichprobenparametern an
 `POST /api/datasets/generate` übergeben werden. Das normale Dataset-JSON
 enthält in `metadata.interface` die konkreten Ports und in
 `metadata.program.interface` die unveränderten symbolischen Breiten.
+
+## Bibliothek als Verzeichnisbaum
+
+Die Seite **Bibliothek** enthält einen gemeinsamen, aufklappbaren Baum für
+Templates und konkrete Funktionen. Jeder Ordner hat einen editierbaren Namen
+und eine mehrzeilige Beschreibung. **Ordner anlegen**, **Unterordner anlegen**
+und **Ordner bearbeiten** erlauben auch das Verschieben ganzer Teilbäume.
+Einträge haben die Aktion **In Ordner verschieben**. Nur leere, selbst angelegte
+Ordner können gelöscht werden. Die Standardordner Funktionen und Templates
+nehmen neue Einträge auf und bleiben erhalten.
+
+Die Ordnung liegt in `data/folders.json`; die inhaltsadressierten Template-,
+Vektor- und Schaltungsdateien behalten ihre Kennungen und Speicherorte.
+Verschieben oder Umbenennen ändert keine Referenzvektoren und trennt keine
+vorhandenen Implementierungen ab. Alle Vektorsätze einer Funktion bleiben
+zusammen. Die Suche zeigt passende Einträge samt ihren übergeordneten Ordnern.
+Ein Treffer im Ordnernamen zeigt auch dessen gesamten Inhalt; eine Erwähnung
+in der Ordnerbeschreibung macht fremde Einträge nicht zu Treffern.
+
+Der Server installiert die mitgelieferten Beispiele einmalig:
+
+```text
+Bibliothek
+├── Beispiele
+│   ├── Grundrechenarten
+│   │   ├── Templates
+│   │   │   ├── Addition<n>
+│   │   │   ├── Subtraktion<n>
+│   │   │   ├── Multiplikation<n>
+│   │   │   └── Division<n>
+│   │   └── Funktionen (4 Bit)
+│   │       └── Je eine Instanz mit 256 Vektoren und NAND-Schaltung
+│   └── Rekursion
+│       └── Rekursiver Addierer<n>
+├── Funktionen
+└── Templates
+```
+
+`data/example-installations.json` merkt sich die Installation. Neustarts
+überschreiben keine Ordnerbeschreibungen oder Zuordnungen und stellen gelöschte
+Beispiele nicht wieder her. Für isolierte Tests lässt sich die Installation
+mit `make_server(..., seed_examples=False)` abschalten.
+
+API: `POST /api/library/folders` mit `name`, `description`, `parent` (Kennung oder
+`null`) legt einen Ordner an; mit zusätzlichem `id` wird er bearbeitet.
+`POST /api/library/move` nimmt `kind` (`template` oder `function`), `id` und
+`folder` entgegen. Funktionen werden über ihre `function_id` zugeordnet.
+`POST /api/library/folders/delete` mit `id` löscht einen leeren Ordner.
+Der Katalog enthält unter `tree` die Ordner und effektiven Eintragszuordnungen.
+
+## Vier konventionelle Rechen-Templates
+
+Alle vier Beispiele verwenden unsigned Eingänge `a[n]`, `b[n]` und benötigen
+keine Zweierpotenz für n. Die Quellen liegen als `.prim` und abstraktes JSON in
+`examples/templates/` und sind im Editor vollständig editierbar.
+
+| Template | Verfahren | Ergebnisse | Parameterbereich der Referenz |
+| --- | --- | --- | --- |
+| `ripple-add` | Ripple-Carry, eine Volladdierstufe je Bit | `c[n+1] = a+b` | 1–16 |
+| `ripple-sub` | Ripple-Borrow, eine Subtrahierstufe je Bit | `c[n] = (a-b) mod 2^n`, `borrow[1] = (a<b)` | 1–16 |
+| `shift-add-mul` | AND-Teilprodukte mit versetzten Volladdierstufen | vollständiges Produkt `c[2*n]` | 1–16 |
+| `restoring-div` | Schriftliche Binärdivision, n feste Subtraktions-/Mux-Stufen | `c[n]`, `rest[n]`, `valid[1]`, `div0[1]` | 1–15 |
+
+Bei der Division durch null sind Quotient und Rest null, `valid=0`, `div0=1`.
+Sonst gilt `a = b*c + rest`, `0 <= rest < b`, `valid=1`, `div0=0`.
+Die Subtraktion gibt bewusst ein modulares Ergebnis plus Borrow zurück;
+negative Differenzen werden damit ohne Zweierkomplement-Port dargestellt.
+
+## Direkte strukturelle NAND-Synthese
+
+**Direkt in NAND übersetzen & speichern** konkretisiert das Template und
+übersetzt seinen tatsächlichen Quelltext. Es werden keine speziellen
+Rechenoperationen anhand des Template-Namens erkannt und keine Wahrheitstabellen
+zur Konstruktion der Schaltung verwendet. Anschliessend prüft die Anwendung
+das Netz gegen die angeforderten Referenzvektoren und speichert es über dieselbe
+Bestenauswahl wie evolutionäre Ergebnisse. Eine vorhandene bessere Schaltung
+kann deshalb beim Speichern gewinnen.
+
+Unterstützt werden unsigned Ports, feste Parameterarithmetik, Zuweisungen,
+Bit-Arrays bis 128 Bits, konstante Indizes und Slices, `bits`, `pack`, `len`,
+eigene Funktionen sowie feste Schleifen und Bedingungen. Inputabhängige Arbeit
+wird durch einzelne `&`, `|`, `^` und `1 ^ bit` ausgedrückt. `bits` und `pack`
+sind Verdrahtung; AND, OR und XOR werden aus NANDs aufgebaut. Wiederholte
+NANDs werden geteilt, konstante Bitoperationen vereinfacht und unbenutzte Gatter
+entfernt. Konstante Ausgänge benötigen keine zusätzlichen Eingänge.
+
+Schleifenbedingungen, Verzweigungen, Arrayindizes und Ganzzahlarithmetik müssen
+allein von festen Parametern und lokalen konstanten Werten abhängen. Ein
+inputabhängiges `if a < b` oder `return a + b` wird mit einer Quellzeilenmeldung
+abgelehnt; die neuen Beispiele schreiben Auswahl und Rechnen explizit als
+Bitoperationen. Der ältere rekursive Addierer verwendet Ganzzahladdition auf
+Eingangswerten und bleibt ein Beispiel für Referenzvektoren und Evolution.
+Aufruf-, Schritt- und Iterationsbudgets gelten auch beim Übersetzen.
+
+Die bestehende Schaltungsgrenze von **512 NAND-Gattern** gilt auch hier.
+Der Referenz-Parameterbereich kann deshalb grösser als der direkt übersetzbare
+Bereich sein; insbesondere wachsen Multiplikation und Division quadratisch.
+Bei Überschreitung wird nichts gespeichert. Die 4-Bit-Beispiele brauchen
+32 (Addition), 46 (Subtraktion), 124 (Multiplikation) und 240 (Division) Gatter.
+Das ist eine konventionelle Konstruktion mit lokalen Vereinfachungen, kein
+Nachweis minimaler Gatterzahl. Ein Stichprobentest bleibt als Stichprobe
+gekennzeichnet; vollständige Verifikation wird nur bei vollständiger Tabelle
+angezeigt. Für 1, 2, 3 und 4 Bits werden in den Tests alle Eingabepaare gegen
+unabhängige Ganzzahlarithmetik geprüft, inklusive Borrow und Division durch null.
+
+API: `POST /api/templates/synthesize` mit `template_id` und `parameters` oder
+mit einer konkreten `program`-Definition; optional `name`, `description`,
+`samples` (Standard 256), `seed`. Die Antwort enthält `id`, `dataset` und das
+gespeicherte `result`. `synthesis.method = "structural-bitwise"` kennzeichnet
+eine direkte Übersetzung ohne Suchverlauf.

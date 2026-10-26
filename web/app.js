@@ -303,7 +303,7 @@ function renderFunctions(catalog) {
   const signature = JSON.stringify([catalog.datasets, catalog.programs.map(p => [p.id, p.dataset_id, p.task_id])]);
   if (signature === state.functionSignature) return;
   // Background refreshes must not discard an open metadata form or its draft.
-  if ($("functions").querySelector(".function-edit[open]")) return;
+  if ($("library-tree").querySelector(".function-edit[open]")) return;
   state.functionSignature = signature;
   const groups = new Map();
   for (const dataset of catalog.datasets) {
@@ -316,6 +316,7 @@ function renderFunctions(catalog) {
   for (const datasets of [...groups.values()].sort((a, b) => a[0].function_name.localeCompare(b[0].function_name))) {
     datasets.sort((a, b) => b.count - a.count || a.id.localeCompare(b.id));
     const first = datasets[0], entry = el("div", undefined, "library-entry function-entry");
+    entry.dataset.kind = "function"; entry.dataset.id = first.function_id; entry.dataset.name = first.function_name;
     entry.dataset.search = `${first.function_name} ${first.description || ""} ${first.operation_label || ""}`.toLocaleLowerCase("de");
     const p = first.metadata?.operation?.parameters;
     entry.append(el("strong", first.function_name));
@@ -408,15 +409,30 @@ function renderFunctions(catalog) {
     });
     entry.append(info, button, view, edit, remove); $("functions").append(entry);
   }
-  filterFunctions();
+  state.functionEntries = [...$("functions").children].filter(entry => entry.classList.contains("function-entry"));
 }
 function filterFunctions() {
   const query = $("function-search").value.trim().toLocaleLowerCase("de");
-  const entries = [...$("functions").children].filter(entry => entry.classList.contains("function-entry"));
-  for (const entry of entries) entry.hidden = !entry.dataset.search.includes(query);
-  const count = entries.filter(entry => !entry.hidden).length;
-  $("function-count").textContent = `${count} von ${entries.length} Funktionen`;
-  $("function-no-match").hidden = !entries.length || count > 0;
+  const root = $("library-tree");
+  function filter(container, ancestorMatch = false) {
+    let count = 0;
+    for (const node of container.children) {
+      if (node.classList.contains("library-folder")) {
+        const match = ancestorMatch || Boolean(query && node.dataset.name.includes(query));
+        const visible = filter(node.querySelector(":scope > .folder-children"), match);
+        node.hidden = Boolean(query) && !match && !node.dataset.search.includes(query) && visible === 0;
+        node.open = query ? !node.hidden : state.folderOpen?.[node.dataset.id] !== false;
+        count += visible;
+      } else if (node.classList.contains("library-leaf")) {
+        node.hidden = !ancestorMatch && !node.dataset.search.includes(query);
+        if (!node.hidden) count++;
+      }
+    }
+    return count;
+  }
+  const count = filter(root), total = root.querySelectorAll(".library-leaf").length;
+  $("function-count").textContent = `${count} von ${total} Einträgen · Templates und Funktionen`;
+  $("function-no-match").hidden = !query || count > 0 || [...root.querySelectorAll(".library-folder")].some(folder => !folder.hidden);
 }
 $("function-search").addEventListener("input", filterFunctions);
 async function refresh() {
@@ -451,8 +467,7 @@ async function refresh() {
     }
   }
   $("background-status").textContent = `Hintergrundsuche · ${catalog.background.message} · ${catalog.background.attempts} Durchgänge`;
-  renderFunctions(catalog);
-  renderTemplates(catalog.templates || []);
+  renderLibraryTree(catalog);
   renderBlocks(catalog.blocks || []);
   const signature = JSON.stringify(catalog.programs.map(p => [p.id, p.frozen, p.dataset_name, p.dataset_metadata?.description]));
   if (signature === state.librarySignature) return;
@@ -730,7 +745,7 @@ function renderHistory() {
   target.replaceChildren();
   $("phase-summary").hidden = true;
   $("phase-summary").textContent = "";
-  if (!search) { $("search-summary").textContent = "Für ein eingegebenes Programm gibt es keinen Suchverlauf."; return; }
+  if (!search) { $("search-summary").textContent = state.result.synthesis ? "Konventionell aus festen Bit-Stufen nach NAND übersetzt; kein evolutionärer Suchlauf. Prüfstatus siehe oben." : "Für ein eingegebenes Programm gibt es keinen Suchverlauf."; return; }
   const points = search.history, maxGen = Math.max(1, search.generation), maxErr = Math.max(1, ...points.map(p => p.errors));
   const px = g => 40 + g / maxGen * 610, py = e => 100 - e / maxErr * 78;
   target.append(svg("path", { d: "M 40 15 V 100 H 650", fill: "none", stroke: "#d6dfd0" }));
@@ -1154,13 +1169,121 @@ function renderTemplates(templates) {
   state.templateSignature = signature; $("templates").replaceChildren();
   if (!templates.length) $("templates").append(el("p", "Noch keine abstrakten Templates gespeichert.", "hint"));
   for (const doc of templates) {
-    const card = el("div", undefined, "library-entry function-entry");
+    const card = el("div", undefined, "library-entry function-entry template-entry");
+    card.dataset.kind = "template"; card.dataset.id = doc.id; card.dataset.name = doc.name;
+    card.dataset.search = `${doc.name} ${doc.description} ${doc.conditions.join(" ")}`.toLocaleLowerCase("de");
     card.append(el("strong", `${doc.name}<${doc.parameters.join(", ")}>`), el("small", doc.description),
       el("small", doc.conditions.length ? `Bedingungen: ${doc.conditions.join("; ")}` : "Keine zusätzlichen Parameterbedingungen."));
     const open = el("button", "Template öffnen & konkretisieren", "secondary");
     open.addEventListener("click", () => openTemplate(doc)); card.append(open);
+    const exportButton = el("button", "Template exportieren", "secondary");
+    exportButton.addEventListener("click", () => { const { id, ...document } = doc; download(`${doc.name}.template.json`, document); });
+    card.append(exportButton);
     $("templates").append(card);
   }
+  state.templateEntries = [...$("templates").children].filter(entry => entry.classList.contains("template-entry"));
+}
+
+function folderChoices(tree, selected, includeRoot = false, exclude = null) {
+  const select = el("select");
+  if (includeRoot) select.add(new Option("Bibliothek (oberste Ebene)", ""));
+  const folders = new Map(tree.folders.map(folder => [folder.id, folder]));
+  const path = folder => folder.parent ? `${path(folders.get(folder.parent))} / ${folder.name}` : folder.name;
+  function below(folder) { return folder.id === exclude || Boolean(folder.parent && below(folders.get(folder.parent))); }
+  for (const folder of [...folders.values()].filter(folder => !below(folder)).sort((a, b) => path(a).localeCompare(path(b), "de"))) {
+    select.add(new Option(path(folder), folder.id));
+  }
+  select.value = selected || "";
+  return select;
+}
+function folderEditor(tree, folder = null, parent = null) {
+  const details = el("details", undefined, "library-edit folder-editor");
+  details.append(el("summary", folder ? "Ordner bearbeiten" : parent ? "Unterordner anlegen" : "Ordner anlegen"));
+  const form = el("form"), nameLabel = el("label", "Ordnername"), name = el("input");
+  name.required = true; name.maxLength = 120; name.value = folder?.name || ""; nameLabel.append(name);
+  const descriptionLabel = el("label", "Beschreibung"), description = el("textarea");
+  description.maxLength = 4000; description.rows = 3; description.value = folder?.description || ""; descriptionLabel.append(description);
+  const parentLabel = el("label", "Übergeordneter Ordner"), select = folderChoices(tree, folder ? folder.parent : parent, true, folder?.id);
+  select.setAttribute("aria-label", "Übergeordneter Ordner");
+  parentLabel.append(select);
+  const save = el("button", folder ? "Ordner speichern" : "Ordner anlegen", "secondary"); save.type = "submit";
+  const cancel = el("button", "Abbrechen", "text-button"); cancel.type = "button";
+  cancel.addEventListener("click", () => { name.value = folder?.name || ""; description.value = folder?.description || ""; select.value = (folder ? folder.parent : parent) || ""; details.open = false; });
+  form.append(nameLabel, descriptionLabel, parentLabel, save, cancel); details.append(form);
+  form.addEventListener("submit", async event => {
+    event.preventDefault(); clearError(); save.disabled = true;
+    try {
+      await api("/api/library/folders", { id: folder?.id, name: name.value, description: description.value, parent: select.value || null });
+      if (select.value) state.folderOpen[select.value] = true;
+      details.open = false; await refresh();
+    } catch (err) { error(err); } finally { save.disabled = false; }
+  });
+  if (folder && !["functions", "templates"].includes(folder.id)) {
+    const remove = el("button", "Leeren Ordner löschen", "text-button"); remove.type = "button";
+    remove.disabled = tree.folders.some(f => f.parent === folder.id) || Object.values(tree.entries).includes(folder.id);
+    remove.addEventListener("click", async () => {
+      clearError();
+      try { await api("/api/library/folders/delete", { id: folder.id }); details.open = false; await refresh(); }
+      catch (err) { error(err); }
+    });
+    form.append(remove);
+  }
+  return details;
+}
+function entryFolderEditor(tree, entry) {
+  entry.querySelector(".entry-folder-editor")?.remove();
+  const details = el("details", undefined, "library-edit entry-folder-editor"); details.append(el("summary", "In Ordner verschieben"));
+  const form = el("form"), label = el("label", "Zielordner"), key = `${entry.dataset.kind}:${entry.dataset.id}`;
+  const select = folderChoices(tree, tree.entries[key]); label.append(select);
+  select.setAttribute("aria-label", "Zielordner");
+  const save = el("button", "Verschieben", "secondary"); save.type = "submit";
+  form.append(label, save); details.append(form); entry.append(details);
+  form.addEventListener("submit", async event => {
+    event.preventDefault(); clearError(); save.disabled = true;
+    try {
+      await api("/api/library/move", { kind: entry.dataset.kind, id: entry.dataset.id, folder: select.value });
+      state.folderOpen[select.value] = true; details.open = false; await refresh();
+    } catch (err) { error(err); } finally { save.disabled = false; }
+  });
+}
+function renderLibraryTree(catalog) {
+  const root = $("library-tree");
+  if (document.querySelector(".library-edit[open], .function-edit[open]")) return;
+  const signature = JSON.stringify([catalog.tree, catalog.datasets, catalog.templates, catalog.programs.map(p => [p.id, p.dataset_id, p.task_id])]);
+  if (signature === state.treeSignature) return;
+  state.treeSignature = signature;
+  state.folderOpen ||= {}; state.leafOpen ||= {};
+  renderFunctions(catalog); renderTemplates(catalog.templates || []);
+  root.replaceChildren();
+  const tree = catalog.tree;
+  if (!tree) { root.append(el("p", "Für den Verzeichnisbaum den lokalen Webserver neu starten.", "hint")); return; }
+  $("folder-create").replaceChildren(folderEditor(tree));
+  const entries = [...(state.functionEntries || []), ...(state.templateEntries || [])];
+  function append(parent, container) {
+    const folders = tree.folders.filter(f => f.parent === parent).sort((a, b) => a.name.localeCompare(b.name, "de"));
+    for (const folder of folders) {
+      const branch = el("details", undefined, "library-folder"); branch.dataset.id = folder.id;
+      branch.dataset.name = folder.name.toLocaleLowerCase("de");
+      branch.dataset.search = `${folder.name} ${folder.description}`.toLocaleLowerCase("de");
+      branch.open = state.folderOpen[folder.id] !== false;
+      const summary = el("summary"); summary.append(el("span", folder.name, "folder-name"));
+      summary.addEventListener("click", () => { state.folderOpen[folder.id] = !branch.open; });
+      branch.append(summary, el("p", folder.description || "Noch keine Beschreibung.", "folder-description"));
+      const tools = el("div", undefined, "folder-tools"); tools.append(folderEditor(tree, folder), folderEditor(tree, null, folder.id)); branch.append(tools);
+      const children = el("div", undefined, "folder-children"); append(folder.id, children);
+      if (!children.children.length) children.append(el("p", "Leerer Ordner. Einträge lassen sich über „In Ordner verschieben“ hier ablegen.", "hint"));
+      branch.append(children); container.append(branch);
+    }
+    for (const entry of entries.filter(entry => tree.entries[`${entry.dataset.kind}:${entry.dataset.id}`] === parent)
+      .sort((a, b) => a.dataset.name.localeCompare(b.dataset.name, "de"))) {
+      const key = `${entry.dataset.kind}:${entry.dataset.id}`, leaf = el("details", undefined, "library-leaf");
+      leaf.dataset.search = entry.dataset.search; leaf.open = Boolean(state.leafOpen[key]);
+      const summary = el("summary"); summary.append(el("span", entry.dataset.name), el("span", entry.dataset.kind === "template" ? "Template" : "Funktion", "badge"));
+      summary.addEventListener("click", () => { state.leafOpen[key] = !leaf.open; });
+      entryFolderEditor(tree, entry); leaf.append(summary, entry); container.append(leaf);
+    }
+  }
+  append(null, root); filterFunctions();
 }
 action("save-template", async () => {
   const result = await api("/api/templates", abstractTemplate());
@@ -1168,6 +1291,17 @@ action("save-template", async () => {
   await refresh();
 });
 action("export-template", () => download("abstraktes-template.json", abstractTemplate()));
+action("synthesize-template", async () => {
+  if (state.job || state.vectorJob) throw new Error("Zum Übersetzen zuerst den laufenden Auftrag abwarten oder abbrechen.");
+  const button = $("synthesize-template"); button.disabled = true;
+  $("template-status").textContent = "Feste Bit-Stufen nach NAND übersetzen und mit Referenzvektoren prüfen …";
+  try {
+    const result = await api("/api/templates/synthesize", { program: readSourceProgram(), name: $("dataset-name").value,
+      description: $("dataset-description").value, samples: int("samples"), seed: int("seed") });
+    await acceptDataset(result); showProgram(result.result);
+    $("template-status").textContent = `NAND-Schaltung gespeichert: ${result.result.fitness.gates} Gatter. ${verification(result.result.fitness)}.`;
+  } finally { button.disabled = false; }
+});
 $("import-template").addEventListener("change", async event => {
   clearError();
   try {

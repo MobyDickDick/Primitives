@@ -19,10 +19,14 @@ from .repair import repair_result
 from .blocks import BlockBundle
 from .program import Program, ProgramCancelled
 from .templates import Template
+from .synthesis import synthesize
 
 
-def make_server(port=8765, data_dir=None, *, background=True):
+def make_server(port=8765, data_dir=None, *, background=True, seed_examples=True):
     library = Library(data_dir or ROOT / "data")
+    if seed_examples:
+        from .examples import install_examples
+        install_examples(library)
     jobs, cancellations, lock = {}, {}, threading.Lock()
     debuggers = {}
     executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="evolution")
@@ -54,7 +58,7 @@ def make_server(port=8765, data_dir=None, *, background=True):
                         tiny = False
                     self.send_data({"presets": {k: {"inputs": v[0], "outputs": v[1], "expression": v[2]} for k, v in PRESETS.items()},
                                     "operations": OPERATIONS, "blocks": library.blocks(), "templates": library.templates(),
-                                    "datasets": library.datasets(), "programs": library.programs(), "tiny_available": tiny,
+                                    "datasets": library.datasets(), "programs": library.programs(), "tree": library.tree(), "tiny_available": tiny,
                                     "background": optimizer.status()})
                 elif path.startswith("/api/datasets/"):
                     self.send_data(library.dataset_document(library.load_dataset(path.rsplit("/", 1)[1])))
@@ -98,7 +102,30 @@ def make_server(port=8765, data_dir=None, *, background=True):
                 path = urlsplit(self.path).path
                 if "program" in obj and any(k in obj for k in ("rows", "expression", "formula", "operation", "reference_circuit", "block")):
                     raise ValueError("Programmreferenz nicht mit anderen Referenzen oder rows kombinieren.")
-                if path == "/api/templates":
+                if path == "/api/library/folders":
+                    self.send_data(library.save_folder(obj.get("name"), obj.get("description", ""), obj.get("parent"), obj.get("id")))
+                elif path == "/api/library/folders/delete":
+                    self.send_data(library.delete_folder(obj.get("id")))
+                elif path == "/api/library/move":
+                    self.send_data(library.move_entry(obj.get("kind"), obj.get("id"), obj.get("folder")))
+                elif path == "/api/templates/synthesize":
+                    program = (library.load_template(obj["template_id"]).instantiate(obj.get("parameters"))
+                               if "template_id" in obj else Program(obj["program"], obj.get("interface")))
+                    circuit = synthesize(program)
+                    dataset = generate(obj.get("name", "NAND-Template"), circuit.inputs, len(circuit.outputs),
+                                       ports=program.ports, program=program.spec, samples=obj.get("samples", 256),
+                                       seed=obj.get("seed", 1))
+                    dataset.metadata["description"] = validate_description(obj.get("description", ""))
+                    result = {"circuit": circuit.to_dict(), "synthesis": {"method": "structural-bitwise", "version": 1}}
+                    if fitness(circuit, dataset)["errors"]:
+                        raise ValueError("NAND-Synthese stimmt nicht mit den Referenzvektoren überein.")
+                    with lock:
+                        saved = library.save_program(result, dataset)
+                        dataset_id = library.save_dataset(dataset)
+                        library.update_function(function_id(dataset), dataset.name, dataset.metadata["description"])
+                        saved = {**saved, **library.load_program(saved["id"])}
+                    self.send_data({"id": dataset_id, "dataset": library.dataset_document(dataset), "result": saved})
+                elif path == "/api/templates":
                     template = Template(obj)
                     key = library.save_template(template)
                     self.send_data({"id": key, "template": template.to_dict()})

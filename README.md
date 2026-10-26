@@ -3,6 +3,27 @@ generate simple Programms
 
 ## Übersichtliche Webseiten und Hilfe
 
+Die **Bibliothek** zeigt Templates und konkrete Funktionen in einem gemeinsamen
+Verzeichnisbaum. Ordner und Unterordner lassen sich anlegen, umbenennen,
+beschreiben und verschieben; Einträge können in jeden Ordner einsortiert werden.
+Die Suche berücksichtigt Namen und Beschreibungen und zeigt die passenden Pfade.
+Offene Bearbeitungsformulare bleiben bei Hintergrundaktualisierungen erhalten.
+
+Beim ersten Start des aktualisierten Servers erscheinen unter
+**Beispiele → Grundrechenarten** vier abstrakte Bit-Templates sowie ihre
+vollständig geprüften 4-Bit-Funktionen samt NAND-Netzen: Addition, Subtraktion,
+Multiplikation und Division mit Rest und Statusbits. Der rekursive Addierer
+steht unter **Beispiele → Rekursion**. Spätere Starts erhalten die eigene
+Ordnerstruktur und stellen gelöschte Beispiele nicht erneut her.
+
+Im Template-Editor übersetzt **Direkt in NAND übersetzen & speichern** feste
+Bit-Stufen konventionell: Schleifen werden für die gewählte Breite entrollt,
+`bits`/`pack` werden Verdrahtung und `& | ^` werden NAND-Gatter. Die vier neuen
+Rechen-Templates verwenden genau diese Teilmenge. Maximal 512 Gatter;
+datenabhängige Steuerung und allgemeine Ganzzahlarithmetik bleiben der
+Referenzauswertung bzw. Evolution vorbehalten. Siehe [Templates](docs/TEMPLATES.md).
+Für die Erweiterung den Server neu starten und die Browserseite neu laden.
+
 Neu: **Parametriertes Template definieren** unterstützt symbolische Portbreiten,
 eigene Funktionen und Rekursion, etwa `def add<w>(a,b):` mit `add<n>(a,b)`.
 Das Beispiel eines rekursiven Addierers ist direkt einsetzbar.

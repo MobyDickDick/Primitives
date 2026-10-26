@@ -18,7 +18,7 @@ class ServerTests(unittest.TestCase):
     def setUp(self):
         (ROOT / ".jobs").mkdir(exist_ok=True)
         self.tmp = tempfile.TemporaryDirectory(dir=ROOT / ".jobs")
-        self.server = make_server(0, self.tmp.name, background=False)
+        self.server = make_server(0, self.tmp.name, background=False, seed_examples=False)
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
         self.thread.start()
         self.base = f"http://127.0.0.1:{self.server.server_port}"
@@ -75,6 +75,53 @@ class ServerTests(unittest.TestCase):
         self.assertEqual(state["result"]["search"]["ancestry"], ancestry)
         self.assertGreater(state["result"]["comparison"]["candidate_fitness"]["errors"], 0)
         self.assertEqual([p["id"] for p in self.request("/api/catalog")["programs"]], [saved["id"]])
+
+    def test_library_tree_and_structural_synthesis_api(self):
+        from test_synthesis import arithmetic
+        parent = self.request("/api/library/folders", {"name": "Eigene Beispiele", "description": "Meine Notizen\nZweite Zeile"})
+        child = self.request("/api/library/folders", {"name": "Rechnen", "parent": parent["id"]})
+        template = self.request("/api/templates", arithmetic("restoring-div").to_dict())
+        self.request("/api/library/move", {"kind": "template", "id": template["id"], "folder": child["id"]})
+        result = self.request("/api/templates/synthesize", {"template_id": template["id"], "parameters": {"n": 4},
+                              "name": "Meine Division", "description": "Mit Rest und Status", "samples": 256})
+        self.assertTrue(result["result"]["fitness"]["verified_truth_table"])
+        self.assertEqual(result["result"]["fitness"]["errors"], 0)
+        self.assertEqual(result["result"]["synthesis"]["method"], "structural-bitwise")
+        self.assertEqual(self.request("/api/datasets/" + result["id"])["metadata"]["description"], "Mit Rest und Status")
+        catalog = self.request("/api/catalog")
+        function = catalog["datasets"][0]["function_id"]
+        self.request("/api/library/move", {"kind": "function", "id": function, "folder": child["id"]})
+        self.assertEqual(self.request("/api/catalog")["tree"]["entries"],
+                         {f"template:{template['id']}": child["id"], f"function:{function}": child["id"]})
+        before = self.request("/api/catalog")
+        for path, body in (("/api/library/folders", {"id": parent["id"], "name": "Zyklus", "parent": child["id"]}),
+                           ("/api/library/folders/delete", {"id": child["id"]}),
+                           ("/api/templates/synthesize", {"program": arithmetic("ripple-add").instantiate({"n": 1}).spec | {"source": "return a + b"}})):
+            with self.assertRaises(HTTPError) as caught:
+                self.request(path, body)
+            self.assertEqual(caught.exception.code, 400)
+            caught.exception.close()
+        self.assertEqual(self.request("/api/catalog")["tree"], before["tree"])
+        self.assertEqual(len(self.request("/api/catalog")["programs"]), 1)
+        # Reusing an incumbent keeps editable function labels consistent on all datasets.
+        renamed = self.request("/api/templates/synthesize", {"template_id": template["id"], "parameters": {"n": 4},
+                               "name": "Division umbenannt", "description": "Neue Beschreibung", "samples": 256})
+        self.assertEqual(renamed["result"]["id"], result["result"]["id"])
+        self.assertEqual(renamed["result"]["dataset_name"], "Division umbenannt")
+        self.assertTrue(all(d["function_name"] == "Division umbenannt" for d in self.request("/api/catalog")["datasets"]))
+
+    def test_default_server_installs_arithmetic_examples_in_tree(self):
+        self.server.shutdown(); self.server.server_close(); self.server.executor.shutdown()
+        self.thread.join(timeout=5)
+        self.server = make_server(0, self.tmp.name, background=False)
+        self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
+        self.thread.start()
+        self.base = f"http://127.0.0.1:{self.server.server_port}"
+        catalog = self.request("/api/catalog")
+        self.assertEqual(len(catalog["templates"]), 5)
+        self.assertEqual(len(catalog["datasets"]), 4)
+        self.assertTrue(all(p["fitness"]["verified_truth_table"] for p in catalog["programs"]))
+        self.assertEqual({catalog["tree"]["entries"][f"function:{d['function_id']}"] for d in catalog["datasets"]}, {"arithmetic-functions"})
 
     def test_template_specialization_generation_debug_and_roundtrip(self):
         from test_templates import template
@@ -311,7 +358,7 @@ class ServerTests(unittest.TestCase):
         self.assertEqual(self.request("/api/datasets", obj), saved)
         self.server.shutdown(); self.server.server_close(); self.server.executor.shutdown()
         self.thread.join(timeout=5)
-        self.server = make_server(0, self.tmp.name, background=False)
+        self.server = make_server(0, self.tmp.name, background=False, seed_examples=False)
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True); self.thread.start()
         self.base = f"http://127.0.0.1:{self.server.server_port}"
         self.assertEqual(self.request("/api/datasets/" + saved["id"]), ds)
@@ -454,7 +501,7 @@ class ServerTests(unittest.TestCase):
             caught.exception.close()
         self.server.shutdown(); self.server.server_close(); self.server.executor.shutdown()
         self.thread.join(timeout=5)
-        self.server = make_server(0, self.tmp.name, background=False)
+        self.server = make_server(0, self.tmp.name, background=False, seed_examples=False)
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True); self.thread.start()
         self.base = f"http://127.0.0.1:{self.server.server_port}"
         catalog = self.request("/api/catalog")
@@ -570,7 +617,7 @@ class ServerTests(unittest.TestCase):
         self.server.server_close()
         self.server.executor.shutdown()
         self.thread.join(timeout=5)
-        self.server = make_server(0, self.tmp.name, background=False)
+        self.server = make_server(0, self.tmp.name, background=False, seed_examples=False)
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
         self.thread.start()
         self.base = f"http://127.0.0.1:{self.server.server_port}"
@@ -652,7 +699,7 @@ class ServerTests(unittest.TestCase):
         self.server.server_close()
         self.server.executor.shutdown()
         self.thread.join(timeout=5)
-        self.server = make_server(0, self.tmp.name, background=False)
+        self.server = make_server(0, self.tmp.name, background=False, seed_examples=False)
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
         self.thread.start()
         self.base = f"http://127.0.0.1:{self.server.server_port}"

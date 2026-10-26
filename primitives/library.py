@@ -11,6 +11,7 @@ from .dataset import Dataset, validate_description
 from .operations import operation_label
 from .blocks import BlockBundle
 from .templates import Template
+from .library_tree import LibraryFolders
 
 
 def digest(obj):
@@ -86,7 +87,7 @@ def write_json(path, data):
         temporary.unlink(missing_ok=True)
 
 
-class Library:
+class Library(LibraryFolders):
     def __init__(self, root):
         self.root = Path(root)
         self._lock = threading.RLock()
@@ -177,6 +178,9 @@ class Library:
                     program_ids.append(program["id"])
             for dataset_id in dataset_ids:
                 (self.root / "datasets" / f"{dataset_id}.json").unlink()
+            organization = self._organization()
+            organization["entries"].pop(f"function:{key}", None)
+            self._write_organization(organization)
             settings = self._settings()
             for task in tasks - remaining.keys():
                 settings.pop(task, None)

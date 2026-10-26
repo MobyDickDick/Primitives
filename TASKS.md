@@ -1,5 +1,14 @@
 # Aufgabenliste
 
+## Bibliotheksbaum und Bit-Templates vom 26. Oktober 2026
+
+- [x] Gemeinsamer Verzeichnisbaum für Templates und Funktionen mit Suche.
+- [x] Ordner und Unterordner anlegen, beschreiben, umbenennen und verschieben.
+- [x] Persistente Zuordnungen bei stabilen Funktions- und Template-Kennungen.
+- [x] Vier konventionelle Bit-Templates samt vollständig geprüften 4-Bit-NAND-Beispielen.
+- [x] Direkte strukturelle NAND-Übersetzung der festen Bit-Teilmenge mit Budgets und Gattergrenze.
+- [x] Browserprüfung, 194 Python- und 29 JavaScript-Tests erfolgreich.
+
 ## Templates und Ergebnisbearbeitung vom 26. Oktober 2026
 
 - [x] Abstrakte Templates separat speichern, exportieren und importieren.

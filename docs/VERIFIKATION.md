@@ -1,5 +1,26 @@
 # Verifikation des ersten Prototyps
 
+## Bibliotheksbaum und strukturelle NAND-Synthese
+
+Geprüft am 26. Oktober 2026: **194 Python-Tests** einschliesslich **27 HTTP-Tests**
+mit lokalem Netzwerkzugriff und **29 JavaScript-Tests** erfolgreich.
+`node --check web/app.js` und `git diff --check` bestehen ebenfalls.
+Der erste Sandbox-Lauf scheiterte nur bei den 25 damaligen HTTP-Tests an
+Windows-Socketfehler 10013; der vollständige freigegebene Lauf besteht.
+
+Die vier neuen Templates und ihre tatsächlich übersetzten NAND-Netze wurden
+für n=1,2,3,4 vollständig gegen unabhängige Ganzzahlarithmetik geprüft.
+Grössere Referenzbreiten, Carry/Borrow, Division durch null, konstante Ausgänge,
+Budgetabbruch, Gattergrenze und abgelehnte datenabhängige Steuerung sind abgedeckt.
+Ordnerbeschreibungen und Zuordnungen überstehen das erneute Laden; zyklische
+Teilbäume und das Löschen gefüllter Ordner werden abgewiesen. Wiederholte
+Beispielinstallation erhält Benutzeränderungen und gelöschte Funktionen.
+
+Im Browser geprüft: gemeinsame Suche, Template öffnen, Division für n=3 direkt
+übersetzen (133 Gatter, alle 64 Eingaben korrekt), Ordner mit mehrzeiliger
+Beschreibung anlegen, Unterordner erzeugen und ein Template hinein- sowie
+zurückverschieben. [Ansicht des Bibliotheksbaums](bibliothek-baum.png).
+
 Stand: 25. Oktober 2026. Geprüft mit Python 3.14.5 und der vorhandenen
 TinyLanguage-Laufzeit unter Windows.
 

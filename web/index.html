@@ -5,13 +5,17 @@
 <header><div class="brand"><span class="brand-icon">⊼</span><div>PRIMITIVES <span class="version">0.1</span><small>Eine Spielwiese aus NAND-Gattern</small></div></div><span class="local">● Lokal auf deinem Rechner</span></header>
 <main>
 <nav class="page-nav" aria-label="Hauptnavigation">
-<a href="#funktionen" data-page="functions">Funktionen</a><a href="#editor" data-page="editor">Editor</a><a href="#evolution" data-page="evolution">Evolution</a><a href="#schaltbild" data-page="circuit">Schaltbild</a><a href="#bausteine" data-page="blocks">Bausteine</a><a href="#hilfe" data-page="help">Hilfe</a>
+<a href="#funktionen" data-page="functions">Bibliothek</a><a href="#editor" data-page="editor">Editor</a><a href="#evolution" data-page="evolution">Evolution</a><a href="#schaltbild" data-page="circuit">Schaltbild</a><a href="#bausteine" data-page="blocks">Bausteine</a><a href="#hilfe" data-page="help">Hilfe</a>
 </nav>
 <div class="active-context"><span id="active-function">Keine Funktion geladen. Öffne eine Funktion oder lege im Editor eine neue an.</span><span id="activity-status" role="status"></span></div>
 <div id="notice" role="status" hidden></div>
-<div id="page-functions" class="app-page" aria-labelledby="heading-functions"><div class="page-heading"><h1 id="heading-functions" tabindex="-1">Deine Funktionen</h1><p>Hier beginnt die Übersicht: öffnen, benennen und beschreiben.</p></div>
-<div class="page-actions"><a class="button-link" href="#editor">Neue Funktion im Editor</a><a class="button-link secondary" href="#hilfe">Erste Schritte</a></div><section class="card"><div class="section-title"><h2>Definierte Funktionen</h2></div><p class="hint">Deine Funktionen mit Namen, Beschreibung und Prüfstatus. Öffnen lädt die Definition in den Editor. Über „Name &amp; Beschreibung“ kannst du die Beschriftung aller zugehörigen Vektorsätze ändern.</p><label>Funktionen durchsuchen<input id="function-search" type="search" placeholder="Name, Beschreibung oder Operation"></label><p id="function-count" class="hint" aria-live="polite"></p><p id="function-no-match" class="hint" hidden>Keine passende Funktion. Suchbegriff ändern oder leeren.</p><div id="functions" class="library"></div></section>
-<section class="card"><h2>Abstrakte Templates</h2><p class="hint">Vorlagen mit symbolischen Parametern und Bedingungen. Erst eine Konkretisierung wie add&lt;8&gt;(a,b) erzeugt eine konkrete Funktion und ihre Sollvektoren.</p><label>Template-JSON importieren<input id="import-template" type="file" accept=".json,application/json"></label><div id="templates" class="library"></div></section>
+<div id="page-functions" class="app-page" aria-labelledby="heading-functions"><div class="page-heading"><h1 id="heading-functions" tabindex="-1">Deine Bibliothek</h1><p>Templates und Funktionen in beschreibbaren Ordnern und Unterordnern.</p></div>
+<div class="page-actions"><a class="button-link" href="#editor">Neue Funktion im Editor</a><a class="button-link secondary" href="#hilfe">Erste Schritte</a></div>
+<section class="card"><div class="section-title"><h2>Verzeichnisbaum</h2></div><p class="hint">Ordner aufklappen, beschreiben und verschachteln. Jeder Ordner kann Templates und Funktionen enthalten. Unter Beispiele → Grundrechenarten stehen vier Bit-Templates und ihre vollständig geprüften 4-Bit-Funktionen mit NAND-Netzen bereit.</p>
+<label>Bibliothek durchsuchen<input id="function-search" type="search" placeholder="Ordner, Name, Beschreibung oder Operation"></label><p id="function-count" class="hint" aria-live="polite"></p><p id="function-no-match" class="hint" hidden>Keine passenden Einträge. Suchbegriff ändern oder leeren.</p>
+<div id="folder-create"></div><div id="library-tree" class="library-tree" aria-label="Templates und Funktionen"></div>
+<div id="functions" hidden></div><div id="templates" hidden></div>
+<label class="template-import">Template-JSON importieren<input id="import-template" type="file" accept=".json,application/json"></label></section>
 </div>
 <div id="page-editor" class="app-page" aria-labelledby="heading-editor" hidden><div class="page-heading"><h1 id="heading-editor" tabindex="-1">Funktion definieren</h1><p>1 · Berechnung und Anschlüsse festlegen, dann Sollvektoren speichern.</p></div>
 <div class="editor-layout"><div><section class="card"><div class="section-title"><span class="number">01</span><h2>Funktion definieren</h2></div>
@@ -58,10 +62,11 @@
 <label>Parameterwerte für die Konkretisierung als JSON<textarea id="template-parameters" rows="2" spellcheck="false">{"n": 4}</textarea></label>
 <label>Bedingungen für die Parameter · eine je Zeile<textarea id="template-conditions" rows="3" spellcheck="false">n &gt;= 1
 is_power_of_two(n)</textarea></label>
-<p class="hint"><code>is_power_of_two(n)</code> bedeutet: n = 2^m für ein ganzzahliges m ≥ 0. Für dieses Template sind also 1, 2, 4, 8, 16 zulässig. Alle Bedingungen müssen bei der Konkretisierung erfüllt sein.</p>
+<p class="hint">Alle eingetragenen Bedingungen müssen bei der Konkretisierung erfüllt sein. Beispiel: <code>is_power_of_two(n)</code> verlangt n = 2^m für ein ganzzahliges m ≥ 0, also 1, 2, 4, 8, 16. Die vier Bit-Templates der Grundrechenarten erlauben auch andere Breiten wie 3 oder 5.</p>
 <p class="hint">Parameter sind feste ganze Zahlen von 0 bis 32. Portbreiten dürfen Ausdrücke wie <code>n</code>, <code>2*n</code> oder <code>n+1</code> enthalten. Benannte Funktionen mit <code>def add&lt;w&gt;(a, b):</code> können sich aufrufen, auch rekursiv. Aufruf: <code>add&lt;n&gt;(a,b)</code>, auch <code>add&lt;w-k&gt;(a1,b1)</code>. Die bisherigen Formen <code>add(n)(a,b)</code> und <code>add(n,a,b)</code> bleiben gültig. Parameterwechsel erzeugen eine neue konkrete Funktion.</p>
 <button id="save-template" class="secondary">Abstraktes Template speichern</button><button id="export-template" class="secondary">Abstraktes Template exportieren</button>
-<button id="specialize-template" class="secondary">Konkretisierung &amp; Breiten prüfen</button><p id="template-status" class="hint" role="status"></p>
+<button id="specialize-template" class="secondary">Konkretisierung &amp; Breiten prüfen</button>
+<button id="synthesize-template" class="secondary">Direkt in NAND übersetzen &amp; speichern</button><p class="hint">Für Bit-Templates mit festen Schleifen, bits/pack und einzelnen &amp; | ^ Operationen. Parameter bestimmen den Ablauf; Eingangswerte bestimmen nur die Bits. Die vier Grundrechenarten in der Bibliothek sind so aufgebaut. Maximal 512 NAND-Gatter.</p><p id="template-status" class="hint" role="status"></p>
 </div>
 <label>Programmtext · Version 1 / Templates: Version 2<textarea id="source-program" rows="12" spellcheck="false">s = 0
 for i in range(n):
