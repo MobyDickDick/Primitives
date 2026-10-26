@@ -1,0 +1,67 @@
+# MUL<w>: unsigned Ergebnis [c, err], bei a*b >= 2**w gilt [0, 1].
+# Rekursive Teilprodukte behalten intern immer alle 2*w Bits.
+
+def CONST<w>(value):
+    assert w > 0 and w <= 128
+    return pack(bits(value, w))
+
+def INC<w>(a, enable):
+    assert w > 0
+    x = bits(a, w)
+    e = bits(enable, 1)
+    digit = x[0] ^ e[0]
+    carry = x[0] & e[0]
+    if w == 1:
+        return pack([digit, carry])
+    tail = bits(INC<w - 1>(pack(x[1:]), carry), w)
+    return pack([digit] + tail)
+
+def ADD<w>(a, b):
+    assert w > 0 and (w & (w - 1)) == 0
+    x = bits(a, w)
+    y = bits(b, w)
+    if w == 1:
+        return pack([x[0] ^ y[0], x[0] & y[0]])
+    k = w // 2
+    lo = bits(ADD<k>(pack(x[:k]), pack(y[:k])), k + 1)
+    hi_temp = ADD<k>(pack(x[k:]), pack(y[k:]))
+    hi = bits(INC<k + 1>(hi_temp, lo[k]), k + 2)
+    return pack(lo[:k] + hi[:k + 1])
+
+def MUL_raw<w>(a, b):
+    assert w > 0 and (w & (w - 1)) == 0
+    x = bits(a, w)
+    y = bits(b, w)
+    if w == 1:
+        return pack([x[0] & y[0], 0])
+    k = w // 2
+    p00 = MUL_raw<k>(pack(x[:k]), pack(y[:k]))
+    p01 = MUL_raw<k>(pack(x[:k]), pack(y[k:]))
+    p10 = MUL_raw<k>(pack(x[k:]), pack(y[:k]))
+    p11 = MUL_raw<k>(pack(x[k:]), pack(y[k:]))
+
+    # p00 + 2**k * (p01 + p10) + 2**w * p11.
+    cross = bits(ADD<w>(p01, p10), w + 1)
+    low = bits(ADD<w>(p00, pack([0] * k + cross[:k])), w + 1)
+    high = bits(ADD<w>(p11, pack(cross[k:] + [0] * (k - 1))), w + 1)
+    adjusted = bits(INC<w>(pack(high[:w]), low[w]), w + 1)
+    # high[w] und adjusted[w] sind null: das Produkt passt in 2*w Bits.
+    return pack(low[:w] + adjusted[:w])
+
+def CHECK<w>(product):
+    assert w > 0 and (w & (w - 1)) == 0
+    result = bits(product, 2 * w)
+    err = 0
+    for i in range(w, 2 * w):
+        err = err | result[i]
+    valid = 1 ^ err
+    for i in range(w):
+        result[i] = result[i] & valid
+    return pack(result[:w] + [err])
+
+def MUL<w>(a, b):
+    assert w > 0 and (w & (w - 1)) == 0
+    return CHECK<w>(MUL_raw<w>(a, b))
+
+result = bits(MUL<w>(a, b), w + 1)
+return pack(result[:w]), result[w]

@@ -1,0 +1,38 @@
+# NumberOfOnes<w>: w Eingangsbits, LOG2(w)+1 Ergebnisbits, LSB-first.
+# LOG2 ist exakt und nur fuer positive Zweierpotenzen definiert.
+def LOWER<k>(a):
+    assert k > 0 and (k & (k - 1)) == 0
+    x = bits(a, 2 * k)
+    return pack(x[:k])
+
+def HIGHER<k>(a):
+    assert k > 0 and (k & (k - 1)) == 0
+    x = bits(a, 2 * k)
+    return pack(x[k:])
+
+# Vollstaendige Addition: r-Bit-Operanden, r+1 Ergebnisbits.
+# Auch r=3,5,... ist erlaubt, anders als beim rekursiven ADD<w>.
+def ADD_count<r>(a, b):
+    assert r >= 1
+    x = bits(a, r)
+    y = bits(b, r)
+    result = [0] * (r + 1)
+    carry = 0
+    for i in range(r):
+        parity = x[i] ^ y[i]
+        result[i] = parity ^ carry
+        carry = (x[i] & y[i]) | (parity & carry)
+    result[r] = carry
+    return pack(result)
+
+def NumberOfOnes<w>(a):
+    assert w >= 1 and (w & (w - 1)) == 0
+    if w == 1:
+        x = bits(a, 1)
+        return x[0]
+    k = w // 2
+    lo = NumberOfOnes<k>(LOWER<k>(a))
+    hi = NumberOfOnes<k>(HIGHER<k>(a))
+    return ADD_count<LOG2(w)>(lo, hi)
+
+return NumberOfOnes<w>(a)

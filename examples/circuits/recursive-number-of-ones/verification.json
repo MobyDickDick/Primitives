@@ -1,0 +1,233 @@
+[
+  {
+    "name": "NumberOfOnes<1>",
+    "parameters": {
+      "w": 1
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 1,
+          "signed": false,
+          "offset": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 1,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 2,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 0,
+      "depth": 0
+    },
+    "hierarchy": {
+      "id": "block-a85a16afd33f10a91b0d122710f32366d7271906fdbec6394c613170e5931683",
+      "name": "NumberOfOnes<1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 0,
+      "depth": 0,
+      "definitions": 1,
+      "instances": 0
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "number-of-ones-1.block.json",
+      "circuit": "number-of-ones-1.circuit.json",
+      "template": "number-of-ones-1.template.json",
+      "vectors": "number-of-ones-1.vectors.json",
+      "netlist": "number-of-ones-1.nand.txt"
+    }
+  },
+  {
+    "name": "NumberOfOnes<2>",
+    "parameters": {
+      "w": 2
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 2,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 8,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 5,
+      "depth": 3
+    },
+    "hierarchy": {
+      "id": "block-f8b6aceea6698349d3e78af28babba27f751cba043fc2ec8e2e340599741cae0",
+      "name": "NumberOfOnes<2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 5,
+      "depth": 3,
+      "definitions": 3,
+      "instances": 3
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "number-of-ones-2.block.json",
+      "circuit": "number-of-ones-2.circuit.json",
+      "template": "number-of-ones-2.template.json",
+      "vectors": "number-of-ones-2.vectors.json",
+      "netlist": "number-of-ones-2.nand.txt"
+    }
+  },
+  {
+    "name": "NumberOfOnes<4>",
+    "parameters": {
+      "w": 4
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 3,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 48,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 24,
+      "depth": 8
+    },
+    "hierarchy": {
+      "id": "block-cd088cb68aa91b6bbed4acb4a3369b926271bb3f7e9f9ab57caa6c97184418a8",
+      "name": "NumberOfOnes<4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 3,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 24,
+      "depth": 8,
+      "definitions": 5,
+      "instances": 3
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "number-of-ones-4.block.json",
+      "circuit": "number-of-ones-4.circuit.json",
+      "template": "number-of-ones-4.template.json",
+      "vectors": "number-of-ones-4.vectors.json",
+      "netlist": "number-of-ones-4.nand.txt"
+    }
+  }
+]

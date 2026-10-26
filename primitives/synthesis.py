@@ -8,7 +8,7 @@ import ast
 from dataclasses import dataclass
 
 from .circuit import Circuit
-from .program import BINOPS, CMP, MAX_ARRAY_BITS, MAX_CALL_DEPTH, Program
+from .program import BINOPS, CMP, MAX_ARRAY_BITS, MAX_CALL_DEPTH, Program, exact_log2
 
 
 @dataclass(frozen=True)
@@ -164,6 +164,8 @@ class Synthesizer:
                 result = Word(tuple(self.array(args[0], node)))
             elif name == "len":
                 result = len(self.array(args[0], node))
+            elif name == "LOG2":
+                result = exact_log2(self.static(args[0], node))
             elif name in self.program.functions:
                 if depth >= MAX_CALL_DEPTH:
                     self.fail(node, "Aufruftiefe überschritten.")

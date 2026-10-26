@@ -6,7 +6,7 @@ import tokenize
 
 from .dataset import validate_description
 from .ports import interface
-from .program import Program, identifier, program_spec, template_source
+from .program import Program, exact_log2, identifier, program_spec, template_source
 
 
 OPS = {ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul,
@@ -42,10 +42,10 @@ class Condition:
             elif isinstance(node, ast.Compare) and all(type(op) in CMP for op in node.ops):
                 children = [node.left, *node.comparators]
             elif (isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
-                  and node.func.id == "is_power_of_two" and len(node.args) == 1 and not node.keywords):
+                  and node.func.id in ("is_power_of_two", "LOG2") and len(node.args) == 1 and not node.keywords):
                 children = node.args
             else:
-                raise ValueError("Template-Bedingung: nur Parameter, Ganzzahloperatoren, Vergleiche, and/or/not und is_power_of_two(n) erlaubt.")
+                raise ValueError("Template-Bedingung: nur Parameter, Ganzzahloperatoren, Vergleiche, and/or/not, LOG2(n) und is_power_of_two(n) erlaubt.")
             for child in children:
                 validate(child)
         validate(self.root)
@@ -77,6 +77,8 @@ class Condition:
                     left = right
                 return True
             value = visit(node.args[0])
+            if node.func.id == "LOG2":
+                return exact_log2(value)
             return value > 0 and (value & (value - 1)) == 0
         try:
             satisfied = visit(self.root)
@@ -135,7 +137,8 @@ class Template:
                     # Width grammar is a subset of the validated condition grammar.
                     parsed = Condition(width, set(names))
                     if any(not isinstance(n, (ast.Expression, ast.Constant, ast.Name, ast.Load, ast.BinOp,
-                                              ast.Add, ast.Sub, ast.Mult, ast.FloorDiv, ast.Mod, ast.Pow))
+                                              ast.Add, ast.Sub, ast.Mult, ast.FloorDiv, ast.Mod, ast.Pow, ast.Call))
+                           or isinstance(n, ast.Call) and n.func.id != "LOG2"
                            for n in ast.walk(parsed.root)):
                         raise ValueError("Ungültiger Operator in einer symbolischen Portbreite.")
                 port["bits"] = 1

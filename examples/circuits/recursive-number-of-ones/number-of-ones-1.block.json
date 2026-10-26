@@ -1,0 +1,38 @@
+{
+  "schema": 1,
+  "root": "block-a85a16afd33f10a91b0d122710f32366d7271906fdbec6394c613170e5931683",
+  "definitions": {
+    "block-a85a16afd33f10a91b0d122710f32366d7271906fdbec6394c613170e5931683": {
+      "name": "NumberOfOnes<1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 1,
+        "gates": [],
+        "outputs": [
+          0
+        ]
+      }
+    }
+  }
+}

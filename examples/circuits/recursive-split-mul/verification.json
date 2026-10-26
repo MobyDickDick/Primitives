@@ -1,0 +1,311 @@
+[
+  {
+    "name": "MUL<1>",
+    "parameters": {
+      "w": 1
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 1,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 1,
+          "signed": false,
+          "offset": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 1,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "err",
+          "bits": 1,
+          "signed": false,
+          "offset": 1,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 8,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 7,
+      "depth": 4
+    },
+    "hierarchy": {
+      "id": "block-f3b660ec54c183a1c77afb09dad945a3a2dcdfc49455dbc2fbd5de36c2fde0de",
+      "name": "MUL<1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "err",
+            "bits": 1,
+            "signed": false,
+            "offset": 1,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 8,
+      "depth": 6,
+      "definitions": 3,
+      "instances": 2
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "mul-1.block.json",
+      "circuit": "mul-1.circuit.json",
+      "template": "mul-1.template.json",
+      "vectors": "mul-1.vectors.json",
+      "netlist": "mul-1.nand.txt"
+    }
+  },
+  {
+    "name": "MUL<2>",
+    "parameters": {
+      "w": 2
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 2,
+          "signed": false,
+          "offset": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 2,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "err",
+          "bits": 1,
+          "signed": false,
+          "offset": 2,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 48,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 68,
+      "depth": 25
+    },
+    "hierarchy": {
+      "id": "block-27c9e5b1f5e36456bea56c6b3f29d62d0c8cabb2a0ebc3304361b9ac68535eb7",
+      "name": "MUL<2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 2,
+            "signed": false,
+            "offset": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "err",
+            "bits": 1,
+            "signed": false,
+            "offset": 2,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 81,
+      "depth": 25,
+      "definitions": 8,
+      "instances": 2
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "mul-2.block.json",
+      "circuit": "mul-2.circuit.json",
+      "template": "mul-2.template.json",
+      "vectors": "mul-2.vectors.json",
+      "netlist": "mul-2.nand.txt"
+    }
+  },
+  {
+    "name": "MUL<4>",
+    "parameters": {
+      "w": 4
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 4,
+          "signed": false,
+          "offset": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "err",
+          "bits": 1,
+          "signed": false,
+          "offset": 4,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 1280,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 363,
+      "depth": 50
+    },
+    "hierarchy": {
+      "id": "block-cf9172102131aa96659a08d4a48414a339f08cac04246ddb960c33d23de38845",
+      "name": "MUL<4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 4,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "err",
+            "bits": 1,
+            "signed": false,
+            "offset": 4,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 444,
+      "depth": 50,
+      "definitions": 13,
+      "instances": 2
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "mul-4.block.json",
+      "circuit": "mul-4.circuit.json",
+      "template": "mul-4.template.json",
+      "vectors": "mul-4.vectors.json",
+      "netlist": "mul-4.nand.txt"
+    }
+  }
+]

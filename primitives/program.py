@@ -12,9 +12,18 @@ from .ports import decode, encode, interface
 DEFAULT_LIMITS = {"steps": 10000, "iterations": 10000, "total_steps": 1000000}
 MAX_LIMITS = {"steps": 100000, "iterations": 100000, "total_steps": 5000000}
 MAX_ARRAY_BITS = 128
+
+
+def exact_log2(value):
+    """Integer logarithm for positive powers of two, without float rounding."""
+    if type(value) is not int or value <= 0 or value & (value - 1):
+        raise ValueError("LOG2 braucht eine positive Zweierpotenz.")
+    return value.bit_length() - 1
+
+
 FUNCTIONS = {"abs": abs, "min": min, "max": max, "div": operator.floordiv,
-             "mod": operator.mod, "xor": operator.xor}
-FUNCTION_ARITY = {name: 1 if name == "abs" else 2 for name in FUNCTIONS}
+             "mod": operator.mod, "xor": operator.xor, "LOG2": exact_log2}
+FUNCTION_ARITY = {name: 1 if name in ("abs", "LOG2") else 2 for name in FUNCTIONS}
 FUNCTION_ARITY.update(bits=2, pack=1, len=1)
 BINOPS = {ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul,
           ast.FloorDiv: operator.floordiv, ast.Mod: operator.mod, ast.Pow: operator.pow,
@@ -93,13 +102,16 @@ def specialize_interface(spec, parameters):
                     result = node.value
                 elif isinstance(node, ast.Name) and node.id in parameters:
                     result = parameters[node.id]
+                elif (isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+                      and node.func.id == "LOG2" and len(node.args) == 1 and not node.keywords):
+                    result = exact_log2(visit(node.args[0]))
                 elif isinstance(node, ast.BinOp) and type(node.op) in (ast.Add, ast.Sub, ast.Mult, ast.FloorDiv, ast.Mod, ast.Pow):
                     a, b = visit(node.left), visit(node.right)
                     if isinstance(node.op, ast.Pow) and not 0 <= b <= 16:
                         raise ValueError("Template-Exponent muss zwischen 0 und 16 liegen.")
                     result = BINOPS[type(node.op)](a, b)
                 else:
-                    raise ValueError("Template-Breite: nur Parameter, ganze Zahlen, +, -, *, //, % und ** erlaubt.")
+                    raise ValueError("Template-Breite: nur Parameter, ganze Zahlen, +, -, *, //, %, ** und LOG2 erlaubt.")
                 if abs(result) > 2**32:
                     raise ValueError("Template-Breitenergebnis zu gross.")
                 return result
@@ -170,7 +182,7 @@ class Program:
         if set(self.parameters) & {p["name"] for side in ("inputs", "outputs") for p in self.ports[side]}:
             raise ValueError("Template-Parameter und Ports brauchen verschiedene Namen.")
         if RESERVED & {p["name"] for side in ("inputs", "outputs") for p in self.ports[side]}:
-            raise ValueError("range, abs, min, max, div, mod, xor, bits, pack und len sind im Programmmodus reserviert.")
+            raise ValueError("range, abs, min, max, div, mod, xor, LOG2, bits, pack und len sind im Programmmodus reserviert.")
         try:
             source = template_source(self.spec["source"]) if self.spec["version"] == 2 else self.spec["source"]
             tree = ast.parse(source)

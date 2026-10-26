@@ -1,0 +1,206 @@
+{
+  "schema": 1,
+  "root": "block-f3b660ec54c183a1c77afb09dad945a3a2dcdfc49455dbc2fbd5de36c2fde0de",
+  "definitions": {
+    "block-503d078bd607c3bf6ea6f9e71c0a1d49482a1ba911a1434332d9073d2a81e9c9": {
+      "name": "MUL_raw<1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "value",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 2,
+        "gates": [
+          [
+            0,
+            1
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            4
+          ],
+          [
+            5,
+            5
+          ]
+        ],
+        "outputs": [
+          3,
+          6
+        ]
+      }
+    },
+    "block-1337c2f2aa1886aae26f2b3a026bb81be012e201063b5f817ec73c1addb8a2a9": {
+      "name": "CHECK<1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "product",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "value",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 2,
+        "gates": [
+          [
+            1,
+            1
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            3,
+            3
+          ]
+        ],
+        "outputs": [
+          4,
+          1
+        ]
+      }
+    },
+    "block-f3b660ec54c183a1c77afb09dad945a3a2dcdfc49455dbc2fbd5de36c2fde0de": {
+      "name": "MUL<1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "err",
+            "bits": 1,
+            "signed": false,
+            "offset": 1,
+            "overflow": "error"
+          }
+        ]
+      },
+      "nodes": [
+        {
+          "id": "product",
+          "type": "instance",
+          "definition": "block-503d078bd607c3bf6ea6f9e71c0a1d49482a1ba911a1434332d9073d2a81e9c9",
+          "inputs": {
+            "a": [
+              {
+                "input": "a",
+                "bit": 0
+              }
+            ],
+            "b": [
+              {
+                "input": "b",
+                "bit": 0
+              }
+            ]
+          }
+        },
+        {
+          "id": "checked",
+          "type": "instance",
+          "definition": "block-1337c2f2aa1886aae26f2b3a026bb81be012e201063b5f817ec73c1addb8a2a9",
+          "inputs": {
+            "product": [
+              {
+                "node": "product",
+                "port": "value",
+                "bit": 0
+              },
+              {
+                "node": "product",
+                "port": "value",
+                "bit": 1
+              }
+            ]
+          }
+        }
+      ],
+      "outputs": {
+        "c": [
+          {
+            "node": "checked",
+            "port": "value",
+            "bit": 0
+          }
+        ],
+        "err": [
+          {
+            "node": "checked",
+            "port": "value",
+            "bit": 1
+          }
+        ]
+      }
+    }
+  }
+}

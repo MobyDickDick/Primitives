@@ -1,0 +1,31 @@
+{
+  "version": 2,
+  "source": "# NumberOfOnes<w>: w Eingangsbits, LOG2(w)+1 Ergebnisbits, LSB-first.\n# LOG2 ist exakt und nur fuer positive Zweierpotenzen definiert.\ndef LOWER<k>(a):\n    assert k > 0 and (k & (k - 1)) == 0\n    x = bits(a, 2 * k)\n    return pack(x[:k])\n\ndef HIGHER<k>(a):\n    assert k > 0 and (k & (k - 1)) == 0\n    x = bits(a, 2 * k)\n    return pack(x[k:])\n\n# Vollstaendige Addition: r-Bit-Operanden, r+1 Ergebnisbits.\n# Auch r=3,5,... ist erlaubt, anders als beim rekursiven ADD<w>.\ndef ADD_count<r>(a, b):\n    assert r >= 1\n    x = bits(a, r)\n    y = bits(b, r)\n    result = [0] * (r + 1)\n    carry = 0\n    for i in range(r):\n        parity = x[i] ^ y[i]\n        result[i] = parity ^ carry\n        carry = (x[i] & y[i]) | (parity & carry)\n    result[r] = carry\n    return pack(result)\n\ndef NumberOfOnes<w>(a):\n    assert w >= 1 and (w & (w - 1)) == 0\n    if w == 1:\n        x = bits(a, 1)\n        return x[0]\n    k = w // 2\n    lo = NumberOfOnes<k>(LOWER<k>(a))\n    hi = NumberOfOnes<k>(HIGHER<k>(a))\n    return ADD_count<LOG2(w)>(lo, hi)\n\nreturn NumberOfOnes<w>(a)\n",
+  "limits": {
+    "steps": 100000,
+    "iterations": 10000,
+    "total_steps": 5000000
+  },
+  "conditions": [
+    "w >= 1",
+    "w <= 32",
+    "is_power_of_two(w)"
+  ],
+  "parameters": {
+    "w": 2
+  },
+  "interface": {
+    "inputs": [
+      {
+        "name": "a",
+        "bits": "w"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "c",
+        "bits": "LOG2(w)+1"
+      }
+    ]
+  }
+}

@@ -83,7 +83,7 @@ Die Bedingungen bleiben beim Speichern, Export/Import und erneuten Öffnen
 erhalten und werden auch bei API-/CLI-Konkretisierung und Debugstart geprüft.
 
 Bedingungen dürfen Parameter, ganze Zahlen, `+ - * // % ** & | ^`, Vergleiche,
-`and`, `or`, `not` und `is_power_of_two` verwenden. Alle Bedingungen müssen
+`and`, `or`, `not`, `LOG2` und `is_power_of_two` verwenden. Alle Bedingungen müssen
 erfüllt sein. Ein explizites m als zweiter Parameter wäre ebenfalls möglich,
 etwa mit `n == 2**m`; die Hilfsfunktion erspart diesen zusätzlichen Wert.
 
@@ -107,7 +107,11 @@ Frei formulierte Meldungen nach `assert` sind nicht Teil dieser Sprachversion.
   getrennt; andere Eingangsports müssen ausdrücklich als Argumente übergeben
   werden. Gegenseitige und direkte Rekursion sind erlaubt.
 - Bis zu 16 feste Parameter mit ganzzahligen Werten 0–32. Breitenausdrücke
-  erlauben Parameter, Zahlen und `+ - * // % **`; Potenzexponenten 0–16.
+  erlauben Parameter, Zahlen, `+ - * // % **` und `LOG2(...)`; Potenzexponenten 0–16.
+  `LOG2` berechnet den exakten ganzzahligen Logarithmus einer positiven Zweierpotenz
+  und weist andere Werte ab. Beispiel: `LOG2(w)+1` Ergebnisbits für
+  [NumberOfOnes](NUMBER-OF-ONES.md). Im Quelltext ist `LOG2(w)` ebenfalls erlaubt;
+  die NAND-Synthese verlangt dafür ein statisches Argument.
   Ports brauchen je 1–32 Bits, die Summen je Seite dürfen 32 nicht überschreiten.
   Für den Addierer gilt deshalb `1 <= n <= 16`.
 - Höchstens 32 verschachtelte Funktionsaufrufe. Alle Aufrufe teilen die

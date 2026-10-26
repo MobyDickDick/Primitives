@@ -1,0 +1,186 @@
+{
+  "schema": 1,
+  "root": "block-f8b6aceea6698349d3e78af28babba27f751cba043fc2ec8e2e340599741cae0",
+  "definitions": {
+    "block-a85a16afd33f10a91b0d122710f32366d7271906fdbec6394c613170e5931683": {
+      "name": "NumberOfOnes<1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 1,
+        "gates": [],
+        "outputs": [
+          0
+        ]
+      }
+    },
+    "block-98dbb7ec9e2b496e8c687fbce9ddbbed9dfbfed46e4470e98b79c95641060e1e": {
+      "name": "ADD_count<1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "value",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 2,
+        "gates": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            3,
+            4
+          ],
+          [
+            2,
+            2
+          ]
+        ],
+        "outputs": [
+          5,
+          6
+        ]
+      }
+    },
+    "block-f8b6aceea6698349d3e78af28babba27f751cba043fc2ec8e2e340599741cae0": {
+      "name": "NumberOfOnes<2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "nodes": [
+        {
+          "id": "lower",
+          "type": "instance",
+          "definition": "block-a85a16afd33f10a91b0d122710f32366d7271906fdbec6394c613170e5931683",
+          "inputs": {
+            "a": [
+              {
+                "input": "a",
+                "bit": 0
+              }
+            ]
+          }
+        },
+        {
+          "id": "higher",
+          "type": "instance",
+          "definition": "block-a85a16afd33f10a91b0d122710f32366d7271906fdbec6394c613170e5931683",
+          "inputs": {
+            "a": [
+              {
+                "input": "a",
+                "bit": 1
+              }
+            ]
+          }
+        },
+        {
+          "id": "sum",
+          "type": "instance",
+          "definition": "block-98dbb7ec9e2b496e8c687fbce9ddbbed9dfbfed46e4470e98b79c95641060e1e",
+          "inputs": {
+            "a": [
+              {
+                "node": "lower",
+                "port": "c",
+                "bit": 0
+              }
+            ],
+            "b": [
+              {
+                "node": "higher",
+                "port": "c",
+                "bit": 0
+              }
+            ]
+          }
+        }
+      ],
+      "outputs": {
+        "c": [
+          {
+            "node": "sum",
+            "port": "value",
+            "bit": 0
+          },
+          {
+            "node": "sum",
+            "port": "value",
+            "bit": 1
+          }
+        ]
+      }
+    }
+  }
+}

@@ -29,6 +29,13 @@ F-Boxen und flachen NAND-Netzen vor. Nach dem Serverneustart erscheinen die
 Funktionen unter **Beispiele → Rekursion**, die F-Boxen unter
 **Unterprogramm-Bausteine**. Siehe [rekursive Multiplikation](docs/REKURSIVE-MULTIPLIKATION.md).
 
+`NumberOfOnes<w>(a)` zählt durch rekursive Halbierung die Einsen eines Bitarrays.
+`w` ist eine positive Zweierpotenz; das Ergebnis hat `LOG2(w)+1` Bits.
+Für `w=1,2,4` liegen vollständig geprüfte Instanzen mit verschachtelten F-Boxen
+und flachen NAND-Netzen vor (0, 5 bzw. 24 NANDs). Beim nächsten Serverstart
+werden sie unter **Beispiele → Rekursion** und **Unterprogramm-Bausteine** ergänzt.
+Siehe [NumberOfOnes und die korrigierte Rekursion](docs/NUMBER-OF-ONES.md).
+
 Im Template-Editor übersetzt **Direkt in NAND übersetzen & speichern** feste
 Bit-Stufen konventionell: Schleifen werden für die gewählte Breite entrollt,
 `bits`/`pack` werden Verdrahtung und `& | ^` werden NAND-Gatter. Die vier neuen

@@ -1,0 +1,39 @@
+{
+  "version": 2,
+  "source": "# MUL<w>: unsigned Ergebnis [c, err], bei a*b >= 2**w gilt [0, 1].\n# Rekursive Teilprodukte behalten intern immer alle 2*w Bits.\n\ndef CONST<w>(value):\n    assert w > 0 and w <= 128\n    return pack(bits(value, w))\n\ndef INC<w>(a, enable):\n    assert w > 0\n    x = bits(a, w)\n    e = bits(enable, 1)\n    digit = x[0] ^ e[0]\n    carry = x[0] & e[0]\n    if w == 1:\n        return pack([digit, carry])\n    tail = bits(INC<w - 1>(pack(x[1:]), carry), w)\n    return pack([digit] + tail)\n\ndef ADD<w>(a, b):\n    assert w > 0 and (w & (w - 1)) == 0\n    x = bits(a, w)\n    y = bits(b, w)\n    if w == 1:\n        return pack([x[0] ^ y[0], x[0] & y[0]])\n    k = w // 2\n    lo = bits(ADD<k>(pack(x[:k]), pack(y[:k])), k + 1)\n    hi_temp = ADD<k>(pack(x[k:]), pack(y[k:]))\n    hi = bits(INC<k + 1>(hi_temp, lo[k]), k + 2)\n    return pack(lo[:k] + hi[:k + 1])\n\ndef MUL_raw<w>(a, b):\n    assert w > 0 and (w & (w - 1)) == 0\n    x = bits(a, w)\n    y = bits(b, w)\n    if w == 1:\n        return pack([x[0] & y[0], 0])\n    k = w // 2\n    p00 = MUL_raw<k>(pack(x[:k]), pack(y[:k]))\n    p01 = MUL_raw<k>(pack(x[:k]), pack(y[k:]))\n    p10 = MUL_raw<k>(pack(x[k:]), pack(y[:k]))\n    p11 = MUL_raw<k>(pack(x[k:]), pack(y[k:]))\n\n    # p00 + 2**k * (p01 + p10) + 2**w * p11.\n    cross = bits(ADD<w>(p01, p10), w + 1)\n    low = bits(ADD<w>(p00, pack([0] * k + cross[:k])), w + 1)\n    high = bits(ADD<w>(p11, pack(cross[k:] + [0] * (k - 1))), w + 1)\n    adjusted = bits(INC<w>(pack(high[:w]), low[w]), w + 1)\n    # high[w] und adjusted[w] sind null: das Produkt passt in 2*w Bits.\n    return pack(low[:w] + adjusted[:w])\n\ndef CHECK<w>(product):\n    assert w > 0 and (w & (w - 1)) == 0\n    result = bits(product, 2 * w)\n    err = 0\n    for i in range(w, 2 * w):\n        err = err | result[i]\n    valid = 1 ^ err\n    for i in range(w):\n        result[i] = result[i] & valid\n    return pack(result[:w] + [err])\n\ndef MUL<w>(a, b):\n    assert w > 0 and (w & (w - 1)) == 0\n    return CHECK<w>(MUL_raw<w>(a, b))\n\nresult = bits(MUL<w>(a, b), w + 1)\nreturn pack(result[:w]), result[w]\n",
+  "limits": {
+    "steps": 100000,
+    "iterations": 10000,
+    "total_steps": 5000000
+  },
+  "conditions": [
+    "w >= 1",
+    "w <= 8",
+    "is_power_of_two(w)"
+  ],
+  "parameters": {
+    "w": 2
+  },
+  "interface": {
+    "inputs": [
+      {
+        "name": "a",
+        "bits": "w"
+      },
+      {
+        "name": "b",
+        "bits": "w"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "c",
+        "bits": "w"
+      },
+      {
+        "name": "err",
+        "bits": 1
+      }
+    ]
+  }
+}
