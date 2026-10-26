@@ -1,0 +1,16 @@
+def multiply<w>(a, b):
+    x = bits(a, w)
+    y = bits(b, w)
+    result = [0] * (2 * w)
+    for i in range(w):
+        carry = 0
+        for j in range(w):
+            partial = x[j] & y[i]
+            parity = result[i + j] ^ partial
+            digit = parity ^ carry
+            carry = (result[i + j] & partial) | (parity & carry)
+            result[i + j] = digit
+        result[i + w] = carry
+    return pack(result)
+
+return multiply<n>(a, b)

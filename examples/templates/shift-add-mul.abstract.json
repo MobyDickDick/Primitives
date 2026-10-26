@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "kind": "template",
+  "name": "Multiplikation",
+  "description": "Unsigned Multiplikation mit AND-Teilprodukten und festen Addierstufen. Das vollständige Produkt hat 2*n Bits; keine Multiplikation von Eingangswerten im Quelltext.",
+  "parameters": [
+    "n"
+  ],
+  "conditions": [
+    "n >= 1",
+    "n <= 16"
+  ],
+  "interface": {
+    "inputs": [
+      {
+        "name": "a",
+        "bits": "n"
+      },
+      {
+        "name": "b",
+        "bits": "n"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "c",
+        "bits": "2*n"
+      }
+    ]
+  },
+  "source": "def multiply<w>(a, b):\n    x = bits(a, w)\n    y = bits(b, w)\n    result = [0] * (2 * w)\n    for i in range(w):\n        carry = 0\n        for j in range(w):\n            partial = x[j] & y[i]\n            parity = result[i + j] ^ partial\n            digit = parity ^ carry\n            carry = (result[i + j] & partial) | (parity & carry)\n            result[i + j] = digit\n        result[i + w] = carry\n    return pack(result)\n\nreturn multiply<n>(a, b)\n",
+  "limits": {
+    "steps": 100000,
+    "iterations": 10000,
+    "total_steps": 5000000
+  }
+}

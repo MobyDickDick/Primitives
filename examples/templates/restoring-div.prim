@@ -1,0 +1,31 @@
+def subtract<w>(a, b):
+    x = bits(a, w)
+    y = bits(b, w)
+    result = [0] * (w + 1)
+    borrow = 0
+    for i in range(w):
+        parity = x[i] ^ y[i]
+        result[i] = parity ^ borrow
+        borrow = ((1 ^ x[i]) & y[i]) | ((1 ^ parity) & borrow)
+    result[w] = borrow
+    return pack(result)
+
+# Restoring division: n feste Stufen, keine datenabhaengigen Schleifen.
+x = bits(a, n)
+y = bits(b, n)
+quotient = [0] * n
+remainder = [0] * (n + 1)
+for i in range(n - 1, -1, -1):
+    remainder = [x[i]] + remainder[:n]
+    difference = bits(subtract<n+1>(pack(remainder), b), n + 2)
+    take = 1 ^ difference[n + 1]
+    for j in range(n + 1):
+        remainder[j] = (difference[j] & take) | (remainder[j] & (1 ^ take))
+    quotient[i] = take
+valid = 0
+for i in range(n):
+    valid = valid | y[i]
+for i in range(n):
+    quotient[i] = quotient[i] & valid
+    remainder[i] = remainder[i] & valid
+return pack(quotient), pack(remainder[:n]), valid, 1 ^ valid

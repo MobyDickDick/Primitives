@@ -1,0 +1,13 @@
+def add<w>(a, b):
+    x = bits(a, w)
+    y = bits(b, w)
+    result = [0] * (w + 1)
+    carry = 0
+    for i in range(w):
+        parity = x[i] ^ y[i]
+        result[i] = parity ^ carry
+        carry = (x[i] & y[i]) | (parity & carry)
+    result[w] = carry
+    return pack(result)
+
+return add<n>(a, b)

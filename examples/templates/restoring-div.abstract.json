@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "kind": "template",
+  "name": "Division",
+  "description": "Unsigned schriftliche Binärdivision mit n festen Subtraktions-/Auswahlstufen. c=a//b, rest=a%b. Bei b=0: c=0, rest=0, valid=0, div0=1; sonst valid=1, div0=0.",
+  "parameters": [
+    "n"
+  ],
+  "conditions": [
+    "n >= 1",
+    "n <= 15"
+  ],
+  "interface": {
+    "inputs": [
+      {
+        "name": "a",
+        "bits": "n"
+      },
+      {
+        "name": "b",
+        "bits": "n"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "c",
+        "bits": "n"
+      },
+      {
+        "name": "rest",
+        "bits": "n"
+      },
+      {
+        "name": "valid",
+        "bits": 1
+      },
+      {
+        "name": "div0",
+        "bits": 1
+      }
+    ]
+  },
+  "source": "def subtract<w>(a, b):\n    x = bits(a, w)\n    y = bits(b, w)\n    result = [0] * (w + 1)\n    borrow = 0\n    for i in range(w):\n        parity = x[i] ^ y[i]\n        result[i] = parity ^ borrow\n        borrow = ((1 ^ x[i]) & y[i]) | ((1 ^ parity) & borrow)\n    result[w] = borrow\n    return pack(result)\n\n# Restoring division: n feste Stufen, keine datenabhaengigen Schleifen.\nx = bits(a, n)\ny = bits(b, n)\nquotient = [0] * n\nremainder = [0] * (n + 1)\nfor i in range(n - 1, -1, -1):\n    remainder = [x[i]] + remainder[:n]\n    difference = bits(subtract<n+1>(pack(remainder), b), n + 2)\n    take = 1 ^ difference[n + 1]\n    for j in range(n + 1):\n        remainder[j] = (difference[j] & take) | (remainder[j] & (1 ^ take))\n    quotient[i] = take\nvalid = 0\nfor i in range(n):\n    valid = valid | y[i]\nfor i in range(n):\n    quotient[i] = quotient[i] & valid\n    remainder[i] = remainder[i] & valid\nreturn pack(quotient), pack(remainder[:n]), valid, 1 ^ valid\n",
+  "limits": {
+    "steps": 100000,
+    "iterations": 10000,
+    "total_steps": 5000000
+  }
+}

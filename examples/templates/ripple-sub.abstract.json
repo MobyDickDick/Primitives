@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "kind": "template",
+  "name": "Subtraktion",
+  "description": "Ripple-Borrow-Subtrahierer: c=(a-b) modulo 2^n; borrow=1 genau bei a<b. Feste Subtrahierstufen; unsigned Eingänge.",
+  "parameters": [
+    "n"
+  ],
+  "conditions": [
+    "n >= 1",
+    "n <= 16"
+  ],
+  "interface": {
+    "inputs": [
+      {
+        "name": "a",
+        "bits": "n"
+      },
+      {
+        "name": "b",
+        "bits": "n"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "c",
+        "bits": "n"
+      },
+      {
+        "name": "borrow",
+        "bits": 1
+      }
+    ]
+  },
+  "source": "def subtract<w>(a, b):\n    x = bits(a, w)\n    y = bits(b, w)\n    result = [0] * (w + 1)\n    borrow = 0\n    for i in range(w):\n        parity = x[i] ^ y[i]\n        result[i] = parity ^ borrow\n        borrow = ((1 ^ x[i]) & y[i]) | ((1 ^ parity) & borrow)\n    result[w] = borrow\n    return pack(result)\n\ndifference = bits(subtract<n>(a, b), n + 1)\nreturn pack(difference[:n]), difference[n]\n",
+  "limits": {
+    "steps": 100000,
+    "iterations": 10000,
+    "total_steps": 5000000
+  }
+}
