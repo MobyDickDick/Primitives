@@ -339,6 +339,34 @@ python -m primitives evolve --preset xor --backend tiny --gates 8 --neutral
 
 In der JSON-API wird `config.neutral` auf `true` gesetzt.
 
+## Tatsächliche Abstammung der Suchergebnisse
+
+Python und TinyLanguage speichern für neue Suchergebnisse die tatsächlichen
+Vorfahren des besten Suchkandidaten. Unter **Schaltbild → Abstammung des
+Suchergebnisses** stehen Kandidatenkennungen, Eltern, Mutationsstellen und die
+konkret eingesetzten Bibliotheksprogramme oder Bausteinversionen. Die Tabelle
+zeigt höchstens die jüngsten 100 Kandidaten; der **JSON-Programmexport** enthält
+die gesamte Abstammung dieses Gewinners unter `search.ancestry`.
+
+Auch genetisch identische Kandidaten erhalten eigene Kennungen. Rekombination
+speichert beide gewählten Eltern und die übernommenen Genpositionen, Mutation
+die betroffenen Stellen und tatsächlichen Genänderungen. Inselwechsel behalten
+die Kandidatenkennung. Zufallsstarts beginnen eigene Linien. Quellen werden
+mit ihren konkret verwendeten NAND-Schaltungen und Anschlusszuordnungen gesichert,
+sodass der Export ohne die ursprünglichen Bibliotheksdateien lesbar bleibt.
+
+Kompaktierung, neutrale Vereinfachung, eine Auswahl der bisherigen Lösung vor
+der Korrektur und Restfallkorrekturen erscheinen als nachfolgende Schritte.
+Ein abgelehnter Retest behält die Abstammung des bisherigen Bibliotheksgewinners.
+Alte Programme erhalten keine nachträglich erfundene Abstammung; eine neue Suche
+kann sie als benannte Ausgangsquelle erfassen. Die Aufzeichnung endet an den
+Quellen dieses Laufs und behauptet keinen unveränderten Erhalt der Bausteine.
+Unbeteiligte und verworfene Kandidaten werden nicht im Ergebnis exportiert.
+
+[FORMAT.md](docs/FORMAT.md#kandidatenabstammung) beschreibt das Format und die
+Rekonstruktion. Die vorhandenen Listen `seed_library` und `seed_blocks` nennen
+weiterhin das Quellenangebot beim Start, unabhängig von tatsächlicher Verwendung.
+
 ## Retests und Bausteinbibliothek
 
 NAND-Ausdrücke verwenden die Schreibweise `(1) ⊼ (2)`, mit dem Operator zwischen

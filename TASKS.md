@@ -44,8 +44,9 @@ Die Kennungen sind Dokumentationskennungen; GitHub-Issues wurden noch nicht ange
       funktionserhaltende NAND-Vereinfachung, CLI/API, Oberfläche und Phasenprotokoll).
 - [x] Explizite Makroknoten mit benannten Ports und festen Abhängigkeitsversionen (PRIM-05;
       bei der Evolution bewusst in mutierbare NAND-Gatter expandiert).
-- [ ] Tatsächliche Abstammung einzelner Kandidaten speichern; aktuell nur Liste
-      verfügbarer Bibliotheksquellen je Lauf, kein genealogischer Nachweis.
+- [x] Tatsächliche Abstammung einzelner Kandidaten speichern (Python und TinyLanguage;
+      Kandidatenkennungen, Eltern, Genänderungen, konkrete Quellen und Inselwechsel;
+      vollständige Vorfahren des Suchgewinners in Bibliothek und JSON-Export).
 - [ ] Trainings- und Prüfvektoren getrennt behandeln, Gegenbeispiele nachführen.
 - [ ] Numerische Fehlerfunktion und Gewichtung hoher Bits für Mathematik.
 - [ ] Fehlerfreie Programme nach dem ersten Treffer weiter optimieren.
@@ -77,8 +78,8 @@ Die Kennungen sind Dokumentationskennungen; GitHub-Issues wurden noch nicht ange
 - [ ] Evolution auf zeitabhängige Aufgaben erweitern.
 
 Die acht Erweiterungspakete PRIM-01 bis PRIM-08 sind umgesetzt.
-Nächster offener Entwicklungspunkt: tatsächliche Abstammung einzelner Kandidaten
-speichern (Etappe 2).
+Nächster offener Entwicklungspunkt: Trainings- und Prüfvektoren getrennt behandeln
+und Gegenbeispiele nachführen (Etappe 2).
 Für die Suchentwicklung bleiben Suchrobustheit und unabhängige Prüfvektoren
 vor einer starken Erhöhung der Zahlbreiten empfohlen.
 

@@ -295,6 +295,74 @@ beim Start vorlagen. `library_candidates` zählt die davon zum Budget und N pass
 Schaltungen. Das ist keine Aussage, dass jeder aufgeführte Baustein in der endgültigen
 Lösung enthalten ist.
 
+### Kandidatenabstammung
+
+Neue Python- und TinyLanguage-Suchergebnisse enthalten optional
+`search.ancestry` mit `schema: 1` und `scope: "winner_ancestors"`:
+
+| Feld | Bedeutung |
+|---|---|
+| `root` | Kennung des separat gesicherten besten **Suchkandidaten** vor Nachbearbeitung |
+| `nodes` | Dieser Kandidat und alle rekursiv referenzierten Eltern, nach Kennung sortiert |
+| `sources` | Tatsächlich eingesetzte externe Quellen, Schlüssel `kind:id`, je mit `kind`, `id`, `circuit` |
+| `migrations` | Übernommene Inselwechsel dieser Kandidaten während des gesamten Laufs |
+| `transformations` | Nachfolgende Schritte, jeweils mit `operation` und konkretem Schaltungsschnappschuss `circuit` |
+
+Eine Kandidatenkennung ist die laufweite Bewertungsnummer (1 bis
+`search.evaluations`). Sie identifiziert ein Individuum, keinen Genomhash.
+Neustarts setzen die Kennungen nicht zurück. `restart`, `generation` und `island`
+im Knoten nennen Start, kumulative Generation und Geburtsinsel, jeweils ab 0.
+`score` ist der tatsächliche Rang gemäss `search.objective`. Elternkennungen
+sind immer kleiner als die Kindkennung; gleiche Genome dürfen unterschiedliche
+Kennungen haben. Jeder Knoten hat `parents` und `operator`:
+
+- `random`: keine Eltern; `genome` enthält alle 2G+M Gene.
+- `library`: keine Eltern; ebenfalls vollständiges `genome`. `origin.seeds`
+  enthält pro tatsächlichem Einsatz `source`, `inputs` als Liste der gebundenen
+  Zieldrähte und `gate_offset` (Gatterindex, ab 0). Quellen sind kompaktierte
+  NAND-Schaltungen; Referenzen werden nach dieser Kompaktierung gebunden.
+- `incumbent`: keine laufinternen Eltern; vollständiges `genome` einschliesslich
+  zufällig ergänzter inaktiver Gatter. `origin.seeds[0].source` nennt die bisherige
+  Lösung als externen Schnappschuss. Es wird keine ältere Genealogie erfunden.
+- `variation`: `parents[0]` ist der kopierte Elternkandidat. Bei aktivierter
+  Rekombination steht der zweite gewählte Kandidat in `parents[1]`, auch bei
+  Selbstkreuzung oder ausbleibender Genübernahme. `crossover_genes` nennt die
+  vom zweiten Elternteil kopierten Positionen, `mutation_genes` die Stellen mit
+  Mutationsziehung. Beide Listen dürfen sich überschneiden. Eine Mutation kann
+  denselben Wert erneut ziehen. `changes` enthält die endgültigen Unterschiede
+  zum **ersten** Elternteil als `[Genindex, neuer Wert]`, einschliesslich der
+  Änderungen durch Rekombination. Sämtliche Genindizes beginnen bei 0.
+
+Rekonstruktion: Knoten in aufsteigender Kennung durchlaufen, bei einem Ursprung
+`genome` übernehmen; sonst das rekonstruierte Genom von `parents[0]` kopieren und
+`changes` anwenden. Die Mutation-/Rekombinationslisten erklären die Erzeugung,
+während `changes` bereits das endgültige Ergebnis nach beiden Schritten enthält.
+Die ersten 2G Gene bilden die NAND-Eingangspaare, die letzten M die Ausgänge.
+G und M stammen aus Suchkonfiguration und Datensatz.
+
+Migrationen enthalten `candidate_id`, `restart`, `generation`, `source_island`
+und `target_island`. Sie erzeugen keine neue Bewertung und keine neue Identität.
+Die Liste enthält alle während des Laufs angenommenen Ortswechsel der exportierten
+Individuen, auch solche nach der Entstehung des Gewinners. Die Zahl kann deshalb
+von der migrationsübergreifenden Gesamtsumme in `search.runs` abweichen.
+
+Die erste Transformation ist stets `compact`. Im neutralen Modus folgt
+`simplification` mit `method: "nand-identities-v1"`. Falls vor der automatischen
+Restfallkorrektur die bessere Bibliothekslösung gewählt wird, folgt
+`incumbent_selection` mit explizitem `source`-Schnappschuss. Eine erfolgreiche
+Korrektur ergänzt `repair` mit Methode und Fällen. Die letzte Schaltung in der
+Liste stimmt mit dem resultierenden Programm überein. Die Suchwurzel und ihr Rang
+beziehen sich weiterhin auf die tatsächlich ausgeführte Evolution.
+
+Die Dokumentation enthält die vollständige Vorfahrenmenge dieses Suchgewinners,
+keinen Katalog sämtlicher bewerteter oder verworfener Kandidaten. Quellenlisten
+unter `seed_library`/`seed_blocks` bleiben davon unabhängig. Die Genealogie endet
+an den externen Quellversionen; inaktive oder später überschriebene Gene begründen
+keinen behaupteten Beitrag zur endgültigen Funktion. Ein abgelehnter Retest behält
+das frühere Programm samt dessen Protokoll; alte Programme ohne `ancestry` bleiben
+lesbar. Quellen enthalten NAND-Schnappschüsse, damit ein Export auch nach Entfernung
+der ursprünglichen Bibliotheksdatei interpretierbar bleibt.
+
 ## Erlaubte Vektorausdrücke
 
 Variablen: `x`, `a`, `b`, `x0…x(N-1)`, `pi`.

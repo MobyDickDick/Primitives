@@ -41,9 +41,10 @@ fn tournament(ranks, offset, size) {
     return winner;
 }
 
-fn migrate(parents, ranks) {
+fn migrate(parents, ranks, identities, generation) {
     def elites = new(islands * width);
     def scores = new(islands);
+    def elite_ids = new(islands);
     def island = 0;
     // Snapshot every source before changing any target.
     while (island < islands) {
@@ -58,6 +59,8 @@ fn migrate(parents, ranks) {
         def status = copy_genes(parents, elite * width, elites, island * width);
         if (status != 0) { print(status); }
         def status = store(scores, island, heap_get(ranks, elite));
+        if (status != 0) { print(status); }
+        def status = store(elite_ids, island, heap_get(identities, elite));
         if (status != 0) { print(status); }
         island = island + 1;
     }
@@ -79,17 +82,23 @@ fn migrate(parents, ranks) {
             if (status != 0) { print(status); }
             def status = store(ranks, worst, heap_get(scores, source));
             if (status != 0) { print(status); }
+            def status = store(identities, worst, heap_get(elite_ids, source));
+            if (status != 0) { print(status); }
+            def status = bridge.migration(heap_get(elite_ids, source), source, island, generation);
+            if (status != 0) { print(status); }
             accepted = accepted + 1;
         }
         island = island + 1;
     }
     delete(elites);
     delete(scores);
+    delete(elite_ids);
     return accepted;
 }
 
 def width = 2 * gates + m;
 def best = bridge.population_buffer(1);
+def best_id = 0;
 def rank = 0;
 def weight = (gates + 1) * (gates + 1);
 def evaluations = 0;
@@ -105,10 +114,16 @@ while (restart < restarts && (evaluations == 0 || rank >= weight)) {
     def limit = Math.floor(evaluation_budget * (restart + 1) / restarts);
     def parents = bridge.population_buffer(population);
     def ranks = new(population);
+    def identities = new(population);
     size = 0;
     while (size < population && (evaluations == 0 || rank >= weight)) {
         def candidate = bridge.initial(restart, size);
         def candidate_rank = bridge.score(candidate);
+        def island = 0;
+        while (size >= island_start(island + 1)) { island = island + 1; }
+        def candidate_id = bridge.record(candidate, generation, island, 0, 0, candidate, 0, candidate);
+        def status = store(identities, size, candidate_id);
+        if (status != 0) { print(status); }
         def status = copy_genes(candidate, 0, parents, size * width);
         if (status != 0) { print(status); }
         def status = store(ranks, size, candidate_rank);
@@ -117,6 +132,7 @@ while (restart < restarts && (evaluations == 0 || rank >= weight)) {
             def status = copy_genes(candidate, 0, best, 0);
             if (status != 0) { print(status); }
             rank = candidate_rank;
+            best_id = candidate_id;
         }
         evaluations = evaluations + 1;
         size = size + 1;
@@ -137,16 +153,30 @@ while (restart < restarts && (evaluations == 0 || rank >= weight)) {
             def first = island_start(island);
             def count = island_start(island + 1) - first;
             def candidate = bridge.specimen();
+            def flags = bridge.population_buffer(1);
+            def parent_id = 0;
+            def mate_id = 0;
+            def parent_offset = 0;
             if (Random.random() >= 0.15) {
                 def selected = new[tournament(ranks, first, count), tournament(ranks, first, count)];
                 def crossover = Random.random() < 0.35;
+                parent_offset = heap_get(selected, 0) * width;
+                parent_id = heap_get(identities, heap_get(selected, 0));
+                if (crossover) { mate_id = heap_get(identities, heap_get(selected, 1)); }
                 def i = 0;
                 while (i < width) {
                     def gene = heap_get(parents, heap_get(selected, 0) * width + i);
+                    def flag = 0;
                     if (crossover && Random.random() < 0.5) {
                         gene = heap_get(parents, heap_get(selected, 1) * width + i);
+                        flag = 1;
                     }
-                    if (Random.random() < 1 / width) { gene = Random.randint(0, bound(i) - 1); }
+                    if (Random.random() < 1 / width) {
+                        gene = Random.randint(0, bound(i) - 1);
+                        flag = flag + 2;
+                    }
+                    def status = store(flags, i, flag);
+                    if (status != 0) { print(status); }
                     def status = store(candidate, i, gene);
                     if (status != 0) { print(status); }
                     i = i + 1;
@@ -154,6 +184,9 @@ while (restart < restarts && (evaluations == 0 || rank >= weight)) {
                 delete(selected);
             }
             def candidate_rank = bridge.score(candidate);
+            def candidate_id = bridge.record(candidate, generation, island, parent_id, mate_id, parents, parent_offset, flags);
+            if (candidate_id < 1) { print(candidate_id); }
+            delete(flags);
             evaluations = evaluations + 1;
             def worst = first;
             def j = first + 1;
@@ -179,17 +212,20 @@ while (restart < restarts && (evaluations == 0 || rank >= weight)) {
                 if (status != 0) { print(status); }
                 def status = store(ranks, worst, candidate_rank);
                 if (status != 0) { print(status); }
+                def status = store(identities, worst, candidate_id);
+                if (status != 0) { print(status); }
             }
             if (candidate_rank < rank) {
                 def status = copy_genes(candidate, 0, best, 0);
                 if (status != 0) { print(status); }
                 rank = candidate_rank;
+                best_id = candidate_id;
             }
             delete(candidate);
             attempt = attempt + 1;
         }
         if (islands > 1 && rounds - Math.floor(rounds / migration_interval) * migration_interval == 0 && rank >= weight) {
-            migrations = migrations + migrate(parents, ranks);
+            migrations = migrations + migrate(parents, ranks, identities, generation);
         }
         def status = bridge.trace(generation, rank);
         if (status != 0) { print(status); }
@@ -198,7 +234,8 @@ while (restart < restarts && (evaluations == 0 || rank >= weight)) {
     if (status != 0) { print(status); }
     delete(parents);
     delete(ranks);
+    delete(identities);
     restart = restart + 1;
 }
-print(bridge.finish(best, generation, width, size));
+print(bridge.finish(best, generation, width, size, best_id));
 delete(best);

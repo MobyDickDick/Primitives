@@ -198,9 +198,12 @@ das Paket als `metadata.hierarchy` mit der passenden Schnittstelle führen.
 Gespeicherte Bausteine werden für beide Suchbackends expandiert als mögliche
 Startbausteine angeboten. Die Genom-Gatter bleiben mutierbar. Suchergebnisse
 geben daher eine flache NAND-Schaltung zurück; sie beanspruchen keine erhaltenen
-Originalinstanzen. `search.seed_blocks` nennt die angebotenen festen Kennungen,
-keine tatsächlich belegte Abstammung. Eine Restfallkorrektur entfernt ebenfalls
-die Hierarchiebehauptung, sobald sie die NAND-Implementierung verändert.
+Originalinstanzen. `search.seed_blocks` nennt die angebotenen festen Kennungen.
+`search.ancestry` protokolliert dagegen tatsächliche
+Bibliothekskompositionen mit festen Kennungen, NAND-Schnappschüssen und
+Eingangsverdrahtung sowie deren Kandidaten-Nachkommen. Dies behauptet weiterhin
+keinen unveränderten Erhalt der Originalinstanzen. Eine Restfallkorrektur entfernt
+ebenfalls die Hierarchiebehauptung, sobald sie die NAND-Implementierung verändert.
 Die unveränderlichen Bausteine und Referenzmetadaten bleiben erhalten.
 
 Pro Schnittstellenseite gelten weiterhin 1–32 Gesamtbits. Ein Paket enthält

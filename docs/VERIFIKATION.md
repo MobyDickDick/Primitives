@@ -543,3 +543,44 @@ Geprüft am 25. Oktober 2026:
   JavaScript-Fehler beobachtet. Physische Touchbedienung wurde nicht getestet.
 
 ![Getrennte Evolutions- und Vereinfachungsphase](neutrale-evolution.png)
+
+## Tatsächliche Kandidatenabstammung (Etappe 2)
+
+Geprüft am 25. Oktober 2026:
+
+- `PYTHONUTF8=1 python -m unittest discover -s tests`: **172 Tests erfolgreich**,
+  einschliesslich **23 HTTP-Integrationstests** und echter TinyLanguage-Läufe.
+  Der erste Sandboxlauf traf die bekannte WinError-10013-Loopback-Sperre;
+  ausserdem benötigen CLI-Unterprozesse den vererbten UTF-8-Modus. Der vollständige
+  Wiederholungslauf mit freigegebenen lokalen Verbindungen besteht.
+- Zehn neue Abstammungstests rekonstruieren gespeicherte Genome aus tatsächlichen
+  Eltern und Genänderungen. Alle exportierten Kandidaten werden unabhängig skalar
+  gegen die Vektoren geprüft und ihre Ränge mit den gespeicherten Rängen verglichen.
+  Kontrollierte Rekombination und Mutation prüfen die exakten übernommenen und
+  mutierten Genpositionen; identische Genome behalten eigene Individuenkennungen.
+- Python und TinyLanguage erzeugen reproduzierbare Vorfahrengraphen mit echten
+  Nachkommen und angenommenen Migrationen. Simultane Ringmigration kopiert die
+  ursprünglichen Kandidatenkennungen statt bereits ersetzter Ziele. Drei Neustarts
+  mit drei Inseln schöpfen gemeinsam exakt 31 Bewertungen aus, ohne laufinterne
+  Elternbeziehungen über Neustartgrenzen zu erzeugen.
+- Konkrete Programm- und Bausteinquellen werden mit Quellenverdrahtung und
+  NAND-Schnappschüssen gegen die tatsächlich eingesetzten Gene geprüft.
+  Ein wegen seiner Eingangsbreite ungeeigneter angebotener Eintrag erscheint
+  nicht als Vorfahr. Die bisherige Lösung, neutrale Vereinfachung, explizite
+  Auswahl einer besseren bisherigen Korrekturbasis und Restfallkorrektur bleiben
+  getrennt nachvollziehbar. Nachbearbeitung verändert das Ausgangsprotokoll nicht.
+- Tatsächlicher CLI-Aufruf, Bibliothek neu öffnen, HTTP-Speicherung und ein
+  abgelehnter Retest prüfen den Erhalt der korrekten Genealogie. Die bisherige
+  Suite prüft weiterhin Abbruch, Zeitlimit, frühe Fehlerfreiheit und Suchbudgets.
+- `node --test tests/test_*.js`: **26 Tests erfolgreich**. Die Anzeige funktioniert
+  auch bei alten Ergebnissen ohne Abstammung, zeigt Eltern und Nachbearbeitung,
+  behandelt Quellennamen als Text und begrenzt grosse Graphen auf 100 Tabellenzeilen.
+  `node --check web/app.js` und `git diff --check` bestehen.
+- Browserprüfung mit temporärer Bibliothek und deaktivierter Hintergrundsuche:
+  ein tatsächliches TinyLanguage-Ergebnis mit sechs Vorfahren einschliesslich
+  Rekombination und Mutation geöffnet; nach Neuladen erneut aus der Bibliothek
+  geöffnet. Kennungen und Elternbeziehungen bleiben erhalten. Die breite und
+  schmale Ansicht wurden visuell geprüft, Tabelleninhalt bleibt innerhalb der
+  scrollbaren Ansicht. Keine Browserwarnungen oder JavaScript-Fehler beobachtet.
+
+![Gespeicherte Kandidatenabstammung in der schmalen Browseransicht](kandidatenabstammung.jpg)

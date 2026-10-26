@@ -11,6 +11,7 @@ from .circuit import Circuit
 from .evolution import Problem, check_cancelled, search_python
 from .library import fitness, rank, task_id
 from .repair import repair_result
+from .ancestry import circuit_source, transformed
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -28,15 +29,23 @@ def search(dataset, config, library=None, *, save=True, time_budget=None, cancel
     config.validate()
     check_cancelled(cancel_event)
     saved = library.programs() if library else []
-    circuits = [Circuit.from_dict(p["circuit"]) for p in saved if p["fitness"]["exact_on_dataset"]]
+    exact = [p for p in saved if p["fitness"]["exact_on_dataset"]]
+    circuits = [Circuit.from_dict(p["circuit"]) for p in exact]
+    sources = [circuit_source(c, "program", p["id"]) for c, p in zip(circuits, exact)]
     blocks = library.blocks() if library else []
-    circuits += [library.load_block(b["id"]).expand() for b in blocks]
+    for block in blocks:
+        circuit = library.load_block(block["id"]).expand()
+        circuits.append(circuit)
+        sources.append(circuit_source(circuit, "block", block["id"]))
     incumbent = next((p for p in saved if p["task_id"] == task_id(dataset)), None)
+    incumbent_source = (circuit_source(Circuit.from_dict(incumbent["circuit"]), "program", incumbent["id"])
+                        if incumbent else None)
     started = time.monotonic()
     if config.backend == "python":
         result = search_python(Problem(dataset, config, circuits,
                                       Circuit.from_dict(incumbent["circuit"]) if incumbent else None,
-                                      time_budget=time_budget, cancel_event=cancel_event))
+                                      time_budget=time_budget, cancel_event=cancel_event,
+                                      library_sources=sources, incumbent_source=incumbent_source))
     else:
         interpreter = tiny_interpreter()
         (ROOT / ".jobs").mkdir(exist_ok=True)
@@ -45,9 +54,10 @@ def search(dataset, config, library=None, *, save=True, time_budget=None, cancel
             job = folder / "job.json"
             job.write_text(json.dumps({"dataset": dataset.to_dict(), "config": asdict(config),
                                        "library": [c.to_dict() for c in circuits],
+                                       "library_sources": sources, "incumbent_source": incumbent_source,
                                        "incumbent": incumbent["circuit"] if incumbent else None}), encoding="utf-8")
             # JSON quoting is safe here: this is source text, never a shell command.
-            prelude = f'''def bridge = Python.import_module("primitives.tiny_bridge", new["configure", "specimen", "score", "trace", "finish", "begin_restart", "initial", "observe", "population_buffer"]);
+            prelude = f'''def bridge = Python.import_module("primitives.tiny_bridge", new["configure", "specimen", "score", "trace", "finish", "begin_restart", "initial", "observe", "population_buffer", "record", "migration"]);
 def configured = bridge.configure({json.dumps(str(job))});
 if (configured != 0) {{ print(configured); }}
 def n = {dataset.inputs};
@@ -98,6 +108,8 @@ def migration_interval = {config.migration_interval};
     if config.repair_cases:
         result["fitness"] = fitness(Circuit.from_dict(result["circuit"]), dataset)
         if incumbent and rank(incumbent) < rank(result):
+            result = transformed(result, "incumbent_selection", Circuit.from_dict(incumbent["circuit"]),
+                                 source=incumbent_source)
             result = {"circuit": incumbent["circuit"], "fitness": incumbent["fitness"],
                       "search": result["search"],
                       **({"correction": incumbent["correction"]} if "correction" in incumbent else {})}

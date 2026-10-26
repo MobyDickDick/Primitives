@@ -2,6 +2,7 @@
 from .circuit import Circuit
 from .library import fitness
 from .evolution import check_cancelled
+from .ancestry import transformed
 
 
 def repair_result(result, dataset, max_cases=4, *, cancel_event=None):
@@ -54,6 +55,7 @@ def repair_result(result, dataset, max_cases=4, *, cancel_event=None):
         raise ValueError("Die Restfallkorrektur hat die Gegenprüfung nicht bestanden.")
     # Corrections change the implementation; the old hierarchy is no longer exact.
     result = {k: v for k, v in result.items() if k != "hierarchy"}
+    result = transformed(result, "repair", corrected, method="nand-exceptions", cases=failures)
     return {**result, "circuit": corrected.to_dict(), "fitness": checked,
             "correction": {"method": "nand-exceptions", "cases": failures,
                            "base_gates": len(circuit.gates),

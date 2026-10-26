@@ -13,7 +13,8 @@ def configure(path):
     obj = json.loads(Path(path).read_text(encoding="utf-8"))
     _problem = Problem(Dataset.from_dict(obj["dataset"]), SearchConfig(**obj["config"]),
                        [Circuit.from_dict(c) for c in obj["library"]],
-                       Circuit.from_dict(obj["incumbent"]) if obj.get("incumbent") else None)
+                       Circuit.from_dict(obj["incumbent"]) if obj.get("incumbent") else None,
+                       library_sources=obj.get("library_sources"), incumbent_source=obj.get("incumbent_source"))
     return 0
 
 
@@ -53,8 +54,21 @@ def trace(generation, value):
     return _problem.trace(generation, value)
 
 
-def finish(genome, generation, width, parent_population=0):
+def record(genome, generation, island, parent_id, mate_id, parents, offset, flags):
+    offset = int(offset)
+    return _problem.record(list(genome), int(generation), int(island), int(parent_id), int(mate_id),
+                           list(parents[offset:offset + _problem.width]) if parent_id else None,
+                           [int(flag) for flag in flags] if parent_id else None)
+
+
+def migration(candidate_id, source, target, generation):
+    _problem.ancestry.migrations.append({"restart": _problem.current_restart, "generation": int(generation),
+        "source_island": int(source), "target_island": int(target), "candidate_id": int(candidate_id)})
+    return 0
+
+
+def finish(genome, generation, width, parent_population=0, candidate_id=None):
     if len(genome) != width:
         raise ValueError("Ungültige Genomlänge.")
-    return json.dumps(_problem.result(genome, generation, parent_population))
+    return json.dumps(_problem.result(genome, generation, parent_population, candidate_id))
 

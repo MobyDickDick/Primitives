@@ -9,7 +9,8 @@ Python-Host sinnvoll. Go ist in dieser Umgebung nicht installiert; mit dem
 verwendbaren TinyLanguage-Interpreter war ein Wechsel zu Go nicht nötig.
 
 Die FFI erlaubt ausschliesslich `configure`, `specimen`, `score`, `trace`,
-`finish`, `begin_restart`, `initial`, `observe` und `population_buffer` aus
+`finish`, `begin_restart`, `initial`, `observe`, `population_buffer`, `record`
+und `migration` aus
 `primitives.tiny_bridge`. Die aufwendige Fitnessbewertung und das
 Einsetzen gespeicherter Schaltungen laufen im Host. Die Laufzeit wird separat
 unter `.runtime/tinylanguage/` eingerichtet, da der Interpreter selbst eine
@@ -44,6 +45,7 @@ Evolution                  Fitness / Bausteine
 | `primitives/program.py` | Begrenzter Integer-Interpreter für Zuweisungen, return, if/else, while und for |
 | `tools/export_programs.py` | Reproduzierbare vollständige Programmbeispiele samt Quellen |
 | `primitives/evolution.py` | Genom, Fitness, Bibliothekskomposition, Python-Backend |
+| `primitives/ancestry.py` | Kandidatenidentitäten, Vorfahren, Quellenschnappschüsse und Nachbearbeitung |
 | `tiny/evolve.tiny` | TinyLanguage-Evolution |
 | `primitives/tiny_bridge.py` | Kleine FFI-Schnittstelle |
 | `primitives/runner.py` | Auswahl des Backends und Prozessstart |
@@ -196,8 +198,61 @@ auch innerhalb eines eingefügten Bausteins mutieren. In der separaten
 Bausteinbibliothek bleiben Definitionen und verschachtelte Instanzen dagegen
 über Inhaltskennungen unveränderlich gespeichert. Beide Suchbackends verwenden
 deren Expansionen und geben flache Ergebnisse ohne Hierarchiebehauptung zurück.
-`search.seed_blocks` nennt verfügbare Quellen, keine belegte Abstammung.
+`search.seed_blocks` nennt verfügbare Quellen. Die tatsächlich verwendeten Quellen
+und Elternbeziehungen werden gesondert in `search.ancestry` belegt.
 Die Paket-, Port- und Versionssemantik ist in [BAUSTEINE.md](BAUSTEINE.md) beschrieben.
+
+### Tatsächliche Kandidatenabstammung
+
+Jede Bewertung erhält als Kandidatenkennung ihre laufweite Bewertungsnummer
+(ab 1). Die Populationen und das separat gesicherte beste Genom führen diese
+Kennung mit. Identische Genome bleiben verschiedene Individuen; eine Migration
+kopiert dagegen dieselbe Identität mit dem Genom und Rang. Beide Backends
+sichern vor einer Ringmigration auch die Quellkennungen aller Inseln, damit
+Genom und Herkunft selbst bei unmittelbar überschriebenen Quellplätzen zusammenpassen.
+
+Der Host erfasst nach der Bewertung und vor einem möglichen Elternersatz den
+konkreten Erzeugungsschritt. Für neue Zufalls-/Bibliothekskandidaten werden das
+vollständige Genom und die tatsächliche Herkunft gesichert. Bibliothekskompositionen
+enthalten pro eingesetzter Quelle Eingangsverdrahtung und Gatteroffset sowie einen
+kompaktierten NAND-Schnappschuss der Quelle, mit Programm- oder Bausteinkennung.
+Die bisherige Lösung ist eine explizite externe Ausgangsquelle, auch wenn sie nur
+eine Annäherung ist. Unpassende oder bloss angebotene Quellen werden nicht als
+Vorfahren behauptet. Bei TinyLanguage wird der vor einer Variation erzeugte, dann
+überschriebene Bibliothekskandidat ausdrücklich nicht als Herkunft aufgezeichnet.
+
+Nachkommen referenzieren den ersten Elternkandidaten und bei aktivierter
+Rekombination den zweiten gewählten Elternkandidaten. Genpositionen protokollieren
+die tatsächlich ausgeführten Übernahmen und Mutationsziehungen, auch wirkungslose
+oder später durch Mutation überschriebene Übernahmen. Die endgültigen Unterschiede
+zum ersten Elternteil stehen als dünn besetzte Änderungsliste daneben. Damit lässt
+sich jedes Vorfahrengenom exakt rekonstruieren, einschliesslich inaktiver Gene.
+Start, kumulative Generation, Geburtsinsel und tatsächlicher Bewertungsrang gehören
+zu jedem Knoten. Übernommene Migranten werden als Ortswechsel mit unveränderter
+Kennung protokolliert; neue Starts verknüpfen keine Eltern aus vorherigen Starts.
+
+Während des Laufs ist das Protokoll durch das vorhandene Kandidatenbudget begrenzt.
+Beim Abschluss wird der Vorfahrengraph des besten Suchkandidaten iterativ verfolgt;
+nur seine erreichbaren Knoten, verwendeten Quellen und diese Kandidaten betreffenden
+Migrationsereignisse gehen ins Ergebnis. Ein Ereignis kann auch nach der Geburt
+des besten Kandidaten liegen. Andere Suchversuche werden nicht dauerhaft archiviert.
+Die Erfassung verbraucht weder Zufallsziehungen noch weitere Fitnessbewertungen;
+sie benötigt zusätzlichen Speicher und Rechenzeit. Zeitbegrenzte Läufe können
+dadurch weniger Kandidaten bewerten. Abbruch verwirft weiterhin den Auftrag.
+
+`search.ancestry.transformations` trennt die Genetik von der Nachbearbeitung:
+Kompaktierung, optionale Vereinfachung, eine gegebenenfalls bessere bisherige
+Lösung als Basis der Restfallkorrektur und die Korrektur selbst enthalten jeweils
+die konkrete resultierende Schaltung. Der letzte Schnappschuss stimmt mit `circuit`
+überein. Ein abgelehnter Bibliotheksretest liefert den früheren Gewinner samt dessen
+unveränderter Abstammung zurück. Alte Einträge ohne Protokoll bleiben lesbar.
+Die Aufzeichnung endet an externen Quellversionen; sie behauptet weder eine
+laufübergreifend vollständige Genealogie noch erhaltene Bausteininstanzen oder
+einen funktionalen Beitrag jedes geerbten Gens.
+
+Die Oberfläche zeigt höchstens 100 Knoten; Bibliothek, API, CLI und JSON-Export
+erhalten den gesamten erreichbaren Graphen. Das genaue Schema und die
+Rekonstruktion stehen in [FORMAT.md](FORMAT.md#kandidatenabstammung).
 
 Seeds sind für denselben Backendtyp, dieselbe Laufzeit, dieselbe Bibliothek und
 dieselben Einstellungen reproduzierbar. TinyLanguage und Python verbrauchen

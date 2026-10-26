@@ -715,6 +715,7 @@ function renderTable() {
 }
 function renderHistory() {
   const target = $("history"), search = state.result.search;
+  renderAncestry(search?.ancestry);
   target.replaceChildren();
   $("phase-summary").hidden = true;
   $("phase-summary").textContent = "";
@@ -743,6 +744,29 @@ function renderHistory() {
     const phase = search.phases[1];
     $("phase-summary").hidden = false;
     $("phase-summary").textContent = `Phase 1: neutrale Evolution (${search.phases[0].result.errors} falsche Bits) · Phase 2: Vereinfachung ${phase.before.gates} → ${phase.result.gates} Gatter, Tiefe ${phase.before.depth} → ${phase.result.depth} (vor einer allfälligen Restfallkorrektur)`;
+  }
+}
+
+function renderAncestry(ancestry) {
+  $("ancestry-panel").hidden = !ancestry;
+  $("ancestry-nodes").replaceChildren();
+  $("ancestry-summary").textContent = "";
+  if (!ancestry) return;
+  const operators = { random: "Zufall", library: "Bibliothekskomposition", incumbent: "Bisherige Lösung" };
+  const transformations = { compact: "Kompaktierung", simplification: "Vereinfachung", repair: "Restfallkorrektur", incumbent_selection: "Auswahl der bisherigen Lösung" };
+  $("ancestry-summary").textContent = `Bester Suchkandidat #${ancestry.root} · ${ancestry.nodes.length} Kandidaten einschliesslich Vorfahren · ${Object.keys(ancestry.sources).length} konkret eingesetzte Quellen · Danach: ${ancestry.transformations.map(t => transformations[t.operation] || t.operation).join(" → ")}`;
+  for (const node of ancestry.nodes.slice(-100).reverse()) {
+    const row = document.createElement("tr");
+    const origin = node.operator === "variation"
+      ? `${node.parents.length > 1 ? "Rekombination" : "Kopie"} · Mutationsstellen: ${node.mutation_genes.length} · Genänderungen: ${node.changes.length}`
+      : `${operators[node.operator] || node.operator}${node.origin.seeds?.length ? ": " + node.origin.seeds.map(s => s.source).join(", ") : ""}`;
+    for (const value of [`#${node.id}`, node.parents.map(id => `#${id}`).join(", ") || "—", origin,
+      `Start ${node.restart + 1} · Insel ${node.island + 1} · Gen ${node.generation}`]) {
+      const cell = document.createElement("td");
+      cell.textContent = value;
+      row.append(cell);
+    }
+    $("ancestry-nodes").append(row);
   }
 }
 

@@ -55,6 +55,10 @@ class ServerTests(unittest.TestCase):
         self.assertEqual(saved["search"]["tournament_size"], 3)
         self.assertEqual(saved["search"]["parent_population"], 24)
         self.assertLessEqual(saved["search"]["evaluations"], saved["search"]["evaluation_budget"])
+        ancestry = saved["search"]["ancestry"]
+        self.assertEqual(ancestry, state["result"]["search"]["ancestry"])
+        self.assertIn(ancestry["root"], [node["id"] for node in ancestry["nodes"]])
+        self.assertEqual(ancestry["transformations"][-1]["circuit"], saved["circuit"])
         evaluated = self.request("/api/evaluate", {"circuit": saved["circuit"], "bits": [1, 0]})
         self.assertEqual(evaluated["outputs"], [1])
         retest = self.request("/api/search", {"dataset_id": d["id"], "config": {
@@ -68,6 +72,7 @@ class ServerTests(unittest.TestCase):
         self.assertEqual(state["status"], "done", state)
         self.assertEqual(state["result"]["id"], saved["id"])
         self.assertFalse(state["result"]["comparison"]["accepted"])
+        self.assertEqual(state["result"]["search"]["ancestry"], ancestry)
         self.assertGreater(state["result"]["comparison"]["candidate_fitness"]["errors"], 0)
         self.assertEqual([p["id"] for p in self.request("/api/catalog")["programs"]], [saved["id"]])
 
@@ -143,6 +148,9 @@ class ServerTests(unittest.TestCase):
         self.assertEqual(saved["search"]["evaluations"], 1)
         self.assertEqual(saved["search"]["phases"][0]["result"]["gates"], 3)
         self.assertEqual(saved["search"]["phases"][1]["removed_gates"], 2)
+        ancestry = saved["search"]["ancestry"]
+        self.assertEqual(ancestry["nodes"][0]["operator"], "incumbent")
+        self.assertEqual([t["operation"] for t in ancestry["transformations"]], ["compact", "simplification"])
         self.assertEqual(saved["fitness"]["gates"], 1)
         self.assertTrue(saved["fitness"]["verified_truth_table"])
         with urlopen(self.base) as response:
