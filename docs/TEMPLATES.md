@@ -226,6 +226,11 @@ negative Differenzen werden damit ohne Zweierkomplement-Port dargestellt.
 
 ## Direkte strukturelle NAND-Synthese
 
+Ein weiteres [Beispiel zur rekursiven Addition](REKURSIVE-ADDITION.md) zeigt
+die unabhängige Addition beider Hälften mit anschliessendem bedingtem,
+rekursivem Inkrementieren. Dazu gehören fertig erzeugte und vollständig
+geprüfte flache NAND-Instanzen für `ADD<1>`, `ADD<2>` und `ADD<4>`.
+
 **Direkt in NAND übersetzen & speichern** konkretisiert das Template und
 übersetzt seinen tatsächlichen Quelltext. Es werden keine speziellen
 Rechenoperationen anhand des Template-Namens erkannt und keine Wahrheitstabellen

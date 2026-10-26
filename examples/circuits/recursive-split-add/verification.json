@@ -1,0 +1,179 @@
+[
+  {
+    "name": "ADD<1>",
+    "parameters": {
+      "n": 1
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 1,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 1,
+          "signed": false,
+          "offset": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 1,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "err",
+          "bits": 1,
+          "signed": false,
+          "offset": 1,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 8,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 5,
+      "depth": 3
+    },
+    "synthesis": {
+      "method": "structural-bitwise",
+      "version": 1
+    },
+    "files": {
+      "circuit": "add-1.circuit.json",
+      "template": "add-1.template.json",
+      "vectors": "add-1.vectors.json",
+      "netlist": "add-1.nand.txt"
+    }
+  },
+  {
+    "name": "ADD<2>",
+    "parameters": {
+      "n": 2
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 2,
+          "signed": false,
+          "offset": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 2,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "err",
+          "bits": 1,
+          "signed": false,
+          "offset": 2,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 48,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 19,
+      "depth": 8
+    },
+    "synthesis": {
+      "method": "structural-bitwise",
+      "version": 1
+    },
+    "files": {
+      "circuit": "add-2.circuit.json",
+      "template": "add-2.template.json",
+      "vectors": "add-2.vectors.json",
+      "netlist": "add-2.nand.txt"
+    }
+  },
+  {
+    "name": "ADD<4>",
+    "parameters": {
+      "n": 4
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 4,
+          "signed": false,
+          "offset": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "err",
+          "bits": 1,
+          "signed": false,
+          "offset": 4,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 1280,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 52,
+      "depth": 15
+    },
+    "synthesis": {
+      "method": "structural-bitwise",
+      "version": 1
+    },
+    "files": {
+      "circuit": "add-4.circuit.json",
+      "template": "add-4.template.json",
+      "vectors": "add-4.vectors.json",
+      "netlist": "add-4.nand.txt"
+    }
+  }
+]

@@ -1,0 +1,48 @@
+# ADD<w>: zwei w-Bit-Operanden, Ergebnis mit w+1 Bits, LSB-first.
+# Lower/Upper erhalten die Halbbreite; ADD erhaelt die Gesamtbreite.
+def Lower<k>(a):
+    assert k > 0 and (k & (k - 1)) == 0
+    x = bits(a, 2 * k)
+    return pack(x[:k])
+
+def Upper<k>(a):
+    assert k > 0 and (k & (k - 1)) == 0
+    x = bits(a, 2 * k)
+    return pack(x[k:])
+
+# Ergebnis: a + enable mit w+1 Bits; enable ist ein einzelnes Bit.
+# Die Breite des Inkrementierers muss keine Zweierpotenz sein.
+def INC<w>(a, enable):
+    assert w > 0
+    x = bits(a, w)
+    e = bits(enable, 1)
+    digit = x[0] ^ e[0]
+    carry = x[0] & e[0]
+    if w == 1:
+        return pack([digit, carry])
+    tail = bits(INC<w - 1>(pack(x[1:]), carry), w)
+    return pack([digit] + tail)
+
+def ADD<w>(a, b):
+    assert w > 0 and (w & (w - 1)) == 0
+    if w == 1:
+        x = bits(a, 1)
+        y = bits(b, 1)
+        return pack([x[0] ^ y[0], x[0] & y[0]])
+
+    k = w // 2
+    a_lo = Lower<k>(a)
+    a_hi = Upper<k>(a)
+    b_lo = Lower<k>(b)
+    b_hi = Upper<k>(b)
+
+    lo = bits(ADD<k>(a_lo, b_lo), k + 1)
+    hi_temp = ADD<k>(a_hi, b_hi)
+    hi = bits(INC<k + 1>(hi_temp, lo[k]), k + 2)
+
+    # hi_temp <= 2**(k+1)-2; mit lo[k] <= 1 bleibt hi[k+1] null.
+    # hi[:k] sind die oberen Summenbits, hi[k] ist der Enduebertrag.
+    return pack(lo[:k] + hi[:k + 1])
+
+result = bits(ADD<n>(a, b), n + 1)
+return pack(result[:n]), result[n]

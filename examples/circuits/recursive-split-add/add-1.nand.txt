@@ -1,0 +1,9 @@
+# ADD<1>: flat NAND netlist; bit 0 is the LSB.
+# Inputs: a0, b0
+g0 = NAND(a0, b0)
+g1 = NAND(a0, g0)
+g2 = NAND(b0, g0)
+g3 = NAND(g1, g2)
+g4 = NAND(g0, g0)
+c0 = g3
+err = g4
