@@ -1,0 +1,35 @@
+{
+  "version": 2,
+  "source": "# GT<t> (GreaterThan): unsigned t-bit inputs, one result bit, LSB-first.\n# t = 2**w, integer w >= 0. Upper/Lower take the full input width.\n\ndef Upper<t>(a):\n    assert t >= 2 and (t & (t - 1)) == 0\n    x = bits(a, t)\n    return pack(x[t // 2:])\n\ndef Lower<t>(a):\n    assert t >= 2 and (t & (t - 1)) == 0\n    x = bits(a, t)\n    return pack(x[:t // 2])\n\ndef Equal<t>(a, b):\n    assert t >= 1 and (t & (t - 1)) == 0\n    if t == 1:\n        x = bits(a, 1)\n        y = bits(b, 1)\n        return 1 ^ (x[0] ^ y[0])\n    k = t // 2\n    hi = Equal<k>(Upper<t>(a), Upper<t>(b))\n    lo = Equal<k>(Lower<t>(a), Lower<t>(b))\n    return hi & lo\n\ndef GT<t>(a, b):\n    assert t >= 1 and (t & (t - 1)) == 0\n    if t == 1:\n        x = bits(a, 1)\n        y = bits(b, 1)\n        return x[0] & (1 ^ y[0])\n    k = t // 2\n    hi = GT<k>(Upper<t>(a), Upper<t>(b))\n    eq = Equal<k>(Upper<t>(a), Upper<t>(b))\n    lo = GT<k>(Lower<t>(a), Lower<t>(b))\n    return hi | (eq & lo)\n\ndef GreaterThan<t>(a, b):\n    return GT<t>(a, b)\n\nreturn GT<t>(a, b)\n",
+  "limits": {
+    "steps": 100000,
+    "iterations": 10000,
+    "total_steps": 5000000
+  },
+  "conditions": [
+    "t >= 1",
+    "t <= 64",
+    "is_power_of_two(t)"
+  ],
+  "parameters": {
+    "t": 4
+  },
+  "interface": {
+    "inputs": [
+      {
+        "name": "a",
+        "bits": "t"
+      },
+      {
+        "name": "b",
+        "bits": "t"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "c",
+        "bits": 1
+      }
+    ]
+  }
+}

@@ -236,6 +236,12 @@ ist NOT(XOR). Für Zweierpotenzbreiten bis 64 Bits sind Quellauswertung
 und direkte NAND-Synthese möglich. Geprüfte F-Boxen und vollständige
 Tabellen liegen für w=1,2,4 vor.
 
+Das [generative GreaterThan-Template GT](GT.md) liefert für zwei
+vorzeichenlose t-Bit-Werte genau dann 1, wenn a>b. Mit t=2^w entscheidet
+zuerst die obere Hälfte, bei Gleichheit die untere. Der Basisfall ist
+`AND(a,NOT(b))`; `GreaterThan<t>` ist ein Alias für `GT<t>`.
+Vollständig geprüfte F-Boxen und NAND-Netze liegen für t=1,2,4 vor.
+
 Die [rekursive Division mit MSB-Ausrichtung](REKURSIVE-DIVISION.md) ergänzt
 `DIV<w>(a,b)` mit Quotient und Fehlerbit. Das Template ist als Referenz
 für w=1 bis 8 verwendbar; für w=1,2,3,4 liegen vollständig geprüfte

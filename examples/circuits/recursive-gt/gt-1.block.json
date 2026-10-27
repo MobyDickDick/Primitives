@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "root": "block-b1649d422638cf41b2f981d6104f5c2eb0b9793916a7fcb68d560232f5888c17",
+  "definitions": {
+    "block-b1649d422638cf41b2f981d6104f5c2eb0b9793916a7fcb68d560232f5888c17": {
+      "name": "GT<1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 2,
+        "gates": [
+          [
+            1,
+            1
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            3,
+            3
+          ]
+        ],
+        "outputs": [
+          4
+        ]
+      }
+    }
+  }
+}

@@ -50,6 +50,14 @@ und 5, 12 bzw. 26 NANDs vor; das Template unterstützt Zweierpotenzbreiten
 bis 64 Bits. Beim nächsten Serverstart erscheinen Template und Funktionen
 unter **Beispiele → Rekursion**. Siehe [generatives EQU-Template](docs/EQU.md).
 
+`GT<t>(a,b)` (auch `GreaterThan<t>`) liefert genau dann 1, wenn a>b ist.
+Für t=2^w vergleicht das Template rekursiv die oberen Hälften und bei deren
+Gleichheit die unteren; der Basisfall ist `AND(a,NOT(b))`.
+Für t=1,2,4 liegen vollständig geprüfte F-Boxen und flache Netze mit
+3, 12 bzw. 34 NANDs vor. Beim nächsten Serverstart erscheinen Template und
+Funktionen unter **Beispiele → Rekursion**.
+Siehe [generatives GreaterThan-Template GT](docs/GT.md).
+
 `m<t>(a)` liefert den maximalen Index eines gesetzten Bits als `[c,err]`.
 Für `a=0` gilt `[const<t>(0),1]`. Bei der rekursiven Halbierung ist der
 Offset der oberen Hälfte `t//2`; er wird als Indexbit angehängt.
