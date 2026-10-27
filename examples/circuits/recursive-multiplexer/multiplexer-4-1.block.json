@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "root": "block-9f348211965989f471823381f739f278a9445f6cea234f70d6f7f858bf9514f9",
+  "definitions": {
+    "block-9f348211965989f471823381f739f278a9445f6cea234f70d6f7f858bf9514f9": {
+      "name": "MUX<4,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 8,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 8
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 9,
+        "gates": [
+          [
+            8,
+            8
+          ],
+          [
+            0,
+            9
+          ],
+          [
+            4,
+            8
+          ],
+          [
+            10,
+            11
+          ],
+          [
+            1,
+            9
+          ],
+          [
+            5,
+            8
+          ],
+          [
+            13,
+            14
+          ],
+          [
+            2,
+            9
+          ],
+          [
+            6,
+            8
+          ],
+          [
+            16,
+            17
+          ],
+          [
+            3,
+            9
+          ],
+          [
+            7,
+            8
+          ],
+          [
+            19,
+            20
+          ]
+        ],
+        "outputs": [
+          12,
+          15,
+          18,
+          21
+        ]
+      }
+    }
+  }
+}

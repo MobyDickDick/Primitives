@@ -60,12 +60,13 @@ class LibraryTreeTests(unittest.TestCase):
     def test_examples_install_once_preserve_edits_and_do_not_resurrect_deletions(self):
         library = self.library
         install_examples(library)
-        self.assertEqual(len(library.templates()), 20)
-        self.assertEqual(len(library.datasets()), 41)
-        # PARITY<1>, REVERSE<1> and NumberOfOnes<1> share one truth table.
-        self.assertEqual(len(library.programs()), 39)
-        self.assertEqual(len(library.blocks()), 33)
-        self.assertTrue(all(p["fitness"]["verified_truth_table"] for p in library.programs()))
+        self.assertEqual(len(library.templates()), 22)
+        self.assertEqual(len(library.datasets()), 59)
+        # Three new two-channel MUX instances also share existing truth tables.
+        self.assertEqual(len(library.programs()), 54)
+        self.assertEqual(len(library.blocks()), 51)
+        self.assertTrue(all(p["fitness"]["exact_on_dataset"] for p in library.programs()))
+        self.assertEqual(sum(p["fitness"]["verified_truth_table"] for p in library.programs()), 50)
         library.save_folder("Eigene Beispiele", "Mein Text", key="examples")
         dataset = library.datasets()[0]
         library.move_entry("function", dataset["function_id"], "functions")
@@ -73,7 +74,7 @@ class LibraryTreeTests(unittest.TestCase):
         before = library.tree()
         install_examples(Library(library.root))
         self.assertEqual(library.tree(), before)
-        self.assertEqual(len(library.datasets()), 40)
+        self.assertEqual(len(library.datasets()), 58)
 
     def test_recursive_templates_upgrade_existing_library_once_without_reinstalling_arithmetic(self):
         library = self.library
@@ -84,7 +85,7 @@ class LibraryTreeTests(unittest.TestCase):
         ])
         library._write_organization(organization)
         (library.root / "example-installations.json").write_text(
-            json.dumps({"arithmetic-v1": True, "generative-logic-v1": True, "recursive-gt-v1": True, "recursive-equ-v1": True, "recursive-mul-v1": True, "number-of-ones-v1": True,
+            json.dumps({"arithmetic-v1": True, "routing-v1": True, "generative-logic-v1": True, "recursive-gt-v1": True, "recursive-equ-v1": True, "recursive-mul-v1": True, "number-of-ones-v1": True,
                         "recursive-msb-div-v1": True, "recursive-max-index-v1": True}), encoding="utf-8")
         install_examples(library)
         self.assertEqual(len(library.templates()), 2)
@@ -105,7 +106,7 @@ class LibraryTreeTests(unittest.TestCase):
     def test_mul_upgrade_installs_templates_boxes_and_flat_instances_once(self):
         library = self.library
         (library.root / "example-installations.json").write_text(
-            json.dumps({"arithmetic-v1": True, "generative-logic-v1": True, "recursive-gt-v1": True, "recursive-equ-v1": True, "recursive-checked-v1": True, "number-of-ones-v1": True,
+            json.dumps({"arithmetic-v1": True, "routing-v1": True, "generative-logic-v1": True, "recursive-gt-v1": True, "recursive-equ-v1": True, "recursive-checked-v1": True, "number-of-ones-v1": True,
                         "recursive-msb-div-v1": True, "recursive-max-index-v1": True}), encoding="utf-8")
         install_examples(library)
         self.assertEqual(len(library.templates()), 1)

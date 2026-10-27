@@ -1,0 +1,875 @@
+[
+  {
+    "name": "MUX<1,1>",
+    "parameters": {
+      "n": 1,
+      "w": 1
+    },
+    "channels": 2,
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 1,
+          "signed": false,
+          "offset": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 1,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 8,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 4,
+      "depth": 3
+    },
+    "hierarchy": {
+      "id": "block-574032a8c15ddc2bf14f6b4bbb4405f9452ed8f55574810aee479e1c296bdde5",
+      "name": "MUX<1,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 4,
+      "depth": 3,
+      "definitions": 1,
+      "instances": 0
+    },
+    "verification": {
+      "exhaustive": true,
+      "dataset_rows": 8,
+      "independent_cases": 8,
+      "directed_cases": 8
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "template": "multiplexer-1-1.template.json",
+      "block": "multiplexer-1-1.block.json",
+      "circuit": "multiplexer-1-1.circuit.json",
+      "vectors": "multiplexer-1-1.vectors.json",
+      "netlist": "multiplexer-1-1.nand.txt"
+    }
+  },
+  {
+    "name": "MUX<1,2>",
+    "parameters": {
+      "n": 1,
+      "w": 2
+    },
+    "channels": 4,
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 2,
+          "signed": false,
+          "offset": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 1,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 64,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 11,
+      "depth": 5
+    },
+    "hierarchy": {
+      "id": "block-493993b615e73dd07f95f0ebc06e70ec2ce2f624fd83dc268ce2615e824feb6f",
+      "name": "MUX<1,2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 2,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 12,
+      "depth": 5,
+      "definitions": 2,
+      "instances": 3
+    },
+    "verification": {
+      "exhaustive": true,
+      "dataset_rows": 64,
+      "independent_cases": 64,
+      "directed_cases": 40
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "template": "multiplexer-1-2.template.json",
+      "block": "multiplexer-1-2.block.json",
+      "circuit": "multiplexer-1-2.circuit.json",
+      "vectors": "multiplexer-1-2.vectors.json",
+      "netlist": "multiplexer-1-2.nand.txt"
+    }
+  },
+  {
+    "name": "MUX<1,4>",
+    "parameters": {
+      "n": 1,
+      "w": 4
+    },
+    "channels": 16,
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 16,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 4,
+          "signed": false,
+          "offset": 16
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 1,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 256,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": false,
+      "gates": 49,
+      "depth": 9
+    },
+    "hierarchy": {
+      "id": "block-ad00aaa8cd29b8fe95198a4b5d846451bda063e15c9e509415589744dca1a0db",
+      "name": "MUX<1,4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 16,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 4,
+            "signed": false,
+            "offset": 16
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 60,
+      "depth": 9,
+      "definitions": 4,
+      "instances": 3
+    },
+    "verification": {
+      "exhaustive": false,
+      "dataset_rows": 256,
+      "independent_cases": 671,
+      "directed_cases": 544
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "template": "multiplexer-1-4.template.json",
+      "block": "multiplexer-1-4.block.json",
+      "circuit": "multiplexer-1-4.circuit.json",
+      "vectors": "multiplexer-1-4.vectors.json",
+      "netlist": "multiplexer-1-4.nand.txt"
+    }
+  },
+  {
+    "name": "MUX<2,1>",
+    "parameters": {
+      "n": 2,
+      "w": 1
+    },
+    "channels": 2,
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 1,
+          "signed": false,
+          "offset": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 2,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 64,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 7,
+      "depth": 3
+    },
+    "hierarchy": {
+      "id": "block-09f5d11f687d2a0180ff57d9787bad3aa9a52d4eb5538b7a1f62fbfcb649446d",
+      "name": "MUX<2,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 7,
+      "depth": 3,
+      "definitions": 1,
+      "instances": 0
+    },
+    "verification": {
+      "exhaustive": true,
+      "dataset_rows": 32,
+      "independent_cases": 32,
+      "directed_cases": 24
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "template": "multiplexer-2-1.template.json",
+      "block": "multiplexer-2-1.block.json",
+      "circuit": "multiplexer-2-1.circuit.json",
+      "vectors": "multiplexer-2-1.vectors.json",
+      "netlist": "multiplexer-2-1.nand.txt"
+    }
+  },
+  {
+    "name": "MUX<2,2>",
+    "parameters": {
+      "n": 2,
+      "w": 2
+    },
+    "channels": 4,
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 8,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 2,
+          "signed": false,
+          "offset": 8
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 2,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 2048,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 20,
+      "depth": 5
+    },
+    "hierarchy": {
+      "id": "block-9e9a765771b4327046fb5893284cfcc86489c821c6f69e38125357e8c95595bb",
+      "name": "MUX<2,2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 8,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 2,
+            "signed": false,
+            "offset": 8
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 21,
+      "depth": 5,
+      "definitions": 2,
+      "instances": 3
+    },
+    "verification": {
+      "exhaustive": true,
+      "dataset_rows": 1024,
+      "independent_cases": 1024,
+      "directed_cases": 80
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "template": "multiplexer-2-2.template.json",
+      "block": "multiplexer-2-2.block.json",
+      "circuit": "multiplexer-2-2.circuit.json",
+      "vectors": "multiplexer-2-2.vectors.json",
+      "netlist": "multiplexer-2-2.nand.txt"
+    }
+  },
+  {
+    "name": "MUX<2,4>",
+    "parameters": {
+      "n": 2,
+      "w": 4
+    },
+    "channels": 16,
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 32,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 4,
+          "signed": false,
+          "offset": 32
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 2,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 512,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": false,
+      "gates": 94,
+      "depth": 9
+    },
+    "hierarchy": {
+      "id": "block-7e9a4e5089cc95dbcd8631d3e49deac6de298e795661a3509547885356740dbc",
+      "name": "MUX<2,4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 32,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 4,
+            "signed": false,
+            "offset": 32
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 105,
+      "depth": 9,
+      "definitions": 4,
+      "instances": 3
+    },
+    "verification": {
+      "exhaustive": false,
+      "dataset_rows": 256,
+      "independent_cases": 1215,
+      "directed_cases": 1088
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "template": "multiplexer-2-4.template.json",
+      "block": "multiplexer-2-4.block.json",
+      "circuit": "multiplexer-2-4.circuit.json",
+      "vectors": "multiplexer-2-4.vectors.json",
+      "netlist": "multiplexer-2-4.nand.txt"
+    }
+  },
+  {
+    "name": "MUX<4,1>",
+    "parameters": {
+      "n": 4,
+      "w": 1
+    },
+    "channels": 2,
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 8,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 1,
+          "signed": false,
+          "offset": 8
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 2048,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 13,
+      "depth": 3
+    },
+    "hierarchy": {
+      "id": "block-9f348211965989f471823381f739f278a9445f6cea234f70d6f7f858bf9514f9",
+      "name": "MUX<4,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 8,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 8
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 13,
+      "depth": 3,
+      "definitions": 1,
+      "instances": 0
+    },
+    "verification": {
+      "exhaustive": true,
+      "dataset_rows": 512,
+      "independent_cases": 512,
+      "directed_cases": 80
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "template": "multiplexer-4-1.template.json",
+      "block": "multiplexer-4-1.block.json",
+      "circuit": "multiplexer-4-1.circuit.json",
+      "vectors": "multiplexer-4-1.vectors.json",
+      "netlist": "multiplexer-4-1.nand.txt"
+    }
+  },
+  {
+    "name": "MUX<4,2>",
+    "parameters": {
+      "n": 4,
+      "w": 2
+    },
+    "channels": 4,
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 16,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 2,
+          "signed": false,
+          "offset": 16
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 1024,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": false,
+      "gates": 38,
+      "depth": 5
+    },
+    "hierarchy": {
+      "id": "block-080e587af87ba13650b60532cb0e2022d7a236534dd08137f95667da352aa546",
+      "name": "MUX<4,2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 16,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 2,
+            "signed": false,
+            "offset": 16
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 39,
+      "depth": 5,
+      "definitions": 2,
+      "instances": 3
+    },
+    "verification": {
+      "exhaustive": false,
+      "dataset_rows": 256,
+      "independent_cases": 351,
+      "directed_cases": 224
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "template": "multiplexer-4-2.template.json",
+      "block": "multiplexer-4-2.block.json",
+      "circuit": "multiplexer-4-2.circuit.json",
+      "vectors": "multiplexer-4-2.vectors.json",
+      "netlist": "multiplexer-4-2.nand.txt"
+    }
+  },
+  {
+    "name": "MUX<4,4>",
+    "parameters": {
+      "n": 4,
+      "w": 4
+    },
+    "channels": 16,
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 64,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 4,
+          "signed": false,
+          "offset": 64
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 1024,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": false,
+      "gates": 184,
+      "depth": 9
+    },
+    "hierarchy": {
+      "id": "block-bedefe805f195198ca9192a10dc9d4d221ebd3706f824e8f69f7ed23797e46ad",
+      "name": "MUX<4,4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 64,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 4,
+            "signed": false,
+            "offset": 64
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 195,
+      "depth": 9,
+      "definitions": 4,
+      "instances": 3
+    },
+    "verification": {
+      "exhaustive": false,
+      "dataset_rows": 256,
+      "independent_cases": 2559,
+      "directed_cases": 2432
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "template": "multiplexer-4-4.template.json",
+      "block": "multiplexer-4-4.block.json",
+      "circuit": "multiplexer-4-4.circuit.json",
+      "vectors": "multiplexer-4-4.vectors.json",
+      "netlist": "multiplexer-4-4.nand.txt"
+    }
+  }
+]

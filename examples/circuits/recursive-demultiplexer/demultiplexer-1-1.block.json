@@ -1,0 +1,66 @@
+{
+  "schema": 1,
+  "root": "block-b61f1e81b7db85350f937453b285eb3d9cfd538dbb7ceb3e895efa8f589f3142",
+  "definitions": {
+    "block-b61f1e81b7db85350f937453b285eb3d9cfd538dbb7ceb3e895efa8f589f3142": {
+      "name": "DEMUX<1,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 2,
+        "gates": [
+          [
+            1,
+            1
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            3,
+            3
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            5,
+            5
+          ]
+        ],
+        "outputs": [
+          4,
+          6
+        ]
+      }
+    }
+  }
+}

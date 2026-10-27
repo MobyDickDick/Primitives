@@ -65,6 +65,15 @@ F-Boxen und NAND-Netzen erzeugt und unabhängig geprüft. Sie werden einmalig
 unter **Beispiele → Rekursion** ergänzt. Die Bitumkehr benötigt nur Verdrahtung.
 Siehe [weitere generative Templates](docs/GENERATIVE-LOGIK.md).
 
+`MUX<n,w>` und `DEMUX<n,w>` schalten `2**w` Kanäle mit jeweils `n` Datenbits:
+MUX wählt `a_b` auf `c`, DEMUX schaltet `a` auf `c_b` und setzt die übrigen
+Ausgänge auf 0. Alle 18 Kombinationen aus `n=1,2,4` und `w=1,2,4` liegen als
+generative Templates, F-Boxen und NAND-Netze vor. 14 Instanzen sind vollständig
+geprüft; vier grössere MUX verwenden gekennzeichnete Stichproben plus gezielte
+Kanaltests. Beim nächsten Serverstart erscheinen sie unter
+**Beispiele → Rekursion → Multiplexer & Demultiplexer**.
+Siehe [Multiplexer und Demultiplexer](docs/MULTIPLEXER.md).
+
 `m<t>(a)` liefert den maximalen Index eines gesetzten Bits als `[c,err]`.
 Für `a=0` gilt `[const<t>(0),1]`. Bei der rekursiven Halbierung ist der
 Offset der oberen Hälfte `t//2`; er wird als Indexbit angehängt.

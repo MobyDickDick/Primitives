@@ -1,0 +1,19 @@
+# n data bits, w selector bits, 2**w packed output channels.
+# Only channel b carries a; all other channels are zero.
+def DEMUX<n,w>(a, b):
+    assert n >= 1 and w >= 1 and w <= 7 and n + w <= 128 and n * (2 ** w) <= 128
+    x = bits(a, n)
+    s = bits(b, w)
+    lo = [0] * n
+    hi = [0] * n
+    for i in range(n):
+        lo[i] = x[i] & (1 ^ s[w-1])
+        hi[i] = x[i] & s[w-1]
+    if w == 1:
+        return pack(lo + hi)
+    k = n * (2 ** (w - 1))
+    lower = bits(DEMUX<n,w-1>(pack(lo), pack(s[:w-1])), k)
+    upper = bits(DEMUX<n,w-1>(pack(hi), pack(s[:w-1])), k)
+    return pack(lower + upper)
+
+return DEMUX<n,w>(a, b)

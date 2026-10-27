@@ -1,0 +1,875 @@
+[
+  {
+    "name": "DEMUX<1,1>",
+    "parameters": {
+      "n": 1,
+      "w": 1
+    },
+    "channels": 2,
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 1,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 1,
+          "signed": false,
+          "offset": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 2,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 8,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 5,
+      "depth": 3
+    },
+    "hierarchy": {
+      "id": "block-b61f1e81b7db85350f937453b285eb3d9cfd538dbb7ceb3e895efa8f589f3142",
+      "name": "DEMUX<1,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 5,
+      "depth": 3,
+      "definitions": 1,
+      "instances": 0
+    },
+    "verification": {
+      "exhaustive": true,
+      "dataset_rows": 4,
+      "independent_cases": 4,
+      "directed_cases": 4
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "template": "demultiplexer-1-1.template.json",
+      "block": "demultiplexer-1-1.block.json",
+      "circuit": "demultiplexer-1-1.circuit.json",
+      "vectors": "demultiplexer-1-1.vectors.json",
+      "netlist": "demultiplexer-1-1.nand.txt"
+    }
+  },
+  {
+    "name": "DEMUX<1,2>",
+    "parameters": {
+      "n": 1,
+      "w": 2
+    },
+    "channels": 4,
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 1,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 2,
+          "signed": false,
+          "offset": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 32,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 14,
+      "depth": 5
+    },
+    "hierarchy": {
+      "id": "block-13cd6d3fbfe4b538b1e5ba49b429d45551af89b690ddf2c7a7b9e3dc335f2342",
+      "name": "DEMUX<1,2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 2,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 15,
+      "depth": 5,
+      "definitions": 2,
+      "instances": 3
+    },
+    "verification": {
+      "exhaustive": true,
+      "dataset_rows": 8,
+      "independent_cases": 8,
+      "directed_cases": 8
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "template": "demultiplexer-1-2.template.json",
+      "block": "demultiplexer-1-2.block.json",
+      "circuit": "demultiplexer-1-2.circuit.json",
+      "vectors": "demultiplexer-1-2.vectors.json",
+      "netlist": "demultiplexer-1-2.nand.txt"
+    }
+  },
+  {
+    "name": "DEMUX<1,4>",
+    "parameters": {
+      "n": 1,
+      "w": 4
+    },
+    "channels": 16,
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 1,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 4,
+          "signed": false,
+          "offset": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 16,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 512,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 64,
+      "depth": 9
+    },
+    "hierarchy": {
+      "id": "block-3d15e3d5f2883c86e3ad19814a61ae553960bffbd658d4b6f0ce299152513c26",
+      "name": "DEMUX<1,4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 4,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 16,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 75,
+      "depth": 9,
+      "definitions": 4,
+      "instances": 3
+    },
+    "verification": {
+      "exhaustive": true,
+      "dataset_rows": 32,
+      "independent_cases": 32,
+      "directed_cases": 32
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "template": "demultiplexer-1-4.template.json",
+      "block": "demultiplexer-1-4.block.json",
+      "circuit": "demultiplexer-1-4.circuit.json",
+      "vectors": "demultiplexer-1-4.vectors.json",
+      "netlist": "demultiplexer-1-4.nand.txt"
+    }
+  },
+  {
+    "name": "DEMUX<2,1>",
+    "parameters": {
+      "n": 2,
+      "w": 1
+    },
+    "channels": 2,
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 1,
+          "signed": false,
+          "offset": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 32,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 9,
+      "depth": 3
+    },
+    "hierarchy": {
+      "id": "block-795cc869d4fba1b04efa1cc1f5c8d960cb6c41287aedf8bd1d7105393334af8e",
+      "name": "DEMUX<2,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 9,
+      "depth": 3,
+      "definitions": 1,
+      "instances": 0
+    },
+    "verification": {
+      "exhaustive": true,
+      "dataset_rows": 8,
+      "independent_cases": 8,
+      "directed_cases": 8
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "template": "demultiplexer-2-1.template.json",
+      "block": "demultiplexer-2-1.block.json",
+      "circuit": "demultiplexer-2-1.circuit.json",
+      "vectors": "demultiplexer-2-1.vectors.json",
+      "netlist": "demultiplexer-2-1.nand.txt"
+    }
+  },
+  {
+    "name": "DEMUX<2,2>",
+    "parameters": {
+      "n": 2,
+      "w": 2
+    },
+    "channels": 4,
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 2,
+          "signed": false,
+          "offset": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 8,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 128,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 26,
+      "depth": 5
+    },
+    "hierarchy": {
+      "id": "block-59e11f026444ce1756e3fc3d5a926ef9ab51d90bd7c8e01c61ad5b5b127b0b03",
+      "name": "DEMUX<2,2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 2,
+            "signed": false,
+            "offset": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 8,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 27,
+      "depth": 5,
+      "definitions": 2,
+      "instances": 3
+    },
+    "verification": {
+      "exhaustive": true,
+      "dataset_rows": 16,
+      "independent_cases": 16,
+      "directed_cases": 16
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "template": "demultiplexer-2-2.template.json",
+      "block": "demultiplexer-2-2.block.json",
+      "circuit": "demultiplexer-2-2.circuit.json",
+      "vectors": "demultiplexer-2-2.vectors.json",
+      "netlist": "demultiplexer-2-2.nand.txt"
+    }
+  },
+  {
+    "name": "DEMUX<2,4>",
+    "parameters": {
+      "n": 2,
+      "w": 4
+    },
+    "channels": 16,
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 4,
+          "signed": false,
+          "offset": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 32,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 2048,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 124,
+      "depth": 9
+    },
+    "hierarchy": {
+      "id": "block-8205c471d0b301bd71e6b3e722f735cf1434e96fe0ca5ec60e63e59c1e97a1cf",
+      "name": "DEMUX<2,4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 4,
+            "signed": false,
+            "offset": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 32,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 135,
+      "depth": 9,
+      "definitions": 4,
+      "instances": 3
+    },
+    "verification": {
+      "exhaustive": true,
+      "dataset_rows": 64,
+      "independent_cases": 64,
+      "directed_cases": 64
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "template": "demultiplexer-2-4.template.json",
+      "block": "demultiplexer-2-4.block.json",
+      "circuit": "demultiplexer-2-4.circuit.json",
+      "vectors": "demultiplexer-2-4.vectors.json",
+      "netlist": "demultiplexer-2-4.nand.txt"
+    }
+  },
+  {
+    "name": "DEMUX<4,1>",
+    "parameters": {
+      "n": 4,
+      "w": 1
+    },
+    "channels": 2,
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 1,
+          "signed": false,
+          "offset": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 8,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 256,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 17,
+      "depth": 3
+    },
+    "hierarchy": {
+      "id": "block-f76bd02dd87ea4a15b300f258bc0ee142d1a9bac06c091560518860c51323285",
+      "name": "DEMUX<4,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 8,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 17,
+      "depth": 3,
+      "definitions": 1,
+      "instances": 0
+    },
+    "verification": {
+      "exhaustive": true,
+      "dataset_rows": 32,
+      "independent_cases": 32,
+      "directed_cases": 32
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "template": "demultiplexer-4-1.template.json",
+      "block": "demultiplexer-4-1.block.json",
+      "circuit": "demultiplexer-4-1.circuit.json",
+      "vectors": "demultiplexer-4-1.vectors.json",
+      "netlist": "demultiplexer-4-1.nand.txt"
+    }
+  },
+  {
+    "name": "DEMUX<4,2>",
+    "parameters": {
+      "n": 4,
+      "w": 2
+    },
+    "channels": 4,
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 2,
+          "signed": false,
+          "offset": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 16,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 1024,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 50,
+      "depth": 5
+    },
+    "hierarchy": {
+      "id": "block-f3ea16d152f882824aad2e97603887ec5d8eb71804f7604a778e982cf6e68dbe",
+      "name": "DEMUX<4,2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 2,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 16,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 51,
+      "depth": 5,
+      "definitions": 2,
+      "instances": 3
+    },
+    "verification": {
+      "exhaustive": true,
+      "dataset_rows": 64,
+      "independent_cases": 64,
+      "directed_cases": 64
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "template": "demultiplexer-4-2.template.json",
+      "block": "demultiplexer-4-2.block.json",
+      "circuit": "demultiplexer-4-2.circuit.json",
+      "vectors": "demultiplexer-4-2.vectors.json",
+      "netlist": "demultiplexer-4-2.nand.txt"
+    }
+  },
+  {
+    "name": "DEMUX<4,4>",
+    "parameters": {
+      "n": 4,
+      "w": 4
+    },
+    "channels": 16,
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 4,
+          "signed": false,
+          "offset": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 64,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 16384,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 244,
+      "depth": 9
+    },
+    "hierarchy": {
+      "id": "block-7c1a73cafd5f0059f6cd3540242f0852883000c3f562ee65247df1273022c3df",
+      "name": "DEMUX<4,4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 4,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 64,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 255,
+      "depth": 9,
+      "definitions": 4,
+      "instances": 3
+    },
+    "verification": {
+      "exhaustive": true,
+      "dataset_rows": 256,
+      "independent_cases": 256,
+      "directed_cases": 256
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "template": "demultiplexer-4-4.template.json",
+      "block": "demultiplexer-4-4.block.json",
+      "circuit": "demultiplexer-4-4.circuit.json",
+      "vectors": "demultiplexer-4-4.vectors.json",
+      "netlist": "demultiplexer-4-4.nand.txt"
+    }
+  }
+]

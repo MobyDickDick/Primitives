@@ -1,0 +1,27 @@
+# DEMUX<4,1>: flat NAND netlist; LSB-first.
+# Inputs: a[0], a[1], a[2], a[3], b[0]
+g0 = NAND(b[0], b[0])
+g1 = NAND(a[0], g0)
+g2 = NAND(g1, g1)
+g3 = NAND(a[0], b[0])
+g4 = NAND(g3, g3)
+g5 = NAND(a[1], g0)
+g6 = NAND(g5, g5)
+g7 = NAND(a[1], b[0])
+g8 = NAND(g7, g7)
+g9 = NAND(a[2], g0)
+g10 = NAND(g9, g9)
+g11 = NAND(a[2], b[0])
+g12 = NAND(g11, g11)
+g13 = NAND(a[3], g0)
+g14 = NAND(g13, g13)
+g15 = NAND(a[3], b[0])
+g16 = NAND(g15, g15)
+c[0] = g2
+c[1] = g6
+c[2] = g10
+c[3] = g14
+c[4] = g4
+c[5] = g8
+c[6] = g12
+c[7] = g16

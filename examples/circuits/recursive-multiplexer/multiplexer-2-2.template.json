@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "source": "# n data bits per channel, w selector bits, 2**w packed input channels.\n# Channel j occupies a[j*n:(j+1)*n], with channel 0 at the LSB.\ndef MUX<n,w>(a, b):\n    assert n >= 1 and w >= 1 and w <= 7 and n * (2 ** w) + w <= 128\n    x = bits(a, n * (2 ** w))\n    s = bits(b, w)\n    result = [0] * n\n    if w == 1:\n        for i in range(n):\n            result[i] = (x[i] & (1 ^ s[0])) | (x[n + i] & s[0])\n        return pack(result)\n    k = n * (2 ** (w - 1))\n    lo = bits(MUX<n,w-1>(pack(x[:k]), pack(s[:w-1])), n)\n    hi = bits(MUX<n,w-1>(pack(x[k:]), pack(s[:w-1])), n)\n    for i in range(n):\n        result[i] = (lo[i] & (1 ^ s[w-1])) | (hi[i] & s[w-1])\n    return pack(result)\n\nreturn MUX<n,w>(a, b)\n",
+  "limits": {
+    "steps": 100000,
+    "iterations": 10000,
+    "total_steps": 5000000
+  },
+  "conditions": [
+    "n >= 1",
+    "w >= 1",
+    "w <= 7",
+    "n * (2 ** w) + w <= 128",
+    "n + w <= 128"
+  ],
+  "parameters": {
+    "n": 2,
+    "w": 2
+  },
+  "interface": {
+    "inputs": [
+      {
+        "name": "a",
+        "bits": "n * (2 ** w)"
+      },
+      {
+        "name": "b",
+        "bits": "w"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "c",
+        "bits": "n"
+      }
+    ]
+  }
+}

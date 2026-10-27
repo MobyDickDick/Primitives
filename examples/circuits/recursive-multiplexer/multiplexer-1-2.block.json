@@ -1,0 +1,174 @@
+{
+  "schema": 1,
+  "root": "block-493993b615e73dd07f95f0ebc06e70ec2ce2f624fd83dc268ce2615e824feb6f",
+  "definitions": {
+    "block-574032a8c15ddc2bf14f6b4bbb4405f9452ed8f55574810aee479e1c296bdde5": {
+      "name": "MUX<1,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 3,
+        "gates": [
+          [
+            2,
+            2
+          ],
+          [
+            0,
+            3
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            4,
+            5
+          ]
+        ],
+        "outputs": [
+          6
+        ]
+      }
+    },
+    "block-493993b615e73dd07f95f0ebc06e70ec2ce2f624fd83dc268ce2615e824feb6f": {
+      "name": "MUX<1,2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 2,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "nodes": [
+        {
+          "id": "lower",
+          "type": "instance",
+          "definition": "block-574032a8c15ddc2bf14f6b4bbb4405f9452ed8f55574810aee479e1c296bdde5",
+          "inputs": {
+            "a": [
+              {
+                "input": "a",
+                "bit": 0
+              },
+              {
+                "input": "a",
+                "bit": 1
+              }
+            ],
+            "b": [
+              {
+                "input": "b",
+                "bit": 0
+              }
+            ]
+          }
+        },
+        {
+          "id": "upper",
+          "type": "instance",
+          "definition": "block-574032a8c15ddc2bf14f6b4bbb4405f9452ed8f55574810aee479e1c296bdde5",
+          "inputs": {
+            "a": [
+              {
+                "input": "a",
+                "bit": 2
+              },
+              {
+                "input": "a",
+                "bit": 3
+              }
+            ],
+            "b": [
+              {
+                "input": "b",
+                "bit": 0
+              }
+            ]
+          }
+        },
+        {
+          "id": "select",
+          "type": "instance",
+          "definition": "block-574032a8c15ddc2bf14f6b4bbb4405f9452ed8f55574810aee479e1c296bdde5",
+          "inputs": {
+            "a": [
+              {
+                "node": "lower",
+                "port": "c",
+                "bit": 0
+              },
+              {
+                "node": "upper",
+                "port": "c",
+                "bit": 0
+              }
+            ],
+            "b": [
+              {
+                "input": "b",
+                "bit": 1
+              }
+            ]
+          }
+        }
+      ],
+      "outputs": {
+        "c": [
+          {
+            "node": "select",
+            "port": "c",
+            "bit": 0
+          }
+        ]
+      }
+    }
+  }
+}

@@ -10,6 +10,7 @@ from .synthesis import synthesize
 
 
 GENERATIVE_EXAMPLES = ("parity", "iszero", "reverse", "mux", "min", "max")
+ROUTING_EXAMPLES = ("multiplexer", "demultiplexer")
 
 
 def install_examples(library):
@@ -24,7 +25,8 @@ def install_examples(library):
     pending_equ = not installed.get("recursive-equ-v1")
     pending_gt = not installed.get("recursive-gt-v1")
     pending_generative = not installed.get("generative-logic-v1")
-    if not any((pending_arithmetic, pending_recursion, pending_mul, pending_ones, pending_div, pending_max_index, pending_equ, pending_gt, pending_generative)):
+    pending_routing = not installed.get("routing-v1")
+    if not any((pending_arithmetic, pending_recursion, pending_mul, pending_ones, pending_div, pending_max_index, pending_equ, pending_gt, pending_generative, pending_routing)):
         return
     with library._lock:
         organization = library._organization()
@@ -33,7 +35,8 @@ def install_examples(library):
             {"id": "arithmetic", "parent": "examples", "name": "Grundrechenarten", "description": "Konventionelle Bit-Algorithmen: feste Stufen, Bitverdrahtung und boolesche Operationen."},
             {"id": "arithmetic-templates", "parent": "arithmetic", "name": "Templates", "description": "Addition, Subtraktion, Multiplikation und Division für parametrierbare unsigned Bitbreiten."},
             {"id": "arithmetic-functions", "parent": "arithmetic", "name": "Funktionen (4 Bit)", "description": "Konkrete Instanzen mit allen 256 Eingabekombinationen und direkt synthetisierten NAND-Netzen."},
-            {"id": "recursion", "parent": "examples", "name": "Rekursion", "description": "Rekursive Arithmetik, Zählung, Vergleiche, Parität, Nulltest, Bitumkehr, Multiplexer, Minimum und Maximum. Generative Beispiele für 1, 2 und 4 Bits mit F-Boxen und flachen NAND-Netzen."}]
+            {"id": "recursion", "parent": "examples", "name": "Rekursion", "description": "Rekursive Arithmetik, Zählung, Vergleiche, Parität, Nulltest, Bitumkehr, Multiplexer, Minimum und Maximum. Generative Beispiele für 1, 2 und 4 Bits mit F-Boxen und flachen NAND-Netzen."},
+            {"id": "routing", "parent": "recursion", "name": "Multiplexer & Demultiplexer", "description": "MUX<n,w> und DEMUX<n,w>: n Datenbits pro Kanal, w Auswahlbits und 2**w Kanäle. Instanzen für n=1,2,4 und w=1,2,4."}]
         existing = {f["id"] for f in organization["folders"]}
         organization["folders"].extend(f for f in folders if f["id"] not in existing)
         # Save folders first; a partially interrupted installation can be retried.
@@ -41,7 +44,11 @@ def install_examples(library):
         source = Path(__file__).resolve().parents[1] / "examples" / "templates"
         recursive_checked = {"recursive-split-sub.abstract.json", "recursive-split-add-checked.abstract.json"}
         for path in sorted(source.glob("*.abstract.json")):
-            if path.name in {f"recursive-{kind}.abstract.json" for kind in GENERATIVE_EXAMPLES}:
+            routing = path.name in {f"recursive-{kind}.abstract.json" for kind in ROUTING_EXAMPLES}
+            if routing:
+                if not pending_routing:
+                    continue
+            elif path.name in {f"recursive-{kind}.abstract.json" for kind in GENERATIVE_EXAMPLES}:
                 if not pending_generative:
                     continue
             elif path.name == "recursive-gt.abstract.json":
@@ -69,7 +76,7 @@ def install_examples(library):
                 continue
             template = Template(json.loads(path.read_text(encoding="utf-8")))
             key = library.save_template(template)
-            organization["entries"].setdefault(f"template:{key}", "recursion" if path.name.startswith("recursive-") else "arithmetic-templates")
+            organization["entries"].setdefault(f"template:{key}", "routing" if routing else "recursion" if path.name.startswith("recursive-") else "arithmetic-templates")
             if path.name.startswith("recursive-"):
                 continue
             program = template.instantiate({"n": 4})
@@ -85,19 +92,23 @@ def install_examples(library):
                                       (pending_max_index, "recursive-max-index", "m"),
                                       (pending_equ, "recursive-equ", "equ"),
                                       (pending_gt, "recursive-gt", "gt"),
-                                      *((pending_generative, f"recursive-{kind}", kind) for kind in GENERATIVE_EXAMPLES)):
+                                      *((pending_generative, f"recursive-{kind}", kind) for kind in GENERATIVE_EXAMPLES),
+                                      *((pending_routing, f"recursive-{kind}", kind) for kind in ROUTING_EXAMPLES)):
             if not pending:
                 continue
             output = source.parent / "circuits" / folder
-            for width in (1, 2, 4):
-                prefix = output / f"{stem}-{width}"
+            routing = stem in ROUTING_EXAMPLES
+            names = ([f"{stem}-{n}-{w}" for n in (1, 2, 4) for w in (1, 2, 4)] if routing
+                     else [f"{stem}-{width}" for width in (1, 2, 4)])
+            for name in names:
+                prefix = output / name
                 hierarchy = BlockBundle(json.loads(prefix.with_suffix(".block.json").read_text(encoding="utf-8")))
                 library.save_block(hierarchy)
                 dataset = Dataset.from_dict(json.loads(prefix.with_suffix(".vectors.json").read_text(encoding="utf-8")))
                 circuit = json.loads(prefix.with_suffix(".circuit.json").read_text(encoding="utf-8"))
                 library.save_program({"circuit": circuit,
                                       "synthesis": {"method": "hierarchy-expansion-and-simplification", "version": 1}}, dataset)
-                organization["entries"].setdefault(f"function:{function_id(dataset)}", "recursion")
+                organization["entries"].setdefault(f"function:{function_id(dataset)}", "routing" if routing else "recursion")
         if pending_div:
             output = source.parent / "circuits" / "recursive-msb-div"
             for width in (1, 2, 3, 4):
@@ -117,4 +128,5 @@ def install_examples(library):
         installed["recursive-equ-v1"] = True
         installed["recursive-gt-v1"] = True
         installed["generative-logic-v1"] = True
+        installed["routing-v1"] = True
         write_json(marker, installed)

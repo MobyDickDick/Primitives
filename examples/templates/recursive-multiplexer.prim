@@ -1,0 +1,19 @@
+# n data bits per channel, w selector bits, 2**w packed input channels.
+# Channel j occupies a[j*n:(j+1)*n], with channel 0 at the LSB.
+def MUX<n,w>(a, b):
+    assert n >= 1 and w >= 1 and w <= 7 and n * (2 ** w) + w <= 128
+    x = bits(a, n * (2 ** w))
+    s = bits(b, w)
+    result = [0] * n
+    if w == 1:
+        for i in range(n):
+            result[i] = (x[i] & (1 ^ s[0])) | (x[n + i] & s[0])
+        return pack(result)
+    k = n * (2 ** (w - 1))
+    lo = bits(MUX<n,w-1>(pack(x[:k]), pack(s[:w-1])), n)
+    hi = bits(MUX<n,w-1>(pack(x[k:]), pack(s[:w-1])), n)
+    for i in range(n):
+        result[i] = (lo[i] & (1 ^ s[w-1])) | (hi[i] & s[w-1])
+    return pack(result)
+
+return MUX<n,w>(a, b)

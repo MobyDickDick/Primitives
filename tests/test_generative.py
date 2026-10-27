@@ -114,7 +114,7 @@ class GenerativeTests(unittest.TestCase):
             library = Library(folder)
             marker = library.root / "example-installations.json"
             previous = ("arithmetic", "recursive-checked", "recursive-mul", "number-of-ones",
-                        "recursive-msb-div", "recursive-max-index", "recursive-equ", "recursive-gt")
+                        "recursive-msb-div", "recursive-max-index", "recursive-equ", "recursive-gt", "routing")
             marker.write_text(json.dumps({f"{key}-v1": True for key in previous}), encoding="utf-8")
             organization = library._organization()
             organization["folders"].append({"id": "examples", "parent": None, "name": "Meine Beispiele", "description": "Erhalten"})
