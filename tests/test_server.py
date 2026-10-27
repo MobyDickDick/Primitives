@@ -118,8 +118,8 @@ class ServerTests(unittest.TestCase):
         self.thread.start()
         self.base = f"http://127.0.0.1:{self.server.server_port}"
         catalog = self.request("/api/catalog")
-        self.assertEqual(len(catalog["templates"]), 14)
-        self.assertEqual(len(catalog["datasets"]), 23)
+        self.assertEqual(len(catalog["templates"]), 20)
+        self.assertEqual(len(catalog["datasets"]), 41)
         self.assertTrue({"DIV<1> MSB", "DIV<2> MSB", "DIV<3> MSB", "DIV<4> MSB"}
                         <= {p["dataset_name"] for p in catalog["programs"]})
         self.assertTrue(all(p["fitness"]["verified_truth_table"] for p in catalog["programs"]))
@@ -128,7 +128,9 @@ class ServerTests(unittest.TestCase):
         self.assertEqual({b["name"] for b in catalog["blocks"]},
                          {"MUL<1>", "MUL<2>", "MUL<4>", "NumberOfOnes<1>", "NumberOfOnes<2>", "NumberOfOnes<4>",
                           "m<1>", "m<2>", "m<4>", "EQU<1>", "EQU<2>", "EQU<4>",
-                          "GT<1>", "GT<2>", "GT<4>"})
+                          "GT<1>", "GT<2>", "GT<4>"}
+                         | {f"{kind}<{width}>" for kind in ("PARITY", "ISZERO", "REVERSE", "MUX", "MIN", "MAX")
+                            for width in (1, 2, 4)})
         mul = next(b for b in catalog["blocks"] if b["name"] == "MUL<4>")
         view = self.request("/api/blocks/view", {"block_id": mul["id"], "path": ["product"]})
         self.assertEqual(sum(n["kind"] == "instance" for n in view["circuit"]["view_nodes"]), 8)

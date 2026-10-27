@@ -1,0 +1,16 @@
+# sel=0 selects a, sel=1 selects b; selection uses only bit operations.
+def MUX<t>(a, b, sel):
+    assert t >= 1 and (t & (t - 1)) == 0
+    if t == 1:
+        x = bits(a, 1)
+        y = bits(b, 1)
+        s = bits(sel, 1)
+        return (x[0] & (1 ^ s[0])) | (y[0] & s[0])
+    x = bits(a, t)
+    y = bits(b, t)
+    k = t // 2
+    lo = bits(MUX<k>(pack(x[:k]), pack(y[:k]), sel), k)
+    hi = bits(MUX<k>(pack(x[k:]), pack(y[k:]), sel), k)
+    return pack(lo + hi)
+
+return MUX<t>(a, b, sel)

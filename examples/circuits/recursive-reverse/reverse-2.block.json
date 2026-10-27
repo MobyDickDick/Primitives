@@ -1,0 +1,105 @@
+{
+  "schema": 1,
+  "root": "block-3e6760bab254fd00cb3970e56eeff9c524a3f80669bfbbfd96120f792a92a486",
+  "definitions": {
+    "block-80406a401a0f183c7316dc3f61ccf16486dc1bc18b2faa3e76ff98f05357f2e6": {
+      "name": "REVERSE<1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 1,
+        "gates": [],
+        "outputs": [
+          0
+        ]
+      }
+    },
+    "block-3e6760bab254fd00cb3970e56eeff9c524a3f80669bfbbfd96120f792a92a486": {
+      "name": "REVERSE<2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "nodes": [
+        {
+          "id": "lower",
+          "type": "instance",
+          "definition": "block-80406a401a0f183c7316dc3f61ccf16486dc1bc18b2faa3e76ff98f05357f2e6",
+          "inputs": {
+            "a": [
+              {
+                "input": "a",
+                "bit": 0
+              }
+            ]
+          }
+        },
+        {
+          "id": "upper",
+          "type": "instance",
+          "definition": "block-80406a401a0f183c7316dc3f61ccf16486dc1bc18b2faa3e76ff98f05357f2e6",
+          "inputs": {
+            "a": [
+              {
+                "input": "a",
+                "bit": 1
+              }
+            ]
+          }
+        }
+      ],
+      "outputs": {
+        "c": [
+          {
+            "node": "upper",
+            "port": "c",
+            "bit": 0
+          },
+          {
+            "node": "lower",
+            "port": "c",
+            "bit": 0
+          }
+        ]
+      }
+    }
+  }
+}

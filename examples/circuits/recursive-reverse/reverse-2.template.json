@@ -1,0 +1,31 @@
+{
+  "version": 2,
+  "source": "# Reverse each half, then swap halves. Bit arrays are LSB-first.\ndef REVERSE<t>(a):\n    assert t >= 1 and (t & (t - 1)) == 0\n    if t == 1:\n        return a\n    x = bits(a, t)\n    k = t // 2\n    lo = bits(REVERSE<k>(pack(x[k:])), k)\n    hi = bits(REVERSE<k>(pack(x[:k])), k)\n    return pack(lo + hi)\n\nreturn REVERSE<t>(a)\n",
+  "limits": {
+    "steps": 100000,
+    "iterations": 10000,
+    "total_steps": 5000000
+  },
+  "conditions": [
+    "t >= 1",
+    "t <= 64",
+    "is_power_of_two(t)"
+  ],
+  "parameters": {
+    "t": 2
+  },
+  "interface": {
+    "inputs": [
+      {
+        "name": "a",
+        "bits": "t"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "c",
+        "bits": "t"
+      }
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+# PARITY<4>: flat NAND netlist; bit 0 is the LSB.
+# Inputs: a0, a1, a2, a3
+g0 = NAND(a0, a1)
+g1 = NAND(a0, g0)
+g2 = NAND(a1, g0)
+g3 = NAND(g1, g2)
+g4 = NAND(a2, a3)
+g5 = NAND(a2, g4)
+g6 = NAND(a3, g4)
+g7 = NAND(g5, g6)
+g8 = NAND(g3, g7)
+g9 = NAND(g3, g8)
+g10 = NAND(g7, g8)
+g11 = NAND(g9, g10)
+c0 = g11

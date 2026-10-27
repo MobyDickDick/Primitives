@@ -1,0 +1,7 @@
+# MUX<1>: flat NAND netlist; bit 0 is the LSB.
+# Inputs: a0, b0, sel0
+g0 = NAND(sel0, sel0)
+g1 = NAND(a0, g0)
+g2 = NAND(b0, sel0)
+g3 = NAND(g1, g2)
+c0 = g3

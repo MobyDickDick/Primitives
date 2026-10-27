@@ -1,0 +1,178 @@
+{
+  "schema": 1,
+  "name": "PARITY<4>",
+  "inputs": 4,
+  "outputs": 1,
+  "rows": [
+    [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      1,
+      1
+    ],
+    [
+      0,
+      0,
+      1,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      1,
+      1,
+      0
+    ],
+    [
+      0,
+      1,
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      1,
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      1,
+      1,
+      1
+    ],
+    [
+      1,
+      0,
+      0,
+      0,
+      1
+    ],
+    [
+      1,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      1,
+      0,
+      1,
+      0,
+      0
+    ],
+    [
+      1,
+      0,
+      1,
+      1,
+      1
+    ],
+    [
+      1,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      1,
+      0,
+      1,
+      1
+    ],
+    [
+      1,
+      1,
+      1,
+      0,
+      1
+    ],
+    [
+      1,
+      1,
+      1,
+      1,
+      0
+    ]
+  ],
+  "metadata": {
+    "seed": 1,
+    "bit_order": "LSB-first",
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 1,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "program": {
+      "version": 2,
+      "source": "# Odd parity: 1 exactly when the number of set bits is odd.\ndef PARITY<t>(a):\n    assert t >= 1 and (t & (t - 1)) == 0\n    if t == 1:\n        x = bits(a, 1)\n        return x[0]\n    x = bits(a, t)\n    k = t // 2\n    lo = PARITY<k>(pack(x[:k]))\n    hi = PARITY<k>(pack(x[k:]))\n    return lo ^ hi\n\nreturn PARITY<t>(a)\n",
+      "limits": {
+        "steps": 100000,
+        "iterations": 10000,
+        "total_steps": 5000000
+      },
+      "conditions": [
+        "t >= 1",
+        "t <= 64",
+        "is_power_of_two(t)"
+      ],
+      "parameters": {
+        "t": 4
+      },
+      "interface": {
+        "inputs": [
+          {
+            "name": "a",
+            "bits": "t"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1
+          }
+        ]
+      }
+    },
+    "description": "Ungerade Parität: c=1 genau bei ungerader Anzahl gesetzter Bits. Rekursive XOR-Verknüpfung beider Hälften. t ist eine positive Zweierpotenz."
+  },
+  "exhaustive": true
+}

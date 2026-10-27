@@ -1,0 +1,31 @@
+{
+  "version": 2,
+  "source": "# Odd parity: 1 exactly when the number of set bits is odd.\ndef PARITY<t>(a):\n    assert t >= 1 and (t & (t - 1)) == 0\n    if t == 1:\n        x = bits(a, 1)\n        return x[0]\n    x = bits(a, t)\n    k = t // 2\n    lo = PARITY<k>(pack(x[:k]))\n    hi = PARITY<k>(pack(x[k:]))\n    return lo ^ hi\n\nreturn PARITY<t>(a)\n",
+  "limits": {
+    "steps": 100000,
+    "iterations": 10000,
+    "total_steps": 5000000
+  },
+  "conditions": [
+    "t >= 1",
+    "t <= 64",
+    "is_power_of_two(t)"
+  ],
+  "parameters": {
+    "t": 1
+  },
+  "interface": {
+    "inputs": [
+      {
+        "name": "a",
+        "bits": "t"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "c",
+        "bits": 1
+      }
+    ]
+  }
+}

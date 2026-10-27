@@ -1,0 +1,62 @@
+# Unsigned minimum: recursively compare, then select the entire operand.
+
+# GT<t> (GreaterThan): unsigned t-bit inputs, one result bit, LSB-first.
+# t = 2**w, integer w >= 0. Upper/Lower take the full input width.
+
+def Upper<t>(a):
+    assert t >= 2 and (t & (t - 1)) == 0
+    x = bits(a, t)
+    return pack(x[t // 2:])
+
+def Lower<t>(a):
+    assert t >= 2 and (t & (t - 1)) == 0
+    x = bits(a, t)
+    return pack(x[:t // 2])
+
+def Equal<t>(a, b):
+    assert t >= 1 and (t & (t - 1)) == 0
+    if t == 1:
+        x = bits(a, 1)
+        y = bits(b, 1)
+        return 1 ^ (x[0] ^ y[0])
+    k = t // 2
+    hi = Equal<k>(Upper<t>(a), Upper<t>(b))
+    lo = Equal<k>(Lower<t>(a), Lower<t>(b))
+    return hi & lo
+
+def GT<t>(a, b):
+    assert t >= 1 and (t & (t - 1)) == 0
+    if t == 1:
+        x = bits(a, 1)
+        y = bits(b, 1)
+        return x[0] & (1 ^ y[0])
+    k = t // 2
+    hi = GT<k>(Upper<t>(a), Upper<t>(b))
+    eq = Equal<k>(Upper<t>(a), Upper<t>(b))
+    lo = GT<k>(Lower<t>(a), Lower<t>(b))
+    return hi | (eq & lo)
+
+def GreaterThan<t>(a, b):
+    return GT<t>(a, b)
+
+
+# sel=0 selects a, sel=1 selects b; selection uses only bit operations.
+def MUX<t>(a, b, sel):
+    assert t >= 1 and (t & (t - 1)) == 0
+    if t == 1:
+        x = bits(a, 1)
+        y = bits(b, 1)
+        s = bits(sel, 1)
+        return (x[0] & (1 ^ s[0])) | (y[0] & s[0])
+    x = bits(a, t)
+    y = bits(b, t)
+    k = t // 2
+    lo = bits(MUX<k>(pack(x[:k]), pack(y[:k]), sel), k)
+    hi = bits(MUX<k>(pack(x[k:]), pack(y[k:]), sel), k)
+    return pack(lo + hi)
+
+
+def MIN<t>(a, b):
+    return MUX<t>(a, b, GT<t>(a, b))
+
+return MIN<t>(a, b)

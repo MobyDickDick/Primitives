@@ -9,6 +9,9 @@ from .templates import Template
 from .synthesis import synthesize
 
 
+GENERATIVE_EXAMPLES = ("parity", "iszero", "reverse", "mux", "min", "max")
+
+
 def install_examples(library):
     marker = library.root / "example-installations.json"
     installed = json.loads(marker.read_text(encoding="utf-8")) if marker.exists() else {}
@@ -20,7 +23,8 @@ def install_examples(library):
     pending_max_index = not installed.get("recursive-max-index-v1")
     pending_equ = not installed.get("recursive-equ-v1")
     pending_gt = not installed.get("recursive-gt-v1")
-    if not any((pending_arithmetic, pending_recursion, pending_mul, pending_ones, pending_div, pending_max_index, pending_equ, pending_gt)):
+    pending_generative = not installed.get("generative-logic-v1")
+    if not any((pending_arithmetic, pending_recursion, pending_mul, pending_ones, pending_div, pending_max_index, pending_equ, pending_gt, pending_generative)):
         return
     with library._lock:
         organization = library._organization()
@@ -29,7 +33,7 @@ def install_examples(library):
             {"id": "arithmetic", "parent": "examples", "name": "Grundrechenarten", "description": "Konventionelle Bit-Algorithmen: feste Stufen, Bitverdrahtung und boolesche Operationen."},
             {"id": "arithmetic-templates", "parent": "arithmetic", "name": "Templates", "description": "Addition, Subtraktion, Multiplikation und Division für parametrierbare unsigned Bitbreiten."},
             {"id": "arithmetic-functions", "parent": "arithmetic", "name": "Funktionen (4 Bit)", "description": "Konkrete Instanzen mit allen 256 Eingabekombinationen und direkt synthetisierten NAND-Netzen."},
-            {"id": "recursion", "parent": "examples", "name": "Rekursion", "description": "Rekursive Arithmetik, NumberOfOnes, Gleichheit EQU, GreaterThan GT und maximaler Bitindex m<t> durch Halbierung. MUL, NumberOfOnes, EQU, GT und m für 1, 2 und 4 Bits mit F-Boxen und flachen NAND-Netzen."}]
+            {"id": "recursion", "parent": "examples", "name": "Rekursion", "description": "Rekursive Arithmetik, Zählung, Vergleiche, Parität, Nulltest, Bitumkehr, Multiplexer, Minimum und Maximum. Generative Beispiele für 1, 2 und 4 Bits mit F-Boxen und flachen NAND-Netzen."}]
         existing = {f["id"] for f in organization["folders"]}
         organization["folders"].extend(f for f in folders if f["id"] not in existing)
         # Save folders first; a partially interrupted installation can be retried.
@@ -37,7 +41,10 @@ def install_examples(library):
         source = Path(__file__).resolve().parents[1] / "examples" / "templates"
         recursive_checked = {"recursive-split-sub.abstract.json", "recursive-split-add-checked.abstract.json"}
         for path in sorted(source.glob("*.abstract.json")):
-            if path.name == "recursive-gt.abstract.json":
+            if path.name in {f"recursive-{kind}.abstract.json" for kind in GENERATIVE_EXAMPLES}:
+                if not pending_generative:
+                    continue
+            elif path.name == "recursive-gt.abstract.json":
                 if not pending_gt:
                     continue
             elif path.name == "recursive-equ.abstract.json":
@@ -77,7 +84,8 @@ def install_examples(library):
                                       (pending_ones, "recursive-number-of-ones", "number-of-ones"),
                                       (pending_max_index, "recursive-max-index", "m"),
                                       (pending_equ, "recursive-equ", "equ"),
-                                      (pending_gt, "recursive-gt", "gt")):
+                                      (pending_gt, "recursive-gt", "gt"),
+                                      *((pending_generative, f"recursive-{kind}", kind) for kind in GENERATIVE_EXAMPLES)):
             if not pending:
                 continue
             output = source.parent / "circuits" / folder
@@ -108,4 +116,5 @@ def install_examples(library):
         installed["recursive-max-index-v1"] = True
         installed["recursive-equ-v1"] = True
         installed["recursive-gt-v1"] = True
+        installed["generative-logic-v1"] = True
         write_json(marker, installed)

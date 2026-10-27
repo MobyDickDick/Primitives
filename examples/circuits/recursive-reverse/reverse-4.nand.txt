@@ -1,0 +1,6 @@
+# REVERSE<4>: flat NAND netlist; bit 0 is the LSB.
+# Inputs: a0, a1, a2, a3
+c0 = a3
+c1 = a2
+c2 = a1
+c3 = a0

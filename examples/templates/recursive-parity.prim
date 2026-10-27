@@ -1,0 +1,13 @@
+# Odd parity: 1 exactly when the number of set bits is odd.
+def PARITY<t>(a):
+    assert t >= 1 and (t & (t - 1)) == 0
+    if t == 1:
+        x = bits(a, 1)
+        return x[0]
+    x = bits(a, t)
+    k = t // 2
+    lo = PARITY<k>(pack(x[:k]))
+    hi = PARITY<k>(pack(x[k:]))
+    return lo ^ hi
+
+return PARITY<t>(a)

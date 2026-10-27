@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "kind": "template",
+  "name": "MUX<t>",
+  "description": "Wählt für sel=0 den t-Bit-Wert a, für sel=1 den Wert b. Rekursive Halbierung mit gemeinsamem Auswahlbit. t ist eine positive Zweierpotenz.",
+  "parameters": [
+    "t"
+  ],
+  "interface": {
+    "inputs": [
+      {
+        "name": "a",
+        "bits": "t"
+      },
+      {
+        "name": "b",
+        "bits": "t"
+      },
+      {
+        "name": "sel",
+        "bits": 1
+      }
+    ],
+    "outputs": [
+      {
+        "name": "c",
+        "bits": "t"
+      }
+    ]
+  },
+  "source": "# sel=0 selects a, sel=1 selects b; selection uses only bit operations.\ndef MUX<t>(a, b, sel):\n    assert t >= 1 and (t & (t - 1)) == 0\n    if t == 1:\n        x = bits(a, 1)\n        y = bits(b, 1)\n        s = bits(sel, 1)\n        return (x[0] & (1 ^ s[0])) | (y[0] & s[0])\n    x = bits(a, t)\n    y = bits(b, t)\n    k = t // 2\n    lo = bits(MUX<k>(pack(x[:k]), pack(y[:k]), sel), k)\n    hi = bits(MUX<k>(pack(x[k:]), pack(y[k:]), sel), k)\n    return pack(lo + hi)\n\nreturn MUX<t>(a, b, sel)\n",
+  "limits": {
+    "steps": 100000,
+    "iterations": 10000,
+    "total_steps": 5000000
+  },
+  "conditions": [
+    "t >= 1",
+    "t <= 32",
+    "is_power_of_two(t)"
+  ]
+}

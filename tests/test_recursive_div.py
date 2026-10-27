@@ -81,7 +81,7 @@ class RecursiveDivTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(dir=".jobs") as folder:
             library = Library(folder)
             marker = library.root / "example-installations.json"
-            marker.write_text(json.dumps({"arithmetic-v1": True, "recursive-gt-v1": True, "recursive-equ-v1": True, "recursive-checked-v1": True,
+            marker.write_text(json.dumps({"arithmetic-v1": True, "generative-logic-v1": True, "recursive-gt-v1": True, "recursive-equ-v1": True, "recursive-checked-v1": True,
                                           "recursive-mul-v1": True, "number-of-ones-v1": True,
                                           "recursive-max-index-v1": True}), encoding="utf-8")
             organization = library._organization()

@@ -1,0 +1,12 @@
+# Reverse each half, then swap halves. Bit arrays are LSB-first.
+def REVERSE<t>(a):
+    assert t >= 1 and (t & (t - 1)) == 0
+    if t == 1:
+        return a
+    x = bits(a, t)
+    k = t // 2
+    lo = bits(REVERSE<k>(pack(x[k:])), k)
+    hi = bits(REVERSE<k>(pack(x[:k])), k)
+    return pack(lo + hi)
+
+return REVERSE<t>(a)

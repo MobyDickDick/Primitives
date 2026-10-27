@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "root": "block-902c45032a47191cafaf5359d95f4cb5ce1494d8120f146f546d3356d3635217",
+  "definitions": {
+    "block-902c45032a47191cafaf5359d95f4cb5ce1494d8120f146f546d3356d3635217": {
+      "name": "ISZERO<1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 1,
+        "gates": [
+          [
+            0,
+            0
+          ]
+        ],
+        "outputs": [
+          1
+        ]
+      }
+    }
+  }
+}

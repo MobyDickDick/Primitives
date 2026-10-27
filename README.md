@@ -58,6 +58,13 @@ Für t=1,2,4 liegen vollständig geprüfte F-Boxen und flache Netze mit
 Funktionen unter **Beispiele → Rekursion**.
 Siehe [generatives GreaterThan-Template GT](docs/GT.md).
 
+Sechs weitere generative Templates ergänzen `PARITY<t>` (ungerade Parität),
+`ISZERO<t>`, `REVERSE<t>` (Bitumkehr), `MUX<t>`, `MIN<t>` und `MAX<t>`.
+Für t=1,2,4 sind alle 18 Instanzen mit vollständigen Wahrheitstabellen,
+F-Boxen und NAND-Netzen erzeugt und unabhängig geprüft. Sie werden einmalig
+unter **Beispiele → Rekursion** ergänzt. Die Bitumkehr benötigt nur Verdrahtung.
+Siehe [weitere generative Templates](docs/GENERATIVE-LOGIK.md).
+
 `m<t>(a)` liefert den maximalen Index eines gesetzten Bits als `[c,err]`.
 Für `a=0` gilt `[const<t>(0),1]`. Bei der rekursiven Halbierung ist der
 Offset der oberen Hälfte `t//2`; er wird als Indexbit angehängt.

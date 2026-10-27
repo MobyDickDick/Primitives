@@ -230,6 +230,12 @@ negative Differenzen werden damit ohne Zweierkomplement-Port dargestellt.
 
 ## Direkte strukturelle NAND-Synthese
 
+Sechs weitere [generative Logik-Templates](GENERATIVE-LOGIK.md) ergänzen
+`PARITY<t>`, `ISZERO<t>`, `REVERSE<t>`, `MUX<t>`, `MIN<t>` und `MAX<t>`.
+Für jedes liegen die drei Instanzen t=1,2,4 als konkrete Programme, vollständige
+Wahrheitstabellen, F-Boxen und NAND-Netze vor. Sie erscheinen unter
+**Beispiele → Rekursion**; alle 1170 Eingaben sind unabhängig geprüft.
+
 Das [generative Gleichheits-Template EQU](EQU.md) vergleicht zwei
 w-Bit-Werte über zwei rekursive Teilvergleiche und AND; der Basisfall
 ist NOT(XOR). Für Zweierpotenzbreiten bis 64 Bits sind Quellauswertung
