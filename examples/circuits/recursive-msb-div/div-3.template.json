@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "source": "# DIV<w>: unsigned quotient plus error; only b=0 is an error.\n# All recursion is bounded by static widths. No input-dependent control.\n# Arrays and concatenation are LSB-first. No arithmetic on input words.\n\ndef ANY<w>(a):\n    assert w >= 1\n    x = bits(a, w)\n    if w == 1:\n        return x[0]\n    return x[0] | ANY<w - 1>(pack(x[1:]))\n\ndef GATE<w>(a, enable):\n    assert w >= 1\n    x = bits(a, w)\n    e = bits(enable, 1)\n    digit = x[0] & e[0]\n    if w == 1:\n        return digit\n    return pack([digit] + bits(GATE<w - 1>(pack(x[1:]), enable), w - 1))\n\ndef UNION<w>(a, b):\n    assert w >= 1\n    x = bits(a, w)\n    y = bits(b, w)\n    digit = x[0] | y[0]\n    if w == 1:\n        return digit\n    return pack([digit] + bits(UNION<w - 1>(pack(x[1:]), pack(y[1:])), w - 1))\n\n# One-hot: only the highest set bit survives. Zero maps to zero.\ndef HIGHEST<w>(a):\n    assert w >= 1\n    x = bits(a, w)\n    if w == 1:\n        return x[0]\n    upper = HIGHEST<w - 1>(pack(x[1:]))\n    digit = x[0] & (1 ^ ANY<w - 1>(upper))\n    return pack([digit] + bits(upper, w - 1))\n\n# Modular difference plus Borrow; valid for every positive width.\ndef SUB_BORROW<w>(a, b, incoming):\n    assert w >= 1\n    x = bits(a, w)\n    y = bits(b, w)\n    carry = bits(incoming, 1)\n    parity = x[0] ^ y[0]\n    digit = parity ^ carry[0]\n    borrow = ((1 ^ x[0]) & y[0]) | ((1 ^ parity) & carry[0])\n    if w == 1:\n        return pack([digit, borrow])\n    tail = SUB_BORROW<w - 1>(pack(x[1:]), pack(y[1:]), borrow)\n    return pack([digit] + bits(tail, w))\n\n# Align b's leading one with position n-1; return [shifted_b, 2**shift].\n# Candidate k is selected by h[n-1-k]. Higher divisor bits are handled\n# by the caller's fits signal, so a truncated shift is never accepted.\ndef ALIGN<n, k>(b, h):\n    assert n >= 1 and k >= 0 and k < n\n    y = bits(b, n)\n    leading = bits(h, n)\n    select = leading[n - 1 - k]\n    shifted = pack([0] * k + y[:n - k])\n    value = GATE<n>(shifted, select)\n    weight = GATE<n>(1 << k, select)\n    if k == 0:\n        return pack(bits(value, n) + bits(weight, n))\n    other = bits(ALIGN<n, k - 1>(b, h), 2 * n)\n    value = UNION<n>(value, pack(other[:n]))\n    weight = UNION<n>(weight, pack(other[n:]))\n    return pack(bits(value, n) + bits(weight, n))\n\n# The active stage has a_g=n-1. Stages above a_g pass a through.\n# A selected subtraction clears that top bit, so n decreases statically.\ndef DIV_BITS<n, w>(a, b, h):\n    assert n >= 1 and n <= w and w <= 8\n    x = bits(a, n)\n    leading = bits(h, w)\n    if n == 1:\n        return x[0] & leading[0]\n\n    aligned = bits(ALIGN<n, n - 1>(b, h), 2 * n)\n    shifted = pack(aligned[:n])\n    weight = aligned[n:]\n    half = pack(aligned[1:n] + [0])\n    high_diff = bits(SUB_BORROW<n>(a, shifted, 0), n + 1)\n    low_diff = bits(SUB_BORROW<n>(a, half, 0), n + 1)\n    active = x[n - 1] & ANY<n>(pack(leading[:n]))\n    take_high = active & (1 ^ high_diff[n])\n    take_low = active & high_diff[n] & (1 ^ leading[n - 1])\n\n    remainder = GATE<n - 1>(pack(x[:n - 1]), 1 ^ x[n - 1])\n    remainder = UNION<n - 1>(remainder, GATE<n - 1>(pack(high_diff[:n - 1]), take_high))\n    remainder = UNION<n - 1>(remainder, GATE<n - 1>(pack(low_diff[:n - 1]), take_low))\n    # If a<b and a's top bit is set, both selections are zero: stop with 0.\n    tail = DIV_BITS<n - 1, w>(remainder, b, h)\n    current = UNION<n>(GATE<n>(pack(weight), take_high), GATE<n>(pack(weight[1:] + [0]), take_low))\n    # These quotient bits are disjoint; UNION is the sum without a carry.\n    return UNION<n>(current, tail)\n\ndef DIV<w>(a, b):\n    assert w >= 1 and w <= 8\n    x = bits(a, w)\n    y = bits(b, w)\n    if w == 1:\n        return pack([x[0] & y[0], 1 ^ y[0]])\n    leading = HIGHEST<w>(b)\n    valid = ANY<w>(leading)\n    quotient = GATE<w>(DIV_BITS<w, w>(a, b, leading), valid)\n    return pack(bits(quotient, w) + [1 ^ valid])\n\nresult = bits(DIV<w>(a, b), w + 1)\nreturn pack(result[:w]), result[w]\n",
+  "limits": {
+    "steps": 100000,
+    "iterations": 10000,
+    "total_steps": 5000000
+  },
+  "conditions": [
+    "w >= 1",
+    "w <= 8"
+  ],
+  "parameters": {
+    "w": 3
+  },
+  "interface": {
+    "inputs": [
+      {
+        "name": "a",
+        "bits": "w"
+      },
+      {
+        "name": "b",
+        "bits": "w"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "c",
+        "bits": "w"
+      },
+      {
+        "name": "err",
+        "bits": 1
+      }
+    ]
+  }
+}

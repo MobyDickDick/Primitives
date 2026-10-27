@@ -1,0 +1,7 @@
+# DIV<1>: MSB-aligned flat NAND netlist; bit 0 is the LSB.
+# Inputs: a0, b0
+g0 = NAND(a0, b0)
+g1 = NAND(g0, g0)
+g2 = NAND(b0, b0)
+c0 = g1
+err = g2

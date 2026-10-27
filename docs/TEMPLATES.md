@@ -230,6 +230,12 @@ negative Differenzen werden damit ohne Zweierkomplement-Port dargestellt.
 
 ## Direkte strukturelle NAND-Synthese
 
+Die [rekursive Division mit MSB-Ausrichtung](REKURSIVE-DIVISION.md) ergänzt
+`DIV<w>(a,b)` mit Quotient und Fehlerbit. Das Template ist als Referenz
+für w=1 bis 8 verwendbar; für w=1,2,3,4 liegen vollständig geprüfte
+NAND-Exporte vor. Grössere Instanzen überschreiten die 512-Gatter-Grenze.
+Die Quelle arbeitet ohne Schleifen mit statisch abnehmenden Bitbreiten.
+
 Ein weiteres [Beispiel zur rekursiven Addition](REKURSIVE-ADDITION.md) zeigt
 die unabhängige Addition beider Hälften mit anschliessendem bedingtem,
 rekursivem Inkrementieren. Dazu gehören fertig erzeugte und vollständig

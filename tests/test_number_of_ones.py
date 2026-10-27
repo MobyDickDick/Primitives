@@ -120,7 +120,8 @@ class NumberOfOnesTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(dir=".jobs") as folder:
             library = Library(folder)
             (library.root / "example-installations.json").write_text(json.dumps(
-                {"arithmetic-v1": True, "recursive-checked-v1": True, "recursive-mul-v1": True}), encoding="utf-8")
+                {"arithmetic-v1": True, "recursive-checked-v1": True, "recursive-mul-v1": True,
+                 "recursive-msb-div-v1": True}), encoding="utf-8")
             install_examples(library)
             self.assertEqual(len(library.templates()), 1)
             self.assertEqual(len(library.blocks()), 3)

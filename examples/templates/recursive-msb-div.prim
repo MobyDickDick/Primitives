@@ -1,0 +1,112 @@
+# DIV<w>: unsigned quotient plus error; only b=0 is an error.
+# All recursion is bounded by static widths. No input-dependent control.
+# Arrays and concatenation are LSB-first. No arithmetic on input words.
+
+def ANY<w>(a):
+    assert w >= 1
+    x = bits(a, w)
+    if w == 1:
+        return x[0]
+    return x[0] | ANY<w - 1>(pack(x[1:]))
+
+def GATE<w>(a, enable):
+    assert w >= 1
+    x = bits(a, w)
+    e = bits(enable, 1)
+    digit = x[0] & e[0]
+    if w == 1:
+        return digit
+    return pack([digit] + bits(GATE<w - 1>(pack(x[1:]), enable), w - 1))
+
+def UNION<w>(a, b):
+    assert w >= 1
+    x = bits(a, w)
+    y = bits(b, w)
+    digit = x[0] | y[0]
+    if w == 1:
+        return digit
+    return pack([digit] + bits(UNION<w - 1>(pack(x[1:]), pack(y[1:])), w - 1))
+
+# One-hot: only the highest set bit survives. Zero maps to zero.
+def HIGHEST<w>(a):
+    assert w >= 1
+    x = bits(a, w)
+    if w == 1:
+        return x[0]
+    upper = HIGHEST<w - 1>(pack(x[1:]))
+    digit = x[0] & (1 ^ ANY<w - 1>(upper))
+    return pack([digit] + bits(upper, w - 1))
+
+# Modular difference plus Borrow; valid for every positive width.
+def SUB_BORROW<w>(a, b, incoming):
+    assert w >= 1
+    x = bits(a, w)
+    y = bits(b, w)
+    carry = bits(incoming, 1)
+    parity = x[0] ^ y[0]
+    digit = parity ^ carry[0]
+    borrow = ((1 ^ x[0]) & y[0]) | ((1 ^ parity) & carry[0])
+    if w == 1:
+        return pack([digit, borrow])
+    tail = SUB_BORROW<w - 1>(pack(x[1:]), pack(y[1:]), borrow)
+    return pack([digit] + bits(tail, w))
+
+# Align b's leading one with position n-1; return [shifted_b, 2**shift].
+# Candidate k is selected by h[n-1-k]. Higher divisor bits are handled
+# by the caller's fits signal, so a truncated shift is never accepted.
+def ALIGN<n, k>(b, h):
+    assert n >= 1 and k >= 0 and k < n
+    y = bits(b, n)
+    leading = bits(h, n)
+    select = leading[n - 1 - k]
+    shifted = pack([0] * k + y[:n - k])
+    value = GATE<n>(shifted, select)
+    weight = GATE<n>(1 << k, select)
+    if k == 0:
+        return pack(bits(value, n) + bits(weight, n))
+    other = bits(ALIGN<n, k - 1>(b, h), 2 * n)
+    value = UNION<n>(value, pack(other[:n]))
+    weight = UNION<n>(weight, pack(other[n:]))
+    return pack(bits(value, n) + bits(weight, n))
+
+# The active stage has a_g=n-1. Stages above a_g pass a through.
+# A selected subtraction clears that top bit, so n decreases statically.
+def DIV_BITS<n, w>(a, b, h):
+    assert n >= 1 and n <= w and w <= 8
+    x = bits(a, n)
+    leading = bits(h, w)
+    if n == 1:
+        return x[0] & leading[0]
+
+    aligned = bits(ALIGN<n, n - 1>(b, h), 2 * n)
+    shifted = pack(aligned[:n])
+    weight = aligned[n:]
+    half = pack(aligned[1:n] + [0])
+    high_diff = bits(SUB_BORROW<n>(a, shifted, 0), n + 1)
+    low_diff = bits(SUB_BORROW<n>(a, half, 0), n + 1)
+    active = x[n - 1] & ANY<n>(pack(leading[:n]))
+    take_high = active & (1 ^ high_diff[n])
+    take_low = active & high_diff[n] & (1 ^ leading[n - 1])
+
+    remainder = GATE<n - 1>(pack(x[:n - 1]), 1 ^ x[n - 1])
+    remainder = UNION<n - 1>(remainder, GATE<n - 1>(pack(high_diff[:n - 1]), take_high))
+    remainder = UNION<n - 1>(remainder, GATE<n - 1>(pack(low_diff[:n - 1]), take_low))
+    # If a<b and a's top bit is set, both selections are zero: stop with 0.
+    tail = DIV_BITS<n - 1, w>(remainder, b, h)
+    current = UNION<n>(GATE<n>(pack(weight), take_high), GATE<n>(pack(weight[1:] + [0]), take_low))
+    # These quotient bits are disjoint; UNION is the sum without a carry.
+    return UNION<n>(current, tail)
+
+def DIV<w>(a, b):
+    assert w >= 1 and w <= 8
+    x = bits(a, w)
+    y = bits(b, w)
+    if w == 1:
+        return pack([x[0] & y[0], 1 ^ y[0]])
+    leading = HIGHEST<w>(b)
+    valid = ANY<w>(leading)
+    quotient = GATE<w>(DIV_BITS<w, w>(a, b, leading), valid)
+    return pack(bits(quotient, w) + [1 ^ valid])
+
+result = bits(DIV<w>(a, b), w + 1)
+return pack(result[:w]), result[w]

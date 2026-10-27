@@ -36,6 +36,13 @@ und flachen NAND-Netzen vor (0, 5 bzw. 24 NANDs). Beim nächsten Serverstart
 werden sie unter **Beispiele → Rekursion** und **Unterprogramm-Bausteine** ergänzt.
 Siehe [NumberOfOnes und die korrigierte Rekursion](docs/NUMBER-OF-ONES.md).
 
+`DIV<w>(a,b)` richtet den Divisor rekursiv am höchsten Dividend-Bit aus,
+subtrahiert die passende Zweierpotenz und setzt die Rechnung mit dem Rest
+fort. Nur `b=0` liefert `[0,1]`, sonst ist das Ergebnis `[a//b,0]`.
+Für w=1,2,3,4 liegen vollständig geprüfte flache NAND-Netze vor.
+Template und Funktionen erscheinen beim nächsten Serverstart unter
+**Beispiele → Rekursion**. Siehe [rekursive Division](docs/REKURSIVE-DIVISION.md).
+
 Im Template-Editor übersetzt **Direkt in NAND übersetzen & speichern** feste
 Bit-Stufen konventionell: Schleifen werden für die gewählte Breite entrollt,
 `bits`/`pack` werden Verdrahtung und `& | ^` werden NAND-Gatter. Die vier neuen

@@ -118,8 +118,10 @@ class ServerTests(unittest.TestCase):
         self.thread.start()
         self.base = f"http://127.0.0.1:{self.server.server_port}"
         catalog = self.request("/api/catalog")
-        self.assertEqual(len(catalog["templates"]), 10)
-        self.assertEqual(len(catalog["datasets"]), 10)
+        self.assertEqual(len(catalog["templates"]), 11)
+        self.assertEqual(len(catalog["datasets"]), 14)
+        self.assertTrue({"DIV<1> MSB", "DIV<2> MSB", "DIV<3> MSB", "DIV<4> MSB"}
+                        <= {p["dataset_name"] for p in catalog["programs"]})
         self.assertTrue(all(p["fitness"]["verified_truth_table"] for p in catalog["programs"]))
         self.assertEqual({catalog["tree"]["entries"][f"function:{d['function_id']}"] for d in catalog["datasets"]},
                          {"arithmetic-functions", "recursion"})

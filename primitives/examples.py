@@ -16,7 +16,8 @@ def install_examples(library):
     pending_recursion = not installed.get("recursive-checked-v1")
     pending_mul = not installed.get("recursive-mul-v1")
     pending_ones = not installed.get("number-of-ones-v1")
-    if not pending_arithmetic and not pending_recursion and not pending_mul and not pending_ones:
+    pending_div = not installed.get("recursive-msb-div-v1")
+    if not any((pending_arithmetic, pending_recursion, pending_mul, pending_ones, pending_div)):
         return
     with library._lock:
         organization = library._organization()
@@ -33,7 +34,10 @@ def install_examples(library):
         source = Path(__file__).resolve().parents[1] / "examples" / "templates"
         recursive_checked = {"recursive-split-sub.abstract.json", "recursive-split-add-checked.abstract.json"}
         for path in sorted(source.glob("*.abstract.json")):
-            if path.name == "recursive-number-of-ones.abstract.json":
+            if path.name == "recursive-msb-div.abstract.json":
+                if not pending_div:
+                    continue
+            elif path.name == "recursive-number-of-ones.abstract.json":
                 if not pending_ones:
                     continue
             elif path.name == "recursive-split-mul.abstract.json":
@@ -71,9 +75,19 @@ def install_examples(library):
                 library.save_program({"circuit": circuit,
                                       "synthesis": {"method": "hierarchy-expansion-and-simplification", "version": 1}}, dataset)
                 organization["entries"].setdefault(f"function:{function_id(dataset)}", "recursion")
+        if pending_div:
+            output = source.parent / "circuits" / "recursive-msb-div"
+            for width in (1, 2, 3, 4):
+                prefix = output / f"div-{width}"
+                dataset = Dataset.from_dict(json.loads(prefix.with_suffix(".vectors.json").read_text(encoding="utf-8")))
+                circuit = json.loads(prefix.with_suffix(".circuit.json").read_text(encoding="utf-8"))
+                library.save_program({"circuit": circuit,
+                                      "synthesis": {"method": "structural-bitwise", "version": 1}}, dataset)
+                organization["entries"].setdefault(f"function:{function_id(dataset)}", "recursion")
         library._write_organization(organization)
         installed["arithmetic-v1"] = True
         installed["recursive-checked-v1"] = True
         installed["recursive-mul-v1"] = True
         installed["number-of-ones-v1"] = True
+        installed["recursive-msb-div-v1"] = True
         write_json(marker, installed)

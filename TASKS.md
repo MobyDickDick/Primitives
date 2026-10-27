@@ -1,5 +1,13 @@
 # Aufgabenliste
 
+## Rekursive Division vom 27. Oktober 2026
+
+- [x] `DIV<w>` mit MSB-Ausrichtung, Korrektur um eine Stelle und rekursiver Subtraktion.
+- [x] Ausschliesslich bei b=0 Fehlerdarstellung `[0,1]`; sonst `[a//b,0]`.
+- [x] Schleifenfreie Quelle und azyklische NAND-Exporte für w=1,2,3,4.
+- [x] Alle 340 kleinen Eingabepaare gegen unabhängige Ganzzahldivision geprüft.
+- [x] Grössere Referenzbreiten, Gattergrenze und einmalige Bibliotheksmigration getestet.
+
 ## Rekursive Multiplikation vom 26. Oktober 2026
 
 - [x] `MUL<w>` aus vier vollständigen rekursiven Teilprodukten mit ADD/INC.

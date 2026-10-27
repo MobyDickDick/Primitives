@@ -1,0 +1,78 @@
+[
+  {
+    "name": "DIV<1>",
+    "parameters": {
+      "w": 1
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 8,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 3,
+      "depth": 2
+    },
+    "synthesis": {
+      "method": "structural-bitwise",
+      "version": 1
+    }
+  },
+  {
+    "name": "DIV<2>",
+    "parameters": {
+      "w": 2
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 48,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 56,
+      "depth": 22
+    },
+    "synthesis": {
+      "method": "structural-bitwise",
+      "version": 1
+    }
+  },
+  {
+    "name": "DIV<3>",
+    "parameters": {
+      "w": 3
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 256,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 147,
+      "depth": 40
+    },
+    "synthesis": {
+      "method": "structural-bitwise",
+      "version": 1
+    }
+  },
+  {
+    "name": "DIV<4>",
+    "parameters": {
+      "w": 4
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 1280,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 283,
+      "depth": 60
+    },
+    "synthesis": {
+      "method": "structural-bitwise",
+      "version": 1
+    }
+  }
+]
