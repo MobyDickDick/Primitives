@@ -1,6 +1,7 @@
 """Acyclic NAND circuits; wire indices are zero based in JSON."""
 from dataclasses import dataclass
 import re
+from .limits import MAX_BITS
 
 
 @dataclass(frozen=True)
@@ -10,10 +11,10 @@ class Circuit:
     outputs: tuple[int, ...]
 
     def __post_init__(self):
-        if type(self.inputs) is not int or not 1 <= self.inputs <= 32:
-            raise ValueError("Die Anzahl Eingänge muss zwischen 1 und 32 liegen.")
-        if len(self.gates) > 512 or not 1 <= len(self.outputs) <= 32:
-            raise ValueError("Höchstens 512 Gatter und 1–32 Ausgänge sind erlaubt.")
+        if type(self.inputs) is not int or not 1 <= self.inputs <= MAX_BITS:
+            raise ValueError(f"Die Anzahl Eingänge muss zwischen 1 und {MAX_BITS} liegen.")
+        if len(self.gates) > 512 or not 1 <= len(self.outputs) <= MAX_BITS:
+            raise ValueError(f"Höchstens 512 Gatter und 1–{MAX_BITS} Ausgänge sind erlaubt.")
         for i, gate in enumerate(self.gates):
             if len(gate) != 2 or any(type(r) is not int or not 0 <= r < self.inputs + i for r in gate):
                 raise ValueError(f"Gatter {i}: ungültiger oder vorwärts gerichteter Verweis.")

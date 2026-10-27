@@ -9,9 +9,11 @@ wird durch err=0 vom Nullfehler unterschieden.
 Die [generative Quelle](../examples/templates/recursive-max-index.prim)
 und das [ausführbare Template](../examples/templates/recursive-max-index.abstract.json)
 sind gespeichert. Die mathematische Konstruktion gilt für jede Zweierpotenz t.
-Das ausführbare Template erlaubt t=1,2,4,8,16: Die bestehende Schnittstelle
-erlaubt insgesamt höchstens 32 Ausgangsbits, und die gewünschte Darstellung
-braucht t+1 Bits. Darum passt t=32 mit 33 Ausgangsbits nicht hinein.
+Das gespeicherte Beispiel-Template beschränkt t ausdrücklich auf 1,2,4,8,16.
+Die allgemeine Schnittstelle erlaubt inzwischen 128 Bits je Seite; die
+Darstellung braucht t+1 Ausgangsbits. Eine Erweiterung der Template-Bedingung
+auf t=32 oder t=64 ist damit möglich, unterliegt aber weiterhin den
+Laufzeit- und Gatterbudgets.
 
 ## Rekursion und korrigierter Offset
 

@@ -1,6 +1,7 @@
 """Named bit-vector interfaces; offsets are relative to each side, LSB first."""
 import keyword
 import re
+from .limits import MAX_BITS
 
 
 RESERVED = {"x", "pi", "sin", "cos", "sqrt", "isqrt", "floor", "ceil", "abs", "min", "max", "round"}
@@ -13,8 +14,8 @@ def interface(spec, inputs=None, outputs=None):
     names = set()
     for side, expected in (("inputs", inputs), ("outputs", outputs)):
         ports = spec.get(side)
-        if not isinstance(ports, list) or not 1 <= len(ports) <= 32:
-            raise ValueError(f"{side}: 1–32 benannte Ports erforderlich.")
+        if not isinstance(ports, list) or not 1 <= len(ports) <= MAX_BITS:
+            raise ValueError(f"{side}: 1–{MAX_BITS} benannte Ports erforderlich.")
         offset, normalized = 0, []
         for port in ports:
             if not isinstance(port, dict):
@@ -23,8 +24,8 @@ def interface(spec, inputs=None, outputs=None):
             if (not isinstance(name, str) or not re.fullmatch(r"[a-zA-Z][a-zA-Z0-9_]{0,31}", name)
                     or keyword.iskeyword(name) or name in RESERVED or re.fullmatch(r"x\d+", name) or name in names):
                 raise ValueError("Portnamen müssen eindeutige Bezeichner sein; x, x0… und Funktionsnamen sind reserviert.")
-            if type(width) is not int or not 1 <= width <= 32 or type(port.get("signed", False)) is not bool:
-                raise ValueError("Portbreite muss 1–32 sein, signed muss boolesch sein.")
+            if type(width) is not int or not 1 <= width <= MAX_BITS or type(port.get("signed", False)) is not bool:
+                raise ValueError(f"Portbreite muss 1–{MAX_BITS} sein, signed muss boolesch sein.")
             if "offset" in port and (type(port["offset"]) is not int or port["offset"] != offset):
                 raise ValueError(f"Port {name}: Bitoffset muss {offset} sein.")
             normalized.append({"name": name, "bits": width, "signed": port.get("signed", False), "offset": offset})
@@ -35,8 +36,8 @@ def interface(spec, inputs=None, outputs=None):
                 normalized[-1]["overflow"] = overflow
             names.add(name)
             offset += width
-        if offset > 32 or expected is not None and offset != expected:
-            raise ValueError(f"{side}: Summe der Portbreiten muss {expected or '1–32'} sein (erhalten: {offset}).")
+        if offset > MAX_BITS or expected is not None and offset != expected:
+            raise ValueError(f"{side}: Summe der Portbreiten muss {expected or f'1–{MAX_BITS}'} sein (erhalten: {offset}).")
         result[side] = normalized
     return result
 

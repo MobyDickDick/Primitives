@@ -1,6 +1,13 @@
 # Primitives
 generate simple Programms
 
+Ein- und Ausgangsseiten unterstützen jeweils **bis zu 128 Bits insgesamt**;
+auch einzelne Ports und interne Bitarrays dürfen 128 Bits breit sein.
+Zahleneingaben und Debugausgaben bleiben bis zum höchsten Bit exakt.
+Für grössere Eingaberäume werden Stichproben verwendet; pro Datensatz gelten
+weiterhin höchstens 65536 Vektoren und pro Schaltung höchstens 512 NAND-Gatter.
+Nach dem Update den lokalen Webserver neu starten und die Browserseite neu laden.
+
 ## Übersichtliche Webseiten und Hilfe
 
 Die **Bibliothek** zeigt Templates und konkrete Funktionen in einem gemeinsamen
@@ -232,7 +239,7 @@ Vektoren erzeugen** klicken. Der Name folgt automatisch den Breiten; er kann
 auch von Hand geändert werden. **Funktion öffnen** lädt eine gespeicherte
 Definition samt zugehörigen Vektoren wieder in den Editor und für die Evolution.
 Auch **ADD(1,1,16)** ist erlaubt; die Zweckmässigkeit der gewählten Breiten
-bleibt beim Nutzer. Es gelten nur die technischen Limits von je 32 Gesamtbits
+bleibt beim Nutzer. Es gelten nur die technischen Limits von je 128 Gesamtbits
 für Eingänge bzw. Ausgänge.
 
 Mehrere Vektorsätze derselben Funktion (etwa unterschiedliche Stichproben)
@@ -278,7 +285,7 @@ Bereichs an; Borrow bedeutet `a < b`. Auch mit Statusbit bleibt die gewählte
 der JSON-Programmexport enthält zusätzlich den zugehörigen Datensatz. Über
 **Eigene Vektoren importieren** lassen sich beide Formen als Aufgaben laden.
 Vollständige Tabellen und Stichproben bleiben klar unterschieden. Pro Seite sind
-insgesamt höchstens 32 Bits und pro Datensatz höchstens 65536 Vektoren erlaubt.
+insgesamt höchstens 128 Bits und pro Datensatz höchstens 65536 Vektoren erlaubt.
 Es werden nur angeforderte Varianten erzeugt.
 
 CLI-Beispiel für unterschiedliche Operandenbreiten und einen Carry-Ausgang:

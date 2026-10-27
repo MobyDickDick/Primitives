@@ -106,13 +106,13 @@ Frei formulierte Meldungen nach `assert` sind nicht Teil dieser Sprachversion.
   Template-Parameter sind schreibgeschützt. Lokale Variablen sind je Aufruf
   getrennt; andere Eingangsports müssen ausdrücklich als Argumente übergeben
   werden. Gegenseitige und direkte Rekursion sind erlaubt.
-- Bis zu 16 feste Parameter mit ganzzahligen Werten 0–32. Breitenausdrücke
+- Bis zu 16 feste Parameter mit ganzzahligen Werten 0–128. Breitenausdrücke
   erlauben Parameter, Zahlen, `+ - * // % **` und `LOG2(...)`; Potenzexponenten 0–16.
   `LOG2` berechnet den exakten ganzzahligen Logarithmus einer positiven Zweierpotenz
   und weist andere Werte ab. Beispiel: `LOG2(w)+1` Ergebnisbits für
   [NumberOfOnes](NUMBER-OF-ONES.md). Im Quelltext ist `LOG2(w)` ebenfalls erlaubt;
   die NAND-Synthese verlangt dafür ein statisches Argument.
-  Ports brauchen je 1–32 Bits, die Summen je Seite dürfen 32 nicht überschreiten.
+  Ports brauchen je 1–128 Bits, die Summen je Seite dürfen 128 nicht überschreiten.
   Für den Addierer gilt deshalb `1 <= n <= 16`.
 - Höchstens 32 verschachtelte Funktionsaufrufe. Alle Aufrufe teilen die
   Schritt-, Iterations- und Gesamtbudgets; sie werden bei Rekursion nicht

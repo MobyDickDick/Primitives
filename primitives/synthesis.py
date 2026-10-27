@@ -8,6 +8,7 @@ import ast
 from dataclasses import dataclass
 
 from .circuit import Circuit
+from .limits import MAX_BITS
 from .program import BINOPS, CMP, MAX_ARRAY_BITS, MAX_CALL_DEPTH, Program, exact_log2
 
 
@@ -132,8 +133,8 @@ class Synthesizer:
                 result = self.logic(op, self.bit(a, node), self.bit(b, node))
             else:
                 a, b = self.static(a, node), self.static(b, node)
-                if op in (ast.Pow, ast.LShift, ast.RShift) and not 0 <= b <= 32:
-                    self.fail(node, "Exponent/Schiebeweite muss zwischen 0 und 32 liegen.")
+                if op in (ast.Pow, ast.LShift, ast.RShift) and not 0 <= b <= MAX_BITS:
+                    self.fail(node, f"Exponent/Schiebeweite muss zwischen 0 und {MAX_BITS} liegen.")
                 result = BINOPS[op](a, b)
         elif isinstance(node, ast.UnaryOp):
             a = self.static(value(node.operand), node)

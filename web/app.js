@@ -53,7 +53,7 @@ function portRow(side, port, expression = "0") {
   function field(label, key, value, type = "text") {
     const wrap = el("label", label), input = el("input"); input.type = type; input.value = value;
     input.dataset.field = key;
-    if (type === "number") { input.min = 1; input.max = 32; }
+    if (type === "number") { input.min = 1; input.max = 128; }
     wrap.append(input); row.append(wrap);
     input.addEventListener("input", updateDefinition);
   }
@@ -1395,7 +1395,7 @@ action("source-debug-start", async () => {
   try {
     const source = $("source-program").value;
     const request = {
-      interface: readPorts().spec, x: int("source-debug-input"),
+      interface: readPorts().spec, x: $("source-debug-input").value.trim(),
       program: { version: 1, source, limits: { steps: int("source-program-steps"),
         iterations: int("source-program-iterations"), total_steps: int("source-program-total") } }
     };
@@ -1547,7 +1547,7 @@ async function openBlock(bundle) {
 }
 function prepareBlock(bundle, count) {
   const root = bundle.definitions[bundle.root], inputs = [], outputs = [], nodes = [], mapping = {};
-  if (count * root.interface.inputs.reduce((n,p) => n+p.bits, 0) > 32 || count * root.interface.outputs.reduce((n,p) => n+p.bits, 0) > 32) throw new Error("Diese Anzahl Instanzen überschreitet die 32-Bit-Grenze. Ports im eigenen JSON-Entwurf verbinden oder zusammenfassen.");
+  if (count * root.interface.inputs.reduce((n,p) => n+p.bits, 0) > 128 || count * root.interface.outputs.reduce((n,p) => n+p.bits, 0) > 128) throw new Error("Diese Anzahl Instanzen überschreitet die 128-Bit-Grenze. Ports im eigenen JSON-Entwurf verbinden oder zusammenfassen.");
   for (let i = 0; i < count; i++) {
     const connections = {}, nodeId = `part${i + 1}`;
     root.interface.inputs.forEach((p, j) => {

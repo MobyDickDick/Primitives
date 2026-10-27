@@ -20,6 +20,27 @@ test("local numeric inputs preserve neighbouring ports and all 32 bits", () => {
   assert.throws(() => debug.withNumber(bits, signed, 2147483648));
 });
 
+test("128-bit decimal input preserves every bit, signed bounds and neighbours", () => {
+  const port = { name: "wide", bits: 128, offset: 1, signed: false };
+  const bits = Array(130).fill(0); bits[0] = bits[129] = 1;
+  const max = (1n << 128n) - 1n;
+  for (const value of [0n, 1n, (1n << 100n) + 3n, max]) {
+    const result = debug.withNumber(bits, port, String(value));
+    assert.equal(BigInt(debug.number(result, port)), value);
+    assert.equal(result[0], 1); assert.equal(result[129], 1);
+    for (let i = 0; i < 128; i++) assert.equal(result[i + 1], Number(value >> BigInt(i) & 1n));
+  }
+  const signed = { ...port, signed: true };
+  for (const value of [-(1n << 127n), -1n, 0n, (1n << 127n) - 1n]) {
+    assert.equal(BigInt(debug.number(debug.withNumber(bits, signed, String(value)), signed)), value);
+  }
+  for (const value of ["", "1.5", "1e20", " ", "0x10", String(max + 1n), "-1", Number(max)]) {
+    assert.throws(() => debug.withNumber(bits, port, value));
+  }
+  for (const value of [-(1n << 127n) - 1n, 1n << 127n]) assert.throws(() => debug.withNumber(bits, signed, value));
+  assert.deepEqual(bits.slice(1, 129), Array(128).fill(0));
+});
+
 test("hierarchical wires retain ordered bit pins, including repeated sources", () => {
   const c = { inputs: 2, gates: [], outputs: [0, 1], view_nodes: [
     { ref: 0, kind: "input", sources: [], signalRefs: [0], level: 0 },

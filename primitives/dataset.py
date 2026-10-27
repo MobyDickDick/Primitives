@@ -4,6 +4,8 @@ from dataclasses import dataclass, field
 import math
 import operator
 import random
+import sys
+from .limits import MAX_BITS
 from .ports import decode, encode, interface
 from .formula import parse_formula
 
@@ -14,6 +16,22 @@ def bits(value, width):
 
 def integer(vector):
     return sum(b << i for i, b in enumerate(vector))
+
+
+def sample_range(rng, start, stop, count):
+    """Sample huge integer domains without asking range for a host-sized length.
+
+    Keep the historical seeded samples for domains supported by random.sample.
+    """
+    if stop - start <= sys.maxsize:
+        return rng.sample(range(start, stop), count)
+    result, used = [], set()
+    while len(result) < count:
+        value = rng.randrange(start, stop)
+        if value not in used:
+            used.add(value)
+            result.append(value)
+    return result
 
 
 def validate_description(value):
@@ -33,8 +51,8 @@ class Dataset:
     def __post_init__(self):
         if not isinstance(self.name, str) or not self.name.strip() or len(self.name) > 120:
             raise ValueError("Der Datensatz braucht einen Namen mit 1–120 Zeichen.")
-        if any(type(w) is not int or not 1 <= w <= 32 for w in (self.inputs, self.outputs)):
-            raise ValueError("N und M müssen zwischen 1 und 32 liegen.")
+        if any(type(w) is not int or not 1 <= w <= MAX_BITS for w in (self.inputs, self.outputs)):
+            raise ValueError(f"N und M müssen zwischen 1 und {MAX_BITS} liegen.")
         if not isinstance(self.rows, list) or not 1 <= len(self.rows) <= 65536:
             raise ValueError("Es sind 1–65536 Zuordnungsvektoren erforderlich.")
         unique = {}
@@ -138,8 +156,8 @@ class Expression:
                 value = names[n.id]
             elif isinstance(n, ast.BinOp) and type(n.op) in BINOPS:
                 a, b = visit(n.left), visit(n.right)
-                if isinstance(n.op, (ast.LShift, ast.RShift, ast.Pow)) and (type(b) is not int or not 0 <= b <= 32):
-                    raise ValueError("Schiebeweite/Exponent muss ganzzahlig zwischen 0 und 32 liegen.")
+                if isinstance(n.op, (ast.LShift, ast.RShift, ast.Pow)) and (type(b) is not int or not 0 <= b <= MAX_BITS):
+                    raise ValueError(f"Schiebeweite/Exponent muss ganzzahlig zwischen 0 und {MAX_BITS} liegen.")
                 value = BINOPS[type(n.op)](a, b)
             elif isinstance(n, ast.UnaryOp) and isinstance(n.op, (ast.USub, ast.UAdd, ast.Not, ast.Invert)):
                 value = {ast.USub: operator.neg, ast.UAdd: operator.pos, ast.Not: operator.not_, ast.Invert: operator.invert}[type(n.op)](visit(n.operand))
@@ -185,8 +203,8 @@ PRESETS = {
 
 
 def generate(name, inputs, outputs, expression=None, samples=None, seed=1, *, oracle=None, ports=None, reference_circuit=None, formula=None, edge_inputs=None, program=None, cancel_event=None):
-    if any(type(w) is not int or not 1 <= w <= 32 for w in (inputs, outputs)):
-        raise ValueError("N und M müssen zwischen 1 und 32 liegen.")
+    if any(type(w) is not int or not 1 <= w <= MAX_BITS for w in (inputs, outputs)):
+        raise ValueError(f"N und M müssen zwischen 1 und {MAX_BITS} liegen.")
     if program is not None:
         from .program import Program
         prepared = Program(program, ports)
@@ -234,10 +252,10 @@ def generate(name, inputs, outputs, expression=None, samples=None, seed=1, *, or
         [0, total - 1] + (edge_inputs or [])))[:count]
     if count != total and count > len(xs):
         if edge_inputs is None:
-            xs += random.Random(seed).sample(range(1, total - 1), count - len(xs))
+            xs += sample_range(random.Random(seed), 1, total - 1, count - len(xs))
         else:
             used = set(xs)
-            candidates = random.Random(seed).sample(range(total), min(total, count + len(used)))
+            candidates = sample_range(random.Random(seed), 0, total, min(total, count + len(used)))
             xs += [x for x in candidates if x not in used][:count - len(xs)]
         xs.sort()
     fn = None if ports else Expression(expression) if oracle is None else lambda env: oracle(env["x"])

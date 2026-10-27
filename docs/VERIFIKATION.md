@@ -628,3 +628,24 @@ Geprüft am 25. Oktober 2026:
   scrollbaren Ansicht. Keine Browserwarnungen oder JavaScript-Fehler beobachtet.
 
 ![Gespeicherte Kandidatenabstammung in der schmalen Browseransicht](kandidatenabstammung.jpg)
+
+## Bitbreiten bis 128 Bits
+
+- Die gemeinsame Grenze beträgt 128 Bits je Ein-/Ausgangsseite, Einzelport und
+  internem Bitarray. Schiebeweiten, Exponenten und feste Template-Parameter
+  unterstützen Werte bis 128. Eigene Bedingungen gespeicherter Beispiel-Templates
+  und die bisherigen Laufzeit-/Gatterbudgets gelten weiterhin.
+- `test_wide_bits.py` prüft eindeutige, reproduzierbare Stichproben bis 128 Bits,
+  64-Bit-Addition und -Multiplikation, vorzeichenbehaftete Grenzen, Schiebeweiten
+  bis 128, Überlauf, 128 einzelne Ports, NAND-Verweise über Index 127 sowie
+  Interpreter, Synthese, Bausteine und Fitness. 129 Bits werden abgewiesen.
+- Der HTTP-Test prüft Synthese, Speicherung und erneutes Laden einer
+  128-Bit-Funktion sowie exakte Dezimalwerte beim Debuggen und Zurücksetzen.
+  Grosse Debugwerte werden als Dezimalzeichenfolgen übertragen. Das Anfragelimit
+  beträgt 64 MB, damit auch breite Datensätze mit 65536 Zeilen importierbar sind.
+- 232 Python-Tests erfolgreich, einschliesslich separat mit lokalem
+  Netzwerkzugriff ausgeführter HTTP-Tests; 31 JavaScript-Tests erfolgreich.
+  Die JS-Tests prüfen auch 128-Bit-Eingaben, Vorzeichen, Nachbarports und die
+  unveränderte Dezimalübertragung zum Quelldebugger. Syntaxprüfungen bestehen.
+- Eine erfolgreiche Stichprobe bleibt eine Stichprobe; das Vektorlimit ist
+  weiterhin 65536, die Schaltungsgrenze weiterhin 512 NAND-Gatter.

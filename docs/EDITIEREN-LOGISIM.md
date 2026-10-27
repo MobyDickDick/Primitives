@@ -21,7 +21,7 @@ Die simulierte Schaltung und der angezeigte Prüfstatus werden neu berechnet.
 Hier sind 0 und 1 die Eingänge, Gatter 2 ist NAND(0,1), Gatter 3 ist
 NAND(2,2); Ausgang 3 liefert AND. Alle Nummern sind nullbasiert.
 Ein Gatter darf nur Eingänge und frühere Gatter verwenden. Höchstens
-512 Gatter, 32 Eingangs- und 32 Ausgangsbits sind erlaubt. Beim Entfernen
+512 Gatter, 128 Eingangs- und 128 Ausgangsbits sind erlaubt. Beim Entfernen
 oder Einfügen von Gattern müssen spätere Verweise entsprechend angepasst werden.
 
 Die Änderung ist ein **manueller Entwurf**. Die bisher gespeicherte Suchlösung

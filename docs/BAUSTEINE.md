@@ -206,7 +206,7 @@ keinen unveränderten Erhalt der Originalinstanzen. Eine Restfallkorrektur entfe
 ebenfalls die Hierarchiebehauptung, sobald sie die NAND-Implementierung verändert.
 Die unveränderlichen Bausteine und Referenzmetadaten bleiben erhalten.
 
-Pro Schnittstellenseite gelten weiterhin 1–32 Gesamtbits. Ein Paket enthält
+Pro Schnittstellenseite gelten weiterhin 1–128 Gesamtbits. Ein Paket enthält
 höchstens 128 Definitionen, eine Definition höchstens 512 direkte Knoten.
 Maximal 32 Verschachtelungsschritte und 2048 expandierte Hierarchie-/Knotenobjekte
 verhindern auch eine unbeschränkte Vermehrung gatterloser Unterbausteine.

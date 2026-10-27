@@ -81,18 +81,18 @@ class OperationTests(unittest.TestCase):
         for name in ("x", "x0", "sin", "for", "a-b", "_private"):
             bad = copy.deepcopy(base); bad["inputs"][0]["name"] = name
             with self.assertRaises(ValueError): interface(bad)
-        for edit in ({"bits": 0}, {"bits": True}, {"bits": 33}, {"offset": 1}, {"signed": 1}):
+        for edit in ({"bits": 0}, {"bits": True}, {"bits": 129}, {"offset": 1}, {"signed": 1}):
             bad = copy.deepcopy(base); bad["inputs"][0].update(edit)
             with self.assertRaises(ValueError): interface(bad)
         for bad in ({**base, "bit_order": "MSB-first"},
                     {**base, "outputs": [{"name": "a", "bits": 1}]},
-                    {**base, "inputs": [{"name": "a", "bits": 32}, {"name": "b", "bits": 1}]},
+                    {**base, "inputs": [{"name": "a", "bits": 128}, {"name": "b", "bits": 1}]},
                     {**base, "outputs": [{"name": "c", "bits": 1, "overflow": "silent"}]}):
             with self.assertRaises(ValueError): interface(bad)
         with self.assertRaises(ValueError): generate("bad", 3, 2, "a", ports=base)
         with self.assertRaises(ValueError): generate("bad", 2, 2, {"wrong": "a"}, ports=base)
-        with self.assertRaises(ValueError): operation("ADD", 32, 1, 1)
-        with self.assertRaises(ValueError): operation("ADD", 1, 1, 32, flag=True)
+        with self.assertRaises(ValueError): operation("ADD", 128, 1, 1)
+        with self.assertRaises(ValueError): operation("ADD", 1, 1, 128, flag=True)
         with self.assertRaises(ValueError): operation("ADD", 1, 1, 1, signed=1)
         bad = operation("ADD", 2, 3, 4).to_dict()
         bad["metadata"]["interface"]["inputs"][0]["bits"] = 3

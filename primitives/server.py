@@ -2,6 +2,7 @@
 from concurrent.futures import ThreadPoolExecutor
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
+import re
 from pathlib import Path
 import threading
 import time
@@ -20,6 +21,17 @@ from .blocks import BlockBundle
 from .program import Program, ProgramCancelled
 from .templates import Template
 from .synthesis import synthesize
+
+
+def debug_document(snapshot):
+    """Encode large debug integers as decimal strings for exact browser display."""
+    if type(snapshot) is int and abs(snapshot) > 2**53 - 1:
+        return str(snapshot)
+    if isinstance(snapshot, dict):
+        return {key: debug_document(value) for key, value in snapshot.items()}
+    if isinstance(snapshot, list):
+        return [debug_document(value) for value in snapshot]
+    return snapshot
 
 
 def make_server(port=8765, data_dir=None, *, background=True, seed_examples=True):
@@ -94,7 +106,8 @@ def make_server(port=8765, data_dir=None, *, background=True, seed_examples=True
                 if self.headers.get_content_type() != "application/json":
                     raise ValueError("Content-Type application/json erforderlich.")
                 length = int(self.headers.get("Content-Length", "0"))
-                if not 0 < length <= 16_000_000:
+                # A 65536-row dataset can now contain 128 input + 128 output bits.
+                if not 0 < length <= 64_000_000:
                     raise ValueError("Anfrage zu gross oder leer.")
                 obj = json.loads(self.rfile.read(length))
                 if not isinstance(obj, dict):
@@ -148,14 +161,19 @@ def make_server(port=8765, data_dir=None, *, background=True, seed_examples=True
                                       dataset_metadata=dataset.metadata, fitness=fitness(circuit, dataset))
                     self.send_data(result)
                 elif path == "/api/source-debug/start":
-                    execution = Program(obj["program"], obj["interface"]).debug(obj["x"])
+                    x = obj["x"]
+                    if isinstance(x, str):
+                        if not re.fullmatch(r"[0-9]{1,39}", x):
+                            raise ValueError("Testeingabe x muss eine ganze unsigned Dezimalzahl bis 128 Bits sein.")
+                        x = int(x)
+                    execution = Program(obj["program"], obj["interface"]).debug(x)
                     with lock:
                         # Sessions are ephemeral; cap abandoned browser sessions.
                         if len(debuggers) >= 32:
                             debuggers.pop(next(iter(debuggers)))
                         key = uuid.uuid4().hex
                         debuggers[key] = execution
-                    self.send_data({"id": key, **execution.snapshot()})
+                    self.send_data(debug_document({"id": key, **execution.snapshot()}))
                 elif path.startswith("/api/source-debug/") and len(path.split("/")) == 5:
                     _, _, _, key, action = path.split("/")
                     with lock:
@@ -171,7 +189,7 @@ def make_server(port=8765, data_dir=None, *, background=True, seed_examples=True
                             result = execution.step(1 if action == "step" else 100)
                         else:
                             raise ValueError("Unbekannte Debugaktion.")
-                    self.send_data({"id": key, **result})
+                    self.send_data(debug_document({"id": key, **result}))
                 elif path == "/api/datasets":
                     description = validate_description(obj["description"]) if "description" in obj else None
                     if "rows" in obj:

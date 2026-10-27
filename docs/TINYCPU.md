@@ -38,7 +38,7 @@ Der Exportgenerator erzeugt ausschliesslich die kleinen Standardbeispiele.
 `seed_library.py` übernimmt sie als definierte Funktionen zusammen mit den
 bisherigen archivierten Beispielen; identische Tabellen werden nicht dupliziert.
 Andere Breiten werden erst auf Anforderung erzeugt. Insgesamt gelten weiterhin
-32 Eingangsbits, 32 Ausgangsbits und höchstens 65536 Zeilen pro Datensatz.
+128 Eingangsbits, 128 Ausgangsbits und höchstens 65536 Zeilen pro Datensatz.
 
 ## Zahlensemantik
 
@@ -64,7 +64,7 @@ Fehlerüberlauf lehnt die Vektorerzeugung mit Eingabe und Ergebnisport ab.
 Bei SHL/SHR interpretiert signed das resultierende a-Wort im Zweierkomplement,
 bevor es auf c-Breite kodiert wird. Bei gleichem a/c und n=0 bleibt dadurch
 auch ein negatives Wort erhalten. SAR verwendet das Vorzeichenbit auch bei
-unsigned a. Schiebeweite ist entweder der feste Parameter `shift` (0–32)
+unsigned a. Schiebeweite ist entweder der feste Parameter `shift` (0–128)
 oder der stets unsigned Eingang b mit eigener Breite. Grosse Eingangswerte
 werden vor der eigentlichen Verschiebung begrenzt; negative Weiten sind unmöglich.
 Ein fester Parameter entfernt b aus der Schnittstelle und erscheint im Namen als `[n=…]`.

@@ -31,11 +31,23 @@ test("start captures the source and reset restores the same input through its se
   await ui.actions.start();
   assert.equal(ui.calls[0].path, "/api/source-debug/start");
   assert.equal(ui.calls[0].body.program.source, "s = 0\nreturn s");
+  assert.equal(ui.calls[0].body.x, "5");
   assert.equal(ui.elements.get("source-debug-step").disabled, false);
   ui.elements.get("source-program").value = "return 99";
   await ui.actions.reset();
   assert.equal(ui.calls[1].path, "/api/source-debug/one/reset");
   assert.match(ui.elements.get("source-debug-code").children[0].textContent, /s = 0/);
+});
+
+test("wide debug inputs and outputs keep their exact decimal strings", async () => {
+  const ui = setup();
+  const value = String((1n << 128n) - 1n);
+  ui.context.$("source-debug-input").value = value;
+  await ui.actions.start();
+  assert.equal(ui.calls[0].body.x, value);
+  Object.assign(ui.snapshot, { status: "done", result: [value], outputs: { c: value } });
+  await ui.actions.continue();
+  assert.ok(ui.elements.get("source-debug-result").textContent.includes(value));
 });
 
 test("continue displays completed result and disables further steps", async () => {

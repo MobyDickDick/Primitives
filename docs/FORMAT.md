@@ -68,7 +68,7 @@ bei 0; in einer Zeile stehen alle Eingänge vor allen Ergebnissen. Innerhalb
 jedes Ports kommt das niederwertigste Bit zuerst. Im Beispiel lautet die Zeile
 `a0,a1,b0,b1,b2,c0,c1,c2,c3`, mit N=5 und M=4. Offsets dürfen beim Erzeugen
 weggelassen werden; angegebene Offsets werden geprüft. Summen müssen N/M
-entsprechen, jede Seite hat 1–32 Bits. Portnamen sind auf beiden Seiten eindeutig,
+entsprechen, jede Seite hat 1–128 Bits. Portnamen sind auf beiden Seiten eindeutig,
 beginnen mit einem ASCII-Buchstaben und enthalten höchstens 32 Buchstaben,
 Ziffern oder Unterstriche. `x`, `x0…`, `pi`, Sprach- und Funktionsnamen sind reserviert.
 
@@ -369,7 +369,7 @@ Variablen: `x`, `a`, `b`, `x0…x(N-1)`, `pi`.
 Operatoren: Arithmetik, ganzzahlige Division, Modulo, `& | ^ ~ << >>`, `**`,
 Vergleiche, `and`, `or`, `not` und `wert if bedingung else anderer_wert`.
 Funktionen: `sin`, `cos`, `sqrt`, `isqrt`, `floor`, `ceil`, `abs`, `min`, `max`, `round`.
-Schiebeweiten und Exponenten liegen zwischen 0 und 32. Endliche Zwischenwerte
+Schiebeweiten und Exponenten liegen zwischen 0 und 128. Endliche Zwischenwerte
 müssen betragsmässig höchstens 2^128 sein. Das Endergebnis muss eine ganze Zahl
 zwischen 0 und 2^M−1 sein; ein Überlauf wird nicht stillschweigend abgeschnitten.
 Gewünschten Überlauf explizit formulieren, etwa `(a+b) % 16`.
@@ -377,13 +377,13 @@ Gewünschten Überlauf explizit formulieren, etwa `(a+b) % 16`.
 ## TinyCPU-Operationsbeispiele
 
 Die Operationsmetadaten bleiben bei `version: 1`. SHL/SHR/SAR erlauben zusätzlich
-`parameters.shift` als ganze Zahl 0–32; ohne diesen Parameter steht b als unsigned
+`parameters.shift` als ganze Zahl 0–128; ohne diesen Parameter steht b als unsigned
 Schiebeeingang in der Schnittstelle. Ein fester Parameter entfernt b, wird im
 Funktionsnamen als `[n=…]` angezeigt und bleibt bei Export/Import erhalten.
 MUX ergänzt a und b um `select` mit einem unsigned Bit. DIV hat neben c immer
 die unsigned Ein-Bit-Ausgänge valid und div0. Prädikate und Vergleiche haben genau
 ein unsigned Ergebnisbit. INC/DEC erlauben wie ADD/SUB/MUL einen optionalen
-Statusausgang. Es gelten weiterhin die Summenlimits von 32 Bits je Seite.
+Statusausgang. Es gelten weiterhin die Summenlimits von 128 Bits je Seite.
 Die vollständigen Rechenregeln und Unterschiede zum CPU-Zustandsmodell sind in
 [TINYCPU.md](TINYCPU.md#zahlensemantik) beschrieben.
 

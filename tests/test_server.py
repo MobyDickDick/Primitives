@@ -325,6 +325,35 @@ class ServerTests(unittest.TestCase):
             self.request(f"/api/source-debug/{key}/step", {})
         caught.exception.close()
 
+    def test_128_bit_api_synthesis_persistence_and_exact_debug_values(self):
+        width = 128
+        ports = {"inputs": [{"name": "a", "bits": "n"}], "outputs": [{"name": "c", "bits": "n"}]}
+        program = {"version": 2, "parameters": {"n": width}, "interface": ports,
+                   "source": "return pack(bits(a, n))"}
+        saved = self.request("/api/templates/synthesize", {"program": program, "samples": 8})
+        self.assertEqual(saved["dataset"]["inputs"], width)
+        self.assertEqual(saved["dataset"]["outputs"], width)
+        self.assertEqual(saved["result"]["fitness"]["errors"], 0)
+        self.assertFalse(saved["result"]["fitness"]["verified_truth_table"])
+        loaded = self.request("/api/datasets/" + saved["id"])
+        self.assertEqual(loaded["rows"], saved["dataset"]["rows"])
+        maximum = str((1 << width) - 1)
+        obj = {"program": program, "interface": ports, "x": maximum}
+        start = self.request("/api/source-debug/start", obj)
+        self.assertEqual(start["x"], maximum)
+        self.assertEqual(start["variables"]["a"], maximum)
+        done = self.request(f'/api/source-debug/{start["id"]}/continue', {})
+        self.assertEqual(done["status"], "done")
+        self.assertEqual(done["result"], [maximum])
+        self.assertEqual(done["outputs"], {"c": maximum})
+        reset = self.request(f'/api/source-debug/{start["id"]}/reset', {})
+        self.assertEqual(reset["x"], maximum)
+        for invalid in (str(1 << width), "", "1.5", "1e20", "-1", True):
+            with self.subTest(invalid=invalid), self.assertRaises(HTTPError) as caught:
+                self.request("/api/source-debug/start", {**obj, "x": invalid})
+            self.assertEqual(caught.exception.code, 400)
+            caught.exception.close()
+
     def test_source_debug_limits_compile_errors_and_session_cap(self):
         from test_program_debug import PORTS
         obj = {"interface": PORTS, "x": 3, "program": {"version": 1,
@@ -564,7 +593,7 @@ class ServerTests(unittest.TestCase):
         self.assertEqual(state["status"], "done", state)
         self.assertTrue(state["result"]["fitness"]["verified_truth_table"])
         self.assertEqual(state["result"]["dataset_metadata"], named["dataset"]["metadata"])
-        for invalid in ({"operation": {"definition": "ADD", "parameters": {"a_bits": 32, "b_bits": 2}}},
+        for invalid in ({"operation": {"definition": "ADD", "parameters": {"a_bits": 128, "b_bits": 2}}},
                         {**obj, "operation": {"definition": "ADD", "parameters": {"a_bits": 2, "b_bits": 2,
                             "result_bits": 2, "overflow": "error"}}}):
             with self.assertRaises(HTTPError) as caught: self.request("/api/datasets", invalid)
@@ -628,7 +657,7 @@ class ServerTests(unittest.TestCase):
             self.assertEqual(self.request("/api/datasets", ds)["dataset"], ds)
             self.assertTrue(ds["exhaustive"])
         for name, params in (("SHL", {"shift": -1}), ("ADD", {"shift": 2}),
-                             ("DIV", {"result_bits": 31}), ("EQ", {"result_bits": 2})):
+                             ("DIV", {"result_bits": 127}), ("EQ", {"result_bits": 2})):
             with self.assertRaises(HTTPError) as caught:
                 self.request("/api/datasets", {"operation": {"definition": name, "parameters": params}})
             self.assertEqual(caught.exception.code, 400)

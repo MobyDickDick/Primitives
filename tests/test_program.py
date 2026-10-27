@@ -154,7 +154,7 @@ class ProgramTests(unittest.TestCase):
         cases = [(spec("while True:\n    c = 0\nreturn c", steps=100), "Anweisungsbudget"),
                  (spec(FOR, iterations=2), "Iterationsbudget"),
                  (spec("return 1 // 0"), "division"),
-                 (spec("return 1 << 33"), "Schiebeweite"),
+                 (spec("return 1 << 129"), "Schiebeweite"),
                  (spec("for i in range(0, n, 0):\n    c = i\nreturn c"), "Schritt"),
                  (spec("s = 2 ** 32\nreturn (s ** 5)"), "Ganzzahlergebnis")]
         for program, message in cases:

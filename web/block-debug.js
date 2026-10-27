@@ -5,16 +5,19 @@ globalThis.BlockDebug = (() => {
   const frameKeys = ["bits", "positions", "wires", "selectedRef", "selectedWire", "wireNotice",
     "layoutDirty", "routing", "camera", "cameraTouched"];
   function number(bits, port) {
-    let value = bits.slice(port.offset, port.offset + port.bits).reduce((sum, bit, i) => sum + bit * 2 ** i, 0);
-    if (port.signed && value >= 2 ** (port.bits - 1)) value -= 2 ** port.bits;
-    return value;
+    let value = bits.slice(port.offset, port.offset + port.bits).reduce((sum, bit, i) => sum + (BigInt(bit) << BigInt(i)), 0n);
+    if (port.signed && value >= 1n << BigInt(port.bits - 1)) value -= 1n << BigInt(port.bits);
+    return value >= BigInt(Number.MIN_SAFE_INTEGER) && value <= BigInt(Number.MAX_SAFE_INTEGER) ? Number(value) : value;
   }
   function withNumber(bits, port, value) {
-    const min = port.signed ? -(2 ** (port.bits - 1)) : 0;
-    const max = 2 ** (port.bits - (port.signed ? 1 : 0)) - 1;
-    if (!Number.isSafeInteger(value) || value < min || value > max) throw new Error(`${port.name}: ganze Zahl von ${min} bis ${max} erforderlich.`);
-    const result = bits.slice(), unsigned = value < 0 ? value + 2 ** port.bits : value;
-    for (let i = 0; i < port.bits; i++) result[port.offset + i] = Math.floor(unsigned / 2 ** i) % 2;
+    const min = port.signed ? -(1n << BigInt(port.bits - 1)) : 0n;
+    const max = (1n << BigInt(port.bits - (port.signed ? 1 : 0))) - 1n;
+    if (!(typeof value === "bigint" || typeof value === "number" && Number.isSafeInteger(value) ||
+          typeof value === "string" && /^-?[0-9]{1,39}$/.test(value))) throw new Error(`${port.name}: ganze Dezimalzahl von ${min} bis ${max} erforderlich.`);
+    value = BigInt(value);
+    if (value < min || value > max) throw new Error(`${port.name}: ganze Zahl von ${min} bis ${max} erforderlich.`);
+    const result = bits.slice(), unsigned = value < 0n ? value + (1n << BigInt(port.bits)) : value;
+    for (let i = 0; i < port.bits; i++) result[port.offset + i] = Number((unsigned >> BigInt(i)) & 1n);
     return result;
   }
   const positions = (c, points) => points?.map((p, i) => ({ x: p.x, y: p.y,
@@ -84,14 +87,13 @@ globalThis.BlockDebug = (() => {
     $("debug-inputs").replaceChildren();
     for (const p of state.debug.view.interface.inputs) {
       const label = el("label", `${p.name} · ${p.bits} Bit${p.signed ? " · Zweierkomplement" : " · unsigned"}`);
-      const input = el("input"); input.type = "number"; input.step = "1";
-      input.min = p.signed ? -(2 ** (p.bits - 1)) : 0;
-      input.max = 2 ** (p.bits - (p.signed ? 1 : 0)) - 1;
+      const input = el("input"); input.type = "text"; input.inputMode = "numeric";
+      input.pattern = "-?[0-9]+"; input.maxLength = 40;
       input.dataset.port = p.name;
       input.addEventListener("input", () => {
         try {
           if (input.value === "") throw new Error("Bitte eine ganze Zahl eingeben.");
-          const bits = withNumber(state.bits, p, Number(input.value));
+          const bits = withNumber(state.bits, p, input.value);
           input.setCustomValidity(""); stopAnimation(); state.bits = bits; renderSimulation(); renderTable();
           $("debug-input-status").textContent = "";
         } catch (err) { input.setCustomValidity(err.message); $("debug-input-status").textContent = err.message; }

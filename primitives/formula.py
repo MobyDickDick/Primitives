@@ -1,5 +1,6 @@
 """Bounded arithmetic result definitions, without host-code execution."""
 import ast
+from .limits import MAX_BITS
 
 
 def parse_formula(source, result_name="c"):
@@ -14,8 +15,8 @@ def parse_formula(source, result_name="c"):
             if source[start:i].strip(): parts.append(source[start:i].strip())
             start = i + 1
     if source[start:].strip(): parts.append(source[start:].strip())
-    if depth != 0 or not 1 <= len(parts) <= 32:
-        raise ValueError("Formel braucht ausgeglichene Klammern und 1–32 Ergebnisdefinitionen.")
+    if depth != 0 or not 1 <= len(parts) <= MAX_BITS:
+        raise ValueError(f"Formel braucht ausgeglichene Klammern und 1–{MAX_BITS} Ergebnisdefinitionen.")
     expressions = {}
     for part in parts:
         try:
@@ -50,8 +51,8 @@ def to_formula(expressions):
                 return ast.Call(func=ast.Name(id="xor", ctx=ast.Load()), args=[node.left, node.right], keywords=[])
             return node
 
-    if not isinstance(expressions, dict) or not 1 <= len(expressions) <= 32:
-        raise ValueError("Ergebnisausdrücke müssen eine Zuordnung mit 1–32 Einträgen sein.")
+    if not isinstance(expressions, dict) or not 1 <= len(expressions) <= MAX_BITS:
+        raise ValueError(f"Ergebnisausdrücke müssen eine Zuordnung mit 1–{MAX_BITS} Einträgen sein.")
     return "\n".join(f"{name} = {ast.unparse(ConvertXor().visit(Expression(expr).root))}" for name, expr in expressions.items())
 
 

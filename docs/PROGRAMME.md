@@ -104,7 +104,7 @@ Eingänge werden gemäss Ports unsigned oder als Zweierkomplement dekodiert.
 Lokale Zahlen sind ganze Zahlen im Bereich −2^128 bis 2^128; Zwischenrechnungen
 werden nicht auf die Portbreite abgeschnitten. Erst die Ausgabe wird gemäss
 Ergebnisport geprüft bzw. modulo 2^Breite abgeschnitten. LSB-first, maximal
-32 Eingangs- und 32 Ausgangsbits sowie 65536 Vektoren gelten weiterhin.
+128 Eingangs- und 128 Ausgangsbits sowie 65536 Vektoren gelten weiterhin.
 
 Erlaubt sind Integer-/Bool-Literale, Variablen, Klammern und:
 
@@ -121,7 +121,7 @@ Erlaubt sind Integer-/Bool-Literale, Variablen, Klammern und:
 `**` bedeutet Potenz, `^` bedeutet XOR. `//` und `div` runden ab, z. B.
 −7 // 3 = −3 und −7 % 3 = 2. Das entspricht der bisherigen Ausdruckssyntax;
 im separaten arithmetischen **Formelmodus** ist `^` weiterhin Potenz.
-Division durch null ist ein Fehler. Schiebeweiten und Exponenten sind 0–32.
+Division durch null ist ein Fehler. Schiebeweiten und Exponenten sind 0–128.
 Boolesche Ergebnisse werden 0 oder 1, Bedingungen prüfen null/nicht null.
 `and` und `or` liefern 0/1 und werten den zweiten Operanden nur bei Bedarf aus.
 Funktionsnamen und `range` sind für Ports und lokale Namen reserviert.
@@ -339,7 +339,14 @@ Quelltext, Sprachversion und Schnittstelle bestimmen die Funktionsidentität;
 Seed, Vektoranzahl und Ausführungsbudgets erzeugen keine weitere Funktion.
 
 `POST /api/source-debug/start` mit `program`, `interface` und `x` liefert eine
-Sitzungskennung `id` und den Anfangszustand. `POST /api/source-debug/{id}/{aktion}`
+Sitzungskennung `id` und den Anfangszustand. `x` darf eine JSON-Ganzzahl oder
+eine unsigned Dezimalzeichenfolge mit höchstens 39 Stellen sein und muss in
+die Eingangsbreite passen. Die Oberfläche sendet Dezimalzeichenfolgen, damit
+auch 128-Bit-Werte exakt ankommen. In Debugantworten sind `x` und kodierte
+Portwerte ausserhalb von −(2^53−1)…2^53−1 ebenfalls Dezimalzeichenfolgen;
+kleinere Werte bleiben JSON-Zahlen. Variablen und rohe Rückgaben werden wie
+bisher als Zeichenfolgen dargestellt.
+`POST /api/source-debug/{id}/{aktion}`
 mit `{}` unterstützt `step`, `continue`, `stop`, `reset` und `close`.
 `continue` führt maximal 100 Anweisungen aus. Zustände sind `paused`, `stopped`,
 `done` oder `failed`; gestoppte Sitzungen können fortgesetzt werden. Antworten

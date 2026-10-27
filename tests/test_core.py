@@ -44,7 +44,7 @@ class DatasetTests(unittest.TestCase):
         self.assertEqual(cosine, {0: 4095, 65535: 0})
 
     def test_expression_is_restricted(self):
-        for source in ("__import__('os')", "x.real", "[x]", "2**1000000", "x << 100", "sqrt(-1)", "1/0"):
+        for source in ("__import__('os')", "x.real", "[x]", "2**1000000", "x << 129", "sqrt(-1)", "1/0"):
             with self.assertRaises(ValueError, msg=source):
                 Expression(source)({"x": 1})
         self.assertEqual(Expression("a//b if b else 0")({"a": 3, "b": 0}), 0)

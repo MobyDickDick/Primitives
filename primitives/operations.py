@@ -2,6 +2,7 @@
 from itertools import product
 
 from .ports import bounds, interface
+from .limits import MAX_BITS
 
 
 OPERATIONS = {
@@ -50,12 +51,12 @@ def variant(name, a_bits=None, b_bits=None, result_bits=None, signed=False, over
     definition = OPERATIONS[name]
     a_bits, b_bits, result_bits = [d if v is None else v for v, d in
                                   zip((a_bits, b_bits, result_bits), definition["defaults"])]
-    if any(type(w) is not int or not 1 <= w <= 32 for w in (a_bits, b_bits, result_bits)):
-        raise ValueError("Operand- und Ergebnisbreiten müssen zwischen 1 und 32 liegen.")
+    if any(type(w) is not int or not 1 <= w <= MAX_BITS for w in (a_bits, b_bits, result_bits)):
+        raise ValueError(f"Operand- und Ergebnisbreiten müssen zwischen 1 und {MAX_BITS} liegen.")
     if type(signed) is not bool or type(flag) is not bool or overflow not in ("wrap", "error"):
         raise ValueError("signed/flag müssen boolesch und overflow wrap oder error sein.")
-    if shift is not None and (name not in SHIFTS or type(shift) is not int or not 0 <= shift <= 32):
-        raise ValueError("Feste Schiebeweite ist nur für SHL/SHR/SAR erlaubt und muss zwischen 0 und 32 liegen.")
+    if shift is not None and (name not in SHIFTS or type(shift) is not int or not 0 <= shift <= MAX_BITS):
+        raise ValueError(f"Feste Schiebeweite ist nur für SHL/SHR/SAR erlaubt und muss zwischen 0 und {MAX_BITS} liegen.")
     if flag and name not in FLAG_OPERATIONS:
         raise ValueError("Statusausgang ist für ADD, SUB, MUL, INC und DEC verfügbar.")
     if name in PREDICATES and result_bits != 1:
@@ -75,7 +76,10 @@ def variant(name, a_bits=None, b_bits=None, result_bits=None, signed=False, over
         amount = "b" if shift is None else str(shift)
         word = f"(a & {(1 << a_bits) - 1})"
         if name == "SHL":
-            expr = f"(({word} << {amount}) & {(1 << a_bits) - 1}) if {amount} < {a_bits} else 0"
+            # Mask before wide shifts; preserve existing expressions/identities.
+            expr = (f"(({word} & ({(1 << a_bits) - 1} >> {amount})) << {amount}) if {amount} < {a_bits} else 0"
+                    if a_bits > 64 else
+                    f"(({word} << {amount}) & {(1 << a_bits) - 1}) if {amount} < {a_bits} else 0")
         elif name == "SHR":
             expr = f"({word} >> {amount}) if {amount} < {a_bits} else 0"
         else:

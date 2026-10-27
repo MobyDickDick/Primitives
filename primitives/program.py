@@ -7,11 +7,12 @@ import operator
 import re
 import tokenize
 from .ports import decode, encode, interface
+from .limits import MAX_BITS
 
 
 DEFAULT_LIMITS = {"steps": 10000, "iterations": 10000, "total_steps": 1000000}
 MAX_LIMITS = {"steps": 100000, "iterations": 100000, "total_steps": 5000000}
-MAX_ARRAY_BITS = 128
+MAX_ARRAY_BITS = MAX_BITS
 
 
 def exact_log2(value):
@@ -158,8 +159,8 @@ def program_spec(spec):
     if version == 2:
         parameters = spec.get("parameters")
         if (not isinstance(parameters, dict) or len(parameters) > 16
-                or any(not identifier(k) or k == "is_power_of_two" or type(v) is not int or not 0 <= v <= 32 for k, v in parameters.items())):
-            raise ValueError("Template braucht parameters: höchstens 16 benannte ganzzahlige Parameter von 0 bis 32.")
+                or any(not identifier(k) or k == "is_power_of_two" or type(v) is not int or not 0 <= v <= MAX_BITS for k, v in parameters.items())):
+            raise ValueError(f"Template braucht parameters: höchstens 16 benannte ganzzahlige Parameter von 0 bis {MAX_BITS}.")
         if "conditions" in spec:
             from .templates import conditions
             result["conditions"] = conditions(spec["conditions"], set(parameters), parameters)
@@ -444,8 +445,8 @@ class Program:
                     result = items * count if items else []
                 else:
                     a, b = scalar(a, node), scalar(b, node)
-                    if type(node.op) in (ast.Pow, ast.LShift, ast.RShift) and not 0 <= b <= 32:
-                        self._error(node, "Exponent/Schiebeweite muss zwischen 0 und 32 liegen.")
+                    if type(node.op) in (ast.Pow, ast.LShift, ast.RShift) and not 0 <= b <= MAX_BITS:
+                        self._error(node, f"Exponent/Schiebeweite muss zwischen 0 und {MAX_BITS} liegen.")
                     result = BINOPS[type(node.op)](a, b)
             elif isinstance(node, ast.UnaryOp):
                 result = {ast.USub: operator.neg, ast.UAdd: operator.pos,

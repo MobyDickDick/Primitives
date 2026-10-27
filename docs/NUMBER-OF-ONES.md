@@ -77,7 +77,8 @@ Alle Eingaben wurden unabhängig mit der Einsenzählung der Ganzzahl verglichen:
 Quellauswertung, F-Box-Auswertung, Expansion, flaches Netz und direkte
 Quellsynthese stimmen überein. Tests prüfen zusätzlich w=8 vollständig und
 w=16,32 anhand von Grenzfällen und festen Zufallsstichproben. Das Template
-unterstützt w=1,2,4,8,16,32 innerhalb der bestehenden 32-Bit-Eingangsgrenze.
+unterstützt w=1,2,4,8,16,32 mit der bisherigen Auswahl der Template-Parameter.
+Die allgemeine Eingangsgrenze liegt bei 128 Bits.
 
 ## Bibliothek und Reproduktion
 

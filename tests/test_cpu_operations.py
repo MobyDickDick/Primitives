@@ -108,10 +108,10 @@ class CPUOperationTests(unittest.TestCase):
             self.assertEqual(ds.to_dict(), generate_operation(spec, 256, 7).to_dict())
 
     def test_invalid_parameters_and_limits(self):
-        for name, params in (("SHL", {"shift": -1}), ("SAR", {"shift": True}), ("SHR", {"shift": 33}),
+        for name, params in (("SHL", {"shift": -1}), ("SAR", {"shift": True}), ("SHR", {"shift": 129}),
                              ("ADD", {"shift": 1}), ("DIV", {"flag": True}), ("MUX", {"flag": True}),
                              ("EQ", {"result_bits": 2}), ("IsZero", {"result_bits": 2}),
-                             ("DIV", {"result_bits": 31}), ("MUX", {"a_bits": 16, "b_bits": 16})):
+                             ("DIV", {"result_bits": 127}), ("MUX", {"a_bits": 64, "b_bits": 64})):
             with self.subTest(name=name, params=params), self.assertRaises(ValueError): task(name, **params)
         with self.assertRaises(ValueError): operation_variant({"definition": "SHL", "parameters": {"unknown": 1}})
 

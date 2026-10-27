@@ -6,6 +6,7 @@ import tokenize
 
 from .dataset import validate_description
 from .ports import interface
+from .limits import MAX_BITS
 from .program import Program, exact_log2, identifier, program_spec, template_source
 
 
@@ -58,8 +59,8 @@ class Condition:
                 return parameters[node.id]
             if isinstance(node, ast.BinOp):
                 a, b = visit(node.left), visit(node.right)
-                if isinstance(node.op, ast.Pow) and not 0 <= b <= 32:
-                    raise ValueError("Bedingungsexponent muss zwischen 0 und 32 liegen.")
+                if isinstance(node.op, ast.Pow) and not 0 <= b <= MAX_BITS:
+                    raise ValueError(f"Bedingungsexponent muss zwischen 0 und {MAX_BITS} liegen.")
                 result = OPS[type(node.op)](a, b)
                 if abs(result) > 2**128:
                     raise ValueError("Zwischenwert der Template-Bedingung zu gross.")

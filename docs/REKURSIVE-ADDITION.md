@@ -116,8 +116,8 @@ Fuer jedes innerhalb der Projektgrenzen erfolgreich strukturell
 uebersetzbare Template ist damit eine flache Instanz verfuegbar. Beliebige
 Referenzprogramme sind noch nicht alle strukturell uebersetzbar; insbesondere
 datenabhaengige Verzweigungen und Ganzzahlarithmetik auf Eingangswerten
-werden derzeit abgelehnt. Ausserdem gelten die Grenzen von 32 Eingangsbits,
-32 Ausgangsbits und 512 NAND-Gattern. Die rekursive Quelldarstellung ist
+werden derzeit abgelehnt. Ausserdem gelten die Grenzen von 128 Eingangsbits,
+128 Ausgangsbits und 512 NAND-Gattern. Die rekursive Quelldarstellung ist
 kein Nachweis minimaler Gatterzahl.
 
 Reproduzieren und pruefen, vom Projektverzeichnis aus:

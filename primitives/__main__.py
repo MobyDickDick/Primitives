@@ -44,7 +44,7 @@ def main():
     gen.add_argument("--signed", action="store_true")
     gen.add_argument("--overflow", choices=("wrap", "error"), default="wrap")
     gen.add_argument("--flag", action="store_true", help="Carry/Borrow bzw. Überlauf als zusätzlichen Ausgang erzeugen")
-    gen.add_argument("--shift", type=int, help="Feste Schiebeweite 0–32 für SHL/SHR/SAR; sonst Eingang b")
+    gen.add_argument("--shift", type=int, help="Feste Schiebeweite 0–128 für SHL/SHR/SAR; sonst Eingang b")
     gen.add_argument("--interface", type=Path, help="JSON mit benannten inputs/outputs; Summen müssen --inputs/--outputs entsprechen")
     gen.add_argument("--expressions", type=Path, help="JSON-Zuordnung Ergebnisport -> Ausdruck")
     gen.add_argument("--reference-circuit", type=Path, help="NAND-JSON bitweise auf benannte Ports anwenden")
