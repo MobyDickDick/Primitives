@@ -1,0 +1,25 @@
+# EQU<w>: two w-bit inputs, one equality bit, LSB-first.
+# w = 2**k for an integer k >= 0; Upper/Lower take the full width.
+
+def Upper<w>(a):
+    assert w >= 2 and (w & (w - 1)) == 0
+    x = bits(a, w)
+    return pack(x[w // 2:])
+
+def Lower<w>(a):
+    assert w >= 2 and (w & (w - 1)) == 0
+    x = bits(a, w)
+    return pack(x[:w // 2])
+
+def EQU<w>(a, b):
+    assert w >= 1 and (w & (w - 1)) == 0
+    if w == 1:
+        x = bits(a, 1)
+        y = bits(b, 1)
+        return 1 ^ (x[0] ^ y[0])
+    k = w // 2
+    hi = EQU<k>(Upper<w>(a), Upper<w>(b))
+    lo = EQU<k>(Lower<w>(a), Lower<w>(b))
+    return hi & lo
+
+return EQU<w>(a, b)

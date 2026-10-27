@@ -1,0 +1,96 @@
+{
+  "schema": 1,
+  "name": "EQU<1>",
+  "inputs": 2,
+  "outputs": 1,
+  "rows": [
+    [
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      1,
+      0
+    ],
+    [
+      1,
+      0,
+      0
+    ],
+    [
+      1,
+      1,
+      1
+    ]
+  ],
+  "metadata": {
+    "seed": 1,
+    "bit_order": "LSB-first",
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 1,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 1,
+          "signed": false,
+          "offset": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 1,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "program": {
+      "version": 2,
+      "source": "# EQU<w>: two w-bit inputs, one equality bit, LSB-first.\n# w = 2**k for an integer k >= 0; Upper/Lower take the full width.\n\ndef Upper<w>(a):\n    assert w >= 2 and (w & (w - 1)) == 0\n    x = bits(a, w)\n    return pack(x[w // 2:])\n\ndef Lower<w>(a):\n    assert w >= 2 and (w & (w - 1)) == 0\n    x = bits(a, w)\n    return pack(x[:w // 2])\n\ndef EQU<w>(a, b):\n    assert w >= 1 and (w & (w - 1)) == 0\n    if w == 1:\n        x = bits(a, 1)\n        y = bits(b, 1)\n        return 1 ^ (x[0] ^ y[0])\n    k = w // 2\n    hi = EQU<k>(Upper<w>(a), Upper<w>(b))\n    lo = EQU<k>(Lower<w>(a), Lower<w>(b))\n    return hi & lo\n\nreturn EQU<w>(a, b)\n",
+      "limits": {
+        "steps": 100000,
+        "iterations": 10000,
+        "total_steps": 5000000
+      },
+      "conditions": [
+        "w >= 1",
+        "w <= 64",
+        "is_power_of_two(w)"
+      ],
+      "parameters": {
+        "w": 1
+      },
+      "interface": {
+        "inputs": [
+          {
+            "name": "a",
+            "bits": "w"
+          },
+          {
+            "name": "b",
+            "bits": "w"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1
+          }
+        ]
+      }
+    },
+    "description": "Vergleicht zwei w-Bit-Werte durch rekursive Halbierung. w ist eine positive Zweierpotenz; c ist genau dann 1, wenn a und b gleich sind. Basisfall: NOT(XOR(a,b)). Upper<w>/Lower<w> liefern je w//2 Bits."
+  },
+  "exhaustive": true
+}

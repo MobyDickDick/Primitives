@@ -43,6 +43,13 @@ und flachen NAND-Netzen vor (0, 5 bzw. 24 NANDs). Beim nächsten Serverstart
 werden sie unter **Beispiele → Rekursion** und **Unterprogramm-Bausteine** ergänzt.
 Siehe [NumberOfOnes und die korrigierte Rekursion](docs/NUMBER-OF-ONES.md).
 
+`EQU<w>(a,b)` vergleicht zwei w-Bit-Werte durch rekursive Halbierung und
+liefert genau ein Gleichheitsbit. Der Basisfall ist `NOT(XOR(a,b))`.
+Für w=1,2,4 liegen vollständig geprüfte Instanzen mit verschachtelten F-Boxen
+und 5, 12 bzw. 26 NANDs vor; das Template unterstützt Zweierpotenzbreiten
+bis 64 Bits. Beim nächsten Serverstart erscheinen Template und Funktionen
+unter **Beispiele → Rekursion**. Siehe [generatives EQU-Template](docs/EQU.md).
+
 `m<t>(a)` liefert den maximalen Index eines gesetzten Bits als `[c,err]`.
 Für `a=0` gilt `[const<t>(0),1]`. Bei der rekursiven Halbierung ist der
 Offset der oberen Hälfte `t//2`; er wird als Indexbit angehängt.

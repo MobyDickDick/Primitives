@@ -1,0 +1,15 @@
+# EQU<2>: flat NAND netlist; bit 0 is the LSB.
+# Inputs: a0, a1, b0, b1
+g0 = NAND(a1, b1)
+g1 = NAND(a1, g0)
+g2 = NAND(b1, g0)
+g3 = NAND(g1, g2)
+g4 = NAND(g3, g3)
+g5 = NAND(a0, b0)
+g6 = NAND(a0, g5)
+g7 = NAND(b0, g5)
+g8 = NAND(g6, g7)
+g9 = NAND(g8, g8)
+g10 = NAND(g4, g9)
+g11 = NAND(g10, g10)
+c = g11

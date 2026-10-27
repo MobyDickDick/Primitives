@@ -18,7 +18,8 @@ def install_examples(library):
     pending_ones = not installed.get("number-of-ones-v1")
     pending_div = not installed.get("recursive-msb-div-v1")
     pending_max_index = not installed.get("recursive-max-index-v1")
-    if not any((pending_arithmetic, pending_recursion, pending_mul, pending_ones, pending_div, pending_max_index)):
+    pending_equ = not installed.get("recursive-equ-v1")
+    if not any((pending_arithmetic, pending_recursion, pending_mul, pending_ones, pending_div, pending_max_index, pending_equ)):
         return
     with library._lock:
         organization = library._organization()
@@ -27,7 +28,7 @@ def install_examples(library):
             {"id": "arithmetic", "parent": "examples", "name": "Grundrechenarten", "description": "Konventionelle Bit-Algorithmen: feste Stufen, Bitverdrahtung und boolesche Operationen."},
             {"id": "arithmetic-templates", "parent": "arithmetic", "name": "Templates", "description": "Addition, Subtraktion, Multiplikation und Division für parametrierbare unsigned Bitbreiten."},
             {"id": "arithmetic-functions", "parent": "arithmetic", "name": "Funktionen (4 Bit)", "description": "Konkrete Instanzen mit allen 256 Eingabekombinationen und direkt synthetisierten NAND-Netzen."},
-            {"id": "recursion", "parent": "examples", "name": "Rekursion", "description": "Rekursive Arithmetik, NumberOfOnes und maximaler Bitindex m<t> durch Halbierung. MUL, NumberOfOnes und m für 1, 2 und 4 Bits mit F-Boxen und flachen NAND-Netzen."}]
+            {"id": "recursion", "parent": "examples", "name": "Rekursion", "description": "Rekursive Arithmetik, NumberOfOnes, Gleichheit EQU und maximaler Bitindex m<t> durch Halbierung. MUL, NumberOfOnes, EQU und m für 1, 2 und 4 Bits mit F-Boxen und flachen NAND-Netzen."}]
         existing = {f["id"] for f in organization["folders"]}
         organization["folders"].extend(f for f in folders if f["id"] not in existing)
         # Save folders first; a partially interrupted installation can be retried.
@@ -35,7 +36,10 @@ def install_examples(library):
         source = Path(__file__).resolve().parents[1] / "examples" / "templates"
         recursive_checked = {"recursive-split-sub.abstract.json", "recursive-split-add-checked.abstract.json"}
         for path in sorted(source.glob("*.abstract.json")):
-            if path.name == "recursive-max-index.abstract.json":
+            if path.name == "recursive-equ.abstract.json":
+                if not pending_equ:
+                    continue
+            elif path.name == "recursive-max-index.abstract.json":
                 if not pending_max_index:
                     continue
             elif path.name == "recursive-msb-div.abstract.json":
@@ -67,7 +71,8 @@ def install_examples(library):
             organization["entries"].setdefault(f"function:{function_id(dataset)}", "arithmetic-functions")
         for pending, folder, stem in ((pending_mul, "recursive-split-mul", "mul"),
                                       (pending_ones, "recursive-number-of-ones", "number-of-ones"),
-                                      (pending_max_index, "recursive-max-index", "m")):
+                                      (pending_max_index, "recursive-max-index", "m"),
+                                      (pending_equ, "recursive-equ", "equ")):
             if not pending:
                 continue
             output = source.parent / "circuits" / folder
@@ -96,4 +101,5 @@ def install_examples(library):
         installed["number-of-ones-v1"] = True
         installed["recursive-msb-div-v1"] = True
         installed["recursive-max-index-v1"] = True
+        installed["recursive-equ-v1"] = True
         write_json(marker, installed)

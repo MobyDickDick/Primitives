@@ -230,6 +230,12 @@ negative Differenzen werden damit ohne Zweierkomplement-Port dargestellt.
 
 ## Direkte strukturelle NAND-Synthese
 
+Das [generative Gleichheits-Template EQU](EQU.md) vergleicht zwei
+w-Bit-Werte über zwei rekursive Teilvergleiche und AND; der Basisfall
+ist NOT(XOR). Für Zweierpotenzbreiten bis 64 Bits sind Quellauswertung
+und direkte NAND-Synthese möglich. Geprüfte F-Boxen und vollständige
+Tabellen liegen für w=1,2,4 vor.
+
 Die [rekursive Division mit MSB-Ausrichtung](REKURSIVE-DIVISION.md) ergänzt
 `DIV<w>(a,b)` mit Quotient und Fehlerbit. Das Template ist als Referenz
 für w=1 bis 8 verwendbar; für w=1,2,3,4 liegen vollständig geprüfte

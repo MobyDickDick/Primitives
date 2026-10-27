@@ -118,8 +118,8 @@ class ServerTests(unittest.TestCase):
         self.thread.start()
         self.base = f"http://127.0.0.1:{self.server.server_port}"
         catalog = self.request("/api/catalog")
-        self.assertEqual(len(catalog["templates"]), 12)
-        self.assertEqual(len(catalog["datasets"]), 17)
+        self.assertEqual(len(catalog["templates"]), 13)
+        self.assertEqual(len(catalog["datasets"]), 20)
         self.assertTrue({"DIV<1> MSB", "DIV<2> MSB", "DIV<3> MSB", "DIV<4> MSB"}
                         <= {p["dataset_name"] for p in catalog["programs"]})
         self.assertTrue(all(p["fitness"]["verified_truth_table"] for p in catalog["programs"]))
@@ -127,7 +127,7 @@ class ServerTests(unittest.TestCase):
                          {"arithmetic-functions", "recursion"})
         self.assertEqual({b["name"] for b in catalog["blocks"]},
                          {"MUL<1>", "MUL<2>", "MUL<4>", "NumberOfOnes<1>", "NumberOfOnes<2>", "NumberOfOnes<4>",
-                          "m<1>", "m<2>", "m<4>"})
+                          "m<1>", "m<2>", "m<4>", "EQU<1>", "EQU<2>", "EQU<4>"})
         mul = next(b for b in catalog["blocks"] if b["name"] == "MUL<4>")
         view = self.request("/api/blocks/view", {"block_id": mul["id"], "path": ["product"]})
         self.assertEqual(sum(n["kind"] == "instance" for n in view["circuit"]["view_nodes"]), 8)
@@ -148,6 +148,15 @@ class ServerTests(unittest.TestCase):
         for inputs, expected in (([0, 0, 0, 0], [0, 0, 0, 0, 1]),
                                  ([1, 1, 0, 1], [1, 1, 0, 0, 0])):
             self.assertEqual(self.request("/api/blocks/evaluate", {"block_id": maximum["id"],
+                                                                   "bits": inputs})["outputs"], expected)
+
+        equality = next(b for b in catalog["blocks"] if b["name"] == "EQU<4>")
+        view = self.request("/api/blocks/view", {"block_id": equality["id"], "path": ["upper"]})
+        self.assertEqual([n["name"] for n in view["circuit"]["view_nodes"] if n["kind"] == "instance"],
+                         ["EQU<1>", "EQU<1>", "AND"])
+        for inputs, expected in (([1, 0, 1, 0, 1, 0, 1, 0], [1]),
+                                 ([1, 0, 1, 0, 1, 0, 1, 1], [0])):
+            self.assertEqual(self.request("/api/blocks/evaluate", {"block_id": equality["id"],
                                                                    "bits": inputs})["outputs"], expected)
 
     def test_template_specialization_generation_debug_and_roundtrip(self):

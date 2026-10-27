@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "root": "block-22632b6bd69caae0f376e3fc54f02af07f92cb860b43eec9990dc2ad30542b39",
+  "definitions": {
+    "block-22632b6bd69caae0f376e3fc54f02af07f92cb860b43eec9990dc2ad30542b39": {
+      "name": "EQU<1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 2,
+        "gates": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            3,
+            4
+          ],
+          [
+            5,
+            5
+          ]
+        ],
+        "outputs": [
+          6
+        ]
+      }
+    }
+  }
+}
