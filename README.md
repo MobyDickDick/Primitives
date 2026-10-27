@@ -36,6 +36,14 @@ und flachen NAND-Netzen vor (0, 5 bzw. 24 NANDs). Beim nächsten Serverstart
 werden sie unter **Beispiele → Rekursion** und **Unterprogramm-Bausteine** ergänzt.
 Siehe [NumberOfOnes und die korrigierte Rekursion](docs/NUMBER-OF-ONES.md).
 
+`m<t>(a)` liefert den maximalen Index eines gesetzten Bits als `[c,err]`.
+Für `a=0` gilt `[const<t>(0),1]`. Bei der rekursiven Halbierung ist der
+Offset der oberen Hälfte `t//2`; er wird als Indexbit angehängt.
+Für t=1,2,4 liegen vollständig geprüfte Instanzen mit verschachtelten F-Boxen
+und flachen Netzen mit 3, 6 und 15 NANDs vor. Beim nächsten Serverstart
+werden sie unter **Beispiele → Rekursion** und **Unterprogramm-Bausteine** ergänzt.
+Siehe [maximaler Bitindex und generative NAND-Konstruktion](docs/MAX-INDEX.md).
+
 `DIV<w>(a,b)` richtet den Divisor rekursiv am höchsten Dividend-Bit aus,
 subtrahiert die passende Zweierpotenz und setzt die Rechnung mit dem Rest
 fort. Nur `b=0` liefert `[0,1]`, sonst ist das Ergebnis `[a//b,0]`.

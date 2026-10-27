@@ -1,0 +1,253 @@
+{
+  "schema": 1,
+  "name": "m<4>",
+  "inputs": 4,
+  "outputs": 5,
+  "rows": [
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      1,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      1,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      0,
+      0,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      0,
+      1,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      0,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      1,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      1,
+      0,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      1,
+      1,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0
+    ]
+  ],
+  "metadata": {
+    "seed": 1,
+    "bit_order": "LSB-first",
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "err",
+          "bits": 1,
+          "signed": false,
+          "offset": 4,
+          "overflow": "error"
+        }
+      ]
+    },
+    "program": {
+      "version": 2,
+      "source": "# m<t>(a): t index bits followed by err; all arrays are LSB-first.\n# t = 2**w. Zero returns [const<t>(0), 1].\ndef m<t>(a):\n    assert t >= 1 and (t & (t - 1)) == 0\n    x = bits(a, t)\n    if t == 1:\n        return pack([0, 1 ^ x[0]])\n    k = t // 2\n    w = LOG2(t)\n    lo = bits(m<k>(pack(x[:k])), k + 1)\n    hi = bits(m<k>(pack(x[k:])), k + 1)\n    # hi[k] is the upper half's zero flag. Its inverse selects that half.\n    select = 1 ^ hi[k]\n    result = [0] * (t + 1)\n    for i in range(w - 1):\n        result[i] = (select & hi[i]) | (hi[k] & lo[i])\n    # Adding k = 2**(w-1) just appends the selected-half bit.\n    result[w - 1] = select\n    result[t] = lo[k] & hi[k]\n    return pack(result)\n\nresult = bits(m<t>(a), t + 1)\nreturn pack(result[:t]), result[t]\n",
+      "limits": {
+        "steps": 100000,
+        "iterations": 10000,
+        "total_steps": 5000000
+      },
+      "conditions": [
+        "t >= 1",
+        "t <= 16",
+        "is_power_of_two(t)"
+      ],
+      "parameters": {
+        "t": 4
+      },
+      "interface": {
+        "inputs": [
+          {
+            "name": "a",
+            "bits": "t"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": "t"
+          },
+          {
+            "name": "err",
+            "bits": 1
+          }
+        ]
+      }
+    },
+    "description": "Maximaler Index eines gesetzten Bits durch rekursive Halbierung. t=2**w Eingangsbits, t Indexbits c und err. a=0 liefert [0,1], sonst [floor(log2(a)),0]. Der Offset der oberen Hälfte ist t//2; die Auswahl wird als NAND-Multiplexer verdrahtet."
+  },
+  "exhaustive": true
+}

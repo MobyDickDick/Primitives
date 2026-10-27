@@ -1,0 +1,23 @@
+# m<t>(a): t index bits followed by err; all arrays are LSB-first.
+# t = 2**w. Zero returns [const<t>(0), 1].
+def m<t>(a):
+    assert t >= 1 and (t & (t - 1)) == 0
+    x = bits(a, t)
+    if t == 1:
+        return pack([0, 1 ^ x[0]])
+    k = t // 2
+    w = LOG2(t)
+    lo = bits(m<k>(pack(x[:k])), k + 1)
+    hi = bits(m<k>(pack(x[k:])), k + 1)
+    # hi[k] is the upper half's zero flag. Its inverse selects that half.
+    select = 1 ^ hi[k]
+    result = [0] * (t + 1)
+    for i in range(w - 1):
+        result[i] = (select & hi[i]) | (hi[k] & lo[i])
+    # Adding k = 2**(w-1) just appends the selected-half bit.
+    result[w - 1] = select
+    result[t] = lo[k] & hi[k]
+    return pack(result)
+
+result = bits(m<t>(a), t + 1)
+return pack(result[:t]), result[t]

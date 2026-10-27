@@ -60,10 +60,10 @@ class LibraryTreeTests(unittest.TestCase):
     def test_examples_install_once_preserve_edits_and_do_not_resurrect_deletions(self):
         library = self.library
         install_examples(library)
-        self.assertEqual(len(library.templates()), 11)
-        self.assertEqual(len(library.datasets()), 14)
-        self.assertEqual(len(library.programs()), 14)
-        self.assertEqual(len(library.blocks()), 6)
+        self.assertEqual(len(library.templates()), 12)
+        self.assertEqual(len(library.datasets()), 17)
+        self.assertEqual(len(library.programs()), 17)
+        self.assertEqual(len(library.blocks()), 9)
         self.assertTrue(all(p["fitness"]["verified_truth_table"] for p in library.programs()))
         library.save_folder("Eigene Beispiele", "Mein Text", key="examples")
         dataset = library.datasets()[0]
@@ -72,7 +72,7 @@ class LibraryTreeTests(unittest.TestCase):
         before = library.tree()
         install_examples(Library(library.root))
         self.assertEqual(library.tree(), before)
-        self.assertEqual(len(library.datasets()), 13)
+        self.assertEqual(len(library.datasets()), 16)
 
     def test_recursive_templates_upgrade_existing_library_once_without_reinstalling_arithmetic(self):
         library = self.library
@@ -84,7 +84,7 @@ class LibraryTreeTests(unittest.TestCase):
         library._write_organization(organization)
         (library.root / "example-installations.json").write_text(
             json.dumps({"arithmetic-v1": True, "recursive-mul-v1": True, "number-of-ones-v1": True,
-                        "recursive-msb-div-v1": True}), encoding="utf-8")
+                        "recursive-msb-div-v1": True, "recursive-max-index-v1": True}), encoding="utf-8")
         install_examples(library)
         self.assertEqual(len(library.templates()), 2)
         self.assertEqual(len(library.datasets()), 0)
@@ -105,7 +105,7 @@ class LibraryTreeTests(unittest.TestCase):
         library = self.library
         (library.root / "example-installations.json").write_text(
             json.dumps({"arithmetic-v1": True, "recursive-checked-v1": True, "number-of-ones-v1": True,
-                        "recursive-msb-div-v1": True}), encoding="utf-8")
+                        "recursive-msb-div-v1": True, "recursive-max-index-v1": True}), encoding="utf-8")
         install_examples(library)
         self.assertEqual(len(library.templates()), 1)
         self.assertEqual(len(library.datasets()), 3)

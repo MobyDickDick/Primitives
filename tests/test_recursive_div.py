@@ -82,7 +82,8 @@ class RecursiveDivTests(unittest.TestCase):
             library = Library(folder)
             marker = library.root / "example-installations.json"
             marker.write_text(json.dumps({"arithmetic-v1": True, "recursive-checked-v1": True,
-                                          "recursive-mul-v1": True, "number-of-ones-v1": True}), encoding="utf-8")
+                                          "recursive-mul-v1": True, "number-of-ones-v1": True,
+                                          "recursive-max-index-v1": True}), encoding="utf-8")
             organization = library._organization()
             organization["folders"].append({"id": "examples", "parent": None,
                                              "name": "Meine Beispiele", "description": "Erhalten"})
