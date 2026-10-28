@@ -1,0 +1,137 @@
+[
+  {
+    "name": "UNGRAY<1>",
+    "parameters": {
+      "t": 1
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 2,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 0,
+      "depth": 0
+    },
+    "hierarchy": {
+      "id": "block-9b3c1d384b761a490b79d7861c013754d18c48067bdcff634b65d03cda332ee7",
+      "name": "UNGRAY<1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 0,
+      "depth": 0,
+      "definitions": 1,
+      "instances": 0
+    }
+  },
+  {
+    "name": "UNGRAY<2>",
+    "parameters": {
+      "t": 2
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 8,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 4,
+      "depth": 3
+    },
+    "hierarchy": {
+      "id": "block-3a6226cf5d9016fc317c99e5b00a6e8495e0aad93d752bac0610a4a0519f6cd3",
+      "name": "UNGRAY<2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 4,
+      "depth": 3,
+      "definitions": 3,
+      "instances": 3
+    }
+  },
+  {
+    "name": "UNGRAY<4>",
+    "parameters": {
+      "t": 4
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 64,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 16,
+      "depth": 6
+    },
+    "hierarchy": {
+      "id": "block-3027ca7c8ada5bac57560501b2031a43559215db9ad577d9406a3818987c3f74",
+      "name": "UNGRAY<4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 16,
+      "depth": 6,
+      "definitions": 5,
+      "instances": 3
+    }
+  }
+]

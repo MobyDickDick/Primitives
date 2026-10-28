@@ -1,0 +1,87 @@
+{
+  "schema": 1,
+  "root": "block-954b6a51ca91b3ee8c2beb0e3e46ddd047d9c0ddc55d146bbd0ad1d6ee675def",
+  "definitions": {
+    "block-954b6a51ca91b3ee8c2beb0e3e46ddd047d9c0ddc55d146bbd0ad1d6ee675def": {
+      "name": "Standardaddition (1/2 Bit)",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 2,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 3,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 3,
+        "gates": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            3
+          ],
+          [
+            1,
+            3
+          ],
+          [
+            4,
+            5
+          ],
+          [
+            3,
+            3
+          ],
+          [
+            2,
+            7
+          ],
+          [
+            2,
+            8
+          ],
+          [
+            7,
+            8
+          ],
+          [
+            9,
+            10
+          ],
+          [
+            8,
+            8
+          ]
+        ],
+        "outputs": [
+          6,
+          11,
+          12
+        ]
+      }
+    }
+  }
+}

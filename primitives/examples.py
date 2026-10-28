@@ -13,6 +13,46 @@ GENERATIVE_EXAMPLES = ("parity", "iszero", "reverse", "mux", "min", "max")
 ROUTING_EXAMPLES = ("multiplexer", "demultiplexer")
 
 
+def install_standard_arithmetic_examples(library):
+    """Add all 1/2/4-bit operand pairs once, preserving existing examples."""
+    marker = library.root / "example-installations.json"
+    with library._lock:
+        installed = json.loads(marker.read_text(encoding="utf-8")) if marker.exists() else {}
+        if installed.get("standard-arithmetic-v1"):
+            return
+        organization = library._organization()
+        folders = [
+            {"id": "examples", "parent": None, "name": "Beispiele", "description": "Editierbare Beispiele."},
+            {"id": "arithmetic", "parent": "examples", "name": "Grundrechenarten", "description": "Konventionelle Bit-Algorithmen."},
+            {"id": "standard-arithmetic", "parent": "arithmetic", "name": "Standardlösungen (1, 2, 4 Bit)",
+             "description": "Alle neun Kombinationen unabhängig breiter Eingänge pro Grundrechenart; vollständig geprüft mit NAND-Netz und Baustein."},
+        ]
+        kinds = {"add": "Addition", "sub": "Subtraktion", "mul": "Multiplikation", "div": "Division"}
+        folders.extend({"id": f"standard-{kind}", "parent": "standard-arithmetic", "name": name,
+                        "description": "Generatives Bit-Template und neun Standardlösungen für a[p], b[q] mit p,q=1,2,4."}
+                       for kind, name in kinds.items())
+        existing = {f["id"] for f in organization["folders"]}
+        organization["folders"].extend(f for f in folders if f["id"] not in existing)
+        library._write_organization(organization)
+        source = Path(__file__).resolve().parents[1] / "examples"
+        for kind in kinds:
+            folder = f"standard-{kind}"
+            template = Template(json.loads((source / f"templates/{folder}.abstract.json").read_text(encoding="utf-8")))
+            key = library.save_template(template)
+            organization["entries"].setdefault(f"template:{key}", folder)
+            for p in (1, 2, 4):
+                for q in (1, 2, 4):
+                    prefix = source / f"circuits/{folder}/{kind}-{p}-{q}"
+                    library.save_block(BlockBundle(json.loads(prefix.with_suffix(".block.json").read_text(encoding="utf-8"))))
+                    dataset = Dataset.from_dict(json.loads(prefix.with_suffix(".vectors.json").read_text(encoding="utf-8")))
+                    circuit = json.loads(prefix.with_suffix(".circuit.json").read_text(encoding="utf-8"))
+                    library.save_program({"circuit": circuit, "synthesis": {"method": "structural-bitwise", "version": 1}}, dataset)
+                    organization["entries"].setdefault(f"function:{function_id(dataset)}", folder)
+        library._write_organization(organization)
+        installed["standard-arithmetic-v1"] = True
+        write_json(marker, installed)
+
+
 def install_structured_examples(library):
     """Separate migration: previous installations and user organization stay intact."""
     marker = library.root / "example-installations.json"
@@ -73,6 +113,8 @@ def install_examples(library):
         source = Path(__file__).resolve().parents[1] / "examples" / "templates"
         recursive_checked = {"recursive-split-sub.abstract.json", "recursive-split-add-checked.abstract.json"}
         for path in sorted(source.glob("*.abstract.json")):
+            if path.name.startswith("standard-"):
+                continue  # Independently sized operands have their own migration.
             if path.stem.removesuffix(".abstract") in {f"recursive-{kind}" for kind in ("gray", "ungray", "prefix_or", "sort2")}:
                 continue  # Installed by its own migration after the original examples.
             routing = path.name in {f"recursive-{kind}.abstract.json" for kind in ROUTING_EXAMPLES}

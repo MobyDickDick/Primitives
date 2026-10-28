@@ -1,0 +1,81 @@
+{
+  "schema": 1,
+  "root": "block-45ac32b88ada00a74da500af0e8352751c28e1ee7f7c48b0cfb0fa67a485060c",
+  "definitions": {
+    "block-45ac32b88ada00a74da500af0e8352751c28e1ee7f7c48b0cfb0fa67a485060c": {
+      "name": "Standardsubtraktion (1/1 Bit)",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "borrow",
+            "bits": 1,
+            "signed": false,
+            "offset": 1,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 2,
+        "gates": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            3,
+            4
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            6
+          ],
+          [
+            7,
+            7
+          ]
+        ],
+        "outputs": [
+          5,
+          8
+        ]
+      }
+    }
+  }
+}

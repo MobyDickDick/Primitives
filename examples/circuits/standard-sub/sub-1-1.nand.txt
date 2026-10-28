@@ -1,0 +1,11 @@
+# Standardsubtraktion (1/1 Bit): flat NAND netlist; bit 0 is the LSB.
+# Inputs: a0, b0
+g0 = NAND(a0, b0)
+g1 = NAND(a0, g0)
+g2 = NAND(b0, g0)
+g3 = NAND(g1, g2)
+g4 = NAND(a0, a0)
+g5 = NAND(b0, g4)
+g6 = NAND(g5, g5)
+c0 = g3
+borrow0 = g6

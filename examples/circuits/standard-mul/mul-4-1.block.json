@@ -1,0 +1,93 @@
+{
+  "schema": 1,
+  "root": "block-bfe2b9b6088723886cce9f353ed9fe7762d3b4b995702f6d0ae1275dd1e335a0",
+  "definitions": {
+    "block-bfe2b9b6088723886cce9f353ed9fe7762d3b4b995702f6d0ae1275dd1e335a0": {
+      "name": "Standardmultiplikation (4/1 Bit)",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 5,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 5,
+        "gates": [
+          [
+            0,
+            4
+          ],
+          [
+            5,
+            5
+          ],
+          [
+            1,
+            4
+          ],
+          [
+            7,
+            7
+          ],
+          [
+            2,
+            4
+          ],
+          [
+            9,
+            9
+          ],
+          [
+            3,
+            4
+          ],
+          [
+            11,
+            11
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            13
+          ],
+          [
+            14,
+            14
+          ]
+        ],
+        "outputs": [
+          6,
+          8,
+          10,
+          12,
+          15
+        ]
+      }
+    }
+  }
+}

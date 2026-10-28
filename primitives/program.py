@@ -104,15 +104,16 @@ def specialize_interface(spec, parameters):
                 elif isinstance(node, ast.Name) and node.id in parameters:
                     result = parameters[node.id]
                 elif (isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
-                      and node.func.id == "LOG2" and len(node.args) == 1 and not node.keywords):
-                    result = exact_log2(visit(node.args[0]))
+                      and node.func.id in ("LOG2", "min", "max")
+                      and len(node.args) == (1 if node.func.id == "LOG2" else 2) and not node.keywords):
+                    result = FUNCTIONS[node.func.id](*(visit(arg) for arg in node.args))
                 elif isinstance(node, ast.BinOp) and type(node.op) in (ast.Add, ast.Sub, ast.Mult, ast.FloorDiv, ast.Mod, ast.Pow):
                     a, b = visit(node.left), visit(node.right)
                     if isinstance(node.op, ast.Pow) and not 0 <= b <= 16:
                         raise ValueError("Template-Exponent muss zwischen 0 und 16 liegen.")
                     result = BINOPS[type(node.op)](a, b)
                 else:
-                    raise ValueError("Template-Breite: nur Parameter, ganze Zahlen, +, -, *, //, %, ** und LOG2 erlaubt.")
+                    raise ValueError("Template-Breite: nur Parameter, ganze Zahlen, +, -, *, //, %, **, LOG2, min und max erlaubt.")
                 if abs(result) > 2**32:
                     raise ValueError("Template-Breitenergebnis zu gross.")
                 return result

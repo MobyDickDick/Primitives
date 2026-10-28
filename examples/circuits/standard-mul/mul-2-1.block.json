@@ -1,0 +1,75 @@
+{
+  "schema": 1,
+  "root": "block-b4f491559929c55da1d21287c608c3559ff38640c534cd1cd183a5d236c2d860",
+  "definitions": {
+    "block-b4f491559929c55da1d21287c608c3559ff38640c534cd1cd183a5d236c2d860": {
+      "name": "Standardmultiplikation (2/1 Bit)",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 3,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 3,
+        "gates": [
+          [
+            0,
+            2
+          ],
+          [
+            3,
+            3
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            5,
+            5
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            7
+          ],
+          [
+            8,
+            8
+          ]
+        ],
+        "outputs": [
+          4,
+          6,
+          9
+        ]
+      }
+    }
+  }
+}

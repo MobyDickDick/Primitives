@@ -1,0 +1,15 @@
+def subtract<w>(a, b):
+    x = bits(a, w)
+    y = bits(b, w)
+    result = [0] * (w + 1)
+    borrow = 0
+    for i in range(w):
+        parity = x[i] ^ y[i]
+        result[i] = parity ^ borrow
+        borrow = ((1 ^ x[i]) & y[i]) | ((1 ^ parity) & borrow)
+    result[w] = borrow
+    return pack(result)
+
+w = p if p >= q else q
+difference = bits(subtract<w>(a, b), w + 1)
+return pack(difference[:w]), difference[w]

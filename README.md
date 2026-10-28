@@ -10,6 +10,15 @@ Nach dem Update den lokalen Webserver neu starten und die Browserseite neu laden
 
 ## Übersichtliche Webseiten und Hilfe
 
+Für alle vier Grundrechenarten gibt es zusätzlich **36 Standardlösungen**:
+jeweils alle neun Kombinationen aus 1, 2 und 4 Bit pro Eingang. Vollständige
+Summen und Produkte, Subtraktion mit Borrow und Division mit Rest/Status sind
+als generative Bit-Templates, NAND-Netze und wiederverwendbare Bausteine verfügbar.
+Beim nächsten Serverstart werden sie unter **Beispiele → Grundrechenarten →
+Standardlösungen (1, 2, 4 Bit)** ergänzt. Alle 1936 Eingabefälle sind unabhängig
+geprüft. Siehe [Standardarithmetik](docs/STANDARD-ARITHMETIK.md) und die
+[Aufgabenliste für 16 weitere generative Templates](docs/GENERATIVE-AUFGABEN.md).
+
 Die **Bibliothek** zeigt Templates und konkrete Funktionen in einem gemeinsamen
 Verzeichnisbaum. Ordner und Unterordner lassen sich anlegen, umbenennen,
 beschreiben und verschieben; Einträge können in jeden Ordner einsortiert werden.

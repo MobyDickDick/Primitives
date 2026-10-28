@@ -1,0 +1,129 @@
+{
+  "schema": 1,
+  "root": "block-ee9a40864b5a8135f9224829ca29867eb60b04eb7950dbf519abeb22790ed3be",
+  "definitions": {
+    "block-ee9a40864b5a8135f9224829ca29867eb60b04eb7950dbf519abeb22790ed3be": {
+      "name": "Standarddivision (1/1 Bit)",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "rest",
+            "bits": 1,
+            "signed": false,
+            "offset": 1,
+            "overflow": "error"
+          },
+          {
+            "name": "valid",
+            "bits": 1,
+            "signed": false,
+            "offset": 2,
+            "overflow": "error"
+          },
+          {
+            "name": "div0",
+            "bits": 1,
+            "signed": false,
+            "offset": 3,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 2,
+        "gates": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            3,
+            4
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            6
+          ],
+          [
+            7,
+            7
+          ],
+          [
+            5,
+            7
+          ],
+          [
+            0,
+            8
+          ],
+          [
+            9,
+            10
+          ],
+          [
+            1,
+            7
+          ],
+          [
+            12,
+            12
+          ],
+          [
+            1,
+            11
+          ],
+          [
+            14,
+            14
+          ],
+          [
+            1,
+            1
+          ]
+        ],
+        "outputs": [
+          13,
+          15,
+          1,
+          16
+        ]
+      }
+    }
+  }
+}

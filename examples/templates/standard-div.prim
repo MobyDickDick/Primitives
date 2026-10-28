@@ -1,0 +1,31 @@
+def subtract<w>(a, b):
+    x = bits(a, w)
+    y = bits(b, w)
+    result = [0] * (w + 1)
+    borrow = 0
+    for i in range(w):
+        parity = x[i] ^ y[i]
+        result[i] = parity ^ borrow
+        borrow = ((1 ^ x[i]) & y[i]) | ((1 ^ parity) & borrow)
+    result[w] = borrow
+    return pack(result)
+
+x = bits(a, p)
+y = bits(b, q)
+quotient = [0] * p
+remainder = [0] * (q + 1)
+for i in range(p - 1, -1, -1):
+    remainder = [x[i]] + remainder[:q]
+    difference = bits(subtract<q+1>(pack(remainder), b), q + 2)
+    take = 1 ^ difference[q + 1]
+    for j in range(q + 1):
+        remainder[j] = (difference[j] & take) | (remainder[j] & (1 ^ take))
+    quotient[i] = take
+valid = 0
+for i in range(q):
+    valid = valid | y[i]
+for i in range(p):
+    quotient[i] = quotient[i] & valid
+for i in range(q):
+    remainder[i] = remainder[i] & valid
+return pack(quotient), pack(remainder[:q]), valid, 1 ^ valid

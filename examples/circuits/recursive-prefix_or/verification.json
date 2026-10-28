@@ -1,0 +1,137 @@
+[
+  {
+    "name": "PREFIX_OR<1>",
+    "parameters": {
+      "t": 1
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 2,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 0,
+      "depth": 0
+    },
+    "hierarchy": {
+      "id": "block-ba7d454ad23c9925f8cf407931048c88aea9e5e4d4a9b37a8ef09b39b0a06545",
+      "name": "PREFIX_OR<1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 0,
+      "depth": 0,
+      "definitions": 1,
+      "instances": 0
+    }
+  },
+  {
+    "name": "PREFIX_OR<2>",
+    "parameters": {
+      "t": 2
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 8,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 3,
+      "depth": 2
+    },
+    "hierarchy": {
+      "id": "block-b46aa55f41d2355b95235f287db27295bf11d8f26b3a52ae2bd0121c2b197ba6",
+      "name": "PREFIX_OR<2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 3,
+      "depth": 2,
+      "definitions": 3,
+      "instances": 3
+    }
+  },
+  {
+    "name": "PREFIX_OR<4>",
+    "parameters": {
+      "t": 4
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 64,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 10,
+      "depth": 4
+    },
+    "hierarchy": {
+      "id": "block-3509892ee55255a92a9593fd821f4508fe3f45e8d206428e2e7307dad6f46ac8",
+      "name": "PREFIX_OR<4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 11,
+      "depth": 4,
+      "definitions": 5,
+      "instances": 3
+    }
+  }
+]

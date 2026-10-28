@@ -1,0 +1,13 @@
+def UNGRAY<t>(a):
+    assert t >= 1 and (t & (t - 1)) == 0
+    if t == 1:
+        return a
+    x = bits(a, t)
+    k = t // 2
+    lo = bits(UNGRAY<k>(pack(x[:k])), k)
+    hi = bits(UNGRAY<k>(pack(x[k:])), k)
+    for i in range(k):
+        lo[i] = lo[i] ^ hi[0]
+    return pack(lo + hi)
+
+return UNGRAY<t>(a)

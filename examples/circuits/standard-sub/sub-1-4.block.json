@@ -1,0 +1,168 @@
+{
+  "schema": 1,
+  "root": "block-03584d3487e16f46d32f404b45fe246a036a0d89fde3eec69b3c4e3533ac527e",
+  "definitions": {
+    "block-03584d3487e16f46d32f404b45fe246a036a0d89fde3eec69b3c4e3533ac527e": {
+      "name": "Standardsubtraktion (1/4 Bit)",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 4,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "borrow",
+            "bits": 1,
+            "signed": false,
+            "offset": 4,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 5,
+        "gates": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            5
+          ],
+          [
+            1,
+            5
+          ],
+          [
+            6,
+            7
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            9
+          ],
+          [
+            10,
+            10
+          ],
+          [
+            2,
+            11
+          ],
+          [
+            2,
+            12
+          ],
+          [
+            11,
+            12
+          ],
+          [
+            13,
+            14
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            11,
+            16
+          ],
+          [
+            16,
+            17
+          ],
+          [
+            3,
+            18
+          ],
+          [
+            3,
+            19
+          ],
+          [
+            18,
+            19
+          ],
+          [
+            20,
+            21
+          ],
+          [
+            3,
+            3
+          ],
+          [
+            18,
+            23
+          ],
+          [
+            23,
+            24
+          ],
+          [
+            4,
+            25
+          ],
+          [
+            4,
+            26
+          ],
+          [
+            25,
+            26
+          ],
+          [
+            27,
+            28
+          ],
+          [
+            4,
+            4
+          ],
+          [
+            25,
+            30
+          ],
+          [
+            30,
+            31
+          ]
+        ],
+        "outputs": [
+          8,
+          15,
+          22,
+          29,
+          32
+        ]
+      }
+    }
+  }
+}

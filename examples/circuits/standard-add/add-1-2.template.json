@@ -1,0 +1,37 @@
+{
+  "version": 2,
+  "source": "def add<w>(a, b):\n    x = bits(a, w)\n    y = bits(b, w)\n    result = [0] * (w + 1)\n    carry = 0\n    for i in range(w):\n        parity = x[i] ^ y[i]\n        result[i] = parity ^ carry\n        carry = (x[i] & y[i]) | (parity & carry)\n    result[w] = carry\n    return pack(result)\n\nw = p if p >= q else q\nreturn add<w>(a, b)\n",
+  "limits": {
+    "steps": 100000,
+    "iterations": 10000,
+    "total_steps": 5000000
+  },
+  "conditions": [
+    "p >= 1",
+    "q >= 1",
+    "p <= 16",
+    "q <= 16"
+  ],
+  "parameters": {
+    "p": 1,
+    "q": 2
+  },
+  "interface": {
+    "inputs": [
+      {
+        "name": "a",
+        "bits": "p"
+      },
+      {
+        "name": "b",
+        "bits": "q"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "c",
+        "bits": "max(p,q)+1"
+      }
+    ]
+  }
+}

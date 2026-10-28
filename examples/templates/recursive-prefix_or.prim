@@ -1,0 +1,13 @@
+def PREFIX_OR<t>(a):
+    assert t >= 1 and (t & (t - 1)) == 0
+    if t == 1:
+        return a
+    x = bits(a, t)
+    k = t // 2
+    lo = bits(PREFIX_OR<k>(pack(x[:k])), k)
+    hi = bits(PREFIX_OR<k>(pack(x[k:])), k)
+    for i in range(k):
+        hi[i] = hi[i] | lo[k - 1]
+    return pack(lo + hi)
+
+return PREFIX_OR<t>(a)

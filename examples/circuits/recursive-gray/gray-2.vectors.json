@@ -1,0 +1,90 @@
+{
+  "schema": 1,
+  "name": "GRAY<2>",
+  "inputs": 2,
+  "outputs": 2,
+  "rows": [
+    [
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      1,
+      1
+    ],
+    [
+      1,
+      0,
+      1,
+      0
+    ],
+    [
+      1,
+      1,
+      0,
+      1
+    ]
+  ],
+  "metadata": {
+    "seed": 1,
+    "bit_order": "LSB-first",
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 2,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "program": {
+      "version": 2,
+      "source": "def GRAY<t>(a):\n    assert t >= 1 and (t & (t - 1)) == 0\n    if t == 1:\n        return a\n    x = bits(a, t)\n    k = t // 2\n    lo = bits(GRAY<k>(pack(x[:k])), k)\n    hi = bits(GRAY<k>(pack(x[k:])), k)\n    lo[k - 1] = lo[k - 1] ^ x[k]\n    return pack(lo + hi)\n\nreturn GRAY<t>(a)\n",
+      "limits": {
+        "steps": 100000,
+        "iterations": 10000,
+        "total_steps": 5000000
+      },
+      "conditions": [
+        "t >= 1",
+        "t <= 64",
+        "is_power_of_two(t)"
+      ],
+      "parameters": {
+        "t": 2
+      },
+      "interface": {
+        "inputs": [
+          {
+            "name": "a",
+            "bits": "t"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": "t"
+          }
+        ]
+      }
+    },
+    "description": "Binär zu Gray-Code: c=a XOR (a>>1). Benachbarte Zahlen unterscheiden sich in genau einem Codebit. t ist eine positive Zweierpotenz."
+  },
+  "exhaustive": true
+}

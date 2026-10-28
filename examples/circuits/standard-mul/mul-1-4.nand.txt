@@ -1,0 +1,18 @@
+# Standardmultiplikation (1/4 Bit): flat NAND netlist; bit 0 is the LSB.
+# Inputs: a0, b0, b1, b2, b3
+g0 = NAND(a0, b0)
+g1 = NAND(g0, g0)
+g2 = NAND(a0, b1)
+g3 = NAND(g2, g2)
+g4 = NAND(a0, b2)
+g5 = NAND(g4, g4)
+g6 = NAND(a0, b3)
+g7 = NAND(g6, g6)
+g8 = NAND(a0, a0)
+g9 = NAND(a0, g8)
+g10 = NAND(g9, g9)
+c0 = g1
+c1 = g3
+c2 = g5
+c3 = g7
+c4 = g10

@@ -1,0 +1,129 @@
+{
+  "schema": 1,
+  "root": "block-a5148f4993bb9a506a3ebe713fdc3f88dc3fde4c0ca55a243bc36ea1481c0758",
+  "definitions": {
+    "block-a5148f4993bb9a506a3ebe713fdc3f88dc3fde4c0ca55a243bc36ea1481c0758": {
+      "name": "Standardaddition (1/4 Bit)",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 4,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 5,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 5,
+        "gates": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            5
+          ],
+          [
+            1,
+            5
+          ],
+          [
+            6,
+            7
+          ],
+          [
+            5,
+            5
+          ],
+          [
+            2,
+            9
+          ],
+          [
+            2,
+            10
+          ],
+          [
+            9,
+            10
+          ],
+          [
+            11,
+            12
+          ],
+          [
+            10,
+            10
+          ],
+          [
+            3,
+            14
+          ],
+          [
+            3,
+            15
+          ],
+          [
+            14,
+            15
+          ],
+          [
+            16,
+            17
+          ],
+          [
+            15,
+            15
+          ],
+          [
+            4,
+            19
+          ],
+          [
+            4,
+            20
+          ],
+          [
+            19,
+            20
+          ],
+          [
+            21,
+            22
+          ],
+          [
+            20,
+            20
+          ]
+        ],
+        "outputs": [
+          8,
+          13,
+          18,
+          23,
+          24
+        ]
+      }
+    }
+  }
+}

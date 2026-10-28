@@ -1,0 +1,31 @@
+{
+  "version": 2,
+  "source": "def UNGRAY<t>(a):\n    assert t >= 1 and (t & (t - 1)) == 0\n    if t == 1:\n        return a\n    x = bits(a, t)\n    k = t // 2\n    lo = bits(UNGRAY<k>(pack(x[:k])), k)\n    hi = bits(UNGRAY<k>(pack(x[k:])), k)\n    for i in range(k):\n        lo[i] = lo[i] ^ hi[0]\n    return pack(lo + hi)\n\nreturn UNGRAY<t>(a)\n",
+  "limits": {
+    "steps": 100000,
+    "iterations": 10000,
+    "total_steps": 5000000
+  },
+  "conditions": [
+    "t >= 1",
+    "t <= 64",
+    "is_power_of_two(t)"
+  ],
+  "parameters": {
+    "t": 2
+  },
+  "interface": {
+    "inputs": [
+      {
+        "name": "a",
+        "bits": "t"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "c",
+        "bits": "t"
+      }
+    ]
+  }
+}

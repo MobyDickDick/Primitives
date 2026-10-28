@@ -1,0 +1,134 @@
+{
+  "schema": 1,
+  "root": "block-16558119259ce26c4d77f80254367430e9798668014bbe4b21c05e2d6b47bdb1",
+  "definitions": {
+    "block-16558119259ce26c4d77f80254367430e9798668014bbe4b21c05e2d6b47bdb1": {
+      "name": "Standardsubtraktion (2/2 Bit)",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 2,
+            "signed": false,
+            "offset": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "borrow",
+            "bits": 1,
+            "signed": false,
+            "offset": 2,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 4,
+        "gates": [
+          [
+            0,
+            2
+          ],
+          [
+            0,
+            4
+          ],
+          [
+            2,
+            4
+          ],
+          [
+            5,
+            6
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            2,
+            8
+          ],
+          [
+            9,
+            9
+          ],
+          [
+            1,
+            3
+          ],
+          [
+            1,
+            11
+          ],
+          [
+            3,
+            11
+          ],
+          [
+            12,
+            13
+          ],
+          [
+            10,
+            14
+          ],
+          [
+            14,
+            15
+          ],
+          [
+            10,
+            15
+          ],
+          [
+            16,
+            17
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            3,
+            19
+          ],
+          [
+            14,
+            14
+          ],
+          [
+            10,
+            21
+          ],
+          [
+            20,
+            22
+          ]
+        ],
+        "outputs": [
+          7,
+          18,
+          23
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,31 @@
+# Standardaddition (4/2 Bit): flat NAND netlist; bit 0 is the LSB.
+# Inputs: a0, a1, a2, a3, b0, b1
+g0 = NAND(a0, b0)
+g1 = NAND(a0, g0)
+g2 = NAND(b0, g0)
+g3 = NAND(g1, g2)
+g4 = NAND(g0, g0)
+g5 = NAND(a1, b1)
+g6 = NAND(a1, g5)
+g7 = NAND(b1, g5)
+g8 = NAND(g6, g7)
+g9 = NAND(g4, g8)
+g10 = NAND(g8, g9)
+g11 = NAND(g4, g9)
+g12 = NAND(g10, g11)
+g13 = NAND(g5, g9)
+g14 = NAND(a2, g13)
+g15 = NAND(a2, g14)
+g16 = NAND(g13, g14)
+g17 = NAND(g15, g16)
+g18 = NAND(g14, g14)
+g19 = NAND(a3, g18)
+g20 = NAND(a3, g19)
+g21 = NAND(g18, g19)
+g22 = NAND(g20, g21)
+g23 = NAND(g19, g19)
+c0 = g3
+c1 = g12
+c2 = g17
+c3 = g22
+c4 = g23

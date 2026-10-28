@@ -1,0 +1,247 @@
+{
+  "schema": 1,
+  "name": "SORT2<2>",
+  "inputs": 4,
+  "outputs": 4,
+  "rows": [
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      1,
+      1,
+      0,
+      0,
+      1,
+      1
+    ],
+    [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      1,
+      0,
+      1,
+      0,
+      1,
+      0,
+      1
+    ],
+    [
+      0,
+      1,
+      1,
+      0,
+      1,
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      1,
+      1,
+      1,
+      0,
+      1,
+      1,
+      1
+    ],
+    [
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      1,
+      0,
+      0,
+      1,
+      1,
+      0,
+      0,
+      1
+    ],
+    [
+      1,
+      0,
+      1,
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    [
+      1,
+      0,
+      1,
+      1,
+      1,
+      0,
+      1,
+      1
+    ],
+    [
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1
+    ],
+    [
+      1,
+      1,
+      0,
+      1,
+      0,
+      1,
+      1,
+      1
+    ],
+    [
+      1,
+      1,
+      1,
+      0,
+      1,
+      0,
+      1,
+      1
+    ],
+    [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ]
+  ],
+  "metadata": {
+    "seed": 1,
+    "bit_order": "LSB-first",
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 2,
+          "signed": false,
+          "offset": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "lo",
+          "bits": 2,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "hi",
+          "bits": 2,
+          "signed": false,
+          "offset": 2,
+          "overflow": "error"
+        }
+      ]
+    },
+    "program": {
+      "version": 2,
+      "source": "# GT<t> (GreaterThan): unsigned t-bit inputs, one result bit, LSB-first.\n# t = 2**w, integer w >= 0. Upper/Lower take the full input width.\n\ndef Upper<t>(a):\n    assert t >= 2 and (t & (t - 1)) == 0\n    x = bits(a, t)\n    return pack(x[t // 2:])\n\ndef Lower<t>(a):\n    assert t >= 2 and (t & (t - 1)) == 0\n    x = bits(a, t)\n    return pack(x[:t // 2])\n\ndef Equal<t>(a, b):\n    assert t >= 1 and (t & (t - 1)) == 0\n    if t == 1:\n        x = bits(a, 1)\n        y = bits(b, 1)\n        return 1 ^ (x[0] ^ y[0])\n    k = t // 2\n    hi = Equal<k>(Upper<t>(a), Upper<t>(b))\n    lo = Equal<k>(Lower<t>(a), Lower<t>(b))\n    return hi & lo\n\ndef GT<t>(a, b):\n    assert t >= 1 and (t & (t - 1)) == 0\n    if t == 1:\n        x = bits(a, 1)\n        y = bits(b, 1)\n        return x[0] & (1 ^ y[0])\n    k = t // 2\n    hi = GT<k>(Upper<t>(a), Upper<t>(b))\n    eq = Equal<k>(Upper<t>(a), Upper<t>(b))\n    lo = GT<k>(Lower<t>(a), Lower<t>(b))\n    return hi | (eq & lo)\n\ndef GreaterThan<t>(a, b):\n    return GT<t>(a, b)\n\n# sel=0 selects a, sel=1 selects b; selection uses only bit operations.\ndef MUX<t>(a, b, sel):\n    assert t >= 1 and (t & (t - 1)) == 0\n    if t == 1:\n        x = bits(a, 1)\n        y = bits(b, 1)\n        s = bits(sel, 1)\n        return (x[0] & (1 ^ s[0])) | (y[0] & s[0])\n    x = bits(a, t)\n    y = bits(b, t)\n    k = t // 2\n    lo = bits(MUX<k>(pack(x[:k]), pack(y[:k]), sel), k)\n    hi = bits(MUX<k>(pack(x[k:]), pack(y[k:]), sel), k)\n    return pack(lo + hi)\n\ndef SORT2<t>(a, b):\n    assert t >= 1 and (t & (t - 1)) == 0\n    sel = GT<t>(a, b)\n    return pack(bits(MUX<t>(a, b, sel), t) + bits(MUX<t>(b, a, sel), t))\n\nresult = bits(SORT2<t>(a, b), 2 * t)\nreturn pack(result[:t]), pack(result[t:])\n",
+      "limits": {
+        "steps": 100000,
+        "iterations": 10000,
+        "total_steps": 5000000
+      },
+      "conditions": [
+        "t >= 1",
+        "t <= 64",
+        "is_power_of_two(t)"
+      ],
+      "parameters": {
+        "t": 2
+      },
+      "interface": {
+        "inputs": [
+          {
+            "name": "a",
+            "bits": "t"
+          },
+          {
+            "name": "b",
+            "bits": "t"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "lo",
+            "bits": "t"
+          },
+          {
+            "name": "hi",
+            "bits": "t"
+          }
+        ]
+      }
+    },
+    "description": "Sortiert zwei unsigned t-Bit-Werte: lo=min(a,b), hi=max(a,b). Ein gemeinsamer Vergleich steuert zwei Auswahlboxen. t ist eine positive Zweierpotenz."
+  },
+  "exhaustive": true
+}

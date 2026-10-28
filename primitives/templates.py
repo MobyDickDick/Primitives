@@ -43,10 +43,11 @@ class Condition:
             elif isinstance(node, ast.Compare) and all(type(op) in CMP for op in node.ops):
                 children = [node.left, *node.comparators]
             elif (isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
-                  and node.func.id in ("is_power_of_two", "LOG2") and len(node.args) == 1 and not node.keywords):
+                  and node.func.id in ("is_power_of_two", "LOG2", "min", "max")
+                  and len(node.args) == (2 if node.func.id in ("min", "max") else 1) and not node.keywords):
                 children = node.args
             else:
-                raise ValueError("Template-Bedingung: nur Parameter, Ganzzahloperatoren, Vergleiche, and/or/not, LOG2(n) und is_power_of_two(n) erlaubt.")
+                raise ValueError("Template-Bedingung: nur Parameter, Ganzzahloperatoren, Vergleiche, and/or/not, min, max, LOG2(n) und is_power_of_two(n) erlaubt.")
             for child in children:
                 validate(child)
         validate(self.root)
@@ -77,6 +78,8 @@ class Condition:
                         return False
                     left = right
                 return True
+            if node.func.id in ("min", "max"):
+                return (min if node.func.id == "min" else max)(*(visit(arg) for arg in node.args))
             value = visit(node.args[0])
             if node.func.id == "LOG2":
                 return exact_log2(value)
@@ -139,7 +142,7 @@ class Template:
                     parsed = Condition(width, set(names))
                     if any(not isinstance(n, (ast.Expression, ast.Constant, ast.Name, ast.Load, ast.BinOp,
                                               ast.Add, ast.Sub, ast.Mult, ast.FloorDiv, ast.Mod, ast.Pow, ast.Call))
-                           or isinstance(n, ast.Call) and n.func.id != "LOG2"
+                           or isinstance(n, ast.Call) and n.func.id not in ("LOG2", "min", "max")
                            for n in ast.walk(parsed.root)):
                         raise ValueError("Ungültiger Operator in einer symbolischen Portbreite.")
                 port["bits"] = 1

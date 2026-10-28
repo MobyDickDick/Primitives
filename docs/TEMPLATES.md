@@ -83,7 +83,7 @@ Die Bedingungen bleiben beim Speichern, Export/Import und erneuten Öffnen
 erhalten und werden auch bei API-/CLI-Konkretisierung und Debugstart geprüft.
 
 Bedingungen dürfen Parameter, ganze Zahlen, `+ - * // % ** & | ^`, Vergleiche,
-`and`, `or`, `not`, `LOG2` und `is_power_of_two` verwenden. Alle Bedingungen müssen
+`and`, `or`, `not`, `min`, `max`, `LOG2` und `is_power_of_two` verwenden. Alle Bedingungen müssen
 erfüllt sein. Ein explizites m als zweiter Parameter wäre ebenfalls möglich,
 etwa mit `n == 2**m`; die Hilfsfunktion erspart diesen zusätzlichen Wert.
 
@@ -107,7 +107,7 @@ Frei formulierte Meldungen nach `assert` sind nicht Teil dieser Sprachversion.
   getrennt; andere Eingangsports müssen ausdrücklich als Argumente übergeben
   werden. Gegenseitige und direkte Rekursion sind erlaubt.
 - Bis zu 16 feste Parameter mit ganzzahligen Werten 0–128. Breitenausdrücke
-  erlauben Parameter, Zahlen, `+ - * // % **` und `LOG2(...)`; Potenzexponenten 0–16.
+  erlauben Parameter, Zahlen, `+ - * // % **`, `min(p,q)`, `max(p,q)` und `LOG2(...)`; Potenzexponenten 0–16.
   `LOG2` berechnet den exakten ganzzahligen Logarithmus einer positiven Zweierpotenz
   und weist andere Werte ab. Beispiel: `LOG2(w)+1` Ergebnisbits für
   [NumberOfOnes](NUMBER-OF-ONES.md). Im Quelltext ist `LOG2(w)` ebenfalls erlaubt;
@@ -229,6 +229,12 @@ Die Subtraktion gibt bewusst ein modulares Ergebnis plus Borrow zurück;
 negative Differenzen werden damit ohne Zweierkomplement-Port dargestellt.
 
 ## Direkte strukturelle NAND-Synthese
+
+Die [Standardarithmetik mit unabhängigen Eingangsbreiten](STANDARD-ARITHMETIK.md)
+ergänzt vier Templates mit p und q. Für p,q=1,2,4 liegen alle 36 Instanzen vor.
+Symbolische Portbreiten und Template-Bedingungen unterstützen auch `min(p,q)`
+und `max(p,q)` mit genau zwei Argumenten, beispielsweise `max(p,q)+1` für
+die vollständige Summe.
 
 Sechs weitere [generative Logik-Templates](GENERATIVE-LOGIK.md) ergänzen
 `PARITY<t>`, `ISZERO<t>`, `REVERSE<t>`, `MUX<t>`, `MIN<t>` und `MAX<t>`.

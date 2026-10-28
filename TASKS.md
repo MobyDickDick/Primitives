@@ -1,5 +1,15 @@
 # Aufgabenliste
 
+## Standardlösungen und weitere generative Templates vom 28. Oktober 2026
+
+- [x] Vier Standardverfahren mit unabhängig breiten unsigned Eingängen a[p], b[q].
+- [x] Alle neun Kombinationen aus 1, 2 und 4 Bit je Operation: 36 NAND-Lösungen und Bausteine.
+- [x] Alle 1936 Eingabefälle unabhängig geprüft, inklusive Borrow und Division durch null.
+- [x] Einmalige Bibliotheksmigration mit Erhalt vorhandener Beispiele und eigener Ordner.
+- [ ] Weitere generative Templates nach [priorisierter Aufgabenliste GEN-01 bis GEN-16](docs/GENERATIVE-AUFGABEN.md) umsetzen.
+
+Beschreibung und Erzeugung: [Standardarithmetik](docs/STANDARD-ARITHMETIK.md).
+
 ## Rekursive Division vom 27. Oktober 2026
 
 - [x] `DIV<w>` mit MSB-Ausrichtung, Korrektur um eine Stelle und rekursiver Subtraktion.

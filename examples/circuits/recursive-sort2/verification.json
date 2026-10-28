@@ -1,0 +1,176 @@
+[
+  {
+    "name": "SORT2<1>",
+    "parameters": {
+      "t": 1
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 8,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 9,
+      "depth": 5
+    },
+    "hierarchy": {
+      "id": "block-f0d325e7680cead02d56164866c7769b4a9bb6df171e8bb00f4a8aa9a501e6b6",
+      "name": "SORT2<1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "lo",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "hi",
+            "bits": 1,
+            "signed": false,
+            "offset": 1,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 11,
+      "depth": 6,
+      "definitions": 3,
+      "instances": 3
+    }
+  },
+  {
+    "name": "SORT2<2>",
+    "parameters": {
+      "t": 2
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 64,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 25,
+      "depth": 9
+    },
+    "hierarchy": {
+      "id": "block-bac6dada52df0395bf5475c864cd0740a40098896634e595c7541566666bf464",
+      "name": "SORT2<2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 2,
+            "signed": false,
+            "offset": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "lo",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "hi",
+            "bits": 2,
+            "signed": false,
+            "offset": 2,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 30,
+      "depth": 9,
+      "definitions": 6,
+      "instances": 3
+    }
+  },
+  {
+    "name": "SORT2<4>",
+    "parameters": {
+      "t": 4
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 2048,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 59,
+      "depth": 11
+    },
+    "hierarchy": {
+      "id": "block-bb1f86ac0483442d3e1a2301f36d88c81a3bd7b19b154b0303ce4cc4fd4a23b0",
+      "name": "SORT2<4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 4,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "lo",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "hi",
+            "bits": 4,
+            "signed": false,
+            "offset": 4,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 75,
+      "depth": 11,
+      "definitions": 10,
+      "instances": 3
+    }
+  }
+]

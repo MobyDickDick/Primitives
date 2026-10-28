@@ -1,0 +1,36 @@
+# Standarddivision (1/2 Bit): flat NAND netlist; bit 0 is the LSB.
+# Inputs: a0, b0, b1
+g0 = NAND(a0, b0)
+g1 = NAND(a0, g0)
+g2 = NAND(b0, g0)
+g3 = NAND(g1, g2)
+g4 = NAND(a0, a0)
+g5 = NAND(b0, g4)
+g6 = NAND(g5, g5)
+g7 = NAND(b1, g6)
+g8 = NAND(b1, g7)
+g9 = NAND(g6, g7)
+g10 = NAND(g8, g9)
+g11 = NAND(b1, b1)
+g12 = NAND(g6, g11)
+g13 = NAND(g11, g12)
+g14 = NAND(g13, g13)
+g15 = NAND(g3, g14)
+g16 = NAND(a0, g13)
+g17 = NAND(g15, g16)
+g18 = NAND(g10, g14)
+g19 = NAND(g18, g18)
+g20 = NAND(b0, b0)
+g21 = NAND(g11, g20)
+g22 = NAND(g14, g21)
+g23 = NAND(g22, g22)
+g24 = NAND(g17, g21)
+g25 = NAND(g24, g24)
+g26 = NAND(g19, g21)
+g27 = NAND(g26, g26)
+g28 = NAND(g21, g21)
+c0 = g23
+rest0 = g25
+rest1 = g27
+valid0 = g21
+div00 = g28

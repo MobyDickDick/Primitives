@@ -1,0 +1,303 @@
+{
+  "schema": 1,
+  "name": "Standarddivision (2/2 Bit)",
+  "inputs": 4,
+  "outputs": 6,
+  "rows": [
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      1,
+      0,
+      1,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      1,
+      1,
+      0,
+      0,
+      1,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      1,
+      1,
+      0
+    ],
+    [
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    [
+      1,
+      0,
+      0,
+      1,
+      0,
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    [
+      1,
+      0,
+      1,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      1,
+      0,
+      1,
+      1,
+      0,
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    [
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    [
+      1,
+      1,
+      0,
+      1,
+      1,
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    [
+      1,
+      1,
+      1,
+      0,
+      1,
+      1,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      1,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0
+    ]
+  ],
+  "metadata": {
+    "seed": 1,
+    "bit_order": "LSB-first",
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 2,
+          "signed": false,
+          "offset": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 2,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "rest",
+          "bits": 2,
+          "signed": false,
+          "offset": 2,
+          "overflow": "error"
+        },
+        {
+          "name": "valid",
+          "bits": 1,
+          "signed": false,
+          "offset": 4,
+          "overflow": "error"
+        },
+        {
+          "name": "div0",
+          "bits": 1,
+          "signed": false,
+          "offset": 5,
+          "overflow": "error"
+        }
+      ]
+    },
+    "program": {
+      "version": 2,
+      "source": "def subtract<w>(a, b):\n    x = bits(a, w)\n    y = bits(b, w)\n    result = [0] * (w + 1)\n    borrow = 0\n    for i in range(w):\n        parity = x[i] ^ y[i]\n        result[i] = parity ^ borrow\n        borrow = ((1 ^ x[i]) & y[i]) | ((1 ^ parity) & borrow)\n    result[w] = borrow\n    return pack(result)\n\nx = bits(a, p)\ny = bits(b, q)\nquotient = [0] * p\nremainder = [0] * (q + 1)\nfor i in range(p - 1, -1, -1):\n    remainder = [x[i]] + remainder[:q]\n    difference = bits(subtract<q+1>(pack(remainder), b), q + 2)\n    take = 1 ^ difference[q + 1]\n    for j in range(q + 1):\n        remainder[j] = (difference[j] & take) | (remainder[j] & (1 ^ take))\n    quotient[i] = take\nvalid = 0\nfor i in range(q):\n    valid = valid | y[i]\nfor i in range(p):\n    quotient[i] = quotient[i] & valid\nfor i in range(q):\n    remainder[i] = remainder[i] & valid\nreturn pack(quotient), pack(remainder[:q]), valid, 1 ^ valid\n",
+      "limits": {
+        "steps": 100000,
+        "iterations": 10000,
+        "total_steps": 5000000
+      },
+      "conditions": [
+        "p >= 1",
+        "q >= 1",
+        "p <= 16",
+        "q <= 16"
+      ],
+      "parameters": {
+        "p": 2,
+        "q": 2
+      },
+      "interface": {
+        "inputs": [
+          {
+            "name": "a",
+            "bits": "p"
+          },
+          {
+            "name": "b",
+            "bits": "q"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": "p"
+          },
+          {
+            "name": "rest",
+            "bits": "q"
+          },
+          {
+            "name": "valid",
+            "bits": 1
+          },
+          {
+            "name": "div0",
+            "bits": 1
+          }
+        ]
+      }
+    },
+    "description": "Restoring-Division mit p festen Stufen: c=a//b, rest=a%b. Bei b=0: c=rest=valid=0, div0=1; sonst valid=1, div0=0. Vorzeichenlose Eingänge: a[p], b[q]; unabhängig wählbare Bitbreiten."
+  },
+  "exhaustive": true
+}

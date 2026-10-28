@@ -1,0 +1,74 @@
+{
+  "schema": 1,
+  "name": "PREFIX_OR<1>",
+  "inputs": 1,
+  "outputs": 1,
+  "rows": [
+    [
+      0,
+      0
+    ],
+    [
+      1,
+      1
+    ]
+  ],
+  "metadata": {
+    "seed": 1,
+    "bit_order": "LSB-first",
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 1,
+          "signed": false,
+          "offset": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 1,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "program": {
+      "version": 2,
+      "source": "def PREFIX_OR<t>(a):\n    assert t >= 1 and (t & (t - 1)) == 0\n    if t == 1:\n        return a\n    x = bits(a, t)\n    k = t // 2\n    lo = bits(PREFIX_OR<k>(pack(x[:k])), k)\n    hi = bits(PREFIX_OR<k>(pack(x[k:])), k)\n    for i in range(k):\n        hi[i] = hi[i] | lo[k - 1]\n    return pack(lo + hi)\n\nreturn PREFIX_OR<t>(a)\n",
+      "limits": {
+        "steps": 100000,
+        "iterations": 10000,
+        "total_steps": 5000000
+      },
+      "conditions": [
+        "t >= 1",
+        "t <= 64",
+        "is_power_of_two(t)"
+      ],
+      "parameters": {
+        "t": 1
+      },
+      "interface": {
+        "inputs": [
+          {
+            "name": "a",
+            "bits": "t"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": "t"
+          }
+        ]
+      }
+    },
+    "description": "Inklusive Präfix-ODER ab Bit 0: c[i] ist 1, wenn eines der Bits a[0] bis a[i] gesetzt ist. t ist eine positive Zweierpotenz."
+  },
+  "exhaustive": true
+}

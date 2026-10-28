@@ -118,22 +118,32 @@ class ServerTests(unittest.TestCase):
         self.thread.start()
         self.base = f"http://127.0.0.1:{self.server.server_port}"
         catalog = self.request("/api/catalog")
-        self.assertEqual(len(catalog["templates"]), 22)
-        self.assertEqual(len(catalog["datasets"]), 59)
+        self.assertEqual(len(catalog["templates"]), 30)
+        self.assertEqual(len(catalog["datasets"]), 107)
         self.assertTrue({"DIV<1> MSB", "DIV<2> MSB", "DIV<3> MSB", "DIV<4> MSB"}
                         <= {p["dataset_name"] for p in catalog["programs"]})
         self.assertTrue(all(p["fitness"]["exact_on_dataset"] for p in catalog["programs"]))
         self.assertEqual({p["dataset_name"] for p in catalog["programs"] if not p["fitness"]["verified_truth_table"]},
                          {"MUX<1,4>", "MUX<2,4>", "MUX<4,2>", "MUX<4,4>"})
         self.assertEqual({catalog["tree"]["entries"][f"function:{d['function_id']}"] for d in catalog["datasets"]},
-                         {"arithmetic-functions", "recursion", "routing"})
+                         {"arithmetic-functions", "recursion", "routing", "structured-logic",
+                          "standard-add", "standard-sub", "standard-mul", "standard-div"})
         self.assertEqual({b["name"] for b in catalog["blocks"]},
                          {"MUL<1>", "MUL<2>", "MUL<4>", "NumberOfOnes<1>", "NumberOfOnes<2>", "NumberOfOnes<4>",
                           "m<1>", "m<2>", "m<4>", "EQU<1>", "EQU<2>", "EQU<4>",
                           "GT<1>", "GT<2>", "GT<4>"}
                          | {f"{kind}<{width}>" for kind in ("PARITY", "ISZERO", "REVERSE", "MUX", "MIN", "MAX")
                             for width in (1, 2, 4)}
-                         | {f"{kind}<{n},{w}>" for kind in ("MUX", "DEMUX") for n in (1, 2, 4) for w in (1, 2, 4)})
+                         | {f"{kind}<{n},{w}>" for kind in ("MUX", "DEMUX") for n in (1, 2, 4) for w in (1, 2, 4)}
+                         | {f"{kind}<{width}>" for kind in ("GRAY", "UNGRAY", "PREFIX_OR", "SORT2") for width in (1, 2, 4)}
+                         | {f"{name} ({p}/{q} Bit)" for name in ("Standardaddition", "Standardsubtraktion",
+                                                               "Standardmultiplikation", "Standarddivision")
+                            for p in (1, 2, 4) for q in (1, 2, 4)})
+        for kind in ("add", "sub", "mul", "div"):
+            examples = [d for d in catalog["datasets"]
+                        if catalog["tree"]["entries"][f"function:{d['function_id']}"] == f"standard-{kind}"]
+            self.assertEqual({tuple(port["bits"] for port in d["metadata"]["interface"]["inputs"])
+                              for d in examples}, {(p, q) for p in (1, 2, 4) for q in (1, 2, 4)})
         mul = next(b for b in catalog["blocks"] if b["name"] == "MUL<4>")
         view = self.request("/api/blocks/view", {"block_id": mul["id"], "path": ["product"]})
         self.assertEqual(sum(n["kind"] == "instance" for n in view["circuit"]["view_nodes"]), 8)

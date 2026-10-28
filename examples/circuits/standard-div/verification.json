@@ -1,0 +1,614 @@
+[
+  {
+    "name": "Standarddivision (1/1 Bit)",
+    "parameters": {
+      "p": 1,
+      "q": 1
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 1,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 1,
+          "signed": false,
+          "offset": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 1,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "rest",
+          "bits": 1,
+          "signed": false,
+          "offset": 1,
+          "overflow": "error"
+        },
+        {
+          "name": "valid",
+          "bits": 1,
+          "signed": false,
+          "offset": 2,
+          "overflow": "error"
+        },
+        {
+          "name": "div0",
+          "bits": 1,
+          "signed": false,
+          "offset": 3,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 16,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 15,
+      "depth": 7
+    },
+    "synthesis": {
+      "method": "structural-bitwise",
+      "version": 1
+    }
+  },
+  {
+    "name": "Standarddivision (1/2 Bit)",
+    "parameters": {
+      "p": 1,
+      "q": 2
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 1,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 2,
+          "signed": false,
+          "offset": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 1,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "rest",
+          "bits": 2,
+          "signed": false,
+          "offset": 1,
+          "overflow": "error"
+        },
+        {
+          "name": "valid",
+          "bits": 1,
+          "signed": false,
+          "offset": 3,
+          "overflow": "error"
+        },
+        {
+          "name": "div0",
+          "bits": 1,
+          "signed": false,
+          "offset": 4,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 40,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 29,
+      "depth": 10
+    },
+    "synthesis": {
+      "method": "structural-bitwise",
+      "version": 1
+    }
+  },
+  {
+    "name": "Standarddivision (1/4 Bit)",
+    "parameters": {
+      "p": 1,
+      "q": 4
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 1,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 4,
+          "signed": false,
+          "offset": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 1,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "rest",
+          "bits": 4,
+          "signed": false,
+          "offset": 1,
+          "overflow": "error"
+        },
+        {
+          "name": "valid",
+          "bits": 1,
+          "signed": false,
+          "offset": 5,
+          "overflow": "error"
+        },
+        {
+          "name": "div0",
+          "bits": 1,
+          "signed": false,
+          "offset": 6,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 224,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 55,
+      "depth": 14
+    },
+    "synthesis": {
+      "method": "structural-bitwise",
+      "version": 1
+    }
+  },
+  {
+    "name": "Standarddivision (2/1 Bit)",
+    "parameters": {
+      "p": 2,
+      "q": 1
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 1,
+          "signed": false,
+          "offset": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 2,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "rest",
+          "bits": 1,
+          "signed": false,
+          "offset": 2,
+          "overflow": "error"
+        },
+        {
+          "name": "valid",
+          "bits": 1,
+          "signed": false,
+          "offset": 3,
+          "overflow": "error"
+        },
+        {
+          "name": "div0",
+          "bits": 1,
+          "signed": false,
+          "offset": 4,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 40,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 30,
+      "depth": 12
+    },
+    "synthesis": {
+      "method": "structural-bitwise",
+      "version": 1
+    }
+  },
+  {
+    "name": "Standarddivision (2/2 Bit)",
+    "parameters": {
+      "p": 2,
+      "q": 2
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 2,
+          "signed": false,
+          "offset": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 2,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "rest",
+          "bits": 2,
+          "signed": false,
+          "offset": 2,
+          "overflow": "error"
+        },
+        {
+          "name": "valid",
+          "bits": 1,
+          "signed": false,
+          "offset": 4,
+          "overflow": "error"
+        },
+        {
+          "name": "div0",
+          "bits": 1,
+          "signed": false,
+          "offset": 5,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 96,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 58,
+      "depth": 20
+    },
+    "synthesis": {
+      "method": "structural-bitwise",
+      "version": 1
+    }
+  },
+  {
+    "name": "Standarddivision (2/4 Bit)",
+    "parameters": {
+      "p": 2,
+      "q": 4
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 4,
+          "signed": false,
+          "offset": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 2,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "rest",
+          "bits": 4,
+          "signed": false,
+          "offset": 2,
+          "overflow": "error"
+        },
+        {
+          "name": "valid",
+          "bits": 1,
+          "signed": false,
+          "offset": 6,
+          "overflow": "error"
+        },
+        {
+          "name": "div0",
+          "bits": 1,
+          "signed": false,
+          "offset": 7,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 512,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 114,
+      "depth": 28
+    },
+    "synthesis": {
+      "method": "structural-bitwise",
+      "version": 1
+    }
+  },
+  {
+    "name": "Standarddivision (4/1 Bit)",
+    "parameters": {
+      "p": 4,
+      "q": 1
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 1,
+          "signed": false,
+          "offset": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "rest",
+          "bits": 1,
+          "signed": false,
+          "offset": 4,
+          "overflow": "error"
+        },
+        {
+          "name": "valid",
+          "bits": 1,
+          "signed": false,
+          "offset": 5,
+          "overflow": "error"
+        },
+        {
+          "name": "div0",
+          "bits": 1,
+          "signed": false,
+          "offset": 6,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 224,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 60,
+      "depth": 22
+    },
+    "synthesis": {
+      "method": "structural-bitwise",
+      "version": 1
+    }
+  },
+  {
+    "name": "Standarddivision (4/2 Bit)",
+    "parameters": {
+      "p": 4,
+      "q": 2
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 2,
+          "signed": false,
+          "offset": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "rest",
+          "bits": 2,
+          "signed": false,
+          "offset": 4,
+          "overflow": "error"
+        },
+        {
+          "name": "valid",
+          "bits": 1,
+          "signed": false,
+          "offset": 6,
+          "overflow": "error"
+        },
+        {
+          "name": "div0",
+          "bits": 1,
+          "signed": false,
+          "offset": 7,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 512,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 120,
+      "depth": 40
+    },
+    "synthesis": {
+      "method": "structural-bitwise",
+      "version": 1
+    }
+  },
+  {
+    "name": "Standarddivision (4/4 Bit)",
+    "parameters": {
+      "p": 4,
+      "q": 4
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 4,
+          "signed": false,
+          "offset": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "rest",
+          "bits": 4,
+          "signed": false,
+          "offset": 4,
+          "overflow": "error"
+        },
+        {
+          "name": "valid",
+          "bits": 1,
+          "signed": false,
+          "offset": 8,
+          "overflow": "error"
+        },
+        {
+          "name": "div0",
+          "bits": 1,
+          "signed": false,
+          "offset": 9,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 2560,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 240,
+      "depth": 56
+    },
+    "synthesis": {
+      "method": "structural-bitwise",
+      "version": 1
+    }
+  }
+]
