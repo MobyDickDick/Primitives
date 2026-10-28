@@ -1,5 +1,8 @@
 # Mehrschrittige Programme und Ablaufdebugger (PRIM-07/08)
 
+Zum Einstieg: [Die Template-Sprache lesen](TEMPLATE-SPRACHE.md) erklärt
+Bitarrays, Operatoren und eine schriftliche Binärdivision mit Beispiel.
+
 Für symbolische Bitbreiten, eigene Funktionen wie `def add<w>(a,b):` und
 rekursive Aufrufe `add<n>(a,b)` gibt es zusätzlich
 [parametrierte Templates der Sprachversion 2](TEMPLATES.md).

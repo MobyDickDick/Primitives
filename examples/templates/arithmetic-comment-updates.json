@@ -1,0 +1,34 @@
+[
+  {
+    "template": "ripple-add",
+    "previous_source": "def add<w>(a, b):\n    x = bits(a, w)\n    y = bits(b, w)\n    result = [0] * (w + 1)\n    carry = 0\n    for i in range(w):\n        parity = x[i] ^ y[i]\n        result[i] = parity ^ carry\n        carry = (x[i] & y[i]) | (parity & carry)\n    result[w] = carry\n    return pack(result)\n\nreturn add<n>(a, b)\n"
+  },
+  {
+    "template": "ripple-sub",
+    "previous_source": "def subtract<w>(a, b):\n    x = bits(a, w)\n    y = bits(b, w)\n    result = [0] * (w + 1)\n    borrow = 0\n    for i in range(w):\n        parity = x[i] ^ y[i]\n        result[i] = parity ^ borrow\n        borrow = ((1 ^ x[i]) & y[i]) | ((1 ^ parity) & borrow)\n    result[w] = borrow\n    return pack(result)\n\ndifference = bits(subtract<n>(a, b), n + 1)\nreturn pack(difference[:n]), difference[n]\n"
+  },
+  {
+    "template": "shift-add-mul",
+    "previous_source": "def multiply<w>(a, b):\n    x = bits(a, w)\n    y = bits(b, w)\n    result = [0] * (2 * w)\n    for i in range(w):\n        carry = 0\n        for j in range(w):\n            partial = x[j] & y[i]\n            parity = result[i + j] ^ partial\n            digit = parity ^ carry\n            carry = (result[i + j] & partial) | (parity & carry)\n            result[i + j] = digit\n        result[i + w] = carry\n    return pack(result)\n\nreturn multiply<n>(a, b)\n"
+  },
+  {
+    "template": "restoring-div",
+    "previous_source": "def subtract<w>(a, b):\n    x = bits(a, w)\n    y = bits(b, w)\n    result = [0] * (w + 1)\n    borrow = 0\n    for i in range(w):\n        parity = x[i] ^ y[i]\n        result[i] = parity ^ borrow\n        borrow = ((1 ^ x[i]) & y[i]) | ((1 ^ parity) & borrow)\n    result[w] = borrow\n    return pack(result)\n\n# Restoring division: n feste Stufen, keine datenabhaengigen Schleifen.\nx = bits(a, n)\ny = bits(b, n)\nquotient = [0] * n\nremainder = [0] * (n + 1)\nfor i in range(n - 1, -1, -1):\n    remainder = [x[i]] + remainder[:n]\n    difference = bits(subtract<n+1>(pack(remainder), b), n + 2)\n    take = 1 ^ difference[n + 1]\n    for j in range(n + 1):\n        remainder[j] = (difference[j] & take) | (remainder[j] & (1 ^ take))\n    quotient[i] = take\nvalid = 0\nfor i in range(n):\n    valid = valid | y[i]\nfor i in range(n):\n    quotient[i] = quotient[i] & valid\n    remainder[i] = remainder[i] & valid\nreturn pack(quotient), pack(remainder[:n]), valid, 1 ^ valid\n"
+  },
+  {
+    "template": "standard-add",
+    "previous_source": "def add<w>(a, b):\n    x = bits(a, w)\n    y = bits(b, w)\n    result = [0] * (w + 1)\n    carry = 0\n    for i in range(w):\n        parity = x[i] ^ y[i]\n        result[i] = parity ^ carry\n        carry = (x[i] & y[i]) | (parity & carry)\n    result[w] = carry\n    return pack(result)\n\nw = p if p >= q else q\nreturn add<w>(a, b)\n"
+  },
+  {
+    "template": "standard-sub",
+    "previous_source": "def subtract<w>(a, b):\n    x = bits(a, w)\n    y = bits(b, w)\n    result = [0] * (w + 1)\n    borrow = 0\n    for i in range(w):\n        parity = x[i] ^ y[i]\n        result[i] = parity ^ borrow\n        borrow = ((1 ^ x[i]) & y[i]) | ((1 ^ parity) & borrow)\n    result[w] = borrow\n    return pack(result)\n\nw = p if p >= q else q\ndifference = bits(subtract<w>(a, b), w + 1)\nreturn pack(difference[:w]), difference[w]\n"
+  },
+  {
+    "template": "standard-mul",
+    "previous_source": "def multiply<w>(a, b):\n    x = bits(a, w)\n    y = bits(b, w)\n    result = [0] * (2 * w)\n    for i in range(w):\n        carry = 0\n        for j in range(w):\n            partial = x[j] & y[i]\n            parity = result[i + j] ^ partial\n            digit = parity ^ carry\n            carry = (result[i + j] & partial) | (parity & carry)\n            result[i + j] = digit\n        result[i + w] = carry\n    return pack(result)\n\nw = p if p >= q else q\nreturn pack(bits(multiply<w>(a, b), p + q))\n"
+  },
+  {
+    "template": "standard-div",
+    "previous_source": "def subtract<w>(a, b):\n    x = bits(a, w)\n    y = bits(b, w)\n    result = [0] * (w + 1)\n    borrow = 0\n    for i in range(w):\n        parity = x[i] ^ y[i]\n        result[i] = parity ^ borrow\n        borrow = ((1 ^ x[i]) & y[i]) | ((1 ^ parity) & borrow)\n    result[w] = borrow\n    return pack(result)\n\nx = bits(a, p)\ny = bits(b, q)\nquotient = [0] * p\nremainder = [0] * (q + 1)\nfor i in range(p - 1, -1, -1):\n    remainder = [x[i]] + remainder[:q]\n    difference = bits(subtract<q+1>(pack(remainder), b), q + 2)\n    take = 1 ^ difference[q + 1]\n    for j in range(q + 1):\n        remainder[j] = (difference[j] & take) | (remainder[j] & (1 ^ take))\n    quotient[i] = take\nvalid = 0\nfor i in range(q):\n    valid = valid | y[i]\nfor i in range(p):\n    quotient[i] = quotient[i] & valid\nfor i in range(q):\n    remainder[i] = remainder[i] & valid\nreturn pack(quotient), pack(remainder[:q]), valid, 1 ^ valid\n"
+  }
+]

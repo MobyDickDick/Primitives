@@ -37,10 +37,11 @@ def debug_document(snapshot):
 def make_server(port=8765, data_dir=None, *, background=True, seed_examples=True):
     library = Library(data_dir or ROOT / "data")
     if seed_examples:
-        from .examples import install_examples, install_structured_examples, install_standard_arithmetic_examples
+        from .examples import install_examples, install_structured_examples, install_standard_arithmetic_examples, install_arithmetic_comments
         install_examples(library)
         install_structured_examples(library)
         install_standard_arithmetic_examples(library)
+        install_arithmetic_comments(library)
     jobs, cancellations, lock = {}, {}, threading.Lock()
     debuggers = {}
     executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="evolution")

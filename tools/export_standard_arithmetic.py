@@ -26,35 +26,61 @@ DESCRIPTIONS = {
     "div": "Restoring-Division mit p festen Stufen: c=a//b, rest=a%b. Bei b=0: c=rest=valid=0, div0=1; sonst valid=1, div0=0.",
 }
 
-DIV = '''x = bits(a, p)
+DIV = '''# Schriftliche Binärdivision: a ist der Dividend, b der Divisor.
+# p ist die Bitbreite von a, q die Bitbreite von b; beide sind vorzeichenlos.
+# Bitarrays sind LSB-first: Index 0 ist die Einerstelle (Wert 1).
+x = bits(a, p)
 y = bits(b, q)
 quotient = [0] * p
+# Nach jedem erfolgreichen Schritt ist der Rest kleiner als b.
+# Das Zusatzbit bietet Platz für 2*Rest plus das nächste Dividend-Bit.
 remainder = [0] * (q + 1)
+# Die Division beginnt beim höchsten Bit von a: p-1, p-2, ..., 0.
+# range schliesst die Grenze -1 aus; es gibt genau p feste Stufen.
 for i in range(p - 1, -1, -1):
+    # Nächstes Bit herunterholen: neuer Rest = 2*alter Rest + x[i].
+    # [x[i]] + remainder[:q] fügt das neue Bit vorne ein;
+    # bei LSB-first rücken die bisherigen Bits dadurch eine Stelle nach oben.
     remainder = [x[i]] + remainder[:q]
+    # Probe: Passt b in diesen Rest? Dazu versuchsweise Rest-b berechnen.
+    # subtract<q+1> liefert q+1 Differenzbits und ein Leihbit (Borrow).
+    # Insgesamt q+2 Bits; das Leihbit steht an Index q+1.
     difference = bits(subtract<q+1>(pack(remainder), b), q + 2)
+    # Leihbit 0: Rest>=b, Differenz übernehmen und Quotientenbit auf 1 setzen.
+    # Leihbit 1: Rest<b, bisherigen Rest behalten und Quotientenbit auf 0 setzen.
+    # 1 ^ bit kehrt ein einzelnes Bit um; ^ ist XOR, keine Potenz.
     take = 1 ^ difference[q + 1]
     for j in range(q + 1):
+        # Bitweise Auswahl ohne eingabeabhängiges if:
+        # take=1 wählt difference[j], take=0 wählt remainder[j].
+        # Den bisherigen Rest zu behalten heisst hier Wiederherstellung
+        # (englisch restoring). & ist AND, | ist OR.
         remainder[j] = (difference[j] & take) | (remainder[j] & (1 ^ take))
     quotient[i] = take
+# Prüfen, ob der Divisor ungleich 0 ist: ODER über alle seine Bits.
 valid = 0
 for i in range(q):
     valid = valid | y[i]
+# b=0 ist ungültig: AND mit valid=0 setzt sämtliche Ergebnisbits auf 0.
+# Für b!=0 bleiben Quotient und Rest unverändert.
 for i in range(p):
     quotient[i] = quotient[i] & valid
 for i in range(q):
     remainder[i] = remainder[i] & valid
+# pack wandelt LSB-first-Bitarrays zurück in ganze Zahlen.
+# Reihenfolge der Ergebnisports: c, rest, valid, div0.
+# Das Zusatzbit des temporären Rests wird nicht mehr benötigt.
 return pack(quotient), pack(remainder[:q]), valid, 1 ^ valid
 '''
 
 
 def definition(kind):
     # bits(a,w) and bits(b,w) zero-extend narrower inputs; this is wiring.
-    width = "w = p if p >= q else q\n"
+    width = "# Gemeinsame Rechenbreite: die grössere der beiden Eingangsbreiten.\n# bits(a,w) und bits(b,w) ergänzen schmalere Eingänge oben mit Nullen.\nw = p if p >= q else q\n"
     sources = {
-        "add": ADD + "\n" + width + "return add<w>(a, b)\n",
-        "sub": SUB + "\n" + width + "difference = bits(subtract<w>(a, b), w + 1)\nreturn pack(difference[:w]), difference[w]\n",
-        "mul": MUL + "\n" + width + "return pack(bits(multiply<w>(a, b), p + q))\n",
+        "add": ADD + "\n" + width + "# Die vollständige Summe hat w+1 Bits, einschliesslich Übertrag.\nreturn add<w>(a, b)\n",
+        "sub": SUB + "\n" + width + "difference = bits(subtract<w>(a, b), w + 1)\n# Untere w Bits: modulare Differenz; letztes Bit: Leihbit (a<b).\nreturn pack(difference[:w]), difference[w]\n",
+        "mul": MUL + "\n" + width + "# Das Produkt braucht bei diesen Eingängen nur p+q der 2*w Rechenbits.\nreturn pack(bits(multiply<w>(a, b), p + q))\n",
         "div": SUB + "\n" + DIV,
     }
     outputs = {

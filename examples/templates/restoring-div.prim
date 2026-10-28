@@ -1,31 +1,56 @@
 def subtract<w>(a, b):
+    # a-b an w Stellen berechnen. Das zusätzliche Bit meldet a<b.
+    # Bitarrays sind LSB-first: x[0] ist die Einerstelle, x[1] die Zweierstelle.
     x = bits(a, w)
     y = bits(b, w)
     result = [0] * (w + 1)
-    borrow = 0
+    borrow = 0  # Leihbit: Die niedrigere Stelle hat sich eine 1 ausgeliehen.
     for i in range(w):
+        # Ohne eingehendes Leihbit ist das Differenzbit x[i] XOR y[i].
         parity = x[i] ^ y[i]
+        # Ein eingehendes Leihbit zieht eine weitere 1 ab und kippt dieses Bit.
         result[i] = parity ^ borrow
+        # Neues Leihbit in zwei Fällen:
+        # 1. x[i]=0, y[i]=1: Die aktuelle Stelle braucht eine geliehene 1.
+        # 2. x[i]=y[i] und borrow=1: Die Leihe muss weitergereicht werden.
+        # Für einzelne Bits bedeutet 1 ^ bit die Umkehrung von 0 und 1.
         borrow = ((1 ^ x[i]) & y[i]) | ((1 ^ parity) & borrow)
+    # Die unteren w Bits enthalten (a-b) modulo 2**w.
+    # Bit w ist das letzte Leihbit: 1 genau dann, wenn a<b.
     result[w] = borrow
+    # Beispiel w=2: 1-2 liefert die unteren Bits 11 und Leihbit 1,
+    # also pack([1,1,1])=7. Aufrufer trennen Differenz und Leihbit wieder.
     return pack(result)
 
-# Restoring division: n feste Stufen, keine datenabhaengigen Schleifen.
+# Schriftliche Binärdivision: c=a//b, rest=a%b; beide Eingänge haben n Bits.
+# Die Bits werden vom höchsten zum niedrigsten verarbeitet.
 x = bits(a, n)
 y = bits(b, n)
 quotient = [0] * n
+# Ein zusätzliches Bit bietet Platz für den vorübergehend verdoppelten Rest.
 remainder = [0] * (n + 1)
+# range(start, stop, step) schliesst stop aus: n-1, n-2, ..., 0.
 for i in range(n - 1, -1, -1):
+    # Nächstes Dividend-Bit herunterholen: neuer Rest = 2*alter Rest + x[i].
+    # Wegen LSB-first steht das neue Bit am Anfang des Arrays.
     remainder = [x[i]] + remainder[:n]
+    # Versuchsweise b abziehen. subtract liefert n+1 Differenzbits
+    # und an Index n+1 ein Leihbit, zusammen also n+2 Bits.
     difference = bits(subtract<n+1>(pack(remainder), b), n + 2)
+    # Kein Leihbit bedeutet Rest>=b: Die Subtraktion darf übernommen werden.
     take = 1 ^ difference[n + 1]
     for j in range(n + 1):
+        # Bitweise Auswahl: take=1 nimmt die Differenz, take=0 den alten Rest.
+        # Das ist die Wiederherstellung (restoring) nach einem Fehlversuch.
         remainder[j] = (difference[j] & take) | (remainder[j] & (1 ^ take))
     quotient[i] = take
+# ODER aller Divisorbits: valid=1 genau dann, wenn b ungleich 0 ist.
 valid = 0
 for i in range(n):
     valid = valid | y[i]
+# Bei Division durch 0 Quotient und Rest auf 0 setzen.
 for i in range(n):
     quotient[i] = quotient[i] & valid
     remainder[i] = remainder[i] & valid
+# Rückgabereihenfolge: Quotient, Rest, gültig, Division-durch-null-Flag.
 return pack(quotient), pack(remainder[:n]), valid, 1 ^ valid

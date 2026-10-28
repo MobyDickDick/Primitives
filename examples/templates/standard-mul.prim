@@ -1,17 +1,28 @@
 def multiply<w>(a, b):
+    # Schriftliche Binärmultiplikation: Teilprodukte bilden und addieren.
+    # Index 0 ist jeweils das niederwertigste Bit.
     x = bits(a, w)
     y = bits(b, w)
+    # Das vollständige Produkt zweier w-Bit-Zahlen passt in 2*w Bits.
     result = [0] * (2 * w)
     for i in range(w):
+        # Für jedes Bit y[i] eine neue Teilproduktzeile addieren.
         carry = 0
         for j in range(w):
+            # AND ist die Multiplikation zweier einzelner Bits.
             partial = x[j] & y[i]
+            # Das Teilprodukt gehört wegen seiner Stellenwerte zu Bit i+j.
+            # Vorhandenes Ergebnisbit, Teilprodukt und Übertrag addieren.
             parity = result[i + j] ^ partial
             digit = parity ^ carry
             carry = (result[i + j] & partial) | (parity & carry)
             result[i + j] = digit
+        # Letzten Übertrag dieser Zeile an die nächste freie Stelle schreiben.
         result[i + w] = carry
     return pack(result)
 
+# Gemeinsame Rechenbreite: die grössere der beiden Eingangsbreiten.
+# bits(a,w) und bits(b,w) ergänzen schmalere Eingänge oben mit Nullen.
 w = p if p >= q else q
+# Das Produkt braucht bei diesen Eingängen nur p+q der 2*w Rechenbits.
 return pack(bits(multiply<w>(a, b), p + q))

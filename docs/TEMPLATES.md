@@ -1,5 +1,10 @@
 # Parametrierte Funktionen und rekursive Templates
 
+Die Quelle verwendet eine eigene Python-ähnliche Sprache. Eine
+[Lesehilfe mit Operatorübersicht und erklärter Binärdivision](TEMPLATE-SPRACHE.md)
+zeigt die wichtigsten Schreibweisen. Deutsche `# Kommentare` erläutern die
+mitgelieferten Standardlösungen direkt im Quelltext.
+
 Im Editor **Parametriertes Template definieren** wählen. Das Beispiel ist ein
 rekursiver Addierer. Parameter stehen als JSON im eigenen Feld, zunächst
 `{"n": 4}` für eine konkrete Verwendung `add<4>(a,b)`. Die Eingänge a und b haben die Breite `n`, Ergebnis c die Breite

@@ -1,16 +1,69 @@
 """Install bundled templates and their concrete examples once per library."""
+import ast
 import json
 from pathlib import Path
 
 from .blocks import BlockBundle
 from .dataset import Dataset, generate
 from .library import function_id, write_json
+from .program import template_source
 from .templates import Template
 from .synthesis import synthesize
 
 
 GENERATIVE_EXAMPLES = ("parity", "iszero", "reverse", "mux", "min", "max")
 ROUTING_EXAMPLES = ("multiplexer", "demultiplexer")
+
+
+def install_arithmetic_comments(library):
+    """Refresh only known bundled sources; retain saved datasets and user edits."""
+    marker = library.root / "example-installations.json"
+    with library._lock:
+        installed = json.loads(marker.read_text(encoding="utf-8")) if marker.exists() else {}
+        if installed.get("arithmetic-comments-v1"):
+            return
+        source = Path(__file__).resolve().parents[1] / "examples/templates"
+        revisions = json.loads((source / "arithmetic-comment-updates.json").read_text(encoding="utf-8"))
+        updates = {revision["previous_source"]:
+                   json.loads((source / f"{revision['template']}.abstract.json").read_text(encoding="utf-8"))["source"]
+                   for revision in revisions}
+        for previous, current in updates.items():
+            if ast.dump(ast.parse(template_source(previous))) != ast.dump(ast.parse(template_source(current))):
+                raise ValueError("Die Kommentarmigration darf keine Programmlogik ändern.")
+        organization, details = library._organization(), library._function_details()
+        changed = []
+        for path in sorted((library.root / "datasets").glob("*.json")):
+            document = json.loads(path.read_text(encoding="utf-8"))
+            program = document.get("metadata", {}).get("program", {})
+            if program.get("source") not in updates:
+                continue
+            previous_id = function_id(Dataset.from_dict(document))
+            program["source"] = updates[program["source"]]
+            current_id = function_id(Dataset.from_dict(document))
+            # Sources participate in function IDs. Transfer folder and editable
+            # labels before writing datasets, so an interrupted refresh can retry.
+            old, new = f"function:{previous_id}", f"function:{current_id}"
+            if old in organization["entries"]:
+                organization["entries"].setdefault(new, organization["entries"].pop(old))
+            if previous_id in details:
+                details.setdefault(current_id, details.pop(previous_id))
+            changed.append((path, document))
+        library._write_organization(organization)
+        if details or (library.root / "function-details.json").exists():
+            write_json(library.root / "function-details.json", details)
+        for path, document in changed:
+            # Keep dataset filenames: circuits, histories and frozen settings
+            # still refer to the same data and assignment vectors.
+            write_json(path, document)
+        for path in sorted((library.root / "templates").glob("*.json")):
+            document = json.loads(path.read_text(encoding="utf-8"))
+            if document.get("source") in updates:
+                document["source"] = updates[document["source"]]
+                Template(document)
+                # Keep existing template keys and folder assignments too.
+                write_json(path, document)
+        installed["arithmetic-comments-v1"] = True
+        write_json(marker, installed)
 
 
 def install_standard_arithmetic_examples(library):

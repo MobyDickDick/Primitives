@@ -1,14 +1,26 @@
 def add<w>(a, b):
+    # Zwei vorzeichenlose Zahlen bitweise addieren; w ist die feste Bitbreite.
+    # bits liefert die Bits von rechts nach links: Index 0 hat den Wert 1,
+    # Index 1 den Wert 2, Index 2 den Wert 4 usw. Fehlende obere Bits sind 0.
     x = bits(a, w)
     y = bits(b, w)
+    # Ein zusätzliches Bit nimmt den letzten Übertrag auf: z.B. 1+1 = 10.
     result = [0] * (w + 1)
-    carry = 0
+    carry = 0  # Übertrag aus der vorherigen, niedrigeren Stelle.
     for i in range(w):
+        # ^ ist XOR: 1, wenn genau eines der beiden Bits 1 ist.
         parity = x[i] ^ y[i]
+        # Das Summenbit berücksichtigt auch den eingehenden Übertrag.
         result[i] = parity ^ carry
+        # Ein neuer Übertrag entsteht bei zwei gesetzten Eingangsbits
+        # oder wenn ein einzelnes gesetztes Bit zum alten Übertrag hinzukommt.
         carry = (x[i] & y[i]) | (parity & carry)
     result[w] = carry
+    # pack setzt das Bitarray wieder zu einer ganzen Zahl zusammen.
     return pack(result)
 
+# Gemeinsame Rechenbreite: die grössere der beiden Eingangsbreiten.
+# bits(a,w) und bits(b,w) ergänzen schmalere Eingänge oben mit Nullen.
 w = p if p >= q else q
+# Die vollständige Summe hat w+1 Bits, einschliesslich Übertrag.
 return add<w>(a, b)

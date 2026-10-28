@@ -1,5 +1,12 @@
 # Standardlösungen mit unabhängigen Eingangsbreiten
 
+Die Quellen enthalten deutsche Kommentare zu Bitreihenfolge, Zwischenschritten
+und Ergebnisflags. [Die Template-Sprache lesen](TEMPLATE-SPRACHE.md) ergänzt
+eine Syntaxübersicht und rechnet die Division 13/3 Schritt für Schritt durch.
+Beim nächsten Serverstart werden auch die bisher unveränderten Beispielquellen
+in bestehenden Bibliotheken kommentiert. Eigene Quelltextänderungen und
+Kommentare bleiben erhalten; gelöschte Beispiele werden nicht wiederhergestellt.
+
 Vier generative Bit-Templates besitzen die Parameter `p` und `q` für
 die vorzeichenlosen Eingänge `a[p]` und `b[q]`. Alle neun Kombinationen aus
 `p=1,2,4` und `q=1,2,4` sind erzeugt: insgesamt **36 Standardlösungen**.
