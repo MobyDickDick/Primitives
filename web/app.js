@@ -511,7 +511,7 @@ async function refresh() {
 function verification(f) {
   return f.verified_truth_table ? "Vollständig geprüft" : f.exact_on_dataset ? "Passt zur Stichprobe" : "Annäherung";
 }
-function showProgram(result, navigate = true) {
+function showProgram(result, navigate = true, boxes = true) {
   if (navigate) showPage("circuit");
   stopAnimation(); state.result = result; state.debug = null; $("block-debug").hidden = true;
   if (result.hierarchy) {
@@ -545,7 +545,7 @@ function showProgram(result, navigate = true) {
   $("empty").hidden = true; $("program").hidden = false; $("export-program").disabled = false;
   $("save-block-program").disabled = false;
   $("block-name").value = result.hierarchy ? result.hierarchy.definitions[result.hierarchy.root].name : result.dataset_name || state.dataset?.name || "Mein Baustein";
-  $("step").max = c.gates.length; $("step").value = c.gates.length;
+  resetPlayback();
   $("metrics").replaceChildren();
   const metrics = [[c.gates.length, "NAND-Gatter"], [depths(c).depth, "Gattertiefe"], [`${c.inputs}:${c.outputs.length}`, "Ein- / Ausgänge"]];
   if (result.fitness) metrics.push([`${(result.fitness.accuracy * 100).toFixed(1)} %`, "Korrekte Vektorbits"]);
@@ -562,7 +562,10 @@ function showProgram(result, navigate = true) {
   }
   $("notation").textContent = result.expressions ? result.expressions.map((s, i) => `y${i} = ${s}`).join("  ;  ") : "Gatterliste im JSON-Export verfügbar.";
   renderSimulation(); renderTable(); renderHistory();
-  if (result.hierarchy) BlockDebug.start(result).catch(error);
+  renderRelatedBlocks();
+  $("view-boxes").hidden = !result.hierarchy || boxes;
+  $("view-flat").hidden = !result.hierarchy || !boxes;
+  if (result.hierarchy && boxes) BlockDebug.start(result).catch(error);
 }
 function simulationCircuit() { return state.debug?.view.circuit || state.result.circuit; }
 function depths(c) {
@@ -572,7 +575,7 @@ function depths(c) {
 }
 function renderSimulation() {
   if (!state.result) return;
-  const c = simulationCircuit(), step = int("step");
+  const c = simulationCircuit(), step = int("step"), playback = playbackPlan();
   const result = evaluate(c, state.bits);
   $("bit-switches").replaceChildren();
   state.bits.forEach((bit, i) => {
@@ -585,10 +588,16 @@ function renderSimulation() {
     button.addEventListener("click", () => toggleInput(i));
     $("bit-switches").append(button);
   });
-  const ready = ref => ref < c.inputs + step;
+  const ready = ref => playback.ready(ref, step);
   BlockDebug.render(result.wires, ready);
   $("output-values").replaceChildren(el("small", "AUSGANG · LSB ZUERST"), document.createTextNode(c.outputs.map(o => ready(o) ? result.wires[o] : "·").join(" ")));
-  $("step-label").textContent = `${step}/${c.gates.length}`;
+  $("step-label").textContent = `${step}/${playback.stages.length}`;
+  $("playback-chapter").value = step;
+  $("playback-status").textContent = `${step === 0 ? "Eingänge bereit" : playback.stages[step - 1]?.label || "Ergebnis"} · ${playback.stages.length} Schritte · ca. ${Math.ceil(playback.stages.length * int("playback-delay") / 1000)} s für den gesamten Ablauf.`;
+  $("playback-prev").disabled = step === 0;
+  $("playback-next").disabled = step >= playback.stages.length;
+  const active = new Set(playback.stages[step - 1]?.refs || []);
+  const focus = $("playback-focus").checked && step > 0 && step < playback.stages.length;
   const graph = $("graph"), positions = state.positions, list = CircuitGraph.nodes(c);
   const focusedRef = document.activeElement?.closest?.("#graph [data-node]")?.getAttribute("data-node");
   const focusedWire = document.activeElement?.closest?.("#graph [data-wire]");
@@ -603,7 +612,8 @@ function renderSimulation() {
     const path = svg("path", { d: wire.path, fill: "none", stroke: !known ? "#d8dfd4" : bit ? "#3e8c54" : "#99a8a0",
       "stroke-width": wire.id === state.selectedWire ? 4 : known && bit ? 2.5 : 1.5, "stroke-linejoin": "round",
       class: `signal-wire${wire.blocked ? " blocked" : ""}${wire.id === state.selectedWire ? " selected" : ""}`,
-      "data-source": wire.source, "data-target": wire.target, "data-port": wire.port });
+      "data-source": wire.source, "data-target": wire.target, "data-port": wire.port,
+      opacity: focus && !active.has(wire.target) && !active.has(wire.source) ? 0.14 : 1 });
     path.append(svg("title", {}, `Box ${wire.source} → Box ${wire.target}: ${known ? bit : "noch nicht ausgewertet"}`));
     graph.append(path);
   }
@@ -626,7 +636,7 @@ function renderSimulation() {
     const heading = `Box ${ref} · ${kind === "input" ? `Eingang ${node.label || index + 1}` : kind === "gate" ? "NAND" : kind === "instance" ? `${node.id} · v${node.version}` : `Ausgang ${node.label || `y${index}`}`}`;
     const formula = kind === "gate" ? `Box ${sources[0]} ⊼ Box ${sources[1]}` : kind === "output" ? `von Box ${sources[0]}` : "Klicken: 0 ↔ 1";
     const description = kind === "instance" ? `${heading}: ${node.name}. Zum lokalen Handtest öffnen.` : kind === "gate" ? `Box ${ref}: Box ${sources[0]} NAND mit Box ${sources[1]} verknüpft. Wert: ${valueAt(signal)}.` : `${heading}. Wert: ${valueAt(signal)}. ${kind === "input" ? "Zum Umschalten anklicken." : formula}`;
-    const group = svg("g", { "data-node": ref, class: `graph-node ${kind}${ref === state.selectedRef ? " selected" : ""}`, tabindex: 0, role: "button", "aria-label": description });
+    const group = svg("g", { "data-node": ref, class: `graph-node ${kind}${active.has(ref) && focus ? " playback-active" : ""}${ref === state.selectedRef ? " selected" : ""}`, tabindex: 0, role: "button", "aria-label": description });
     if (kind === "input") group.setAttribute("aria-pressed", String(Boolean(bit)));
     group.append(svg("title", {}, `${description} Zum Verschieben ziehen oder Pfeiltasten verwenden.`));
     const height = CircuitGraph.boxHeight(positions[ref]);
@@ -734,7 +744,7 @@ function renderTable() {
     const ok = actual && actual.every((v, i) => v === output[i]);
     tr.append(el("td", input.join(" ")), el("td", output.join(" ")), el("td", actual ? actual.join(" ") : "–"), el("td", actual ? ok ? "✓" : "✕" : "–", actual ? ok ? "ok" : "bad" : ""));
     if (state.result && !state.debug?.path.length && state.result.circuit.inputs === ds.inputs) tr.addEventListener("click", () => {
-      stopAnimation(); state.bits = input; $("step").value = state.result.circuit.gates.length; renderSimulation();
+      stopAnimation(); state.bits = input; $("step").value = $("step").max; renderSimulation();
     });
     $("vectors").append(tr);
   }
@@ -1568,9 +1578,10 @@ function prepareBlock(bundle, count) {
   $("block-status").textContent = `${count} Instanz${count === 1 ? "" : "en"} vorbereitet. Namen und Portverbindungen im JSON bearbeiten, dann prüfen und speichern.`;
 }
 function renderBlocks(blocks) {
+  state.availableBlocks = blocks;
   const signature = JSON.stringify(blocks);
   if (signature === state.blockSignature) return;
-  state.blockSignature = signature; $("blocks").replaceChildren();
+  state.blockSignature = signature; $("blocks").replaceChildren(); renderRelatedBlocks();
   if (!blocks.length) $("blocks").append(el("p", "Eine Schaltung als Baustein speichern oder ein Bausteinpaket importieren.", "hint"));
   for (const block of blocks) {
     const card = el("div", undefined, "library-entry function-entry");
@@ -1619,13 +1630,50 @@ $("import-block").addEventListener("change", async event => { clearError(); try 
 } catch (err) { error(err); } });
 action("export-dataset", () => download(`${state.datasetId}.json`, state.dataset));
 $("step").addEventListener("input", () => { stopAnimation(); renderSimulation(); });
-$("play").addEventListener("click", () => {
-  if (state.timer) { stopAnimation(); return; }
-  $("step").value = 0; renderSimulation(); $("play").textContent = "Ⅱ Pause";
+function playbackPlan() { return CircuitPlayback.plan(simulationCircuit(), $("playback-mode").value); }
+function resetPlayback(step) {
+  const plan = playbackPlan();
+  $("step").max = plan.stages.length; $("step").value = step ?? plan.stages.length;
+  $("playback-chapter").replaceChildren(...["Eingänge", ...plan.stages.map(s => s.label)].map((label, i) => {
+    const option = el("option", `${i}. ${label}`); option.value = i; return option;
+  }));
+}
+function playbackJump(step) {
+  stopAnimation(); $("step").value = Math.max(0, Math.min(step, Number($("step").max))); renderSimulation();
+}
+function playSimulation() {
+  if (!Number($("step").max)) return;
+  if (int("step") >= Number($("step").max)) $("step").value = 0;
+  renderSimulation(); $("play").textContent = "Ⅱ Pause";
   state.timer = setInterval(() => {
     $("step").value = int("step") + 1; renderSimulation();
-    if (int("step") >= simulationCircuit().gates.length) stopAnimation();
-  }, 450);
+    if (int("step") >= Number($("step").max)) stopAnimation();
+  }, int("playback-delay"));
+}
+$("play").addEventListener("click", () => { if (state.timer) stopAnimation(); else playSimulation(); });
+$("playback-mode").addEventListener("change", () => { stopAnimation(); resetPlayback(0); renderSimulation(); });
+$("playback-delay").addEventListener("change", () => { const running = Boolean(state.timer); stopAnimation(); if (running) playSimulation(); else renderSimulation(); });
+$("playback-focus").addEventListener("change", renderSimulation);
+$("playback-chapter").addEventListener("change", () => playbackJump(int("playback-chapter")));
+action("playback-start", () => playbackJump(0));
+action("playback-prev", () => playbackJump(int("step") - 1));
+action("playback-next", () => playbackJump(int("step") + 1));
+action("playback-end", () => playbackJump(Number($("step").max)));
+for (const [id, boxes] of [["view-boxes", true], ["view-flat", false]]) action(id, () => {
+  const bits = state.bits.slice(); showProgram(state.result, false, boxes); state.bits = bits; renderSimulation();
+});
+function renderRelatedBlocks() {
+  const blocks = state.availableBlocks || [];
+  $("related-blocks").hidden = !blocks.length;
+  const name = state.result?.dataset_name || state.dataset?.name;
+  const sorted = [...blocks].sort((a, b) => Number(b.name === name) - Number(a.name === name) || a.name.localeCompare(b.name));
+  $("related-block-choice").replaceChildren(...sorted.map(block => {
+    const option = el("option", `${block.name}${block.name === name ? " · passend zur Funktion" : ""} · ${block.instances} Unterboxen`);
+    option.value = block.id; return option;
+  }));
+}
+action("open-related-block", async () => {
+  const bundle = await api(`/api/blocks/${$("related-block-choice").value}`); await openBlock(bundle);
 });
 BlockDebug.init();
 pageFromHash();

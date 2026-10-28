@@ -23,7 +23,7 @@ globalThis.BlockDebug = (() => {
   const positions = (c, points) => points?.map((p, i) => ({ x: p.x, y: p.y,
     ...(c.view_nodes?.[i]?.height && c.view_nodes[i].height !== CircuitGraph.height ? { height: c.view_nodes[i].height } : {}) }));
   function capture() {
-    return { ...Object.fromEntries(frameKeys.map(k => [k, state[k]])), step: int("step"),
+    return { ...Object.fromEntries(frameKeys.map(k => [k, state[k]])), step: int("step"), playbackMode: $("playback-mode").value,
       path: state.debug.path, view: state.debug.view, initialBits: state.debug.initialBits };
   }
   function request() { return { block: state.debug.bundle, path: state.debug.path }; }
@@ -36,7 +36,7 @@ globalThis.BlockDebug = (() => {
     state.wires = cached?.wires || {}; state.camera = cached?.camera || null;
     state.cameraTouched = cached?.cameraTouched || false;
     state.layoutDirty = cached?.layoutDirty || false; state.routing = null; state.drag = null;
-    $("step").max = view.circuit.gates.length; $("step").value = view.circuit.gates.length;
+    resetPlayback();
     const token = ++state.layoutToken;
     buildPanel(); renderSimulation(); renderTable();
     $("layout-status").textContent = state.layoutDirty ? "Layout geändert · noch nicht gespeichert." : "Instanzlayout wird geladen …";
@@ -77,7 +77,7 @@ globalThis.BlockDebug = (() => {
     for (const k of frameKeys) state[k] = frame[k];
     Object.assign(debug, { path: frame.path, view: frame.view, initialBits: frame.initialBits });
     state.drag = null; ++state.layoutToken;
-    $("step").max = frame.view.circuit.gates.length; $("step").value = frame.step;
+    $("playback-mode").value = frame.playbackMode; resetPlayback(frame.step);
     buildPanel(); renderSimulation(); renderTable();
     $("layout-status").textContent = state.layoutDirty ? "Layout geändert · noch nicht gespeichert." : "Übergeordnete Ansicht wiederhergestellt.";
   }
@@ -125,8 +125,8 @@ globalThis.BlockDebug = (() => {
       stopAnimation(); state.bits = state.debug.initialBits.slice(); $("step").value = 0;
       $("debug-input-status").textContent = ""; renderSimulation(); renderTable();
     });
-    action("debug-next", () => { stopAnimation(); $("step").value = Math.min(int("step") + 1, simulationCircuit().gates.length); renderSimulation(); });
-    action("debug-finish", () => { stopAnimation(); $("step").value = simulationCircuit().gates.length; renderSimulation(); });
+    action("debug-next", () => { stopAnimation(); $("step").value = Math.min(int("step") + 1, Number($("step").max)); renderSimulation(); });
+    action("debug-finish", () => { stopAnimation(); $("step").value = $("step").max; renderSimulation(); });
   }
   return { number, withNumber, positions, start, enter, back, request, render, init };
 })();

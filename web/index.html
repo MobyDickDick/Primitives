@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="de">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Primitives · NAND-Labor</title><link rel="stylesheet" href="/style.css"><script src="/graph.js" defer></script><script src="/viewport.js" defer></script><script src="/block-debug.js" defer></script><script src="/app.js" defer></script></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Primitives · NAND-Labor</title><link rel="stylesheet" href="/style.css"><script src="/graph.js" defer></script><script src="/viewport.js" defer></script><script src="/playback.js" defer></script><script src="/block-debug.js" defer></script><script src="/app.js" defer></script></head>
 <body>
 <header><div class="brand"><span class="brand-icon">⊼</span><div>PRIMITIVES <span class="version">0.1</span><small>Eine Spielwiese aus NAND-Gattern</small></div></div><span class="local">● Lokal auf deinem Rechner</span></header>
 <main>
@@ -125,7 +125,7 @@ return s</textarea></label>
 <section id="block-debug" class="debug-panel" hidden aria-label="Baustein-Debugger">
 <div class="graph-toolbar"><button id="debug-back" class="secondary">← Zur übergeordneten Schaltung</button><strong id="debug-path"></strong></div>
 <p id="debug-mode" class="hint"></p><div id="debug-inputs" class="debug-inputs"></div><p id="debug-input-status" class="hint" role="status"></p><div id="debug-outputs" class="debug-outputs" aria-live="polite"></div>
-<div class="graph-toolbar"><button id="debug-reset" class="secondary">Test zurücksetzen</button><button id="debug-next" class="secondary">Nächstes NAND-Gatter</button><button id="debug-finish" class="secondary">Vollständig auswerten</button></div>
+<div class="graph-toolbar"><button id="debug-reset" class="secondary">Test zurücksetzen</button><button id="debug-next" class="secondary">Nächster Schritt</button><button id="debug-finish" class="secondary">Vollständig auswerten</button></div>
 </section>
 <div class="graph-toolbar"><button id="save-layout" class="secondary">Layout speichern</button><button id="auto-layout" class="secondary">Automatisch anordnen</button><button id="reset-wire" class="secondary" disabled>Leitung zurücksetzen</button><div class="graph-zoom" role="group" aria-label="Schaltbild-Zoom"><button id="zoom-out" class="secondary" aria-label="Schaltbild verkleinern">−</button><output id="zoom-level" aria-label="Zoomstufe">100 %</output><button id="zoom-in" class="secondary" aria-label="Schaltbild vergrössern">+</button><button id="zoom-reset" class="secondary">100 %</button><button id="zoom-fit" class="secondary">Alles einpassen</button></div></div>
 <details class="graph-instructions"><summary>Bedienung des Schaltbilds</summary><p id="graph-help" class="hint graph-help">Jede Box hat eine eigene Nummer. ⊼ verknüpft die genannten Quellboxen mit NAND; „Wert“ ist das berechnete Signal. Boxen zum Verschieben ziehen. Leitungssegmente quer ziehen; Anschlüsse bleiben fest. Tab wählt auch Segmente, Pfeiltasten verschieben sie, Entf setzt die gewählte Leitung zurück. „Automatisch anordnen“ setzt Boxen und alle manuellen Wege zurück. Eingangsboxen zum Umschalten anklicken. Zoom: Strg + Mausrad oder Touchpad-Zoomgeste. Ausschnitt: freie Fläche ziehen oder mittlere Maustaste. Tastatur im Schaltbild: +/− zoomt, 0 zeigt 100 %, F passt alles ein. Pfeiltasten verschieben den Ausschnitt; bei ausgewählter Box verschieben sie die Box. Tab wählt eine Box, Leertaste schaltet einen Eingang um.</p>
@@ -133,7 +133,16 @@ return s</textarea></label>
 <p id="layout-status" class="hint" role="status"></p><p id="wire-status" class="hint" role="status"></p>
 <div class="graph-wrap"><svg id="graph" tabindex="0" role="group" aria-label="Interaktives NAND-Schaltbild" aria-describedby="graph-help box-description" preserveAspectRatio="none"></svg></div>
 <p id="box-description" class="hint box-description" role="status"></p>
-<div class="step-controls"><button id="play" class="secondary">▶ Abspielen</button><label>Gatterschritt <input id="step" type="range" min="0" value="0"></label><span id="step-label"></span></div>
+<div class="playback-settings">
+<label>Schritte nach<select id="playback-mode"><option value="layers">Logikstufen (parallel)</option><option value="blocks">FBoxen (nacheinander)</option><option value="gates">Einzelnen NAND-Gattern</option></select></label>
+<label>Tempo<select id="playback-delay"><option value="2000">Langsam · 2 s</option><option value="1000" selected>Ruhig · 1 s</option><option value="450">Schnell · 0,45 s</option></select></label>
+<label class="check-label"><input id="playback-focus" type="checkbox" checked>Aktuelle Verbindungen hervorheben</label>
+</div>
+<div class="step-controls"><button id="playback-start" class="secondary" aria-label="Zum Anfang">|◀</button><button id="playback-prev" class="secondary" aria-label="Vorheriger Schritt">◀</button><button id="play" class="secondary">▶ Abspielen</button><button id="playback-next" class="secondary" aria-label="Nächster Schritt">▶|</button><button id="playback-end" class="secondary" aria-label="Zum Ergebnis">▶| Ende</button><label>Schritt <input id="step" type="range" min="0" value="0"></label><span id="step-label"></span></div>
+<label>Kapitel / Stufe direkt wählen<select id="playback-chapter"></select></label>
+<p id="playback-status" class="hint" role="status"></p>
+<div class="graph-toolbar"><button id="view-boxes" class="secondary" hidden>FBox-Ansicht</button><button id="view-flat" class="secondary" hidden>Alle NAND-Gatter zeigen</button></div>
+<div id="related-blocks" class="related-blocks" hidden><label>FBox aus der Bibliothek öffnen<select id="related-block-choice"></select></label><button id="open-related-block" class="secondary">FBox öffnen</button><p class="hint">Öffnet die feste Bausteinversion mit ihren Unterboxen und eigenem Handtest. Sie kann mehr NANDs enthalten als das optimierte flache Suchergebnis.</p></div>
 <div class="chart-head"><h3>Suchverlauf</h3><span>Fehlerhafte Ausgangsbits</span></div><svg id="history" viewBox="0 0 680 130" role="img" aria-label="Fehler im Suchverlauf"></svg><p id="search-summary" class="hint"></p><p id="phase-summary" class="summary" hidden></p>
 <details id="ancestry-panel" hidden><summary>Abstammung des Suchergebnisses</summary>
 <p id="ancestry-summary" class="hint"></p>

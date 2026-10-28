@@ -13,6 +13,35 @@ GENERATIVE_EXAMPLES = ("parity", "iszero", "reverse", "mux", "min", "max")
 ROUTING_EXAMPLES = ("multiplexer", "demultiplexer")
 
 
+def install_structured_examples(library):
+    """Separate migration: previous installations and user organization stay intact."""
+    marker = library.root / "example-installations.json"
+    with library._lock:
+        installed = json.loads(marker.read_text(encoding="utf-8")) if marker.exists() else {}
+        if installed.get("structured-logic-v1"):
+            return
+        organization = library._organization()
+        folder = "structured-logic"
+        if not any(f["id"] == folder for f in organization["folders"]):
+            organization["folders"].append({"id": folder, "parent": "recursion", "name": "Bitcodes & Auswahl",
+                                             "description": "Gray-Code, Dekodierung, Präfix-ODER und Sortierung mit sichtbaren FBoxen."})
+        source = Path(__file__).resolve().parents[1] / "examples"
+        for kind in ("gray", "ungray", "prefix_or", "sort2"):
+            template = Template(json.loads((source / f"templates/recursive-{kind}.abstract.json").read_text(encoding="utf-8")))
+            key = library.save_template(template)
+            organization["entries"].setdefault(f"template:{key}", folder)
+            for width in (1, 2, 4):
+                prefix = source / f"circuits/recursive-{kind}/{kind}-{width}"
+                library.save_block(BlockBundle(json.loads(prefix.with_suffix(".block.json").read_text(encoding="utf-8"))))
+                dataset = Dataset.from_dict(json.loads(prefix.with_suffix(".vectors.json").read_text(encoding="utf-8")))
+                circuit = json.loads(prefix.with_suffix(".circuit.json").read_text(encoding="utf-8"))
+                library.save_program({"circuit": circuit, "synthesis": {"method": "hierarchy-expansion-and-simplification", "version": 1}}, dataset)
+                organization["entries"].setdefault(f"function:{function_id(dataset)}", folder)
+        library._write_organization(organization)
+        installed["structured-logic-v1"] = True
+        write_json(marker, installed)
+
+
 def install_examples(library):
     marker = library.root / "example-installations.json"
     installed = json.loads(marker.read_text(encoding="utf-8")) if marker.exists() else {}
@@ -44,6 +73,8 @@ def install_examples(library):
         source = Path(__file__).resolve().parents[1] / "examples" / "templates"
         recursive_checked = {"recursive-split-sub.abstract.json", "recursive-split-add-checked.abstract.json"}
         for path in sorted(source.glob("*.abstract.json")):
+            if path.stem.removesuffix(".abstract") in {f"recursive-{kind}" for kind in ("gray", "ungray", "prefix_or", "sort2")}:
+                continue  # Installed by its own migration after the original examples.
             routing = path.name in {f"recursive-{kind}.abstract.json" for kind in ROUTING_EXAMPLES}
             if routing:
                 if not pending_routing:

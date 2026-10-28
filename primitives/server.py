@@ -37,8 +37,9 @@ def debug_document(snapshot):
 def make_server(port=8765, data_dir=None, *, background=True, seed_examples=True):
     library = Library(data_dir or ROOT / "data")
     if seed_examples:
-        from .examples import install_examples
+        from .examples import install_examples, install_structured_examples
         install_examples(library)
+        install_structured_examples(library)
     jobs, cancellations, lock = {}, {}, threading.Lock()
     debuggers = {}
     executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="evolution")
@@ -85,9 +86,9 @@ def make_server(port=8765, data_dir=None, *, background=True, seed_examples=True
                         job = dict(jobs[path.rsplit("/", 1)[1]])
                     job["elapsed_seconds"] = round(time.monotonic() - job.pop("started"), 1)
                     self.send_data(job)
-                elif path in ("/", "/app.js", "/graph.js", "/viewport.js", "/block-debug.js", "/style.css"):
+                elif path in ("/", "/app.js", "/graph.js", "/viewport.js", "/playback.js", "/block-debug.js", "/style.css"):
                     name = "index.html" if path == "/" else path[1:]
-                    content_type = {"index.html": "text/html; charset=utf-8", "app.js": "text/javascript; charset=utf-8", "graph.js": "text/javascript; charset=utf-8", "viewport.js": "text/javascript; charset=utf-8", "block-debug.js": "text/javascript; charset=utf-8", "style.css": "text/css; charset=utf-8"}[name]
+                    content_type = "text/html; charset=utf-8" if name == "index.html" else "text/css; charset=utf-8" if name == "style.css" else "text/javascript; charset=utf-8"
                     self.send_data((ROOT / "web" / name).read_bytes(), content_type=content_type)
                 else:
                     self.send_data({"error": "Nicht gefunden."}, 404)
