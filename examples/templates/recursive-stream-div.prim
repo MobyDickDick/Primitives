@@ -1,0 +1,64 @@
+# Unsigned DIV<m,n>: m dividend bits, n divisor bits; LSB-first arrays.
+# Each recursion extends ONE shared quotient/remainder pair by one input bit.
+
+def SUB_BORROW<w>(a, b, incoming):
+    x = bits(a, w)
+    y = bits(b, w)
+    carry = bits(incoming, 1)
+    parity = x[0] ^ y[0]
+    digit = parity ^ carry[0]
+    borrow = ((1 ^ x[0]) & y[0]) | ((1 ^ parity) & carry[0])
+    if w == 1:
+        return pack([digit, borrow])
+    tail = SUB_BORROW<w - 1>(pack(x[1:]), pack(y[1:]), borrow)
+    return pack([digit] + bits(tail, w))
+
+# One reusable clock-cycle kernel: [n-bit next remainder, quotient bit].
+# For b>0 and r<b the next remainder is again <b and fits n bits.
+# Outside that invariant the remainder output is explicitly modulo 2**n.
+def DIV_STEP<n>(r, b, digit):
+    rem = bits(r, n)
+    incoming = bits(digit, 1)
+    shifted = [incoming[0]] + rem
+    difference = bits(SUB_BORROW<n + 1>(pack(shifted), b, 0), n + 2)
+    take = 1 ^ difference[n + 1]
+    selected = SELECT<n>(pack(shifted[:n]), pack(difference[:n]), take)
+    return pack(bits(selected, n) + [take])
+
+def SELECT<n>(a, b, select):
+    x = bits(a, n)
+    y = bits(b, n)
+    s = bits(select, 1)
+    digit = (x[0] & (1 ^ s[0])) | (y[0] & s[0])
+    if n == 1:
+        return digit
+    return pack([digit] + bits(SELECT<n - 1>(pack(x[1:]), pack(y[1:]), select), n - 1))
+
+def ANY<n>(a):
+    x = bits(a, n)
+    if n == 1:
+        return x[0]
+    return x[0] | ANY<n - 1>(pack(x[1:]))
+
+def MASK<n>(a, enable):
+    x = bits(a, n)
+    e = bits(enable, 1)
+    digit = x[0] & e[0]
+    if n == 1:
+        return digit
+    return pack([digit] + bits(MASK<n - 1>(pack(x[1:]), enable), n - 1))
+
+# Return [m-bit quotient, n-bit remainder]. Static recursion, no division.
+def DIV_REM<m, n>(a, b):
+    x = bits(a, m)
+    if m == 1:
+        step = bits(DIV_STEP<n>(0, b, x[0]), n + 1)
+        return pack([step[n]] + step[:n])
+    prefix = bits(DIV_REM<m - 1, n>(pack(x[1:]), b), m - 1 + n)
+    step = bits(DIV_STEP<n>(pack(prefix[m - 1:]), b, x[0]), n + 1)
+    return pack([step[n]] + prefix[:m - 1] + step[:n])
+
+# Public quotient interface.
+result = bits(DIV_REM<m, n>(a, b), m + n)
+valid = ANY<n>(b)
+return MASK<m>(pack(result[:m]), valid), 1 ^ valid

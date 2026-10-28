@@ -1,5 +1,10 @@
 # Rekursive Division durch MSB-Ausrichtung
 
+Die ergänzende [Divisionsuntersuchung](DIVISIONS-UNTERSUCHUNG.md) behandelt
+alle 16 Kombinationen von 1 bis 4 Bit breiten Operanden, evolutionäre
+Suchversuche und eine weitere Rekursion mit getaktet wiederverwendbarem
+Schrittnetz. Sie enthält auch die Tabelle der Zahlenwerte 1 bis 4.
+
 Die [Quelle](../examples/templates/recursive-msb-div.prim) und das
 [abstrakte Template](../examples/templates/recursive-msb-div.abstract.json)
 implementieren `DIV<w>(a,b)` für unsigned Eingaben, LSB-first:

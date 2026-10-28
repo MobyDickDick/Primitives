@@ -1,0 +1,5 @@
+a,b,a_binary_msb_first,b_binary_msb_first,c,c_binary_msb_first,err,remainder
+0,0,0,0,0,0,1,
+0,1,0,1,0,0,0,0
+1,0,1,0,0,0,1,
+1,1,1,1,1,1,0,0

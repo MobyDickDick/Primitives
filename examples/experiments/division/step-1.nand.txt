@@ -1,0 +1,12 @@
+# Flat NAND kernel/network. Bit index 0 is the LSB.
+# Inputs: r0, b0, digit0
+g0 = NAND(b0, digit0)
+g1 = NAND(b0, g0)
+g2 = NAND(g1, g1)
+g3 = NAND(r0, r0)
+g4 = NAND(g2, g3)
+g5 = NAND(digit0, g0)
+g6 = NAND(g2, r0)
+g7 = NAND(g5, g6)
+rnext0 = g7
+take0 = g4

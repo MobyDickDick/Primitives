@@ -1,0 +1,2143 @@
+{
+  "schema": 1,
+  "seeds": [
+    11,
+    29,
+    47
+  ],
+  "generations": 200,
+  "numeric_values": [
+    {
+      "config": {
+        "gates": 32,
+        "population": 24,
+        "generations": 200,
+        "seed": 11,
+        "backend": "python",
+        "repair_cases": 0,
+        "optimize": false,
+        "restarts": 1,
+        "islands": 1,
+        "migration_interval": 10,
+        "neutral": false
+      },
+      "fitness": {
+        "errors": 10,
+        "total_bits": 64,
+        "accuracy": 0.84375,
+        "exact_on_dataset": false,
+        "verified_truth_table": false,
+        "gates": 6,
+        "depth": 2
+      },
+      "full_3_bit_check": {
+        "errors": 81,
+        "total_bits": 256,
+        "accuracy": 0.68359375,
+        "exact_on_dataset": false,
+        "verified_truth_table": false,
+        "gates": 6,
+        "depth": 2
+      },
+      "evaluations": 4801
+    },
+    {
+      "config": {
+        "gates": 32,
+        "population": 24,
+        "generations": 200,
+        "seed": 29,
+        "backend": "python",
+        "repair_cases": 0,
+        "optimize": false,
+        "restarts": 1,
+        "islands": 1,
+        "migration_interval": 10,
+        "neutral": false
+      },
+      "fitness": {
+        "errors": 10,
+        "total_bits": 64,
+        "accuracy": 0.84375,
+        "exact_on_dataset": false,
+        "verified_truth_table": false,
+        "gates": 7,
+        "depth": 2
+      },
+      "full_3_bit_check": {
+        "errors": 67,
+        "total_bits": 256,
+        "accuracy": 0.73828125,
+        "exact_on_dataset": false,
+        "verified_truth_table": false,
+        "gates": 7,
+        "depth": 2
+      },
+      "evaluations": 4801
+    },
+    {
+      "config": {
+        "gates": 32,
+        "population": 24,
+        "generations": 200,
+        "seed": 47,
+        "backend": "python",
+        "repair_cases": 0,
+        "optimize": false,
+        "restarts": 1,
+        "islands": 1,
+        "migration_interval": 10,
+        "neutral": false
+      },
+      "fitness": {
+        "errors": 11,
+        "total_bits": 64,
+        "accuracy": 0.828125,
+        "exact_on_dataset": false,
+        "verified_truth_table": false,
+        "gates": 3,
+        "depth": 2
+      },
+      "full_3_bit_check": {
+        "errors": 103,
+        "total_bits": 256,
+        "accuracy": 0.59765625,
+        "exact_on_dataset": false,
+        "verified_truth_table": false,
+        "gates": 3,
+        "depth": 2
+      },
+      "evaluations": 4801
+    }
+  ],
+  "kernels": [
+    {
+      "n": 1,
+      "structural": {
+        "errors": 0,
+        "total_bits": 16,
+        "accuracy": 1.0,
+        "exact_on_dataset": true,
+        "verified_truth_table": true,
+        "gates": 13,
+        "depth": 7
+      },
+      "optimized": {
+        "errors": 0,
+        "total_bits": 16,
+        "accuracy": 1.0,
+        "exact_on_dataset": true,
+        "verified_truth_table": true,
+        "gates": 8,
+        "depth": 5
+      },
+      "runs": [
+        {
+          "config": {
+            "gates": 21,
+            "population": 24,
+            "generations": 200,
+            "seed": 11,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": true,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 0,
+            "total_bits": 16,
+            "accuracy": 1.0,
+            "exact_on_dataset": true,
+            "verified_truth_table": true,
+            "gates": 8,
+            "depth": 5
+          },
+          "evaluations": 4801
+        },
+        {
+          "config": {
+            "gates": 21,
+            "population": 24,
+            "generations": 200,
+            "seed": 29,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": true,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 0,
+            "total_bits": 16,
+            "accuracy": 1.0,
+            "exact_on_dataset": true,
+            "verified_truth_table": true,
+            "gates": 8,
+            "depth": 5
+          },
+          "evaluations": 4801
+        },
+        {
+          "config": {
+            "gates": 21,
+            "population": 24,
+            "generations": 200,
+            "seed": 47,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": true,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 0,
+            "total_bits": 16,
+            "accuracy": 1.0,
+            "exact_on_dataset": true,
+            "verified_truth_table": true,
+            "gates": 8,
+            "depth": 5
+          },
+          "evaluations": 4801
+        }
+      ]
+    },
+    {
+      "n": 2,
+      "structural": {
+        "errors": 0,
+        "total_bits": 96,
+        "accuracy": 1.0,
+        "exact_on_dataset": true,
+        "verified_truth_table": true,
+        "gates": 29,
+        "depth": 10
+      },
+      "optimized": {
+        "errors": 0,
+        "total_bits": 96,
+        "accuracy": 1.0,
+        "exact_on_dataset": true,
+        "verified_truth_table": true,
+        "gates": 24,
+        "depth": 10
+      },
+      "runs": [
+        {
+          "config": {
+            "gates": 37,
+            "population": 24,
+            "generations": 200,
+            "seed": 11,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": true,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 0,
+            "total_bits": 96,
+            "accuracy": 1.0,
+            "exact_on_dataset": true,
+            "verified_truth_table": true,
+            "gates": 24,
+            "depth": 10
+          },
+          "evaluations": 4801
+        },
+        {
+          "config": {
+            "gates": 37,
+            "population": 24,
+            "generations": 200,
+            "seed": 29,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": true,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 0,
+            "total_bits": 96,
+            "accuracy": 1.0,
+            "exact_on_dataset": true,
+            "verified_truth_table": true,
+            "gates": 25,
+            "depth": 9
+          },
+          "evaluations": 4801
+        },
+        {
+          "config": {
+            "gates": 37,
+            "population": 24,
+            "generations": 200,
+            "seed": 47,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": true,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 0,
+            "total_bits": 96,
+            "accuracy": 1.0,
+            "exact_on_dataset": true,
+            "verified_truth_table": true,
+            "gates": 25,
+            "depth": 9
+          },
+          "evaluations": 4801
+        }
+      ]
+    },
+    {
+      "n": 3,
+      "structural": {
+        "errors": 0,
+        "total_bits": 512,
+        "accuracy": 1.0,
+        "exact_on_dataset": true,
+        "verified_truth_table": true,
+        "gates": 45,
+        "depth": 12
+      },
+      "optimized": {
+        "errors": 0,
+        "total_bits": 512,
+        "accuracy": 1.0,
+        "exact_on_dataset": true,
+        "verified_truth_table": true,
+        "gates": 38,
+        "depth": 12
+      },
+      "runs": [
+        {
+          "config": {
+            "gates": 53,
+            "population": 24,
+            "generations": 200,
+            "seed": 11,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": true,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 0,
+            "total_bits": 512,
+            "accuracy": 1.0,
+            "exact_on_dataset": true,
+            "verified_truth_table": true,
+            "gates": 38,
+            "depth": 13
+          },
+          "evaluations": 4801
+        },
+        {
+          "config": {
+            "gates": 53,
+            "population": 24,
+            "generations": 200,
+            "seed": 29,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": true,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 0,
+            "total_bits": 512,
+            "accuracy": 1.0,
+            "exact_on_dataset": true,
+            "verified_truth_table": true,
+            "gates": 39,
+            "depth": 14
+          },
+          "evaluations": 4801
+        },
+        {
+          "config": {
+            "gates": 53,
+            "population": 24,
+            "generations": 200,
+            "seed": 47,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": true,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 0,
+            "total_bits": 512,
+            "accuracy": 1.0,
+            "exact_on_dataset": true,
+            "verified_truth_table": true,
+            "gates": 38,
+            "depth": 12
+          },
+          "evaluations": 4801
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "structural": {
+        "errors": 0,
+        "total_bits": 2560,
+        "accuracy": 1.0,
+        "exact_on_dataset": true,
+        "verified_truth_table": true,
+        "gates": 61,
+        "depth": 14
+      },
+      "optimized": {
+        "errors": 0,
+        "total_bits": 2560,
+        "accuracy": 1.0,
+        "exact_on_dataset": true,
+        "verified_truth_table": true,
+        "gates": 55,
+        "depth": 14
+      },
+      "runs": [
+        {
+          "config": {
+            "gates": 69,
+            "population": 24,
+            "generations": 200,
+            "seed": 11,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": true,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 0,
+            "total_bits": 2560,
+            "accuracy": 1.0,
+            "exact_on_dataset": true,
+            "verified_truth_table": true,
+            "gates": 55,
+            "depth": 14
+          },
+          "evaluations": 4801
+        },
+        {
+          "config": {
+            "gates": 69,
+            "population": 24,
+            "generations": 200,
+            "seed": 29,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": true,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 0,
+            "total_bits": 2560,
+            "accuracy": 1.0,
+            "exact_on_dataset": true,
+            "verified_truth_table": true,
+            "gates": 56,
+            "depth": 20
+          },
+          "evaluations": 4801
+        },
+        {
+          "config": {
+            "gates": 69,
+            "population": 24,
+            "generations": 200,
+            "seed": 47,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": true,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 0,
+            "total_bits": 2560,
+            "accuracy": 1.0,
+            "exact_on_dataset": true,
+            "verified_truth_table": true,
+            "gates": 56,
+            "depth": 15
+          },
+          "evaluations": 4801
+        }
+      ]
+    }
+  ],
+  "division": [
+    {
+      "m": 1,
+      "n": 1,
+      "pairs": 4,
+      "structural": {
+        "errors": 0,
+        "total_bits": 8,
+        "accuracy": 1.0,
+        "exact_on_dataset": true,
+        "verified_truth_table": true,
+        "gates": 5,
+        "depth": 4
+      },
+      "sequential_verified": true,
+      "cycles_nonzero_divisor": 1,
+      "random_search": [
+        {
+          "config": {
+            "gates": 13,
+            "population": 24,
+            "generations": 200,
+            "seed": 11,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 0,
+            "total_bits": 8,
+            "accuracy": 1.0,
+            "exact_on_dataset": true,
+            "verified_truth_table": true,
+            "gates": 6,
+            "depth": 3
+          },
+          "evaluations": 762
+        },
+        {
+          "config": {
+            "gates": 13,
+            "population": 24,
+            "generations": 200,
+            "seed": 29,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 0,
+            "total_bits": 8,
+            "accuracy": 1.0,
+            "exact_on_dataset": true,
+            "verified_truth_table": true,
+            "gates": 4,
+            "depth": 3
+          },
+          "evaluations": 150
+        },
+        {
+          "config": {
+            "gates": 13,
+            "population": 24,
+            "generations": 200,
+            "seed": 47,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 0,
+            "total_bits": 8,
+            "accuracy": 1.0,
+            "exact_on_dataset": true,
+            "verified_truth_table": true,
+            "gates": 7,
+            "depth": 6
+          },
+          "evaluations": 1717
+        }
+      ],
+      "random_best": {
+        "errors": 0,
+        "total_bits": 8,
+        "accuracy": 1.0,
+        "exact_on_dataset": true,
+        "verified_truth_table": true,
+        "gates": 4,
+        "depth": 3
+      }
+    },
+    {
+      "m": 1,
+      "n": 2,
+      "pairs": 8,
+      "structural": {
+        "errors": 0,
+        "total_bits": 16,
+        "accuracy": 1.0,
+        "exact_on_dataset": true,
+        "verified_truth_table": true,
+        "gates": 12,
+        "depth": 8
+      },
+      "sequential_verified": true,
+      "cycles_nonzero_divisor": 1,
+      "random_search": [
+        {
+          "config": {
+            "gates": 20,
+            "population": 24,
+            "generations": 200,
+            "seed": 11,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 1,
+            "total_bits": 16,
+            "accuracy": 0.9375,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 5,
+            "depth": 4
+          },
+          "evaluations": 4801
+        },
+        {
+          "config": {
+            "gates": 20,
+            "population": 24,
+            "generations": 200,
+            "seed": 29,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 3,
+            "total_bits": 16,
+            "accuracy": 0.8125,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 3,
+            "depth": 3
+          },
+          "evaluations": 4801
+        },
+        {
+          "config": {
+            "gates": 20,
+            "population": 24,
+            "generations": 200,
+            "seed": 47,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 3,
+            "total_bits": 16,
+            "accuracy": 0.8125,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 3,
+            "depth": 2
+          },
+          "evaluations": 4801
+        }
+      ],
+      "random_best": {
+        "errors": 1,
+        "total_bits": 16,
+        "accuracy": 0.9375,
+        "exact_on_dataset": false,
+        "verified_truth_table": false,
+        "gates": 5,
+        "depth": 4
+      }
+    },
+    {
+      "m": 1,
+      "n": 3,
+      "pairs": 16,
+      "structural": {
+        "errors": 0,
+        "total_bits": 32,
+        "accuracy": 1.0,
+        "exact_on_dataset": true,
+        "verified_truth_table": true,
+        "gates": 17,
+        "depth": 10
+      },
+      "sequential_verified": true,
+      "cycles_nonzero_divisor": 1,
+      "random_search": [
+        {
+          "config": {
+            "gates": 25,
+            "population": 24,
+            "generations": 200,
+            "seed": 11,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 3,
+            "total_bits": 32,
+            "accuracy": 0.90625,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 3,
+            "depth": 3
+          },
+          "evaluations": 4801
+        },
+        {
+          "config": {
+            "gates": 25,
+            "population": 24,
+            "generations": 200,
+            "seed": 29,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 3,
+            "total_bits": 32,
+            "accuracy": 0.90625,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 3,
+            "depth": 3
+          },
+          "evaluations": 4801
+        },
+        {
+          "config": {
+            "gates": 25,
+            "population": 24,
+            "generations": 200,
+            "seed": 47,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 3,
+            "total_bits": 32,
+            "accuracy": 0.90625,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 3,
+            "depth": 3
+          },
+          "evaluations": 4801
+        }
+      ],
+      "random_best": {
+        "errors": 3,
+        "total_bits": 32,
+        "accuracy": 0.90625,
+        "exact_on_dataset": false,
+        "verified_truth_table": false,
+        "gates": 3,
+        "depth": 3
+      }
+    },
+    {
+      "m": 1,
+      "n": 4,
+      "pairs": 32,
+      "structural": {
+        "errors": 0,
+        "total_bits": 64,
+        "accuracy": 1.0,
+        "exact_on_dataset": true,
+        "verified_truth_table": true,
+        "gates": 22,
+        "depth": 12
+      },
+      "sequential_verified": true,
+      "cycles_nonzero_divisor": 1,
+      "random_search": [
+        {
+          "config": {
+            "gates": 30,
+            "population": 24,
+            "generations": 200,
+            "seed": 11,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 3,
+            "total_bits": 64,
+            "accuracy": 0.953125,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 3,
+            "depth": 3
+          },
+          "evaluations": 4801
+        },
+        {
+          "config": {
+            "gates": 30,
+            "population": 24,
+            "generations": 200,
+            "seed": 29,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 3,
+            "total_bits": 64,
+            "accuracy": 0.953125,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 5,
+            "depth": 5
+          },
+          "evaluations": 4801
+        },
+        {
+          "config": {
+            "gates": 30,
+            "population": 24,
+            "generations": 200,
+            "seed": 47,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 3,
+            "total_bits": 64,
+            "accuracy": 0.953125,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 4,
+            "depth": 4
+          },
+          "evaluations": 4801
+        }
+      ],
+      "random_best": {
+        "errors": 3,
+        "total_bits": 64,
+        "accuracy": 0.953125,
+        "exact_on_dataset": false,
+        "verified_truth_table": false,
+        "gates": 3,
+        "depth": 3
+      }
+    },
+    {
+      "m": 2,
+      "n": 1,
+      "pairs": 8,
+      "structural": {
+        "errors": 0,
+        "total_bits": 24,
+        "accuracy": 1.0,
+        "exact_on_dataset": true,
+        "verified_truth_table": true,
+        "gates": 20,
+        "depth": 9
+      },
+      "sequential_verified": true,
+      "cycles_nonzero_divisor": 2,
+      "random_search": [
+        {
+          "config": {
+            "gates": 28,
+            "population": 24,
+            "generations": 200,
+            "seed": 11,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 0,
+            "total_bits": 24,
+            "accuracy": 1.0,
+            "exact_on_dataset": true,
+            "verified_truth_table": true,
+            "gates": 6,
+            "depth": 4
+          },
+          "evaluations": 2029
+        },
+        {
+          "config": {
+            "gates": 28,
+            "population": 24,
+            "generations": 200,
+            "seed": 29,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 0,
+            "total_bits": 24,
+            "accuracy": 1.0,
+            "exact_on_dataset": true,
+            "verified_truth_table": true,
+            "gates": 9,
+            "depth": 4
+          },
+          "evaluations": 1148
+        },
+        {
+          "config": {
+            "gates": 28,
+            "population": 24,
+            "generations": 200,
+            "seed": 47,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 1,
+            "total_bits": 24,
+            "accuracy": 0.9583333333333334,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 5,
+            "depth": 2
+          },
+          "evaluations": 4801
+        }
+      ],
+      "random_best": {
+        "errors": 0,
+        "total_bits": 24,
+        "accuracy": 1.0,
+        "exact_on_dataset": true,
+        "verified_truth_table": true,
+        "gates": 6,
+        "depth": 4
+      }
+    },
+    {
+      "m": 2,
+      "n": 2,
+      "pairs": 16,
+      "structural": {
+        "errors": 0,
+        "total_bits": 48,
+        "accuracy": 1.0,
+        "exact_on_dataset": true,
+        "verified_truth_table": true,
+        "gates": 39,
+        "depth": 17
+      },
+      "sequential_verified": true,
+      "cycles_nonzero_divisor": 2,
+      "random_search": [
+        {
+          "config": {
+            "gates": 47,
+            "population": 24,
+            "generations": 200,
+            "seed": 11,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 5,
+            "total_bits": 48,
+            "accuracy": 0.8958333333333334,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 8,
+            "depth": 4
+          },
+          "evaluations": 4801
+        },
+        {
+          "config": {
+            "gates": 47,
+            "population": 24,
+            "generations": 200,
+            "seed": 29,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 6,
+            "total_bits": 48,
+            "accuracy": 0.875,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 9,
+            "depth": 7
+          },
+          "evaluations": 4801
+        },
+        {
+          "config": {
+            "gates": 47,
+            "population": 24,
+            "generations": 200,
+            "seed": 47,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 7,
+            "total_bits": 48,
+            "accuracy": 0.8541666666666666,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 9,
+            "depth": 5
+          },
+          "evaluations": 4801
+        }
+      ],
+      "random_best": {
+        "errors": 5,
+        "total_bits": 48,
+        "accuracy": 0.8958333333333334,
+        "exact_on_dataset": false,
+        "verified_truth_table": false,
+        "gates": 8,
+        "depth": 4
+      }
+    },
+    {
+      "m": 2,
+      "n": 3,
+      "pairs": 32,
+      "structural": {
+        "errors": 0,
+        "total_bits": 96,
+        "accuracy": 1.0,
+        "exact_on_dataset": true,
+        "verified_truth_table": true,
+        "gates": 58,
+        "depth": 21
+      },
+      "sequential_verified": true,
+      "cycles_nonzero_divisor": 2,
+      "random_search": [
+        {
+          "config": {
+            "gates": 66,
+            "population": 24,
+            "generations": 200,
+            "seed": 11,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 11,
+            "total_bits": 96,
+            "accuracy": 0.8854166666666666,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 3,
+            "depth": 3
+          },
+          "evaluations": 4801
+        },
+        {
+          "config": {
+            "gates": 66,
+            "population": 24,
+            "generations": 200,
+            "seed": 29,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 11,
+            "total_bits": 96,
+            "accuracy": 0.8854166666666666,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 14,
+            "depth": 5
+          },
+          "evaluations": 4801
+        },
+        {
+          "config": {
+            "gates": 66,
+            "population": 24,
+            "generations": 200,
+            "seed": 47,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 9,
+            "total_bits": 96,
+            "accuracy": 0.90625,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 12,
+            "depth": 6
+          },
+          "evaluations": 4801
+        }
+      ],
+      "random_best": {
+        "errors": 9,
+        "total_bits": 96,
+        "accuracy": 0.90625,
+        "exact_on_dataset": false,
+        "verified_truth_table": false,
+        "gates": 12,
+        "depth": 6
+      }
+    },
+    {
+      "m": 2,
+      "n": 4,
+      "pairs": 64,
+      "structural": {
+        "errors": 0,
+        "total_bits": 192,
+        "accuracy": 1.0,
+        "exact_on_dataset": true,
+        "verified_truth_table": true,
+        "gates": 77,
+        "depth": 25
+      },
+      "sequential_verified": true,
+      "cycles_nonzero_divisor": 2,
+      "random_search": [
+        {
+          "config": {
+            "gates": 85,
+            "population": 24,
+            "generations": 200,
+            "seed": 11,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 11,
+            "total_bits": 192,
+            "accuracy": 0.9427083333333334,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 6,
+            "depth": 4
+          },
+          "evaluations": 4801
+        },
+        {
+          "config": {
+            "gates": 85,
+            "population": 24,
+            "generations": 200,
+            "seed": 29,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 11,
+            "total_bits": 192,
+            "accuracy": 0.9427083333333334,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 7,
+            "depth": 6
+          },
+          "evaluations": 4801
+        },
+        {
+          "config": {
+            "gates": 85,
+            "population": 24,
+            "generations": 200,
+            "seed": 47,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 11,
+            "total_bits": 192,
+            "accuracy": 0.9427083333333334,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 7,
+            "depth": 4
+          },
+          "evaluations": 4801
+        }
+      ],
+      "random_best": {
+        "errors": 11,
+        "total_bits": 192,
+        "accuracy": 0.9427083333333334,
+        "exact_on_dataset": false,
+        "verified_truth_table": false,
+        "gates": 6,
+        "depth": 4
+      }
+    },
+    {
+      "m": 3,
+      "n": 1,
+      "pairs": 16,
+      "structural": {
+        "errors": 0,
+        "total_bits": 64,
+        "accuracy": 1.0,
+        "exact_on_dataset": true,
+        "verified_truth_table": true,
+        "gates": 35,
+        "depth": 14
+      },
+      "sequential_verified": true,
+      "cycles_nonzero_divisor": 3,
+      "random_search": [
+        {
+          "config": {
+            "gates": 43,
+            "population": 24,
+            "generations": 200,
+            "seed": 11,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 0,
+            "total_bits": 64,
+            "accuracy": 1.0,
+            "exact_on_dataset": true,
+            "verified_truth_table": true,
+            "gates": 10,
+            "depth": 4
+          },
+          "evaluations": 3253
+        },
+        {
+          "config": {
+            "gates": 43,
+            "population": 24,
+            "generations": 200,
+            "seed": 29,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 8,
+            "total_bits": 64,
+            "accuracy": 0.875,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 4,
+            "depth": 4
+          },
+          "evaluations": 4801
+        },
+        {
+          "config": {
+            "gates": 43,
+            "population": 24,
+            "generations": 200,
+            "seed": 47,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 0,
+            "total_bits": 64,
+            "accuracy": 1.0,
+            "exact_on_dataset": true,
+            "verified_truth_table": true,
+            "gates": 8,
+            "depth": 4
+          },
+          "evaluations": 4451
+        }
+      ],
+      "random_best": {
+        "errors": 0,
+        "total_bits": 64,
+        "accuracy": 1.0,
+        "exact_on_dataset": true,
+        "verified_truth_table": true,
+        "gates": 8,
+        "depth": 4
+      }
+    },
+    {
+      "m": 3,
+      "n": 2,
+      "pairs": 32,
+      "structural": {
+        "errors": 0,
+        "total_bits": 128,
+        "accuracy": 1.0,
+        "exact_on_dataset": true,
+        "verified_truth_table": true,
+        "gates": 70,
+        "depth": 27
+      },
+      "sequential_verified": true,
+      "cycles_nonzero_divisor": 3,
+      "random_search": [
+        {
+          "config": {
+            "gates": 78,
+            "population": 24,
+            "generations": 200,
+            "seed": 11,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 16,
+            "total_bits": 128,
+            "accuracy": 0.875,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 15,
+            "depth": 4
+          },
+          "evaluations": 4801
+        },
+        {
+          "config": {
+            "gates": 78,
+            "population": 24,
+            "generations": 200,
+            "seed": 29,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 27,
+            "total_bits": 128,
+            "accuracy": 0.7890625,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 7,
+            "depth": 3
+          },
+          "evaluations": 4801
+        },
+        {
+          "config": {
+            "gates": 78,
+            "population": 24,
+            "generations": 200,
+            "seed": 47,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 19,
+            "total_bits": 128,
+            "accuracy": 0.8515625,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 11,
+            "depth": 4
+          },
+          "evaluations": 4801
+        }
+      ],
+      "random_best": {
+        "errors": 16,
+        "total_bits": 128,
+        "accuracy": 0.875,
+        "exact_on_dataset": false,
+        "verified_truth_table": false,
+        "gates": 15,
+        "depth": 4
+      }
+    },
+    {
+      "m": 3,
+      "n": 3,
+      "pairs": 64,
+      "structural": {
+        "errors": 0,
+        "total_bits": 256,
+        "accuracy": 1.0,
+        "exact_on_dataset": true,
+        "verified_truth_table": true,
+        "gates": 105,
+        "depth": 33
+      },
+      "sequential_verified": true,
+      "cycles_nonzero_divisor": 3,
+      "random_search": [
+        {
+          "config": {
+            "gates": 113,
+            "population": 24,
+            "generations": 200,
+            "seed": 11,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 31,
+            "total_bits": 256,
+            "accuracy": 0.87890625,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 23,
+            "depth": 7
+          },
+          "evaluations": 4801
+        },
+        {
+          "config": {
+            "gates": 113,
+            "population": 24,
+            "generations": 200,
+            "seed": 29,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 43,
+            "total_bits": 256,
+            "accuracy": 0.83203125,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 15,
+            "depth": 5
+          },
+          "evaluations": 4801
+        },
+        {
+          "config": {
+            "gates": 113,
+            "population": 24,
+            "generations": 200,
+            "seed": 47,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 37,
+            "total_bits": 256,
+            "accuracy": 0.85546875,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 18,
+            "depth": 6
+          },
+          "evaluations": 4801
+        }
+      ],
+      "random_best": {
+        "errors": 31,
+        "total_bits": 256,
+        "accuracy": 0.87890625,
+        "exact_on_dataset": false,
+        "verified_truth_table": false,
+        "gates": 23,
+        "depth": 7
+      }
+    },
+    {
+      "m": 3,
+      "n": 4,
+      "pairs": 128,
+      "structural": {
+        "errors": 0,
+        "total_bits": 512,
+        "accuracy": 1.0,
+        "exact_on_dataset": true,
+        "verified_truth_table": true,
+        "gates": 140,
+        "depth": 39
+      },
+      "sequential_verified": true,
+      "cycles_nonzero_divisor": 3,
+      "random_search": [
+        {
+          "config": {
+            "gates": 128,
+            "population": 24,
+            "generations": 200,
+            "seed": 11,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 43,
+            "total_bits": 512,
+            "accuracy": 0.916015625,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 17,
+            "depth": 7
+          },
+          "evaluations": 4801
+        },
+        {
+          "config": {
+            "gates": 128,
+            "population": 24,
+            "generations": 200,
+            "seed": 29,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 43,
+            "total_bits": 512,
+            "accuracy": 0.916015625,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 17,
+            "depth": 7
+          },
+          "evaluations": 4801
+        },
+        {
+          "config": {
+            "gates": 128,
+            "population": 24,
+            "generations": 200,
+            "seed": 47,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 51,
+            "total_bits": 512,
+            "accuracy": 0.900390625,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 24,
+            "depth": 11
+          },
+          "evaluations": 4801
+        }
+      ],
+      "random_best": {
+        "errors": 43,
+        "total_bits": 512,
+        "accuracy": 0.916015625,
+        "exact_on_dataset": false,
+        "verified_truth_table": false,
+        "gates": 17,
+        "depth": 7
+      }
+    },
+    {
+      "m": 4,
+      "n": 1,
+      "pairs": 32,
+      "structural": {
+        "errors": 0,
+        "total_bits": 160,
+        "accuracy": 1.0,
+        "exact_on_dataset": true,
+        "verified_truth_table": true,
+        "gates": 50,
+        "depth": 19
+      },
+      "sequential_verified": true,
+      "cycles_nonzero_divisor": 4,
+      "random_search": [
+        {
+          "config": {
+            "gates": 58,
+            "population": 24,
+            "generations": 200,
+            "seed": 11,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 16,
+            "total_bits": 160,
+            "accuracy": 0.9,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 10,
+            "depth": 4
+          },
+          "evaluations": 4801
+        },
+        {
+          "config": {
+            "gates": 58,
+            "population": 24,
+            "generations": 200,
+            "seed": 29,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 16,
+            "total_bits": 160,
+            "accuracy": 0.9,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 6,
+            "depth": 3
+          },
+          "evaluations": 4801
+        },
+        {
+          "config": {
+            "gates": 58,
+            "population": 24,
+            "generations": 200,
+            "seed": 47,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 16,
+            "total_bits": 160,
+            "accuracy": 0.9,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 7,
+            "depth": 4
+          },
+          "evaluations": 4801
+        }
+      ],
+      "random_best": {
+        "errors": 16,
+        "total_bits": 160,
+        "accuracy": 0.9,
+        "exact_on_dataset": false,
+        "verified_truth_table": false,
+        "gates": 6,
+        "depth": 3
+      }
+    },
+    {
+      "m": 4,
+      "n": 2,
+      "pairs": 64,
+      "structural": {
+        "errors": 0,
+        "total_bits": 320,
+        "accuracy": 1.0,
+        "exact_on_dataset": true,
+        "verified_truth_table": true,
+        "gates": 101,
+        "depth": 37
+      },
+      "sequential_verified": true,
+      "cycles_nonzero_divisor": 4,
+      "random_search": [
+        {
+          "config": {
+            "gates": 109,
+            "population": 24,
+            "generations": 200,
+            "seed": 11,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 69,
+            "total_bits": 320,
+            "accuracy": 0.784375,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 18,
+            "depth": 8
+          },
+          "evaluations": 4801
+        },
+        {
+          "config": {
+            "gates": 109,
+            "population": 24,
+            "generations": 200,
+            "seed": 29,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 63,
+            "total_bits": 320,
+            "accuracy": 0.803125,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 15,
+            "depth": 6
+          },
+          "evaluations": 4801
+        },
+        {
+          "config": {
+            "gates": 109,
+            "population": 24,
+            "generations": 200,
+            "seed": 47,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 63,
+            "total_bits": 320,
+            "accuracy": 0.803125,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 23,
+            "depth": 7
+          },
+          "evaluations": 4801
+        }
+      ],
+      "random_best": {
+        "errors": 63,
+        "total_bits": 320,
+        "accuracy": 0.803125,
+        "exact_on_dataset": false,
+        "verified_truth_table": false,
+        "gates": 15,
+        "depth": 6
+      }
+    },
+    {
+      "m": 4,
+      "n": 3,
+      "pairs": 128,
+      "structural": {
+        "errors": 0,
+        "total_bits": 640,
+        "accuracy": 1.0,
+        "exact_on_dataset": true,
+        "verified_truth_table": true,
+        "gates": 152,
+        "depth": 45
+      },
+      "sequential_verified": true,
+      "cycles_nonzero_divisor": 4,
+      "random_search": [
+        {
+          "config": {
+            "gates": 128,
+            "population": 24,
+            "generations": 200,
+            "seed": 11,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 104,
+            "total_bits": 640,
+            "accuracy": 0.8375,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 23,
+            "depth": 6
+          },
+          "evaluations": 4801
+        },
+        {
+          "config": {
+            "gates": 128,
+            "population": 24,
+            "generations": 200,
+            "seed": 29,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 162,
+            "total_bits": 640,
+            "accuracy": 0.746875,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 12,
+            "depth": 5
+          },
+          "evaluations": 4801
+        },
+        {
+          "config": {
+            "gates": 128,
+            "population": 24,
+            "generations": 200,
+            "seed": 47,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 122,
+            "total_bits": 640,
+            "accuracy": 0.809375,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 34,
+            "depth": 8
+          },
+          "evaluations": 4801
+        }
+      ],
+      "random_best": {
+        "errors": 104,
+        "total_bits": 640,
+        "accuracy": 0.8375,
+        "exact_on_dataset": false,
+        "verified_truth_table": false,
+        "gates": 23,
+        "depth": 6
+      }
+    },
+    {
+      "m": 4,
+      "n": 4,
+      "pairs": 256,
+      "structural": {
+        "errors": 0,
+        "total_bits": 1280,
+        "accuracy": 1.0,
+        "exact_on_dataset": true,
+        "verified_truth_table": true,
+        "gates": 203,
+        "depth": 53
+      },
+      "sequential_verified": true,
+      "cycles_nonzero_divisor": 4,
+      "random_search": [
+        {
+          "config": {
+            "gates": 128,
+            "population": 24,
+            "generations": 200,
+            "seed": 11,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 172,
+            "total_bits": 1280,
+            "accuracy": 0.865625,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 7,
+            "depth": 5
+          },
+          "evaluations": 4801
+        },
+        {
+          "config": {
+            "gates": 128,
+            "population": 24,
+            "generations": 200,
+            "seed": 29,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 160,
+            "total_bits": 1280,
+            "accuracy": 0.875,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 15,
+            "depth": 6
+          },
+          "evaluations": 4801
+        },
+        {
+          "config": {
+            "gates": 128,
+            "population": 24,
+            "generations": 200,
+            "seed": 47,
+            "backend": "python",
+            "repair_cases": 0,
+            "optimize": false,
+            "restarts": 1,
+            "islands": 1,
+            "migration_interval": 10,
+            "neutral": false
+          },
+          "fitness": {
+            "errors": 160,
+            "total_bits": 1280,
+            "accuracy": 0.875,
+            "exact_on_dataset": false,
+            "verified_truth_table": false,
+            "gates": 12,
+            "depth": 5
+          },
+          "evaluations": 4801
+        }
+      ],
+      "random_best": {
+        "errors": 160,
+        "total_bits": 1280,
+        "accuracy": 0.875,
+        "exact_on_dataset": false,
+        "verified_truth_table": false,
+        "gates": 12,
+        "depth": 5
+      }
+    }
+  ],
+  "total_division_pairs": 900,
+  "scope": "Kernel NAND counts exclude registers, clock, controller and zero detection."
+}

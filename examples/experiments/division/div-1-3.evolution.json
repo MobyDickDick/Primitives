@@ -1,0 +1,712 @@
+{
+  "circuit": {
+    "inputs": 4,
+    "gates": [
+      [
+        2,
+        2
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        5,
+        5
+      ]
+    ],
+    "outputs": [
+      6,
+      6
+    ]
+  },
+  "fitness": {
+    "errors": 3,
+    "total_bits": 32,
+    "accuracy": 0.90625,
+    "exact_on_dataset": false,
+    "verified_truth_table": false,
+    "gates": 3,
+    "depth": 3
+  },
+  "search": {
+    "gates": 25,
+    "population": 24,
+    "generations": 200,
+    "seed": 11,
+    "backend": "python",
+    "repair_cases": 0,
+    "optimize": false,
+    "restarts": 1,
+    "islands": 1,
+    "migration_interval": 10,
+    "neutral": false,
+    "generation": 200,
+    "evaluations": 4801,
+    "history": [
+      {
+        "generation": 0,
+        "errors": 13,
+        "score": 8949,
+        "evaluations": 24
+      },
+      {
+        "generation": 1,
+        "errors": 13,
+        "score": 8923,
+        "evaluations": 48
+      },
+      {
+        "generation": 2,
+        "errors": 11,
+        "score": 7597,
+        "evaluations": 72
+      },
+      {
+        "generation": 5,
+        "errors": 11,
+        "score": 7570,
+        "evaluations": 144
+      },
+      {
+        "generation": 30,
+        "errors": 11,
+        "score": 7543,
+        "evaluations": 744
+      },
+      {
+        "generation": 31,
+        "errors": 7,
+        "score": 4839,
+        "evaluations": 768
+      },
+      {
+        "generation": 38,
+        "errors": 3,
+        "score": 2109,
+        "evaluations": 936
+      }
+    ],
+    "library_candidates": 0,
+    "selection": "tournament",
+    "objective": "errors_gates_depth",
+    "phases": [],
+    "tournament_size": 3,
+    "parent_population": 24,
+    "restarts_completed": 1,
+    "runs": [
+      {
+        "restart": 0,
+        "seed": 11,
+        "evaluations": 4801,
+        "best_score": 2109,
+        "generation": 200,
+        "migrations": 0,
+        "island_populations": [
+          24
+        ],
+        "diversity": {
+          "restart": 0,
+          "generation": 200,
+          "stage": "final",
+          "evaluations": 4801,
+          "size": 24,
+          "unique_genomes": 18,
+          "unique_fraction": 0.75,
+          "mean_hamming": 0.22791248606465997,
+          "islands": [
+            {
+              "size": 24,
+              "unique_genomes": 18,
+              "unique_fraction": 0.75,
+              "mean_hamming": 0.22791248606465997
+            }
+          ]
+        }
+      }
+    ],
+    "diversity_history": [
+      {
+        "restart": 0,
+        "generation": 0,
+        "stage": "initial",
+        "evaluations": 24,
+        "size": 24,
+        "unique_genomes": 24,
+        "unique_fraction": 1.0,
+        "mean_hamming": 0.9190356744704571,
+        "islands": [
+          {
+            "size": 24,
+            "unique_genomes": 24,
+            "unique_fraction": 1.0,
+            "mean_hamming": 0.9190356744704571
+          }
+        ]
+      },
+      {
+        "restart": 0,
+        "generation": 200,
+        "stage": "final",
+        "evaluations": 4801,
+        "size": 24,
+        "unique_genomes": 18,
+        "unique_fraction": 0.75,
+        "mean_hamming": 0.22791248606465997,
+        "islands": [
+          {
+            "size": 24,
+            "unique_genomes": 18,
+            "unique_fraction": 0.75,
+            "mean_hamming": 0.22791248606465997
+          }
+        ]
+      }
+    ],
+    "diversity": {
+      "restart": 0,
+      "generation": 200,
+      "stage": "final",
+      "evaluations": 4801,
+      "size": 24,
+      "unique_genomes": 18,
+      "unique_fraction": 0.75,
+      "mean_hamming": 0.22791248606465997,
+      "islands": [
+        {
+          "size": 24,
+          "unique_genomes": 18,
+          "unique_fraction": 0.75,
+          "mean_hamming": 0.22791248606465997
+        }
+      ]
+    },
+    "evaluation_budget": 4801,
+    "ancestry": {
+      "schema": 1,
+      "scope": "winner_ancestors",
+      "root": 930,
+      "nodes": [
+        {
+          "id": 731,
+          "restart": 0,
+          "generation": 30,
+          "island": 0,
+          "score": 7543,
+          "parents": [],
+          "operator": "random",
+          "genome": [
+            0,
+            2,
+            2,
+            4,
+            5,
+            5,
+            4,
+            6,
+            5,
+            4,
+            1,
+            8,
+            1,
+            1,
+            6,
+            10,
+            11,
+            2,
+            5,
+            9,
+            3,
+            7,
+            4,
+            13,
+            6,
+            14,
+            1,
+            1,
+            4,
+            13,
+            5,
+            7,
+            17,
+            6,
+            14,
+            17,
+            0,
+            3,
+            15,
+            11,
+            19,
+            1,
+            19,
+            16,
+            8,
+            10,
+            2,
+            10,
+            3,
+            19,
+            6,
+            17
+          ],
+          "origin": {
+            "kind": "random"
+          }
+        },
+        {
+          "id": 735,
+          "restart": 0,
+          "generation": 30,
+          "island": 0,
+          "score": 7543,
+          "parents": [
+            731
+          ],
+          "operator": "variation",
+          "changes": [
+            [
+              6,
+              5
+            ]
+          ],
+          "crossover_genes": [],
+          "mutation_genes": [
+            6
+          ]
+        },
+        {
+          "id": 755,
+          "restart": 0,
+          "generation": 31,
+          "island": 0,
+          "score": 7543,
+          "parents": [
+            731
+          ],
+          "operator": "variation",
+          "changes": [],
+          "crossover_genes": [],
+          "mutation_genes": []
+        },
+        {
+          "id": 756,
+          "restart": 0,
+          "generation": 31,
+          "island": 0,
+          "score": 7543,
+          "parents": [
+            731
+          ],
+          "operator": "variation",
+          "changes": [],
+          "crossover_genes": [],
+          "mutation_genes": []
+        },
+        {
+          "id": 757,
+          "restart": 0,
+          "generation": 31,
+          "island": 0,
+          "score": 7543,
+          "parents": [
+            755,
+            735
+          ],
+          "operator": "variation",
+          "changes": [
+            [
+              6,
+              5
+            ],
+            [
+              11,
+              6
+            ]
+          ],
+          "crossover_genes": [
+            0,
+            3,
+            5,
+            6,
+            14,
+            15,
+            16,
+            17,
+            19,
+            20,
+            24,
+            25,
+            27,
+            28,
+            30,
+            31,
+            32,
+            34,
+            36,
+            37,
+            43,
+            44,
+            48,
+            49,
+            51
+          ],
+          "mutation_genes": [
+            11
+          ]
+        },
+        {
+          "id": 758,
+          "restart": 0,
+          "generation": 31,
+          "island": 0,
+          "score": 7543,
+          "parents": [
+            756
+          ],
+          "operator": "variation",
+          "changes": [
+            [
+              9,
+              2
+            ]
+          ],
+          "crossover_genes": [],
+          "mutation_genes": [
+            9,
+            15
+          ]
+        },
+        {
+          "id": 763,
+          "restart": 0,
+          "generation": 31,
+          "island": 0,
+          "score": 7543,
+          "parents": [
+            757
+          ],
+          "operator": "variation",
+          "changes": [],
+          "crossover_genes": [],
+          "mutation_genes": []
+        },
+        {
+          "id": 765,
+          "restart": 0,
+          "generation": 31,
+          "island": 0,
+          "score": 4839,
+          "parents": [
+            756
+          ],
+          "operator": "variation",
+          "changes": [
+            [
+              0,
+              2
+            ],
+            [
+              22,
+              9
+            ]
+          ],
+          "crossover_genes": [],
+          "mutation_genes": [
+            0,
+            2,
+            22
+          ]
+        },
+        {
+          "id": 766,
+          "restart": 0,
+          "generation": 31,
+          "island": 0,
+          "score": 7543,
+          "parents": [
+            763,
+            758
+          ],
+          "operator": "variation",
+          "changes": [
+            [
+              11,
+              8
+            ]
+          ],
+          "crossover_genes": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            7,
+            10,
+            11,
+            13,
+            14,
+            21,
+            23,
+            24,
+            25,
+            26,
+            27,
+            29,
+            31,
+            33,
+            34,
+            36,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            51
+          ],
+          "mutation_genes": [
+            27
+          ]
+        },
+        {
+          "id": 769,
+          "restart": 0,
+          "generation": 32,
+          "island": 0,
+          "score": 7543,
+          "parents": [
+            766
+          ],
+          "operator": "variation",
+          "changes": [],
+          "crossover_genes": [],
+          "mutation_genes": []
+        },
+        {
+          "id": 774,
+          "restart": 0,
+          "generation": 32,
+          "island": 0,
+          "score": 7543,
+          "parents": [
+            769
+          ],
+          "operator": "variation",
+          "changes": [],
+          "crossover_genes": [],
+          "mutation_genes": []
+        },
+        {
+          "id": 779,
+          "restart": 0,
+          "generation": 32,
+          "island": 0,
+          "score": 4839,
+          "parents": [
+            774
+          ],
+          "operator": "variation",
+          "changes": [
+            [
+              0,
+              2
+            ],
+            [
+              49,
+              11
+            ]
+          ],
+          "crossover_genes": [],
+          "mutation_genes": [
+            0,
+            49
+          ]
+        },
+        {
+          "id": 781,
+          "restart": 0,
+          "generation": 32,
+          "island": 0,
+          "score": 4839,
+          "parents": [
+            779
+          ],
+          "operator": "variation",
+          "changes": [
+            [
+              43,
+              10
+            ]
+          ],
+          "crossover_genes": [],
+          "mutation_genes": [
+            43
+          ]
+        },
+        {
+          "id": 840,
+          "restart": 0,
+          "generation": 34,
+          "island": 0,
+          "score": 4839,
+          "parents": [
+            781,
+            765
+          ],
+          "operator": "variation",
+          "changes": [
+            [
+              6,
+              4
+            ]
+          ],
+          "crossover_genes": [
+            3,
+            6,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            15,
+            18,
+            24,
+            27,
+            30,
+            32,
+            33,
+            34,
+            35,
+            36,
+            37,
+            38,
+            40,
+            42,
+            44,
+            45,
+            46,
+            48,
+            51
+          ],
+          "mutation_genes": []
+        },
+        {
+          "id": 849,
+          "restart": 0,
+          "generation": 35,
+          "island": 0,
+          "score": 4839,
+          "parents": [
+            840
+          ],
+          "operator": "variation",
+          "changes": [
+            [
+              31,
+              10
+            ]
+          ],
+          "crossover_genes": [],
+          "mutation_genes": [
+            31
+          ]
+        },
+        {
+          "id": 857,
+          "restart": 0,
+          "generation": 35,
+          "island": 0,
+          "score": 4839,
+          "parents": [
+            849
+          ],
+          "operator": "variation",
+          "changes": [],
+          "crossover_genes": [],
+          "mutation_genes": []
+        },
+        {
+          "id": 928,
+          "restart": 0,
+          "generation": 38,
+          "island": 0,
+          "score": 4839,
+          "parents": [
+            857
+          ],
+          "operator": "variation",
+          "changes": [
+            [
+              22,
+              0
+            ]
+          ],
+          "crossover_genes": [],
+          "mutation_genes": [
+            22
+          ]
+        },
+        {
+          "id": 930,
+          "restart": 0,
+          "generation": 38,
+          "island": 0,
+          "score": 2109,
+          "parents": [
+            928
+          ],
+          "operator": "variation",
+          "changes": [
+            [
+              45,
+              25
+            ],
+            [
+              49,
+              3
+            ],
+            [
+              51,
+              6
+            ]
+          ],
+          "crossover_genes": [],
+          "mutation_genes": [
+            45,
+            49,
+            51
+          ]
+        }
+      ],
+      "sources": {},
+      "migrations": [],
+      "transformations": [
+        {
+          "operation": "compact",
+          "circuit": {
+            "inputs": 4,
+            "gates": [
+              [
+                2,
+                2
+              ],
+              [
+                2,
+                4
+              ],
+              [
+                5,
+                5
+              ]
+            ],
+            "outputs": [
+              6,
+              6
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

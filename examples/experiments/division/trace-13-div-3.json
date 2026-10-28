@@ -1,0 +1,40 @@
+{
+  "c": 4,
+  "err": 0,
+  "remainder": 1,
+  "cycles": 4,
+  "trace": [
+    {
+      "cycle": 1,
+      "input_bit": 1,
+      "r": 0,
+      "rnext": 1,
+      "take": 0,
+      "qnext": 0
+    },
+    {
+      "cycle": 2,
+      "input_bit": 1,
+      "r": 1,
+      "rnext": 0,
+      "take": 1,
+      "qnext": 1
+    },
+    {
+      "cycle": 3,
+      "input_bit": 0,
+      "r": 0,
+      "rnext": 0,
+      "take": 0,
+      "qnext": 2
+    },
+    {
+      "cycle": 4,
+      "input_bit": 1,
+      "r": 0,
+      "rnext": 1,
+      "take": 0,
+      "qnext": 4
+    }
+  ]
+}

@@ -89,6 +89,16 @@ Für w=1,2,3,4 liegen vollständig geprüfte flache NAND-Netze vor.
 Template und Funktionen erscheinen beim nächsten Serverstart unter
 **Beispiele → Rekursion**. Siehe [rekursive Division](docs/REKURSIVE-DIVISION.md).
 
+Die [ergänzende Divisionsuntersuchung](docs/DIVISIONS-UNTERSUCHUNG.md) prüft
+alle 16 Kombinationen von 1 bis 4 Bit breiten Operanden, erzeugt Tabellen
+und führt reproduzierbare Evolutionsversuche durch. Eine weitere generative
+Rekursion führt Quotient und Rest gemeinsam weiter: 203 NANDs für die
+vollständige 4/4-Bit-Division. Ein getaktet wiederverwendeter Schritt wurde
+von 61 auf 55 NANDs optimiert; Register und Steuerung kommen hinzu.
+Die Rückführung ist mit den konkreten NAND-Netzen simuliert und für alle
+900 Eingabepaare geprüft. Exporte und [Messbericht](examples/experiments/division/report.md)
+entstehen mit `python -m tools.investigate_division`.
+
 Im Template-Editor übersetzt **Direkt in NAND übersetzen & speichern** feste
 Bit-Stufen konventionell: Schleifen werden für die gewählte Breite entrollt,
 `bits`/`pack` werden Verdrahtung und `& | ^` werden NAND-Gatter. Die vier neuen
