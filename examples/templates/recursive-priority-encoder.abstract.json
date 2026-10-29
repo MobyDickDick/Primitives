@@ -1,0 +1,38 @@
+{
+  "schema": 1,
+  "kind": "template",
+  "name": "PE<t>",
+  "description": "Prioritätsencoder: Index c des niedrigsten gesetzten Bits und valid. Für a=0 gilt c=0, valid=0; sonst valid=1. Mehrfachbelegung wählt den kleinsten Index. t ist eine positive Zweierpotenz bis 128; c hat max(1,LOG2(t)) Bits. NAND-Übersetzung und F-Boxen unterliegen der 512-Gattergrenze.",
+  "parameters": [
+    "t"
+  ],
+  "interface": {
+    "inputs": [
+      {
+        "name": "a",
+        "bits": "t"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "c",
+        "bits": "max(1,LOG2(t))"
+      },
+      {
+        "name": "valid",
+        "bits": 1
+      }
+    ]
+  },
+  "source": "# PE<t>: Index des niedrigsten gesetzten Bits, danach valid; LSB-first.\n# t ist eine positive Zweierpotenz bis 128. Null liefert [0, 0].\n# Der Index hat max(1, LOG2(t)) Bits, valid genau ein Bit.\n\n# Zwei gueltige Teilindizes verbinden; die untere Haelfte hat Vorrang.\n# Bei valid=0 muss der zugehoerige Teilindex null sein.\ndef PriorityMerge<k>(lo, hi, lo_valid, hi_valid):\n    assert k >= 1 and k <= 64 and (k & (k - 1)) == 0\n    r = LOG2(k)\n    w = r\n    if k == 1:\n        w = 1\n    l = bits(lo, w)\n    h = bits(hi, w)\n    lv = bits(lo_valid, 1)[0]\n    hv = bits(hi_valid, 1)[0]\n    c = [0] * (r + 2)\n    for i in range(r):\n        c[i] = (lv & l[i]) | ((1 ^ lv) & h[i])\n    # Der Offset k ist eine Zweierpotenz und wird als Indexbit angehaengt.\n    c[r] = (1 ^ lv) & hv\n    c[r + 1] = lv | hv\n    return pack(c)\n\ndef PE<t>(a):\n    assert t >= 1 and t <= 128 and (t & (t - 1)) == 0\n    x = bits(a, t)\n    if t == 1:\n        return pack([0, x[0]])\n    k = t // 2\n    r = LOG2(k)\n    if k == 1:\n        r = 1\n    lo = bits(PE<k>(pack(x[:k])), r + 1)\n    hi = bits(PE<k>(pack(x[k:])), r + 1)\n    return PriorityMerge<k>(pack(lo[:r]), pack(hi[:r]), lo[r], hi[r])\n\n# Ergebnisports aus dem gepackten rekursiven Ergebnis lesen.\nr = LOG2(t)\nif t == 1:\n    r = 1\nresult = bits(PE<t>(a), r + 1)\nreturn pack(result[:r]), result[r]\n",
+  "limits": {
+    "steps": 100000,
+    "iterations": 10000,
+    "total_steps": 5000000
+  },
+  "conditions": [
+    "t >= 1",
+    "t <= 128",
+    "is_power_of_two(t)"
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "root": "block-fc5b00688f5464350b023b59620c5c90fbda4746966129a6d689186b5fe466dc",
+  "definitions": {
+    "block-fc5b00688f5464350b023b59620c5c90fbda4746966129a6d689186b5fe466dc": {
+      "name": "PE<1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "valid",
+            "bits": 1,
+            "signed": false,
+            "offset": 1,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 1,
+        "gates": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            2,
+            2
+          ]
+        ],
+        "outputs": [
+          3,
+          0
+        ]
+      }
+    }
+  }
+}

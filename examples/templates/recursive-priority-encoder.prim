@@ -1,0 +1,43 @@
+# PE<t>: Index des niedrigsten gesetzten Bits, danach valid; LSB-first.
+# t ist eine positive Zweierpotenz bis 128. Null liefert [0, 0].
+# Der Index hat max(1, LOG2(t)) Bits, valid genau ein Bit.
+
+# Zwei gueltige Teilindizes verbinden; die untere Haelfte hat Vorrang.
+# Bei valid=0 muss der zugehoerige Teilindex null sein.
+def PriorityMerge<k>(lo, hi, lo_valid, hi_valid):
+    assert k >= 1 and k <= 64 and (k & (k - 1)) == 0
+    r = LOG2(k)
+    w = r
+    if k == 1:
+        w = 1
+    l = bits(lo, w)
+    h = bits(hi, w)
+    lv = bits(lo_valid, 1)[0]
+    hv = bits(hi_valid, 1)[0]
+    c = [0] * (r + 2)
+    for i in range(r):
+        c[i] = (lv & l[i]) | ((1 ^ lv) & h[i])
+    # Der Offset k ist eine Zweierpotenz und wird als Indexbit angehaengt.
+    c[r] = (1 ^ lv) & hv
+    c[r + 1] = lv | hv
+    return pack(c)
+
+def PE<t>(a):
+    assert t >= 1 and t <= 128 and (t & (t - 1)) == 0
+    x = bits(a, t)
+    if t == 1:
+        return pack([0, x[0]])
+    k = t // 2
+    r = LOG2(k)
+    if k == 1:
+        r = 1
+    lo = bits(PE<k>(pack(x[:k])), r + 1)
+    hi = bits(PE<k>(pack(x[k:])), r + 1)
+    return PriorityMerge<k>(pack(lo[:r]), pack(hi[:r]), lo[r], hi[r])
+
+# Ergebnisports aus dem gepackten rekursiven Ergebnis lesen.
+r = LOG2(t)
+if t == 1:
+    r = 1
+result = bits(PE<t>(a), r + 1)
+return pack(result[:r]), result[r]

@@ -6,6 +6,11 @@ Paar `[c,err]`: c hat t Bits, err hat ein Bit. Für `a=0` ist es genau
 `[const<t>(0),1]`, sonst `[floor(log2(a)),0]`. Index 0 ist gültig und
 wird durch err=0 vom Nullfehler unterschieden.
 
+Das Gegenstück [PE<t>: Prioritätsencoder](PRIORITAETSENCODER.md) liefert den
+**niedrigsten** gesetzten Bitindex mit max(1,LOG2(t)) Indexbits und `valid`.
+Bei null ist dessen Ergebnis `[0,0]`; das valid-Bit ist das Gegenstück zu err.
+Bei mehreren gesetzten Bits priorisiert m die obere und PE die untere Hälfte.
+
 Die [generative Quelle](../examples/templates/recursive-max-index.prim)
 und das [ausführbare Template](../examples/templates/recursive-max-index.abstract.json)
 sind gespeichert. Die mathematische Konstruktion gilt für jede Zweierpotenz t.

@@ -26,6 +26,13 @@ und NAND-Netzen (je 1, 6 bzw. 19 NANDs). Beim nächsten Serverstart erscheinen s
 unter **Beispiele → Rekursion → Nullbits zählen (CLZ & CTZ)**.
 Siehe [CLZ/CTZ und Breitenlimits](docs/CLZ-CTZ.md).
 
+`PE<t>(a)` liefert den Index des niedrigsten gesetzten Bits plus `valid`.
+Für a=0 gilt `[0,0]`; bei mehreren gesetzten Bits gewinnt der kleinste Index.
+Der Index hat max(1,LOG2(t)) Bits. GEN-02 ergänzt drei vollständig geprüfte
+Instanzen für t=1,2,4 mit F-Boxen und NAND-Netzen (3, 5 bzw. 18 NANDs).
+Beim nächsten Serverstart erscheinen sie unter **Beispiele → Rekursion →
+Prioritätsencoder**. Siehe [Prioritätsencoder und maximales Bitindex-Gegenstück](docs/PRIORITAETSENCODER.md).
+
 Die **Bibliothek** zeigt Templates und konkrete Funktionen in einem gemeinsamen
 Verzeichnisbaum. Ordner und Unterordner lassen sich anlegen, umbenennen,
 beschreiben und verschieben; Einträge können in jeden Ordner einsortiert werden.

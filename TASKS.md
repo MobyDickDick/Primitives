@@ -9,7 +9,10 @@
 - [ ] Weitere generative Templates nach [priorisierter Aufgabenliste GEN-01 bis GEN-16](docs/GENERATIVE-AUFGABEN.md) umsetzen.
 - [x] GEN-01: CLZ/CTZ mit rekursiven Templates, sechs F-Boxen/NAND-Netzen und
       vollständiger Prüfung aller 44 kleinen Eingabefälle; [Dokumentation](docs/CLZ-CTZ.md).
-      Nächste offene Template-Aufgabe: GEN-02 (Prioritätsencoder).
+- [x] GEN-02: Prioritätsencoder für den niedrigsten gesetzten Bitindex mit valid,
+      drei F-Boxen/NAND-Netzen und vollständiger Prüfung aller 22 kleinen Eingabefälle;
+      [Dokumentation](docs/PRIORITAETSENCODER.md).
+      Nächste offene Template-Aufgabe: GEN-03 (Decoder / One-Hot).
 
 Beschreibung und Erzeugung: [Standardarithmetik](docs/STANDARD-ARITHMETIK.md).
 

@@ -1,5 +1,28 @@
 # Verifikation des ersten Prototyps
 
+## GEN-02: Prioritätsencoder
+
+Geprüft am 29. Oktober 2026: **279 Python-Tests** einschliesslich der lokalen
+HTTP-Integrationstests mit `python -m unittest discover -s tests -v` erfolgreich.
+Die HTTP-Verbindungen benötigen unter Windows einen Lauf ausserhalb der Sandbox;
+dort besteht die vollständige Suite. Ausserdem bestehen **34 JavaScript-Tests**
+mit `node --test tests/test_*.js` und `git diff --check`.
+
+Sieben neue Tests prüfen `PE<t>`: alle 22 kleinen Eingaben für t=1,2,4 gegen
+eine unabhängige Bitpositionssuche, Referenzprogramm, F-Boxen, expandierte und
+vereinfachte NAND-Netze sowie direkte Quellsynthese. Auch der Zusammenhang mit
+dem maximalen Bitindex-Template bei umgekehrter Bitreihenfolge wird geprüft.
+Null, Mehrfachbelegung, jeder mögliche Gewinnerindex, Helferkomposition,
+ungültige Parameter und Funktionsaufrufe sowie die Gattergrenze sind abgedeckt.
+Grössere Breiten bis 128 Bit verwenden ausdrücklich Grenzfälle und Stichproben.
+
+Die separate Migration erhält eigene Ordner, Namen, Zuordnungen und eine
+bessere vorhandene Schaltung. Gelöschte Funktionen, Templates und F-Boxen
+werden bei späteren Starts nicht erneut angelegt. Die HTTP-Tests prüfen das
+Upgrade, den vollständigen Beispielkatalog, direkte Synthese und F-Box-Auswertung.
+Alle 17 generierten Exportdateien lassen sich bytegleich erneut erzeugen.
+Siehe [Prioritätsencoder](PRIORITAETSENCODER.md).
+
 ## Rekursive Multiplikation mit F-Boxen
 
 Geprüft am 26. Oktober 2026: **184 Kern-/CLI-/Suchtests** innerhalb der Sandbox

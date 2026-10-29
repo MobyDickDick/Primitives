@@ -33,11 +33,16 @@ getrennt umsetzbar, sofern die genannten Abhängigkeiten verfügbar sind.
   Zweierpotenzbreiten. Abhängigkeiten: ISZERO, Auswahl und Indexaddition.
   Umgesetzt: t=1,2,4 vollständig geprüft (44 Fälle), grössere Referenzen bis 128 Bit
   mit Grenzfällen/Stichproben. F-Boxen, NAND-Exporte und einmalige Migration vorhanden.
-  Siehe [CLZ/CTZ](CLZ-CTZ.md). Nächste offene Aufgabe: GEN-02.
-- [ ] **GEN-02 – Prioritätsencoder:** Index des niedrigsten gesetzten Bits plus
+  Siehe [CLZ/CTZ](CLZ-CTZ.md).
+- [x] **GEN-02 – Prioritätsencoder:** Index des niedrigsten gesetzten Bits plus
   valid-Bit; vorhandenes maximales Bitindex-Template als Gegenstück dokumentieren.
   Für a=0: Index=0, valid=0; Mehrfachbelegung wählt den kleinsten Index.
   Prüfen: t=1,2,4 mit allen Bitmustern; Ausgangsbreite mindestens ein Bit.
+  Umgesetzt: `PE<t>` mit kompakter Indexbreite max(1,LOG2(t)); alle 22 kleinen
+  Eingabefälle vollständig geprüft. Rekursive F-Boxen, NAND-Exporte, grössere
+  Referenzen/Grenzfälle bis 128 Bit und einmalige Migration vorhanden.
+  Siehe [Prioritätsencoder und Gegenstück m<t>](PRIORITAETSENCODER.md).
+  Nächste offene Template-Aufgabe: GEN-03.
 - [ ] **GEN-03 – Decoder / One-Hot:** w-Bit-Code ergibt 2**w Ausgangsbits,
   optional enable. Auch die Umkehrung mit valid und multiple für ungültige
   One-Hot-Eingaben definieren. Prüfen: w=1,2,4 und sämtliche Eingaben,

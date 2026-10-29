@@ -16,6 +16,40 @@ ROUTING_EXAMPLES = ("multiplexer", "demultiplexer")
 ZERO_COUNT_EXAMPLES = ("clz", "ctz")
 
 
+def install_priority_encoder_examples(library):
+    """Install GEN-02 once, retaining existing folders, labels and better nets."""
+    marker = library.root / "example-installations.json"
+    with library._lock:
+        installed = json.loads(marker.read_text(encoding="utf-8")) if marker.exists() else {}
+        if installed.get("priority-encoder-v1"):
+            return
+        organization = library._organization()
+        folders = [
+            {"id": "examples", "parent": None, "name": "Beispiele", "description": "Editierbare Beispiele."},
+            {"id": "recursion", "parent": "examples", "name": "Rekursion", "description": "Rekursive Bit-Templates."},
+            {"id": "priority-encoder", "parent": "recursion", "name": "Prioritätsencoder",
+             "description": "Niedrigster gesetzter Bitindex mit valid; vollständige 1-, 2- und 4-Bit-Beispiele."},
+        ]
+        existing = {f["id"] for f in organization["folders"]}
+        organization["folders"].extend(f for f in folders if f["id"] not in existing)
+        library._write_organization(organization)
+        source = Path(__file__).resolve().parents[1] / "examples"
+        template = Template(json.loads((source / "templates/recursive-priority-encoder.abstract.json").read_text(encoding="utf-8")))
+        key = library.save_template(template)
+        organization["entries"].setdefault(f"template:{key}", "priority-encoder")
+        for width in (1, 2, 4):
+            prefix = source / f"circuits/recursive-priority-encoder/pe-{width}"
+            library.save_block(BlockBundle(json.loads(prefix.with_suffix(".block.json").read_text(encoding="utf-8"))))
+            dataset = Dataset.from_dict(json.loads(prefix.with_suffix(".vectors.json").read_text(encoding="utf-8")))
+            circuit = json.loads(prefix.with_suffix(".circuit.json").read_text(encoding="utf-8"))
+            library.save_program({"circuit": circuit,
+                                  "synthesis": {"method": "hierarchy-expansion-and-simplification", "version": 1}}, dataset)
+            organization["entries"].setdefault(f"function:{function_id(dataset)}", "priority-encoder")
+        library._write_organization(organization)
+        installed["priority-encoder-v1"] = True
+        write_json(marker, installed)
+
+
 def install_zero_count_examples(library):
     """Install GEN-01 once without changing existing labels or organization."""
     marker = library.root / "example-installations.json"
@@ -202,6 +236,8 @@ def install_examples(library):
         source = Path(__file__).resolve().parents[1] / "examples" / "templates"
         recursive_checked = {"recursive-split-sub.abstract.json", "recursive-split-add-checked.abstract.json"}
         for path in sorted(source.glob("*.abstract.json")):
+            if path.name == "recursive-priority-encoder.abstract.json":
+                continue  # GEN-02 has its own migration for existing libraries.
             if path.name in {f"recursive-{kind}.abstract.json" for kind in ZERO_COUNT_EXAMPLES}:
                 continue  # GEN-01 has its own migration for existing libraries.
             if path.name.startswith("standard-"):
