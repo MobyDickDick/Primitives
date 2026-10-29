@@ -1,0 +1,602 @@
+{
+  "schema": 1,
+  "root": "block-78dcca209d9cb74819471bcea36df7b8fcf5a0cacefa262365f0008a630a3815",
+  "definitions": {
+    "block-a44c1fbcd568d0e1f739756b31cca4c951b4376f05d13ddb0589352b130fb1ea": {
+      "name": "CTZ<1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 1,
+        "gates": [
+          [
+            0,
+            0
+          ]
+        ],
+        "outputs": [
+          1
+        ]
+      }
+    },
+    "block-902c45032a47191cafaf5359d95f4cb5ce1494d8120f146f546d3356d3635217": {
+      "name": "ISZERO<1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 1,
+        "gates": [
+          [
+            0,
+            0
+          ]
+        ],
+        "outputs": [
+          1
+        ]
+      }
+    },
+    "block-a5c4fe57ae3ed920c5ebd7d20ebb3e6e2f88c1424cfb0199f31d139a77eb44a3": {
+      "name": "CountMerge<1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "first",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "second",
+            "bits": 1,
+            "signed": false,
+            "offset": 1
+          },
+          {
+            "name": "z",
+            "bits": 1,
+            "signed": false,
+            "offset": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 3,
+        "gates": [
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            4,
+            4
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            6,
+            6
+          ]
+        ],
+        "outputs": [
+          5,
+          7
+        ]
+      }
+    },
+    "block-9e207a26d311f3fc4187d08555962cbac90df7b794596e1d027d94a8d36b01ef": {
+      "name": "CTZ<2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "nodes": [
+        {
+          "id": "first",
+          "type": "instance",
+          "definition": "block-a44c1fbcd568d0e1f739756b31cca4c951b4376f05d13ddb0589352b130fb1ea",
+          "inputs": {
+            "a": [
+              {
+                "input": "a",
+                "bit": 0
+              }
+            ]
+          }
+        },
+        {
+          "id": "second",
+          "type": "instance",
+          "definition": "block-a44c1fbcd568d0e1f739756b31cca4c951b4376f05d13ddb0589352b130fb1ea",
+          "inputs": {
+            "a": [
+              {
+                "input": "a",
+                "bit": 1
+              }
+            ]
+          }
+        },
+        {
+          "id": "zero",
+          "type": "instance",
+          "definition": "block-902c45032a47191cafaf5359d95f4cb5ce1494d8120f146f546d3356d3635217",
+          "inputs": {
+            "a": [
+              {
+                "input": "a",
+                "bit": 0
+              }
+            ]
+          }
+        },
+        {
+          "id": "merge",
+          "type": "instance",
+          "definition": "block-a5c4fe57ae3ed920c5ebd7d20ebb3e6e2f88c1424cfb0199f31d139a77eb44a3",
+          "inputs": {
+            "first": [
+              {
+                "node": "first",
+                "port": "c",
+                "bit": 0
+              }
+            ],
+            "second": [
+              {
+                "node": "second",
+                "port": "c",
+                "bit": 0
+              }
+            ],
+            "z": [
+              {
+                "node": "zero",
+                "port": "c",
+                "bit": 0
+              }
+            ]
+          }
+        }
+      ],
+      "outputs": {
+        "c": [
+          {
+            "node": "merge",
+            "port": "c",
+            "bit": 0
+          },
+          {
+            "node": "merge",
+            "port": "c",
+            "bit": 1
+          }
+        ]
+      }
+    },
+    "block-9e9d91d0d61b6f742ee5ce94775d9ba3ec19e022b712d652d699256f52b07318": {
+      "name": "AND",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 2,
+        "gates": [
+          [
+            0,
+            1
+          ],
+          [
+            2,
+            2
+          ]
+        ],
+        "outputs": [
+          3
+        ]
+      }
+    },
+    "block-6837fb1fb0d3dc83a061f2362325e299a85264384f69817ae3b89a0bc3be6db8": {
+      "name": "ISZERO<2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "nodes": [
+        {
+          "id": "lower",
+          "type": "instance",
+          "definition": "block-902c45032a47191cafaf5359d95f4cb5ce1494d8120f146f546d3356d3635217",
+          "inputs": {
+            "a": [
+              {
+                "input": "a",
+                "bit": 0
+              }
+            ]
+          }
+        },
+        {
+          "id": "upper",
+          "type": "instance",
+          "definition": "block-902c45032a47191cafaf5359d95f4cb5ce1494d8120f146f546d3356d3635217",
+          "inputs": {
+            "a": [
+              {
+                "input": "a",
+                "bit": 1
+              }
+            ]
+          }
+        },
+        {
+          "id": "merge",
+          "type": "instance",
+          "definition": "block-9e9d91d0d61b6f742ee5ce94775d9ba3ec19e022b712d652d699256f52b07318",
+          "inputs": {
+            "a": [
+              {
+                "node": "lower",
+                "port": "c",
+                "bit": 0
+              }
+            ],
+            "b": [
+              {
+                "node": "upper",
+                "port": "c",
+                "bit": 0
+              }
+            ]
+          }
+        }
+      ],
+      "outputs": {
+        "c": [
+          {
+            "node": "merge",
+            "port": "c",
+            "bit": 0
+          }
+        ]
+      }
+    },
+    "block-05da6bae0d1941ddf7cdaaa70e1c86ca5e80547a2e6a64fa857c79faa3195499": {
+      "name": "CountMerge<2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "first",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "second",
+            "bits": 2,
+            "signed": false,
+            "offset": 2
+          },
+          {
+            "name": "z",
+            "bits": 1,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 3,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 5,
+        "gates": [
+          [
+            4,
+            4
+          ],
+          [
+            0,
+            5
+          ],
+          [
+            2,
+            4
+          ],
+          [
+            6,
+            7
+          ],
+          [
+            3,
+            3
+          ],
+          [
+            4,
+            9
+          ],
+          [
+            10,
+            10
+          ],
+          [
+            3,
+            4
+          ],
+          [
+            12,
+            12
+          ]
+        ],
+        "outputs": [
+          8,
+          11,
+          13
+        ]
+      }
+    },
+    "block-78dcca209d9cb74819471bcea36df7b8fcf5a0cacefa262365f0008a630a3815": {
+      "name": "CTZ<4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 3,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "nodes": [
+        {
+          "id": "first",
+          "type": "instance",
+          "definition": "block-9e207a26d311f3fc4187d08555962cbac90df7b794596e1d027d94a8d36b01ef",
+          "inputs": {
+            "a": [
+              {
+                "input": "a",
+                "bit": 0
+              },
+              {
+                "input": "a",
+                "bit": 1
+              }
+            ]
+          }
+        },
+        {
+          "id": "second",
+          "type": "instance",
+          "definition": "block-9e207a26d311f3fc4187d08555962cbac90df7b794596e1d027d94a8d36b01ef",
+          "inputs": {
+            "a": [
+              {
+                "input": "a",
+                "bit": 2
+              },
+              {
+                "input": "a",
+                "bit": 3
+              }
+            ]
+          }
+        },
+        {
+          "id": "zero",
+          "type": "instance",
+          "definition": "block-6837fb1fb0d3dc83a061f2362325e299a85264384f69817ae3b89a0bc3be6db8",
+          "inputs": {
+            "a": [
+              {
+                "input": "a",
+                "bit": 0
+              },
+              {
+                "input": "a",
+                "bit": 1
+              }
+            ]
+          }
+        },
+        {
+          "id": "merge",
+          "type": "instance",
+          "definition": "block-05da6bae0d1941ddf7cdaaa70e1c86ca5e80547a2e6a64fa857c79faa3195499",
+          "inputs": {
+            "first": [
+              {
+                "node": "first",
+                "port": "c",
+                "bit": 0
+              },
+              {
+                "node": "first",
+                "port": "c",
+                "bit": 1
+              }
+            ],
+            "second": [
+              {
+                "node": "second",
+                "port": "c",
+                "bit": 0
+              },
+              {
+                "node": "second",
+                "port": "c",
+                "bit": 1
+              }
+            ],
+            "z": [
+              {
+                "node": "zero",
+                "port": "c",
+                "bit": 0
+              }
+            ]
+          }
+        }
+      ],
+      "outputs": {
+        "c": [
+          {
+            "node": "merge",
+            "port": "c",
+            "bit": 0
+          },
+          {
+            "node": "merge",
+            "port": "c",
+            "bit": 1
+          },
+          {
+            "node": "merge",
+            "port": "c",
+            "bit": 2
+          }
+        ]
+      }
+    }
+  }
+}

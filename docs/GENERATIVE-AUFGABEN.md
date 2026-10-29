@@ -28,10 +28,12 @@ getrennt umsetzbar, sofern die genannten Abhängigkeiten verfügbar sind.
 
 ## Priorität 1: Bitposition und Verschiebung
 
-- [ ] **GEN-01 – CLZ / CTZ:** Führende bzw. nachlaufende Nullbits durch rekursive
+- [x] **GEN-01 – CLZ / CTZ:** Führende bzw. nachlaufende Nullbits durch rekursive
   Halbierung zählen. Für a=0 ist das Ergebnis t; `LOG2(t)+1` Ausgangsbits bei
   Zweierpotenzbreiten. Abhängigkeiten: ISZERO, Auswahl und Indexaddition.
-  Prüfen: t=1,2,4, jedes einzelne gesetzte Bit und Nullfall.
+  Umgesetzt: t=1,2,4 vollständig geprüft (44 Fälle), grössere Referenzen bis 128 Bit
+  mit Grenzfällen/Stichproben. F-Boxen, NAND-Exporte und einmalige Migration vorhanden.
+  Siehe [CLZ/CTZ](CLZ-CTZ.md). Nächste offene Aufgabe: GEN-02.
 - [ ] **GEN-02 – Prioritätsencoder:** Index des niedrigsten gesetzten Bits plus
   valid-Bit; vorhandenes maximales Bitindex-Template als Gegenstück dokumentieren.
   Für a=0: Index=0, valid=0; Mehrfachbelegung wählt den kleinsten Index.

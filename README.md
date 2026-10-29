@@ -19,6 +19,13 @@ Standardlösungen (1, 2, 4 Bit)** ergänzt. Alle 1936 Eingabefälle sind unabhä
 geprüft. Siehe [Standardarithmetik](docs/STANDARD-ARITHMETIK.md) und die
 [Aufgabenliste für 16 weitere generative Templates](docs/GENERATIVE-AUFGABEN.md).
 
+`CLZ<t>` und `CTZ<t>` zählen führende bzw. nachlaufende Nullbits durch rekursive
+Halbierung. Für a=0 liefern sie t, der Ausgang hat `LOG2(t)+1` Bits.
+GEN-01 ergänzt sechs vollständig geprüfte Instanzen für t=1,2,4 samt F-Boxen
+und NAND-Netzen (je 1, 6 bzw. 19 NANDs). Beim nächsten Serverstart erscheinen sie
+unter **Beispiele → Rekursion → Nullbits zählen (CLZ & CTZ)**.
+Siehe [CLZ/CTZ und Breitenlimits](docs/CLZ-CTZ.md).
+
 Die **Bibliothek** zeigt Templates und konkrete Funktionen in einem gemeinsamen
 Verzeichnisbaum. Ordner und Unterordner lassen sich anlegen, umbenennen,
 beschreiben und verschieben; Einträge können in jeden Ordner einsortiert werden.

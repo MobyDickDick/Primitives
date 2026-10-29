@@ -1,0 +1,38 @@
+# CTZ<t>: nachlaufende Nullbits ab Bit 0 zaehlen; CTZ<t>(0) = t.
+# Bitarrays sind LSB-first, das Ergebnis hat LOG2(t)+1 Bits.
+def ISZERO<t>(a):
+    assert t >= 1 and t <= 128 and (t & (t - 1)) == 0
+    x = bits(a, t)
+    if t == 1:
+        return 1 ^ x[0]
+    k = t // 2
+    return ISZERO<k>(pack(x[:k])) & ISZERO<k>(pack(x[k:]))
+
+# Falls die erste Haelfte null ist: k + second, sonst first.
+# Beide Teilzaehlungen liegen in 0..k; z=0 impliziert first<k.
+# k ist eine Zweierpotenz: Addition von k kippt dessen Bit und
+# reicht den Uebertrag (second==k) ins naechsthoehere Bit weiter.
+def CountMerge<k>(first, second, z):
+    assert k >= 1 and k <= 64 and (k & (k - 1)) == 0
+    r = LOG2(k)
+    flag = bits(z, 1)[0]
+    f = bits(first, r + 1)
+    s = bits(second, r + 1)
+    c = [0] * (r + 2)
+    for i in range(r):
+        c[i] = (f[i] & (1 ^ flag)) | (s[i] & flag)
+    c[r] = flag & (1 ^ s[r])
+    c[r + 1] = flag & s[r]
+    return pack(c)
+
+def CTZ<t>(a):
+    assert t >= 1 and t <= 128 and (t & (t - 1)) == 0
+    x = bits(a, t)
+    if t == 1:
+        return 1 ^ x[0]
+    k = t // 2
+    first = pack(x[:k])
+    second = pack(x[k:])
+    return CountMerge<k>(CTZ<k>(first), CTZ<k>(second), ISZERO<k>(first))
+
+return CTZ<t>(a)

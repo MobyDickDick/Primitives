@@ -1,0 +1,90 @@
+{
+  "schema": 1,
+  "name": "CLZ<2>",
+  "inputs": 2,
+  "outputs": 2,
+  "rows": [
+    [
+      0,
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      1,
+      0,
+      0
+    ],
+    [
+      1,
+      0,
+      1,
+      0
+    ],
+    [
+      1,
+      1,
+      0,
+      0
+    ]
+  ],
+  "metadata": {
+    "seed": 1,
+    "bit_order": "LSB-first",
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 2,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "program": {
+      "version": 2,
+      "source": "# CLZ<t>: fuehrende Nullbits ab Bit t-1 zaehlen; CLZ<t>(0) = t.\n# Bitarrays sind LSB-first, das Ergebnis hat LOG2(t)+1 Bits.\ndef ISZERO<t>(a):\n    assert t >= 1 and t <= 128 and (t & (t - 1)) == 0\n    x = bits(a, t)\n    if t == 1:\n        return 1 ^ x[0]\n    k = t // 2\n    return ISZERO<k>(pack(x[:k])) & ISZERO<k>(pack(x[k:]))\n\n# Falls die erste Haelfte null ist: k + second, sonst first.\n# Beide Teilzaehlungen liegen in 0..k; z=0 impliziert first<k.\n# k ist eine Zweierpotenz: Addition von k kippt dessen Bit und\n# reicht den Uebertrag (second==k) ins naechsthoehere Bit weiter.\ndef CountMerge<k>(first, second, z):\n    assert k >= 1 and k <= 64 and (k & (k - 1)) == 0\n    r = LOG2(k)\n    flag = bits(z, 1)[0]\n    f = bits(first, r + 1)\n    s = bits(second, r + 1)\n    c = [0] * (r + 2)\n    for i in range(r):\n        c[i] = (f[i] & (1 ^ flag)) | (s[i] & flag)\n    c[r] = flag & (1 ^ s[r])\n    c[r + 1] = flag & s[r]\n    return pack(c)\n\ndef CLZ<t>(a):\n    assert t >= 1 and t <= 128 and (t & (t - 1)) == 0\n    x = bits(a, t)\n    if t == 1:\n        return 1 ^ x[0]\n    k = t // 2\n    first = pack(x[k:])\n    second = pack(x[:k])\n    return CountMerge<k>(CLZ<k>(first), CLZ<k>(second), ISZERO<k>(first))\n\nreturn CLZ<t>(a)\n",
+      "limits": {
+        "steps": 100000,
+        "iterations": 10000,
+        "total_steps": 5000000
+      },
+      "conditions": [
+        "t >= 1",
+        "t <= 128",
+        "is_power_of_two(t)"
+      ],
+      "parameters": {
+        "t": 2
+      },
+      "interface": {
+        "inputs": [
+          {
+            "name": "a",
+            "bits": "t"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": "LOG2(t)+1"
+          }
+        ]
+      }
+    },
+    "description": "Führende Nullbits ab Bit t-1 durch rekursive Halbierung zählen. Für a=0 ist c=t; sonst 0<=c<t. t ist eine positive Zweierpotenz bis 128; c hat LOG2(t)+1 Bits. NAND-Übersetzung und F-Boxen unterliegen zusätzlich der 512-Gattergrenze."
+  },
+  "exhaustive": true
+}

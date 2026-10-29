@@ -7,6 +7,9 @@
 - [x] Alle 1936 Eingabefälle unabhängig geprüft, inklusive Borrow und Division durch null.
 - [x] Einmalige Bibliotheksmigration mit Erhalt vorhandener Beispiele und eigener Ordner.
 - [ ] Weitere generative Templates nach [priorisierter Aufgabenliste GEN-01 bis GEN-16](docs/GENERATIVE-AUFGABEN.md) umsetzen.
+- [x] GEN-01: CLZ/CTZ mit rekursiven Templates, sechs F-Boxen/NAND-Netzen und
+      vollständiger Prüfung aller 44 kleinen Eingabefälle; [Dokumentation](docs/CLZ-CTZ.md).
+      Nächste offene Template-Aufgabe: GEN-02 (Prioritätsencoder).
 
 Beschreibung und Erzeugung: [Standardarithmetik](docs/STANDARD-ARITHMETIK.md).
 

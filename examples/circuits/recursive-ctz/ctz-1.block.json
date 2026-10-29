@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "root": "block-a44c1fbcd568d0e1f739756b31cca4c951b4376f05d13ddb0589352b130fb1ea",
+  "definitions": {
+    "block-a44c1fbcd568d0e1f739756b31cca4c951b4376f05d13ddb0589352b130fb1ea": {
+      "name": "CTZ<1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 1,
+        "gates": [
+          [
+            0,
+            0
+          ]
+        ],
+        "outputs": [
+          1
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,233 @@
+[
+  {
+    "name": "CTZ<1>",
+    "parameters": {
+      "t": 1
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 1,
+          "signed": false,
+          "offset": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 1,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 2,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 1,
+      "depth": 1
+    },
+    "hierarchy": {
+      "id": "block-a44c1fbcd568d0e1f739756b31cca4c951b4376f05d13ddb0589352b130fb1ea",
+      "name": "CTZ<1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 1,
+      "depth": 1,
+      "definitions": 1,
+      "instances": 0
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "ctz-1.block.json",
+      "circuit": "ctz-1.circuit.json",
+      "template": "ctz-1.template.json",
+      "vectors": "ctz-1.vectors.json",
+      "netlist": "ctz-1.nand.txt"
+    }
+  },
+  {
+    "name": "CTZ<2>",
+    "parameters": {
+      "t": 2
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 2,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 8,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 6,
+      "depth": 3
+    },
+    "hierarchy": {
+      "id": "block-9e207a26d311f3fc4187d08555962cbac90df7b794596e1d027d94a8d36b01ef",
+      "name": "CTZ<2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 8,
+      "depth": 4,
+      "definitions": 4,
+      "instances": 4
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "ctz-2.block.json",
+      "circuit": "ctz-2.circuit.json",
+      "template": "ctz-2.template.json",
+      "vectors": "ctz-2.vectors.json",
+      "netlist": "ctz-2.nand.txt"
+    }
+  },
+  {
+    "name": "CTZ<4>",
+    "parameters": {
+      "t": 4
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 3,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 48,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 19,
+      "depth": 5
+    },
+    "hierarchy": {
+      "id": "block-78dcca209d9cb74819471bcea36df7b8fcf5a0cacefa262365f0008a630a3815",
+      "name": "CTZ<4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 3,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 29,
+      "depth": 6,
+      "definitions": 8,
+      "instances": 4
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "ctz-4.block.json",
+      "circuit": "ctz-4.circuit.json",
+      "template": "ctz-4.template.json",
+      "vectors": "ctz-4.vectors.json",
+      "netlist": "ctz-4.nand.txt"
+    }
+  }
+]
