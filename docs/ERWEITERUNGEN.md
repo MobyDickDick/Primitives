@@ -1,10 +1,11 @@
 # Erweiterungs-Issues
 
-Diese acht Arbeitspakete konkretisieren die Erweiterungswünsche vom
-25. Oktober 2026. Sie sind lokale Planungs-Issues; auf GitHub wurden noch keine
-Issues angelegt. PRIM-01 bis PRIM-08 sind umgesetzt.
+Die Arbeitspakete PRIM-01 bis PRIM-08 konkretisieren die Erweiterungswünsche vom
+25. Oktober 2026 und sind umgesetzt. PRIM-09 ergänzt den Wunsch nach mehr
+Übersicht in Verdrahtungsschemen vom 30. Oktober 2026 und ist offen.
+Sie sind lokale Planungs-Issues; auf GitHub wurden noch keine Issues angelegt.
 
-Die Kennungen PRIM-01 bis PRIM-08 sind Dokumentationskennungen, keine GitHub-Issue-Nummern.
+Die Kennungen PRIM-01 bis PRIM-09 sind Dokumentationskennungen, keine GitHub-Issue-Nummern.
 
 ## Übersicht
 
@@ -18,6 +19,7 @@ Die Kennungen PRIM-01 bis PRIM-08 sind Dokumentationskennungen, keine GitHub-Iss
 | [PRIM-06](#prim-06) | Unterprogramm-Boxen und Debugging (umgesetzt) | 4 | PRIM-05; PRIM-01/02 berücksichtigen |
 | [PRIM-07](#prim-07) | Mehrschrittige Programme und Kontrollstrukturen (umgesetzt) | 6 | PRIM-03 |
 | [PRIM-08](#prim-08) | Sprungbefehle und Ablaufdebugger (umgesetzt) | 6 | PRIM-07 |
+| [PRIM-09](#prim-09) | Übersicht durch Busse, Unter-FBoxen und Signalverfolgung (offen) | 30.10.2026 | PRIM-03/05/06; PRIM-01/02 berücksichtigen |
 
 Empfohlene Reihenfolge: PRIM-01 → PRIM-02 für die Bedienung; danach PRIM-03 als
 Grundlage. Anschliessend können Operationsbeispiele (PRIM-04), Bausteine
@@ -418,5 +420,95 @@ Syntax und Bedienung stehen in [PROGRAMME.md](PROGRAMME.md), Prüfungen in
 
 ### Ansatzpunkte
 Parser/Interpreter aus [PRIM-07](#prim-07), Debugansicht in `web/` und Ausführungs-API.
+
+<a id="prim-09"></a>
+
+## PRIM-09 – Verdrahtungsschema: Busse, Unter-FBoxen und Signalverfolgung
+
+**Status:** offener Nutzerwunsch vom 30. Oktober 2026; noch nicht umgesetzt.
+
+### Problem und Ziel
+
+Bei grossen Verdrahtungsschemen geht die Übersicht über Gatter, Verbindungen
+und deren Bedeutung verloren. Zoom, verschiebbare Boxen und manuelle
+Leitungsführung helfen bei der Navigation; zusätzlich soll die Darstellung
+auf die gerade relevante Ebene und den untersuchten Signalweg begrenzt werden.
+
+**Bevorzugte Darstellung des Nutzers: Busse und verschachtelte Unter-FBoxen.**
+Diese beiden Mittel haben bei der Umsetzung Vorrang. Signalverfolgung und
+Fokusmodus ergänzen sie und sollen auch flache NAND-Netze untersuchbar machen.
+
+### Umfang
+
+1. **Mehrbitige Verbindungen als Busse bündeln.** Ein benannter Port wie
+   `a[0…15]` erscheint als eine beschriftete Busleitung mit erkennbarer Breite.
+   Einzelne Bits und ihre tatsächlichen Anschlüsse lassen sich bei Bedarf
+   aufklappen und wieder bündeln. Besonders Verbindungen zwischen FBoxen sollen
+   dadurch mit deutlich weniger sichtbaren Leitungen auskommen. Bitreihenfolge,
+   Teilbereiche und abweichende Bitzuordnungen müssen nachvollziehbar bleiben.
+2. **Hierarchische Funktionsblöcke als Unter-FBoxen zeigen.** Die Übersicht
+   zeigt benannte Bausteine wie Addierer, Vergleicher oder Multiplexer samt
+   ihren Schnittstellen. Ein Klick öffnet die interne Schaltung; weitere
+   Unter-FBoxen können bis zu den NAND-Gattern untersucht werden. Ein klarer
+   Instanzpfad und die Rückkehr zur übergeordneten Ebene erhalten die Orientierung.
+   Auf den vorhandenen hierarchischen Bausteinen und dem lokalen Debugging aus
+   PRIM-05/06 aufbauen und sie mit der Busdarstellung verbinden.
+3. **Signale per Auswahl verfolgen.** Bei Auswahl eines Ausgangsbits alle
+   Gatter und Leitungen hervorheben, die strukturell zu diesem Bit beitragen;
+   die übrige Schaltung abblenden. Für interne Signale zusätzlich die Quellen
+   sowie die davon abhängigen nachfolgenden Gatter und Ausgänge untersuchbar
+   machen. Die Darstellung beantwortet damit konkret: „Wie entsteht dieses Bit?“
+   Die Verfolgung soll auch ohne hinterlegte Bausteinhierarchie funktionieren.
+4. **Fokusmodus anbieten.** „Nur den gewählten Ausgang und seine Abhängigkeiten
+   anzeigen“ blendet unbeteiligte Teile vollständig aus. Auswahl und aktiver
+   Filter bleiben erkennbar; eine sichtbare Aktion führt zur Gesamtschaltung
+   zurück. Beim Wechsel zwischen Übersicht, Fokus und Hierarchie die vorhandenen
+   Boxpositionen, manuellen Leitungswege und die vorherige Ansicht erhalten.
+
+### Ausgangslage und Grenzen
+
+Hierarchische Unterprogramm-Boxen, deren Öffnen und die Rückkehr zur Elternansicht
+sind für ausdrücklich aufgebaute Bausteinpakete bereits vorhanden; siehe
+[Bausteine und lokales Debugging](BAUSTEINE.md#unterprogramm-boxen-und-lokales-debugging-prim-06).
+PRIM-09 erweitert diese Grundlage insbesondere um Busse und die gezielte
+Beschränkung der sichtbaren Schaltung.
+
+In evolutionär erzeugten flachen NAND-Netzen ist eine sinnvolle funktionale
+Gliederung häufig nicht ausdrücklich hinterlegt. Die Bedeutung von Gruppen als
+Addierer oder Multiplexer lässt sich aus der Verdrahtung allein nicht zuverlässig
+zurückgewinnen. Vorhandene Hierarchien und benannte Schnittstellen verwenden;
+automatisch erkannte Gruppen wären als Vorschläge zu kennzeichnen.
+Signalverfolgung und Fokusmodus benötigen keine solche Bedeutungsrekonstruktion.
+Die strukturelle Abhängigkeit eines Bits sagt zudem nicht aus, dass jede Quelle
+bei der aktuellen Testeingabe den Ausgangswert tatsächlich beeinflusst.
+
+### Priorität und Umsetzungsetappen
+
+1. Busse und Unter-FBoxen als bevorzugte Übersicht gemeinsam nutzbar machen.
+2. Signalverfolgung für Ausgänge und interne Signale ergänzen.
+3. Den Fokus auf ausgewählte Abhängigkeiten mit einfacher Rückkehr anbieten.
+
+Signalverfolgung bietet auch für flache NAND-Netze ohne hinterlegte Hierarchie
+einen eigenständig nutzbaren Einstieg in die Untersuchung.
+
+### Abnahme
+
+- [ ] Mehrbitige Verbindungen zwischen FBoxen werden als benannte Busse mit Breite angezeigt; Einzelbits sind bei Bedarf zugänglich.
+- [ ] Unter-FBoxen lassen sich über mehrere Ebenen öffnen; Instanzpfad und Rückkehr erhalten die Orientierung.
+- [ ] Die Auswahl eines Ausgangs hebt genau dessen strukturelle Vorgänger und Verbindungen hervor; unbeteiligte Teile werden abgeblendet.
+- [ ] Für interne Signale sind Quellen und abhängige Gatter/Ausgänge nachvollziehbar, auch bei gemeinsam genutzten Zwischensignalen und mehreren Ausgängen.
+- [ ] Der Fokusmodus zeigt nur die gewählten Abhängigkeiten und bietet eine sichtbare Rückkehr zur Gesamtschaltung.
+- [ ] Busauflösung und Signalverfolgung funktionieren auch bei direkten Durchleitungen und unterschiedlicher Bitzuordnung.
+- [ ] Darstellung und Filter ändern keine logischen Verbindungen, Simulationsergebnisse oder gespeicherten Layouts; Signalwechsel und Simulationsschritte erhalten den Fokus.
+- [ ] Hierarchische Beispiele und ein grosses flaches NAND-Netz werden praktisch geprüft, einschliesslich Zoom, Tastaturbedienung und Rückkehr zur vorherigen Ansicht.
+
+### Abhängigkeiten und Ansatzpunkte
+
+PRIM-03 liefert benannte mehrbitige Ports; PRIM-05/06 liefern Hierarchie und
+Instanznavigation. Zoom und manuelle Leitungswege aus PRIM-01/02 berücksichtigen.
+Ansatzpunkte sind `web/graph.js` für Graph und Leitungsdarstellung,
+`web/app.js` für Auswahl und SVG, `web/block-debug.js` für Hierarchie und
+Ansichtswiederherstellung sowie `web/index.html` und `web/style.css` für
+Bedienelemente und Hervorhebung.
 
 

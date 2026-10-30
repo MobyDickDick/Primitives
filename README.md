@@ -174,6 +174,15 @@ neu laden.
 
 ## Geplante Erweiterungen
 
+Offener Wunsch vom 30. Oktober 2026: **mehr Übersicht in Verdrahtungsschemen**.
+Bevorzugt sind **Busse und verschachtelte Unter-FBoxen**: mehrbitige Verbindungen
+bündeln und die passende Funktionsebene gezielt öffnen. Ergänzend sollen eine
+Signalverfolgung Quellen und abhängige Ausgänge hervorheben sowie ein Fokusmodus
+nur die Abhängigkeiten eines gewählten Ausgangs zeigen. Die Rückkehr zur
+Gesamtansicht soll die Orientierung und das Layout erhalten. Umfang, Grenzen und
+Abnahmekriterien stehen unter [PRIM-09](docs/ERWEITERUNGEN.md#prim-09);
+die Umsetzung ist noch offen.
+
 Die [Erweiterungs-Issues](docs/ERWEITERUNGEN.md) beschreiben Zoom, verschiebbare
 Leitungen, TinyCPU-Operationsbeispiele, variable Bitbreiten, Unterprogramm-Boxen
 mit Debugging sowie mehrschrittige Programme mit Kontrollstrukturen und Sprüngen.
