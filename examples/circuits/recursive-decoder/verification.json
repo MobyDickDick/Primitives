@@ -1,0 +1,269 @@
+[
+  {
+    "name": "DEC<1>",
+    "parameters": {
+      "w": 1
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 1,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "enable",
+          "bits": 1,
+          "signed": false,
+          "offset": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 2,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 8,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 5,
+      "depth": 3
+    },
+    "hierarchy": {
+      "id": "block-ac3ac20a22a30d7b3d884f0823555e5ed1de29fc83b3b694d5720908c0073cac",
+      "name": "DEC<1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "enable",
+            "bits": 1,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 5,
+      "depth": 3,
+      "definitions": 1,
+      "instances": 0
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "decoder-1.block.json",
+      "circuit": "decoder-1.circuit.json",
+      "template": "decoder-1.template.json",
+      "vectors": "decoder-1.vectors.json",
+      "netlist": "decoder-1.nand.txt"
+    }
+  },
+  {
+    "name": "DEC<2>",
+    "parameters": {
+      "w": 2
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "enable",
+          "bits": 1,
+          "signed": false,
+          "offset": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 32,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 14,
+      "depth": 5
+    },
+    "hierarchy": {
+      "id": "block-8853c21277c8aef4b6db5e016dd1461dca54d0493994b022302be7e5330598b5",
+      "name": "DEC<2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "enable",
+            "bits": 1,
+            "signed": false,
+            "offset": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 15,
+      "depth": 5,
+      "definitions": 2,
+      "instances": 3
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "decoder-2.block.json",
+      "circuit": "decoder-2.circuit.json",
+      "template": "decoder-2.template.json",
+      "vectors": "decoder-2.vectors.json",
+      "netlist": "decoder-2.nand.txt"
+    }
+  },
+  {
+    "name": "DEC<4>",
+    "parameters": {
+      "w": 4
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "enable",
+          "bits": 1,
+          "signed": false,
+          "offset": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 16,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 512,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 64,
+      "depth": 9
+    },
+    "hierarchy": {
+      "id": "block-a44b8e5afdfefeeb8b4af55b9c094e21c3188b691c56a26f488a4804a541810f",
+      "name": "DEC<4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "enable",
+            "bits": 1,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 16,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 75,
+      "depth": 9,
+      "definitions": 4,
+      "instances": 3
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "decoder-4.block.json",
+      "circuit": "decoder-4.circuit.json",
+      "template": "decoder-4.template.json",
+      "vectors": "decoder-4.vectors.json",
+      "netlist": "decoder-4.nand.txt"
+    }
+  }
+]

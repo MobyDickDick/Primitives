@@ -1,0 +1,18 @@
+# DEC<w>: w Codebits auf 2**w One-Hot-Bits, LSB-first.
+# enable=0 liefert null; enable=1 setzt genau Bit a.
+# 1 <= w <= 7: exponentiell viele Ausgaenge, maximal 128 Bits.
+
+def DEC<w>(a, enable):
+    assert w >= 1 and w <= 7
+    x = bits(a, w)
+    en = bits(enable, 1)[0]
+    lo = en & (1 ^ x[w - 1])
+    hi = en & x[w - 1]
+    if w == 1:
+        return pack([lo, hi])
+    k = 2 ** (w - 1)
+    lower = bits(DEC<w-1>(pack(x[:w-1]), lo), k)
+    upper = bits(DEC<w-1>(pack(x[:w-1]), hi), k)
+    return pack(lower + upper)
+
+return DEC<w>(a, enable)

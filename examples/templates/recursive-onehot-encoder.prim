@@ -1,0 +1,38 @@
+# OHE<w>: 2**w One-Hot-Bits auf w Codebits, valid und multiple.
+# Genau ein gesetztes Bit: dessen Index, valid=1, multiple=0.
+# Null: [0,0,0]; Mehrfachbelegung: [0,0,1]. Alles LSB-first.
+
+def OneHotMerge<r>(lo, hi, lv, hv, lm, hm):
+    assert r >= 1 and r <= 6
+    l = bits(lo, r)
+    h = bits(hi, r)
+    vl = bits(lv, 1)[0]
+    vh = bits(hv, 1)[0]
+    ml = bits(lm, 1)[0]
+    mh = bits(hm, 1)[0]
+    multiple = ml | mh | (vl & vh)
+    valid = (vl | vh) & (1 ^ multiple)
+    c = [0] * (r + 3)
+    for i in range(r):
+        c[i] = (l[i] | h[i]) & valid
+    c[r] = vh & valid
+    c[r + 1] = valid
+    c[r + 2] = multiple
+    return pack(c)
+
+def OHE<w>(a):
+    assert w >= 1 and w <= 7
+    x = bits(a, 2 ** w)
+    if w == 1:
+        valid = x[0] ^ x[1]
+        multiple = x[0] & x[1]
+        return pack([x[1] & valid, valid, multiple])
+    r = w - 1
+    k = 2 ** r
+    lo = bits(OHE<r>(pack(x[:k])), r + 2)
+    hi = bits(OHE<r>(pack(x[k:])), r + 2)
+    return OneHotMerge<r>(pack(lo[:r]), pack(hi[:r]), lo[r], hi[r], lo[r+1], hi[r+1])
+
+# Ergebnisports aus dem gepackten rekursiven Ergebnis lesen.
+result = bits(OHE<w>(a), w + 2)
+return pack(result[:w]), result[w], result[w + 1]

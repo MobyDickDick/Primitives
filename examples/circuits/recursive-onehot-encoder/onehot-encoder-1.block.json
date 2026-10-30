@@ -1,0 +1,83 @@
+{
+  "schema": 1,
+  "root": "block-5588c8a80fa40df38b591db2003f2d66237663028b3261e8fa9020bb372d73fa",
+  "definitions": {
+    "block-5588c8a80fa40df38b591db2003f2d66237663028b3261e8fa9020bb372d73fa": {
+      "name": "OHE<1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "valid",
+            "bits": 1,
+            "signed": false,
+            "offset": 1,
+            "overflow": "error"
+          },
+          {
+            "name": "multiple",
+            "bits": 1,
+            "signed": false,
+            "offset": 2,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 2,
+        "gates": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            3,
+            4
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            1,
+            5
+          ],
+          [
+            7,
+            7
+          ]
+        ],
+        "outputs": [
+          8,
+          5,
+          6
+        ]
+      }
+    }
+  }
+}

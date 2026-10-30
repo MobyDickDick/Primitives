@@ -1,0 +1,34 @@
+{
+  "version": 2,
+  "source": "# DEC<w>: w Codebits auf 2**w One-Hot-Bits, LSB-first.\n# enable=0 liefert null; enable=1 setzt genau Bit a.\n# 1 <= w <= 7: exponentiell viele Ausgaenge, maximal 128 Bits.\n\ndef DEC<w>(a, enable):\n    assert w >= 1 and w <= 7\n    x = bits(a, w)\n    en = bits(enable, 1)[0]\n    lo = en & (1 ^ x[w - 1])\n    hi = en & x[w - 1]\n    if w == 1:\n        return pack([lo, hi])\n    k = 2 ** (w - 1)\n    lower = bits(DEC<w-1>(pack(x[:w-1]), lo), k)\n    upper = bits(DEC<w-1>(pack(x[:w-1]), hi), k)\n    return pack(lower + upper)\n\nreturn DEC<w>(a, enable)\n",
+  "limits": {
+    "steps": 100000,
+    "iterations": 10000,
+    "total_steps": 5000000
+  },
+  "conditions": [
+    "w >= 1",
+    "w <= 7"
+  ],
+  "parameters": {
+    "w": 4
+  },
+  "interface": {
+    "inputs": [
+      {
+        "name": "a",
+        "bits": "w"
+      },
+      {
+        "name": "enable",
+        "bits": 1
+      }
+    ],
+    "outputs": [
+      {
+        "name": "c",
+        "bits": "2 ** w"
+      }
+    ]
+  }
+}

@@ -1,0 +1,317 @@
+[
+  {
+    "name": "OHE<1>",
+    "parameters": {
+      "w": 1
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 1,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "valid",
+          "bits": 1,
+          "signed": false,
+          "offset": 1,
+          "overflow": "error"
+        },
+        {
+          "name": "multiple",
+          "bits": 1,
+          "signed": false,
+          "offset": 2,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 12,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 7,
+      "depth": 5
+    },
+    "hierarchy": {
+      "id": "block-5588c8a80fa40df38b591db2003f2d66237663028b3261e8fa9020bb372d73fa",
+      "name": "OHE<1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "valid",
+            "bits": 1,
+            "signed": false,
+            "offset": 1,
+            "overflow": "error"
+          },
+          {
+            "name": "multiple",
+            "bits": 1,
+            "signed": false,
+            "offset": 2,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 7,
+      "depth": 5,
+      "definitions": 1,
+      "instances": 0
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "onehot-encoder-1.block.json",
+      "circuit": "onehot-encoder-1.circuit.json",
+      "template": "onehot-encoder-1.template.json",
+      "vectors": "onehot-encoder-1.vectors.json",
+      "netlist": "onehot-encoder-1.nand.txt"
+    }
+  },
+  {
+    "name": "OHE<2>",
+    "parameters": {
+      "w": 2
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 2,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "valid",
+          "bits": 1,
+          "signed": false,
+          "offset": 2,
+          "overflow": "error"
+        },
+        {
+          "name": "multiple",
+          "bits": 1,
+          "signed": false,
+          "offset": 3,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 64,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 25,
+      "depth": 10
+    },
+    "hierarchy": {
+      "id": "block-83c238aa1a1d8a730d70535a8172dd2c75c5653bad7b6cfe5a8c18df8c766823",
+      "name": "OHE<2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "valid",
+            "bits": 1,
+            "signed": false,
+            "offset": 2,
+            "overflow": "error"
+          },
+          {
+            "name": "multiple",
+            "bits": 1,
+            "signed": false,
+            "offset": 3,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 33,
+      "depth": 11,
+      "definitions": 3,
+      "instances": 3
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "onehot-encoder-2.block.json",
+      "circuit": "onehot-encoder-2.circuit.json",
+      "template": "onehot-encoder-2.template.json",
+      "vectors": "onehot-encoder-2.vectors.json",
+      "netlist": "onehot-encoder-2.nand.txt"
+    }
+  },
+  {
+    "name": "OHE<4>",
+    "parameters": {
+      "w": 4
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 16,
+          "signed": false,
+          "offset": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "valid",
+          "bits": 1,
+          "signed": false,
+          "offset": 4,
+          "overflow": "error"
+        },
+        {
+          "name": "multiple",
+          "bits": 1,
+          "signed": false,
+          "offset": 5,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 393216,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 137,
+      "depth": 20
+    },
+    "hierarchy": {
+      "id": "block-afa469ce09de6048fa84f94cd91c5cb2ea0833ccc74a4926d4ec12b907d03ef3",
+      "name": "OHE<4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 16,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "valid",
+            "bits": 1,
+            "signed": false,
+            "offset": 4,
+            "overflow": "error"
+          },
+          {
+            "name": "multiple",
+            "bits": 1,
+            "signed": false,
+            "offset": 5,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 209,
+      "depth": 21,
+      "definitions": 7,
+      "instances": 3
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "onehot-encoder-4.block.json",
+      "circuit": "onehot-encoder-4.circuit.json",
+      "template": "onehot-encoder-4.template.json",
+      "vectors": "onehot-encoder-4.vectors.json",
+      "netlist": "onehot-encoder-4.nand.txt"
+    }
+  }
+]

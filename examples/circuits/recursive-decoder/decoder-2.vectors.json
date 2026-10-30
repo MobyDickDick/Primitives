@@ -1,0 +1,145 @@
+{
+  "schema": 1,
+  "name": "DEC<2>",
+  "inputs": 3,
+  "outputs": 4,
+  "rows": [
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      1,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      1,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      0,
+      1,
+      0,
+      1,
+      0,
+      0
+    ],
+    [
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      1
+    ]
+  ],
+  "metadata": {
+    "program": {
+      "version": 2,
+      "source": "# DEC<w>: w Codebits auf 2**w One-Hot-Bits, LSB-first.\n# enable=0 liefert null; enable=1 setzt genau Bit a.\n# 1 <= w <= 7: exponentiell viele Ausgaenge, maximal 128 Bits.\n\ndef DEC<w>(a, enable):\n    assert w >= 1 and w <= 7\n    x = bits(a, w)\n    en = bits(enable, 1)[0]\n    lo = en & (1 ^ x[w - 1])\n    hi = en & x[w - 1]\n    if w == 1:\n        return pack([lo, hi])\n    k = 2 ** (w - 1)\n    lower = bits(DEC<w-1>(pack(x[:w-1]), lo), k)\n    upper = bits(DEC<w-1>(pack(x[:w-1]), hi), k)\n    return pack(lower + upper)\n\nreturn DEC<w>(a, enable)\n",
+      "limits": {
+        "steps": 100000,
+        "iterations": 10000,
+        "total_steps": 5000000
+      },
+      "conditions": [
+        "w >= 1",
+        "w <= 7"
+      ],
+      "parameters": {
+        "w": 2
+      },
+      "interface": {
+        "inputs": [
+          {
+            "name": "a",
+            "bits": "w"
+          },
+          {
+            "name": "enable",
+            "bits": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": "2 ** w"
+          }
+        ]
+      }
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "enable",
+          "bits": 1,
+          "signed": false,
+          "offset": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "description": "Decoder: w-Bit-Code a auf 2**w One-Hot-Ausgangsbits c. enable=1 setzt genau Bit a, enable=0 liefert null. Für Betrieb ohne Freigabe enable=1 verbinden. LSB-first; 1 <= w <= 7. Die One-Hot-Breite wächst exponentiell bis 128 Bits; NAND-Übersetzung und F-Boxen unterliegen der 512-Gattergrenze."
+  },
+  "exhaustive": true
+}

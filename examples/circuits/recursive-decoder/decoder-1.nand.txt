@@ -1,0 +1,9 @@
+# DEC<1>: flat NAND netlist; bit 0 is the LSB.
+# Inputs: a0, enable0
+g0 = NAND(a0, a0)
+g1 = NAND(enable0, g0)
+g2 = NAND(g1, g1)
+g3 = NAND(a0, enable0)
+g4 = NAND(g3, g3)
+c0 = g2
+c1 = g4
