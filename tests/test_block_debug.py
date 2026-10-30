@@ -18,6 +18,13 @@ class BlockDebugTests(unittest.TestCase):
                 view = bundle.view(path)
                 c = Circuit.from_dict(view["circuit"])
                 nodes = view["circuit"].get("view_nodes", [])
+                if nodes:
+                    self.assertEqual([r for n in nodes for r in n.get("gateRefs", [])],
+                                     list(range(c.inputs, c.inputs + len(c.gates))))
+                    for node in nodes:
+                        if node["kind"] == "instance":
+                            local = BlockBundle({**document, "root": node["definition"]})
+                            self.assertEqual(len(node["gateRefs"]), len(local.expand().gates))
                 for x in range(1 << c.inputs):
                     values = c.wires(bits(x, c.inputs))
                     for node in nodes:

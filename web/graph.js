@@ -235,5 +235,5 @@ globalThis.CircuitGraph = (() => {
       path: paths[i].map((p, j) => `${j ? "L" : "M"} ${p.x} ${p.y}`).join(" ") }));
   }
   return { width, height, boxHeight, pinOffset, boxName, nodes, automatic, valid, canPlace, connections, routes, rectangles, clear,
-    validPoints, manualPath, usablePath, moveSegment };
+    validPoints, manualPath, usablePath, moveSegment, route };
 })();

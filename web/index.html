@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="de">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Primitives · NAND-Labor</title><link rel="stylesheet" href="/style.css"><script src="/graph.js" defer></script><script src="/viewport.js" defer></script><script src="/playback.js" defer></script><script src="/block-debug.js" defer></script><script src="/app.js" defer></script></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Primitives · NAND-Labor</title><link rel="stylesheet" href="/style.css"><script src="/graph.js" defer></script><script src="/overview.js" defer></script><script src="/viewport.js" defer></script><script src="/playback.js" defer></script><script src="/block-debug.js" defer></script><script src="/app.js" defer></script></head>
 <body>
 <header><div class="brand"><span class="brand-icon">⊼</span><div>PRIMITIVES <span class="version">0.1</span><small>Eine Spielwiese aus NAND-Gattern</small></div></div><span class="local">● Lokal auf deinem Rechner</span></header>
 <main>
@@ -128,6 +128,13 @@ return s</textarea></label>
 <div class="graph-toolbar"><button id="debug-reset" class="secondary">Test zurücksetzen</button><button id="debug-next" class="secondary">Nächster Schritt</button><button id="debug-finish" class="secondary">Vollständig auswerten</button></div>
 </section>
 <div class="graph-toolbar"><button id="save-layout" class="secondary">Layout speichern</button><button id="auto-layout" class="secondary">Automatisch anordnen</button><button id="reset-wire" class="secondary" disabled>Leitung zurücksetzen</button><div class="graph-zoom" role="group" aria-label="Schaltbild-Zoom"><button id="zoom-out" class="secondary" aria-label="Schaltbild verkleinern">−</button><output id="zoom-level" aria-label="Zoomstufe">100 %</output><button id="zoom-in" class="secondary" aria-label="Schaltbild vergrössern">+</button><button id="zoom-reset" class="secondary">100 %</button><button id="zoom-fit" class="secondary">Alles einpassen</button></div></div>
+<div class="overview-controls" aria-label="Busse und Signalverfolgung">
+<label class="check-label"><input id="bus-mode" type="checkbox" checked>Benannte Busse bündeln</label>
+<label>Signal verfolgen<select id="trace-signal"><option value="">Keine Signalverfolgung</option></select></label>
+<label>Verfolgung<select id="trace-direction"><option value="sources">Quellen</option><option value="both">Quellen und abhängige Ausgänge</option></select></label>
+<label class="check-label"><input id="trace-focus" type="checkbox">Nur Abhängigkeiten anzeigen (Einzelbits)</label>
+<button id="trace-clear" class="secondary" hidden>Zur Gesamtschaltung</button>
+</div><p id="trace-status" class="hint" role="status"></p>
 <details class="graph-instructions"><summary>Bedienung des Schaltbilds</summary><p id="graph-help" class="hint graph-help">Jede Box hat eine eigene Nummer. ⊼ verknüpft die genannten Quellboxen mit NAND; „Wert“ ist das berechnete Signal. Boxen zum Verschieben ziehen. Leitungssegmente quer ziehen; Anschlüsse bleiben fest. Tab wählt auch Segmente, Pfeiltasten verschieben sie, Entf setzt die gewählte Leitung zurück. „Automatisch anordnen“ setzt Boxen und alle manuellen Wege zurück. Eingangsboxen zum Umschalten anklicken. Zoom: Strg + Mausrad oder Touchpad-Zoomgeste. Ausschnitt: freie Fläche ziehen oder mittlere Maustaste. Tastatur im Schaltbild: +/− zoomt, 0 zeigt 100 %, F passt alles ein. Pfeiltasten verschieben den Ausschnitt; bei ausgewählter Box verschieben sie die Box. Tab wählt eine Box, Leertaste schaltet einen Eingang um.</p>
 </details>
 <p id="layout-status" class="hint" role="status"></p><p id="wire-status" class="hint" role="status"></p>

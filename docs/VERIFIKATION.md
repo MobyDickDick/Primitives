@@ -1,5 +1,39 @@
 # Verifikation des ersten Prototyps
 
+## Verdrahtungsübersicht (PRIM-09)
+
+Geprüft am 30. Oktober 2026:
+
+- **45 JavaScript-Tests** mit `node --test tests/test_*.js`, darunter elf neue
+  Tests für Busse, exakte Signalverfolgung und den Fokus-/Kamerazustand.
+- **28 HTTP-Integrationstests**, **13 Bausteintests** und **drei
+  Hierarchieprojektionstests** erfolgreich. Nach der Ergänzung von `gateRefs`
+  wurden Baustein-/Hierarchietests und die betroffenen HTTP-Tests für
+  Instanzansichten und Layout/Auslieferung erneut erfolgreich ausgeführt.
+  Lokale HTTP-Verbindungen erfordern unter Windows einen Lauf ausserhalb
+  der Sandbox; innerhalb blockiert WinError 10013 die Sockets.
+- `node --check web/app.js`, `node --check web/overview.js` und
+  `git diff --check` erfolgreich.
+
+Die neuen Tests prüfen vollständige Bitzuordnungen bei Vierbit-Bussen,
+Vertauschungen, Teilbereichen und mehrfach verwendeten Quellen. Direkte
+Durchleitungen, Ausgangsaliase und unveränderte manuelle Bitwege sind
+abgedeckt. Die Verfolgung eines 512-Gatter-Netzes wird mit einem unabhängigen
+iterativen Vorgänger-Orakel verglichen. Interne NANDs einer geschlossenen
+FBox markieren deren Box und nur die erforderlichen Eingangspins.
+
+Praktisch im lokalen Browser geprüft: mobiler Ausschnitt und Desktopansicht,
+zwei verbundene Vierbit-FBoxen (zwölf Bitverbindungen als drei Busse),
+Bitauflösung, Instanznavigation über Volladdierer/Halbaddierer bis XOR-NANDs,
+Rückkehr mit gleicher Kamera und gleichem Fokus sowie Wechsel zwischen
+FBox- und flacher Ansicht. Ein flaches Netz mit 512 NANDs wurde auf die vier
+Boxen eines Ausgangs fokussiert; Eingangsänderungen lieferten die erwarteten
+NAND-Werte und erhielten den Filter. Tastaturzoom und Rückkehr zur gesamten
+Schaltung wurden ebenfalls geprüft. Verwendet wurden separate Testdaten
+unter `.jobs`, ohne Änderungen an der eigentlichen Bibliothek.
+
+Bedienung und Grenzen: [Verdrahtungsübersicht](VERDRAHTUNG.md).
+
 ## GEN-03: Decoder und One-Hot-Encoder
 
 Geprüft am 30. Oktober 2026: Alle **286 Python-Tests** mit
