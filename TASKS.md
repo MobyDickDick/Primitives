@@ -12,7 +12,10 @@
 - [x] GEN-02: Prioritätsencoder für den niedrigsten gesetzten Bitindex mit valid,
       drei F-Boxen/NAND-Netzen und vollständiger Prüfung aller 22 kleinen Eingabefälle;
       [Dokumentation](docs/PRIORITAETSENCODER.md).
-      Nächste offene Template-Aufgabe: GEN-03 (Decoder / One-Hot).
+- [x] GEN-03: Decoder mit enable und One-Hot-Encoder mit valid/multiple,
+      sechs F-Boxen/NAND-Netze und vollständige Prüfung aller 65 600 kleinen
+      Eingabefälle; [Dokumentation](docs/DECODER-ONEHOT.md).
+      Nächste offene Template-Aufgabe: GEN-04 (Barrel-Shifter).
 
 Beschreibung und Erzeugung: [Standardarithmetik](docs/STANDARD-ARITHMETIK.md).
 

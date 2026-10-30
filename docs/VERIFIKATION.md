@@ -1,5 +1,31 @@
 # Verifikation des ersten Prototyps
 
+## GEN-03: Decoder und One-Hot-Encoder
+
+Geprüft am 30. Oktober 2026: Alle **286 Python-Tests** mit
+`python -m unittest discover -s tests -v` bestehen, einschliesslich der sieben
+neuen GEN-03-Tests und aller HTTP-Integrationstests. Ausserdem bestehen alle
+**34 JavaScript-Tests** mit `node --test tests/test_*.js` und `git diff --check`.
+Für lokale HTTP-Verbindungen ist unter Windows ein Lauf ausserhalb der
+Sandbox erforderlich; innerhalb bestehen 255 Tests, während Socketfehler
+10013 die 31 HTTP-Tests blockiert. Der vollständige freigegebene Lauf besteht.
+
+Der Export prüft alle **65 600 Eingabefälle** für `DEC<w>` und `OHE<w>` bei
+w=1,2,4 gegen eine unabhängige Ganzzahlreferenz: Referenzprogramm,
+hierarchische Auswertung, expandierte und vereinfachte NAND-Netze sowie
+direkte Quellsynthese. Die Tests kontrollieren alle exportierten Vektoren mit
+einer unabhängigen Bitpositionssuche und alle flachen Hardwareformen gegen
+die vollständigen Tabellen, inklusive aller 65 536 Muster von OHE<4>.
+Null, Mehrfachbelegung, beide Rückwege, jede Einzelbelegung, grössere
+Referenzbreiten, ungültige Parameter/Aufrufe und die Gattergrenze sind abgedeckt.
+
+Die Migration erhält eigene Ordner, Namen, Beschreibungen, Zuordnungen und
+eine bessere vorhandene Schaltung; bei späteren Starts bleiben gelöschte
+Funktionen, Templates und F-Boxen gelöscht. Die generierten Exporte enthalten
+zwei abstrakte Templates und 32 Schaltungs-/Prüfdateien.
+Siehe [Decoder und One-Hot-Encoder](DECODER-ONEHOT.md) für Semantik,
+Gatterzahlen sowie Grenzen der NAND-Übersetzung und Vektorerzeugung.
+
 ## GEN-02: Prioritätsencoder
 
 Geprüft am 29. Oktober 2026: **279 Python-Tests** einschliesslich der lokalen

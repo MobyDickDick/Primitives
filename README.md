@@ -33,6 +33,15 @@ Instanzen für t=1,2,4 mit F-Boxen und NAND-Netzen (3, 5 bzw. 18 NANDs).
 Beim nächsten Serverstart erscheinen sie unter **Beispiele → Rekursion →
 Prioritätsencoder**. Siehe [Prioritätsencoder und maximales Bitindex-Gegenstück](docs/PRIORITAETSENCODER.md).
 
+`DEC<w>(a,enable)` wandelt einen w-Bit-Code in `2**w` One-Hot-Bits um;
+bei enable=0 sind alle Ausgänge null. `OHE<w>(a)` liefert den umgekehrten
+Index mit `valid` für genau ein gesetztes Bit und `multiple` bei Mehrfachbelegung.
+Ungültige Indizes bleiben null. GEN-03 ergänzt sechs vollständig geprüfte
+Instanzen für w=1,2,4 mit F-Boxen und NAND-Netzen: insgesamt 65 600 Eingabefälle,
+einschliesslich aller 65 536 Muster des 16-Bit-One-Hot-Eingangs.
+Beim nächsten Serverstart erscheinen sie unter **Beispiele → Rekursion →
+Decoder & One-Hot**. Siehe [Decoder und One-Hot-Encoder](docs/DECODER-ONEHOT.md).
+
 Die **Bibliothek** zeigt Templates und konkrete Funktionen in einem gemeinsamen
 Verzeichnisbaum. Ordner und Unterordner lassen sich anlegen, umbenennen,
 beschreiben und verschieben; Einträge können in jeden Ordner einsortiert werden.

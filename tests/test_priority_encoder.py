@@ -194,7 +194,7 @@ return pack([c0, c1]), l | h
             previous = ("arithmetic", "recursive-checked", "recursive-mul", "number-of-ones",
                         "recursive-msb-div", "recursive-max-index", "recursive-equ", "recursive-gt",
                         "generative-logic", "routing", "structured-logic", "standard-arithmetic",
-                        "arithmetic-comments", "zero-counts")
+                        "arithmetic-comments", "zero-counts", "onehot")
             (Path(directory) / "example-installations.json").write_text(
                 json.dumps({f"{key}-v1": True for key in previous}), encoding="utf-8")
             server = make_server(0, directory, background=False)

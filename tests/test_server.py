@@ -118,15 +118,15 @@ class ServerTests(unittest.TestCase):
         self.thread.start()
         self.base = f"http://127.0.0.1:{self.server.server_port}"
         catalog = self.request("/api/catalog")
-        self.assertEqual(len(catalog["templates"]), 33)
-        self.assertEqual(len(catalog["datasets"]), 116)
+        self.assertEqual(len(catalog["templates"]), 35)
+        self.assertEqual(len(catalog["datasets"]), 122)
         self.assertTrue({"DIV<1> MSB", "DIV<2> MSB", "DIV<3> MSB", "DIV<4> MSB"}
                         <= {p["dataset_name"] for p in catalog["programs"]})
         self.assertTrue(all(p["fitness"]["exact_on_dataset"] for p in catalog["programs"]))
         self.assertEqual({p["dataset_name"] for p in catalog["programs"] if not p["fitness"]["verified_truth_table"]},
                          {"MUX<1,4>", "MUX<2,4>", "MUX<4,2>", "MUX<4,4>"})
         self.assertEqual({catalog["tree"]["entries"][f"function:{d['function_id']}"] for d in catalog["datasets"]},
-                         {"arithmetic-functions", "recursion", "routing", "structured-logic", "zero-counts", "priority-encoder",
+                         {"arithmetic-functions", "recursion", "routing", "structured-logic", "zero-counts", "priority-encoder", "onehot",
                           "standard-add", "standard-sub", "standard-mul", "standard-div"})
         self.assertEqual({b["name"] for b in catalog["blocks"]},
                          {"MUL<1>", "MUL<2>", "MUL<4>", "NumberOfOnes<1>", "NumberOfOnes<2>", "NumberOfOnes<4>",
@@ -138,6 +138,7 @@ class ServerTests(unittest.TestCase):
                          | {f"{kind}<{width}>" for kind in ("GRAY", "UNGRAY", "PREFIX_OR", "SORT2") for width in (1, 2, 4)}
                          | {f"{kind}<{width}>" for kind in ("CLZ", "CTZ") for width in (1, 2, 4)}
                          | {f"PE<{width}>" for width in (1, 2, 4)}
+                         | {f"{kind}<{w}>" for kind in ("DEC", "OHE") for w in (1, 2, 4)}
                          | {f"{name} ({p}/{q} Bit)" for name in ("Standardaddition", "Standardsubtraktion",
                                                                "Standardmultiplikation", "Standarddivision")
                             for p in (1, 2, 4) for q in (1, 2, 4)})

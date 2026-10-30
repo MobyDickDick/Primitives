@@ -42,11 +42,16 @@ getrennt umsetzbar, sofern die genannten Abhängigkeiten verfügbar sind.
   Eingabefälle vollständig geprüft. Rekursive F-Boxen, NAND-Exporte, grössere
   Referenzen/Grenzfälle bis 128 Bit und einmalige Migration vorhanden.
   Siehe [Prioritätsencoder und Gegenstück m<t>](PRIORITAETSENCODER.md).
-  Nächste offene Template-Aufgabe: GEN-03.
-- [ ] **GEN-03 – Decoder / One-Hot:** w-Bit-Code ergibt 2**w Ausgangsbits,
+- [x] **GEN-03 – Decoder / One-Hot:** w-Bit-Code ergibt 2**w Ausgangsbits,
   optional enable. Auch die Umkehrung mit valid und multiple für ungültige
   One-Hot-Eingaben definieren. Prüfen: w=1,2,4 und sämtliche Eingaben,
   einschliesslich Null- und Mehrfachbelegung beim Encoder.
+  Umgesetzt: `DEC<w>` mit enable und `OHE<w>` mit valid (genau ein Bit) und
+  multiple (mindestens zwei Bits); ungültige Indizes sind null. Alle 65 600
+  Eingabefälle für w=1,2,4 vollständig geprüft. Rekursive F-Boxen, NAND-Exporte,
+  einmalige Migration und dokumentierte Port-/Gattergrenzen vorhanden.
+  Siehe [Decoder und One-Hot-Encoder](DECODER-ONEHOT.md).
+  Nächste offene Template-Aufgabe: GEN-04.
 - [ ] **GEN-04 – Barrel-Shifter:** SHL, SHR und vorzeichenerweiterndes SAR mit
   variablem Schiebeeingang über feste MUX-Stufen. Bei s>=t wird SHL/SHR null,
   SAR wiederholt das Vorzeichenbit. Prüfen: Datenbreite t=1,2,4 und
