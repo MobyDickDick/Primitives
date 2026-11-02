@@ -31,7 +31,10 @@ vorausgesetzt; Signalverfolgung soll auch ohne Hierarchie helfen.
 - [x] GEN-03: Decoder mit enable und One-Hot-Encoder mit valid/multiple,
       sechs F-Boxen/NAND-Netze und vollständige Prüfung aller 65 600 kleinen
       Eingabefälle; [Dokumentation](docs/DECODER-ONEHOT.md).
-      Nächste offene Template-Aufgabe: GEN-04 (Barrel-Shifter).
+- [x] GEN-04: SHL/SHR/SAR als Barrel-Shifter mit festen MUX-Stufen,
+      27 F-Boxen/NAND-Netzen und vollständiger Prüfung aller 1452 kleinen
+      Eingabefälle; [Dokumentation](docs/BARREL-SHIFTER.md).
+      Nächste offene Template-Aufgabe: GEN-05 (Rotieren).
 
 Beschreibung und Erzeugung: [Standardarithmetik](docs/STANDARD-ARITHMETIK.md).
 

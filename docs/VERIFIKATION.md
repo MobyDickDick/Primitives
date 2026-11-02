@@ -1,5 +1,31 @@
 # Verifikation des ersten Prototyps
 
+## GEN-04: Barrel-Shifter
+
+Geprüft am 2. November 2026:
+
+- `python -m tools.export_barrel_shifter`: 27 Instanzen für SHL, SHR und SAR,
+  jeweils alle neun Kombinationen t,s_bits=1,2,4; **1452 Eingabefälle**
+  vollständig gegen eine unabhängige Ganzzahlreferenz geprüft.
+- Sechs neue Python-Tests prüfen alle exportierten Vektorzeilen mit einer
+  unabhängigen Bitpositionsreferenz, Quellprogramme, F-Boxen, expandierte
+  und vereinfachte NAND-Netze sowie direkte Quellsynthese. Zusätzlich:
+  grössere Breiten und Breiten ohne Zweierpotenz als Grenzfälle/Stichproben,
+  128-Bit-Portgrenzen, ungültige Parameter/Aufrufe, 512-Gattergrenze und
+  Ausführungsbudget. Alle sechs Tests bestehen einschliesslich HTTP-Integration.
+- Die Migration erhält bestehende Ordner, Beschreibungen, Zuordnungen,
+  Benennungen und bessere Schaltungen; gelöschte Beispiele bleiben beim
+  erneuten Start gelöscht. API-Katalog, direkte Synthese, Bausteinauswertung
+  und Navigation in eine feste Schiebestufe sind geprüft.
+- Alle **45 JavaScript-Tests** mit `node --test tests/test_*.js` bestehen.
+- Die vollständige Python-Suite mit `python -m unittest discover -s tests -v`
+  besteht mit **292 Tests**, einschliesslich aller HTTP-Integrationstests.
+  Der Lauf mit `PYTHONUTF8=1` dauerte rund 13 Minuten und wurde für lokale
+  HTTP-Verbindungen ausserhalb der Windows-Sandbox ausgeführt.
+- `git diff --check` besteht.
+
+Quellen, Exporte, Gatterzahlen und Grenzen: [Barrel-Shifter](BARREL-SHIFTER.md).
+
 ## Verdrahtungsübersicht (PRIM-09)
 
 Geprüft am 30. Oktober 2026:

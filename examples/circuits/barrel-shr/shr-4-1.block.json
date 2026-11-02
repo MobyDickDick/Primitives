@@ -1,0 +1,184 @@
+{
+  "schema": 1,
+  "root": "block-71741af6309cf091110dbd56756db1016b30f7ce19db82e62fe4354d3afe1390",
+  "definitions": {
+    "block-40b1d02bc31b7d1fde8da669d8fd0de5781c94a15db411dc8af2fd422b6fa065": {
+      "name": "SHRStage<4,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "sel",
+            "bits": 1,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 5,
+        "gates": [
+          [
+            4,
+            4
+          ],
+          [
+            0,
+            5
+          ],
+          [
+            1,
+            4
+          ],
+          [
+            6,
+            7
+          ],
+          [
+            1,
+            5
+          ],
+          [
+            2,
+            4
+          ],
+          [
+            9,
+            10
+          ],
+          [
+            2,
+            5
+          ],
+          [
+            3,
+            4
+          ],
+          [
+            12,
+            13
+          ],
+          [
+            3,
+            5
+          ],
+          [
+            15,
+            15
+          ]
+        ],
+        "outputs": [
+          8,
+          11,
+          14,
+          16
+        ]
+      }
+    },
+    "block-71741af6309cf091110dbd56756db1016b30f7ce19db82e62fe4354d3afe1390": {
+      "name": "SHR<4,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "s",
+            "bits": 1,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "nodes": [
+        {
+          "id": "shift_0",
+          "type": "instance",
+          "definition": "block-40b1d02bc31b7d1fde8da669d8fd0de5781c94a15db411dc8af2fd422b6fa065",
+          "inputs": {
+            "a": [
+              {
+                "input": "a",
+                "bit": 0
+              },
+              {
+                "input": "a",
+                "bit": 1
+              },
+              {
+                "input": "a",
+                "bit": 2
+              },
+              {
+                "input": "a",
+                "bit": 3
+              }
+            ],
+            "sel": [
+              {
+                "input": "s",
+                "bit": 0
+              }
+            ]
+          }
+        }
+      ],
+      "outputs": {
+        "c": [
+          {
+            "node": "shift_0",
+            "port": "c",
+            "bit": 0
+          },
+          {
+            "node": "shift_0",
+            "port": "c",
+            "bit": 1
+          },
+          {
+            "node": "shift_0",
+            "port": "c",
+            "bit": 2
+          },
+          {
+            "node": "shift_0",
+            "port": "c",
+            "bit": 3
+          }
+        ]
+      }
+    }
+  }
+}

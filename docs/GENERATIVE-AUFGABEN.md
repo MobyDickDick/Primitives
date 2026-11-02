@@ -51,11 +51,15 @@ getrennt umsetzbar, sofern die genannten Abhängigkeiten verfügbar sind.
   Eingabefälle für w=1,2,4 vollständig geprüft. Rekursive F-Boxen, NAND-Exporte,
   einmalige Migration und dokumentierte Port-/Gattergrenzen vorhanden.
   Siehe [Decoder und One-Hot-Encoder](DECODER-ONEHOT.md).
-  Nächste offene Template-Aufgabe: GEN-04.
-- [ ] **GEN-04 – Barrel-Shifter:** SHL, SHR und vorzeichenerweiterndes SAR mit
+- [x] **GEN-04 – Barrel-Shifter:** SHL, SHR und vorzeichenerweiterndes SAR mit
   variablem Schiebeeingang über feste MUX-Stufen. Bei s>=t wird SHL/SHR null,
   SAR wiederholt das Vorzeichenbit. Prüfen: Datenbreite t=1,2,4 und
   Schiebeportbreite s_bits=1,2,4; alle neun Kombinationen vollständig.
+  Umgesetzt: drei editierbare Templates, 27 F-Boxen/NAND-Netze und alle
+  1452 Eingabefälle unabhängig vollständig geprüft. Einmalige Migration,
+  grössere Referenzen/Grenzfälle und dokumentierte Port-/Gatter-/Budgetgrenzen
+  vorhanden. Siehe [Barrel-Shifter](BARREL-SHIFTER.md).
+  Nächste offene Template-Aufgabe: GEN-05.
 - [ ] **GEN-05 – Rotieren:** ROL/ROR mit variablem Abstand modulo t;
   t=1 ist Identität. Gemeinsam nutzbare MUX-Stufen mit GEN-04 untersuchen.
   Prüfen: dieselben neun Breitenkombinationen und Rotations-Inversen.

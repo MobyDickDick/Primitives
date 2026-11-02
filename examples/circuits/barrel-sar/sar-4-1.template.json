@@ -1,0 +1,36 @@
+{
+  "version": 2,
+  "source": "# SAR: arithmetische Rechtsverschiebung eines Zweierkomplement-Bitmusters.\n# Das hoechste Datenbit wird nachgefuehrt, auch bei s >= t.\n\ndef SARStage<t,k>(a, sel):\n    assert t >= 1 and t <= 128 and k >= 1 and k <= t\n    x = bits(a, t)\n    en = bits(sel, 1)[0]\n    sign = x[t - 1]\n    y = [0] * t\n    for i in range(t):\n        shifted = sign\n        if i + k < t:\n            shifted = x[i + k]\n        if i == t - 1:\n            y[i] = sign\n        else:\n            y[i] = (x[i] & (1 ^ en)) | (shifted & en)\n    return pack(y)\n\ndef SAR<t,s_bits>(a, s):\n    assert t >= 1 and s_bits >= 1 and t + s_bits <= 128\n    x = bits(a, t)\n    sh = bits(s, s_bits)\n    for j in range(s_bits):\n        k = 2 ** j\n        if k > t:\n            k = t\n        x = bits(SARStage<t,k>(pack(x), sh[j]), t)\n    return pack(x)\n\n# Ergebnisport\nreturn SAR<t,s_bits>(a, s)\n",
+  "limits": {
+    "steps": 100000,
+    "iterations": 10000,
+    "total_steps": 5000000
+  },
+  "conditions": [
+    "t >= 1",
+    "s_bits >= 1",
+    "t + s_bits <= 128"
+  ],
+  "parameters": {
+    "t": 4,
+    "s_bits": 1
+  },
+  "interface": {
+    "inputs": [
+      {
+        "name": "a",
+        "bits": "t"
+      },
+      {
+        "name": "s",
+        "bits": "s_bits"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "c",
+        "bits": "t"
+      }
+    ]
+  }
+}

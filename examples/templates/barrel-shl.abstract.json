@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "kind": "template",
+  "name": "SHL<t,s_bits>",
+  "description": "SHL<t,s_bits>: variable Verschiebung von a[t] um unsigned s[s_bits] über feste Bit-MUX-Stufen; c[t], LSB-first. Logische Verschiebung mit Nullen; bei s>=t ist das Ergebnis null. t>=1, s_bits>=1, t+s_bits<=128. NAND-Netze/F-Boxen: maximal 512 Gatter; Ausführungsbudgets gelten.",
+  "parameters": [
+    "t",
+    "s_bits"
+  ],
+  "interface": {
+    "inputs": [
+      {
+        "name": "a",
+        "bits": "t"
+      },
+      {
+        "name": "s",
+        "bits": "s_bits"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "c",
+        "bits": "t"
+      }
+    ]
+  },
+  "source": "# SHL: logische Linksverschiebung, LSB-first; hinausgeschobene Bits verfallen.\n# Jede feste Stufe waehlt per Bit-MUX zwischen Durchleitung und Verschiebung.\n\ndef SHLStage<t,k>(a, sel):\n    assert t >= 1 and t <= 128 and k >= 1 and k <= t\n    x = bits(a, t)\n    en = bits(sel, 1)[0]\n    y = [0] * t\n    for i in range(t):\n        shifted = 0\n        if i >= k:\n            shifted = x[i - k]\n        y[i] = (x[i] & (1 ^ en)) | (shifted & en)\n    return pack(y)\n\ndef SHL<t,s_bits>(a, s):\n    assert t >= 1 and s_bits >= 1 and t + s_bits <= 128\n    x = bits(a, t)\n    sh = bits(s, s_bits)\n    for j in range(s_bits):\n        k = 2 ** j\n        if k > t:\n            k = t\n        x = bits(SHLStage<t,k>(pack(x), sh[j]), t)\n    return pack(x)\n\n# Ergebnisport\nreturn SHL<t,s_bits>(a, s)\n",
+  "limits": {
+    "steps": 100000,
+    "iterations": 10000,
+    "total_steps": 5000000
+  },
+  "conditions": [
+    "t >= 1",
+    "s_bits >= 1",
+    "t + s_bits <= 128"
+  ]
+}

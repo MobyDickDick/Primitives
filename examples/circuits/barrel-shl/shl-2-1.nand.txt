@@ -1,0 +1,10 @@
+# SHL<2,1>: flat NAND netlist; bit 0 is the LSB.
+# Inputs: a0, a1, s0
+g0 = NAND(s0, s0)
+g1 = NAND(a0, g0)
+g2 = NAND(g1, g1)
+g3 = NAND(a1, g0)
+g4 = NAND(a0, s0)
+g5 = NAND(g3, g4)
+c0 = g2
+c1 = g5

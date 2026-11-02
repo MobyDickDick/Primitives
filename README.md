@@ -42,6 +42,15 @@ einschliesslich aller 65 536 Muster des 16-Bit-One-Hot-Eingangs.
 Beim nächsten Serverstart erscheinen sie unter **Beispiele → Rekursion →
 Decoder & One-Hot**. Siehe [Decoder und One-Hot-Encoder](docs/DECODER-ONEHOT.md).
 
+`SHL<t,s_bits>(a,s)`, `SHR<t,s_bits>(a,s)` und `SAR<t,s_bits>(a,s)`
+verschieben über feste MUX-Stufen mit variablem unsigned Abstand.
+Ab s>=t liefern SHL/SHR null; SAR wiederholt das Vorzeichenbit.
+GEN-04 ergänzt alle neun Kombinationen t,s_bits=1,2,4 je Operation:
+27 F-Boxen und NAND-Netze, unabhängig vollständig geprüft für alle
+1452 Eingabefälle. Beim nächsten Serverstart erscheinen sie unter
+**Beispiele → Rekursion → Barrel-Shifter**.
+Siehe [Barrel-Shifter und Breitenlimits](docs/BARREL-SHIFTER.md).
+
 Die **Bibliothek** zeigt Templates und konkrete Funktionen in einem gemeinsamen
 Verzeichnisbaum. Ordner und Unterordner lassen sich anlegen, umbenennen,
 beschreiben und verschieben; Einträge können in jeden Ordner einsortiert werden.
