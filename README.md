@@ -566,6 +566,21 @@ als vollständige Wahrheitstabelle bezeichnet.
 
 ## Interaktives Schaltbild
 
+**Benannte Busse bündeln** fasst mehrbitige Ports und ihre Verbindungen zusammen.
+Busbeschriftungen nennen die Breite; Tooltips zeigen die genaue Bitzuordnung,
+auch bei Vertauschungen, Teilbereichen und mehrfach verwendeten Bits.
+Ein Busklick oder Enter klappt die Einzelbits auf; die Checkbox bündelt sie wieder.
+Unter-FBoxen bleiben über ihren Instanzpfad bis zu den NANDs navigierbar.
+
+**Signal verfolgen** oder ein Klick auf einen einzelnen Ausgang bzw. ein NAND
+hebt dessen strukturelle Quellen hervor. Für interne Signale lassen sich auch
+abhängige Gatter und Ausgänge verfolgen. Die Verfolgung zeigt automatisch
+Einzelbits. **Nur Abhängigkeiten anzeigen** blendet unbeteiligte Teile aus;
+**Zur Gesamtschaltung** stellt die vorherige Kamera und Busdarstellung wieder her.
+Eingangsänderungen und Simulationsschritte erhalten den Fokus. Hierarchie- und
+flache Ansicht behalten ihre eigenen Kameras, Auswahlen und ungespeicherten Layouts.
+Siehe [Verdrahtungsübersicht und Grenzen](docs/VERDRAHTUNG.md).
+
 Das Schaltbild wird beim Öffnen vollständig eingepasst. **+** und **−** ändern
 den Zoom, **100 %** stellt die Originalgrösse her und **Alles einpassen** zeigt
 die gesamte Schaltung samt Leitungen. Der Zoombereich reicht von 0,1 % bis 400 %.

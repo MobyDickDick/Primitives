@@ -774,6 +774,9 @@ class ServerTests(unittest.TestCase):
         with urlopen(self.base + "/viewport.js") as response:
             self.assertEqual(response.headers.get_content_type(), "text/javascript")
             self.assertIn(b"CircuitViewport", response.read())
+        with urlopen(self.base + "/overview.js") as response:
+            self.assertEqual(response.headers.get_content_type(), "text/javascript")
+            self.assertIn(b"CircuitOverview", response.read())
 
     def test_manual_wire_layout_restart_legacy_and_validation(self):
         from primitives.circuit import Circuit

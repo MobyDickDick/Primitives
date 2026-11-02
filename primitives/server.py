@@ -93,7 +93,7 @@ def make_server(port=8765, data_dir=None, *, background=True, seed_examples=True
                         job = dict(jobs[path.rsplit("/", 1)[1]])
                     job["elapsed_seconds"] = round(time.monotonic() - job.pop("started"), 1)
                     self.send_data(job)
-                elif path in ("/", "/app.js", "/graph.js", "/viewport.js", "/playback.js", "/block-debug.js", "/style.css"):
+                elif path in ("/", "/app.js", "/graph.js", "/overview.js", "/viewport.js", "/playback.js", "/block-debug.js", "/style.css"):
                     name = "index.html" if path == "/" else path[1:]
                     content_type = "text/html; charset=utf-8" if name == "index.html" else "text/css; charset=utf-8" if name == "style.css" else "text/javascript; charset=utf-8"
                     self.send_data((ROOT / "web" / name).read_bytes(), content_type=content_type)

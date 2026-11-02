@@ -3,7 +3,7 @@
 // A local test owns its input vector; parent frames never read those hand values.
 globalThis.BlockDebug = (() => {
   const frameKeys = ["bits", "positions", "wires", "selectedRef", "selectedWire", "wireNotice",
-    "layoutDirty", "routing", "camera", "cameraTouched"];
+    "layoutDirty", "routing", "camera", "cameraTouched", "overview"];
   function number(bits, port) {
     let value = bits.slice(port.offset, port.offset + port.bits).reduce((sum, bit, i) => sum + (BigInt(bit) << BigInt(i)), 0n);
     if (port.signed && value >= 1n << BigInt(port.bits - 1)) value -= 1n << BigInt(port.bits);
@@ -36,7 +36,11 @@ globalThis.BlockDebug = (() => {
     state.wires = cached?.wires || {}; state.camera = cached?.camera || null;
     state.cameraTouched = cached?.cameraTouched || false;
     state.layoutDirty = cached?.layoutDirty || false; state.routing = null; state.drag = null;
-    resetPlayback();
+    state.overview = cached?.overview || { bundled: true, selected: "", direction: "sources", focus: false };
+    state.selectedRef = cached?.selectedRef ?? 0; state.selectedWire = cached?.selectedWire ?? null;
+    state.presentation = null;
+    if (cached) $("playback-mode").value = cached.playbackMode;
+    resetPlayback(cached?.step || 0);
     const token = ++state.layoutToken;
     buildPanel(); renderSimulation(); renderTable();
     $("layout-status").textContent = state.layoutDirty ? "Layout geändert · noch nicht gespeichert." : "Instanzlayout wird geladen …";
@@ -128,5 +132,5 @@ globalThis.BlockDebug = (() => {
     action("debug-next", () => { stopAnimation(); $("step").value = Math.min(int("step") + 1, Number($("step").max)); renderSimulation(); });
     action("debug-finish", () => { stopAnimation(); $("step").value = $("step").max; renderSimulation(); });
   }
-  return { number, withNumber, positions, start, enter, back, request, render, init };
+  return { number, withNumber, positions, start, enter, back, request, render, init, buildPanel };
 })();

@@ -2,14 +2,15 @@
 
 ## Übersicht in Verdrahtungsschemen vom 30. Oktober 2026
 
-Offener Nutzerwunsch [PRIM-09](docs/ERWEITERUNGEN.md#prim-09):
+Umgesetzt: [PRIM-09](docs/ERWEITERUNGEN.md#prim-09),
+Bedienung und Grenzen unter [Verdrahtungsübersicht](docs/VERDRAHTUNG.md).
 **Busse und verschachtelte Unter-FBoxen sind die bevorzugte Darstellung.**
 
-- [ ] Mehrbitige Verbindungen als benannte Busse bündeln; Einzelbits bei Bedarf aufklappen.
-- [ ] Vorhandene hierarchische Unter-FBoxen mit Bussen verbinden und übersichtliche Navigation zwischen den Ebenen anbieten.
-- [ ] Quellen und abhängige Gatter/Ausgänge eines ausgewählten Signals hervorheben, übrige Teile abblenden.
-- [ ] Fokusmodus „Nur den gewählten Ausgang und seine Abhängigkeiten anzeigen“ mit sichtbarer Rückkehr zur Gesamtschaltung ergänzen.
-- [ ] Ansicht und Layout beim Navigieren erhalten; hierarchische und flache Netze praktisch prüfen.
+- [x] Mehrbitige Verbindungen als benannte Busse bündeln; Einzelbits bei Bedarf aufklappen.
+- [x] Vorhandene hierarchische Unter-FBoxen mit Bussen verbinden und übersichtliche Navigation zwischen den Ebenen anbieten.
+- [x] Quellen und abhängige Gatter/Ausgänge eines ausgewählten Signals hervorheben, übrige Teile abblenden.
+- [x] Fokusmodus „Nur den gewählten Ausgang und seine Abhängigkeiten anzeigen“ mit sichtbarer Rückkehr zur Gesamtschaltung ergänzen.
+- [x] Ansicht und Layout beim Navigieren erhalten; hierarchische und flache Netze praktisch prüfen.
 
 Vorhandene Bausteinhierarchien nutzen. Eine zuverlässige automatische
 Rekonstruktion funktionaler Blöcke aus evolutionären NAND-Netzen wird nicht
@@ -149,8 +150,8 @@ Die Kennungen sind Dokumentationskennungen; GitHub-Issues wurden noch nicht ange
 - [ ] Evolution auf zeitabhängige Aufgaben erweitern.
 
 Die acht Erweiterungspakete PRIM-01 bis PRIM-08 sind umgesetzt.
-PRIM-09 ist als neuer Darstellungswunsch offen; Busse und Unter-FBoxen haben
-dabei Vorrang vor Signalverfolgung und Fokusmodus.
+PRIM-09 ergänzt benannte Busse, vorhandene Unter-FBoxen, Signalverfolgung und
+Fokusmodus mit Ansichtswiederherstellung; siehe [Bedienung](docs/VERDRAHTUNG.md).
 Nächster offener Entwicklungspunkt für die Suche: Trainings- und Prüfvektoren getrennt behandeln
 und Gegenbeispiele nachführen (Etappe 2).
 Für die Suchentwicklung bleiben Suchrobustheit und unabhängige Prüfvektoren

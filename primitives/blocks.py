@@ -301,6 +301,7 @@ class BlockBundle:
             incoming = [r for p in child_spec["inputs"] for r in node["inputs"][p["name"]]] if child else node["inputs"]
             mapping = [signals[endpoint(r)] for r in incoming]
             input_refs = list(mapping)
+            first_gate = circuit.inputs + gate_count
             if child:
                 expansion = self._circuits[node["definition"]]
                 for _ in expansion.gates:
@@ -317,6 +318,7 @@ class BlockBundle:
                    "id": node_id, "sources": sources, "sourceBits": source_bits,
                    "level": 1 + max((boxes[r]["level"] for r in sources), default=0),
                    "signalRefs": output_refs, "inputRefs": input_refs, "interface": copy.deepcopy(child_spec)}
+            box["gateRefs"] = list(range(first_gate, circuit.inputs + gate_count))
             if child:
                 box.update(definition=node["definition"], name=child["name"], version=child["version"],
                            height=max(84, 44 + 16 * max(len(input_refs), len(output_refs))))

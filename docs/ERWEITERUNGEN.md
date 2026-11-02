@@ -425,7 +425,9 @@ Parser/Interpreter aus [PRIM-07](#prim-07), Debugansicht in `web/` und Ausführu
 
 ## PRIM-09 – Verdrahtungsschema: Busse, Unter-FBoxen und Signalverfolgung
 
-**Status:** offener Nutzerwunsch vom 30. Oktober 2026; noch nicht umgesetzt.
+**Status:** umgesetzt am 30. Oktober 2026.
+
+Bedienung, Darstellungsregeln und Grenzen: [Verdrahtungsübersicht](VERDRAHTUNG.md).
 
 ### Problem und Ziel
 
@@ -493,14 +495,14 @@ einen eigenständig nutzbaren Einstieg in die Untersuchung.
 
 ### Abnahme
 
-- [ ] Mehrbitige Verbindungen zwischen FBoxen werden als benannte Busse mit Breite angezeigt; Einzelbits sind bei Bedarf zugänglich.
-- [ ] Unter-FBoxen lassen sich über mehrere Ebenen öffnen; Instanzpfad und Rückkehr erhalten die Orientierung.
-- [ ] Die Auswahl eines Ausgangs hebt genau dessen strukturelle Vorgänger und Verbindungen hervor; unbeteiligte Teile werden abgeblendet.
-- [ ] Für interne Signale sind Quellen und abhängige Gatter/Ausgänge nachvollziehbar, auch bei gemeinsam genutzten Zwischensignalen und mehreren Ausgängen.
-- [ ] Der Fokusmodus zeigt nur die gewählten Abhängigkeiten und bietet eine sichtbare Rückkehr zur Gesamtschaltung.
-- [ ] Busauflösung und Signalverfolgung funktionieren auch bei direkten Durchleitungen und unterschiedlicher Bitzuordnung.
-- [ ] Darstellung und Filter ändern keine logischen Verbindungen, Simulationsergebnisse oder gespeicherten Layouts; Signalwechsel und Simulationsschritte erhalten den Fokus.
-- [ ] Hierarchische Beispiele und ein grosses flaches NAND-Netz werden praktisch geprüft, einschliesslich Zoom, Tastaturbedienung und Rückkehr zur vorherigen Ansicht.
+- [x] Mehrbitige Verbindungen zwischen FBoxen werden als benannte Busse mit Breite angezeigt; Einzelbits sind bei Bedarf zugänglich.
+- [x] Unter-FBoxen lassen sich über mehrere Ebenen öffnen; Instanzpfad und Rückkehr erhalten die Orientierung.
+- [x] Die Auswahl eines Ausgangs hebt genau dessen strukturelle Vorgänger und Verbindungen hervor; unbeteiligte Teile werden abgeblendet.
+- [x] Für interne Signale sind Quellen und abhängige Gatter/Ausgänge nachvollziehbar, auch bei gemeinsam genutzten Zwischensignalen und mehreren Ausgängen.
+- [x] Der Fokusmodus zeigt nur die gewählten Abhängigkeiten und bietet eine sichtbare Rückkehr zur Gesamtschaltung.
+- [x] Busauflösung und Signalverfolgung funktionieren auch bei direkten Durchleitungen und unterschiedlicher Bitzuordnung.
+- [x] Darstellung und Filter ändern keine logischen Verbindungen, Simulationsergebnisse oder gespeicherten Layouts; Signalwechsel und Simulationsschritte erhalten den Fokus.
+- [x] Hierarchische Beispiele und ein grosses flaches NAND-Netz werden praktisch geprüft, einschliesslich Zoom, Tastaturbedienung und Rückkehr zur vorherigen Ansicht.
 
 ### Abhängigkeiten und Ansatzpunkte
 
