@@ -1,0 +1,3 @@
+# ROL<1,2>: flat NAND netlist; bit 0 is the LSB.
+# Inputs: a0, s0, s1
+c0 = a0

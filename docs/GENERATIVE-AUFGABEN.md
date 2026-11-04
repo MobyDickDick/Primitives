@@ -59,10 +59,14 @@ getrennt umsetzbar, sofern die genannten Abhängigkeiten verfügbar sind.
   1452 Eingabefälle unabhängig vollständig geprüft. Einmalige Migration,
   grössere Referenzen/Grenzfälle und dokumentierte Port-/Gatter-/Budgetgrenzen
   vorhanden. Siehe [Barrel-Shifter](BARREL-SHIFTER.md).
-  Nächste offene Template-Aufgabe: GEN-05.
-- [ ] **GEN-05 – Rotieren:** ROL/ROR mit variablem Abstand modulo t;
+- [x] **GEN-05 – Rotieren:** ROL/ROR mit variablem Abstand modulo t;
   t=1 ist Identität. Gemeinsam nutzbare MUX-Stufen mit GEN-04 untersuchen.
   Prüfen: dieselben neun Breitenkombinationen und Rotations-Inversen.
+  Umgesetzt: zwei editierbare Templates, 18 F-Boxen/NAND-Netze und alle
+  968 Eingabefälle unabhängig vollständig geprüft. Inversen, Periodizität,
+  grössere und andere als Zweierpotenzbreiten, Port-/Gatter-/Budgetgrenzen
+  und einmalige Migration geprüft. Siehe [Rotieren](ROTIEREN.md).
+  Nächste offene Template-Aufgabe: GEN-06.
 
 ## Priorität 2: Rechnen und Präfixnetze
 

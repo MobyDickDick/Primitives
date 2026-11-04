@@ -51,6 +51,14 @@ GEN-04 ergänzt alle neun Kombinationen t,s_bits=1,2,4 je Operation:
 **Beispiele → Rekursion → Barrel-Shifter**.
 Siehe [Barrel-Shifter und Breitenlimits](docs/BARREL-SHIFTER.md).
 
+`ROL<t,s_bits>(a,s)` und `ROR<t,s_bits>(a,s)` rotieren um den unsigned Abstand
+**s modulo t**. Alle Bits bleiben erhalten; t=1 ist die Identität. GEN-05
+ergänzt alle neun Kombinationen t,s_bits=1,2,4 je Richtung: 18 F-Boxen und
+NAND-Netze, unabhängig vollständig geprüft für alle 968 Eingabefälle.
+Rotations-Inversen und Breiten ohne Zweierpotenz sind ebenfalls geprüft.
+Beim nächsten Serverstart erscheinen die Beispiele unter **Beispiele →
+Rekursion → Rotationen**. Siehe [Rotieren und Breitenlimits](docs/ROTIEREN.md).
+
 Die **Bibliothek** zeigt Templates und konkrete Funktionen in einem gemeinsamen
 Verzeichnisbaum. Ordner und Unterordner lassen sich anlegen, umbenennen,
 beschreiben und verschieben; Einträge können in jeden Ordner einsortiert werden.

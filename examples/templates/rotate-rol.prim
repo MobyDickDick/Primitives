@@ -1,0 +1,27 @@
+# ROL: Linksrotation modulo t, LSB-first; keine Bits gehen verloren.
+# Feste MUX-Stufen wie beim Barrel-Shifter, hier mit zyklischer Verdrahtung.
+
+def ROLStage<t,k>(a, sel):
+    assert t >= 1 and t <= 128 and k >= 0 and k < t
+    x = bits(a, t)
+    if k == 0:
+        return pack(x)
+    en = bits(sel, 1)[0]
+    y = [0] * t
+    for i in range(t):
+        rotated = x[(i - k) % t]
+        y[i] = (x[i] & (1 ^ en)) | (rotated & en)
+    return pack(y)
+
+def ROL<t,s_bits>(a, s):
+    assert t >= 1 and s_bits >= 1 and t + s_bits <= 128
+    x = bits(a, t)
+    sh = bits(s, s_bits)
+    for j in range(s_bits):
+        k = (2 ** j) % t
+        if k != 0:
+            x = bits(ROLStage<t,k>(pack(x), sh[j]), t)
+    return pack(x)
+
+# Ergebnisport
+return ROL<t,s_bits>(a, s)

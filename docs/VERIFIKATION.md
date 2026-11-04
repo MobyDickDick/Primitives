@@ -1,5 +1,42 @@
 # Verifikation des ersten Prototyps
 
+## GEN-05: Rotieren
+
+Geprüft am 3. und 4. November 2026:
+
+- `python -m tools.export_rotations`: 18 Instanzen für ROL und ROR,
+  jeweils alle neun Kombinationen t,s_bits=1,2,4; **968 Eingabefälle**
+  vollständig gegen eine unabhängige Ganzzahlreferenz geprüft.
+- Quellprogramm, hierarchische Auswertung, expandierte und vereinfachte
+  NAND-Netze sowie direkte Quellsynthese stimmen auf allen kleinen Eingaben
+  überein. Jede Instanz enthält Vektoren, Quellprogramm, F-Box, flache Schaltung
+  und NAND-Gatterliste mit Gatterzahl und Tiefe.
+- Alle **sieben neuen Python-Tests** bestehen, einschliesslich HTTP-Integration:
+  unabhängige Bitpositionsreferenz, Rotations-Inversen, Periodizität und Erhalt
+  der Anzahl gesetzter Bits, grössere Breiten und Breiten ohne Zweierpotenz,
+  128-Bit-Portgrenzen, ungültige Parameter/Aufrufe und Ausführungsbudgets.
+  Die Migration erhält eigene Ordner, Beschreibungen, Benennungen, Zuordnungen
+  und vorhandene Schaltungen. Gelöschte Beispiele bleiben beim erneuten Start
+  gelöscht. API-Katalog, direkte Synthese, Bausteinauswertung und Navigation
+  in eine feste Rotationsstufe sind geprüft.
+- Der ergänzende Grenztest prüft die unterschiedlichen Syntheselimits:
+  t=32, s_bits=6 liefert über kompaktierte F-Box-Stufen 485 NANDs bei Tiefe 11,
+  während die direkte Quellsynthese bereits die temporäre Gattergrenze erreicht.
+  Bei t=64, s_bits=6 überschreiten beide Wege 512 Gatter; bei t=63, s_bits=65
+  begrenzt das Anweisungsbudget die Referenzausführung.
+- Alle **45 JavaScript-Tests** mit `node --test tests/test_*.js` bestehen.
+- Die vollständige Python-Suite mit `PYTHONUTF8=1` und
+  `python -m unittest discover -s tests -v` besteht mit **299 Tests**,
+  einschliesslich aller HTTP-Integrationstests. Lokale HTTP-Verbindungen
+  wurden wegen der WinError-10013-Sandboxgrenze freigegeben. Auch der
+  Erstaufbau der gesamten Bibliothek mit 40 Templates und 167 Datensätzen
+  ist geprüft. Der ergänzte Grenztest für 485 NANDs wurde separat erneut
+  erfolgreich ausgeführt.
+- `git diff --check` besteht; alle Verweise in der neuen Dokumentation
+  führen zu vorhandenen Quellen, Exporten oder Prüfberichten.
+
+Quellen, Exporte, Semantik und Grenzen: [Rotieren](ROTIEREN.md).
+
 ## GEN-04: Barrel-Shifter
 
 Geprüft am 2. November 2026:

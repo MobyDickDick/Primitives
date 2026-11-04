@@ -34,7 +34,10 @@ vorausgesetzt; Signalverfolgung soll auch ohne Hierarchie helfen.
 - [x] GEN-04: SHL/SHR/SAR als Barrel-Shifter mit festen MUX-Stufen,
       27 F-Boxen/NAND-Netzen und vollständiger Prüfung aller 1452 kleinen
       Eingabefälle; [Dokumentation](docs/BARREL-SHIFTER.md).
-      Nächste offene Template-Aufgabe: GEN-05 (Rotieren).
+- [x] GEN-05: ROL/ROR modulo Datenbreite über feste MUX-Stufen,
+      18 F-Boxen/NAND-Netze und vollständige unabhängige Prüfung aller 968 kleinen
+      Eingabefälle samt Rotations-Inversen; [Dokumentation](docs/ROTIEREN.md).
+      Nächste offene Template-Aufgabe: GEN-06 (Präfix-AND / Präfix-XOR).
 
 Beschreibung und Erzeugung: [Standardarithmetik](docs/STANDARD-ARITHMETIK.md).
 

@@ -1,0 +1,317 @@
+{
+  "schema": 1,
+  "root": "block-00b6dac289520f72934dad6fcf6e1084cd91b4404522c07fb0667c7e45e2dc40",
+  "definitions": {
+    "block-52e10d07c0e288fd7653d697bcaa6178c006f38f3a9f528fe382df05a2258c4b": {
+      "name": "ROLStage<4,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "sel",
+            "bits": 1,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 5,
+        "gates": [
+          [
+            4,
+            4
+          ],
+          [
+            0,
+            5
+          ],
+          [
+            3,
+            4
+          ],
+          [
+            6,
+            7
+          ],
+          [
+            1,
+            5
+          ],
+          [
+            0,
+            4
+          ],
+          [
+            9,
+            10
+          ],
+          [
+            2,
+            5
+          ],
+          [
+            1,
+            4
+          ],
+          [
+            12,
+            13
+          ],
+          [
+            3,
+            5
+          ],
+          [
+            2,
+            4
+          ],
+          [
+            15,
+            16
+          ]
+        ],
+        "outputs": [
+          8,
+          11,
+          14,
+          17
+        ]
+      }
+    },
+    "block-65c5b52bd6abef41df4c2cf9fe751c7a59688e424106ac1e054bf3c46f98872a": {
+      "name": "ROLStage<4,2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "sel",
+            "bits": 1,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 5,
+        "gates": [
+          [
+            4,
+            4
+          ],
+          [
+            0,
+            5
+          ],
+          [
+            2,
+            4
+          ],
+          [
+            6,
+            7
+          ],
+          [
+            1,
+            5
+          ],
+          [
+            3,
+            4
+          ],
+          [
+            9,
+            10
+          ],
+          [
+            2,
+            5
+          ],
+          [
+            0,
+            4
+          ],
+          [
+            12,
+            13
+          ],
+          [
+            3,
+            5
+          ],
+          [
+            1,
+            4
+          ],
+          [
+            15,
+            16
+          ]
+        ],
+        "outputs": [
+          8,
+          11,
+          14,
+          17
+        ]
+      }
+    },
+    "block-00b6dac289520f72934dad6fcf6e1084cd91b4404522c07fb0667c7e45e2dc40": {
+      "name": "ROL<4,2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "s",
+            "bits": 2,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "nodes": [
+        {
+          "id": "rotate_0",
+          "type": "instance",
+          "definition": "block-52e10d07c0e288fd7653d697bcaa6178c006f38f3a9f528fe382df05a2258c4b",
+          "inputs": {
+            "a": [
+              {
+                "input": "a",
+                "bit": 0
+              },
+              {
+                "input": "a",
+                "bit": 1
+              },
+              {
+                "input": "a",
+                "bit": 2
+              },
+              {
+                "input": "a",
+                "bit": 3
+              }
+            ],
+            "sel": [
+              {
+                "input": "s",
+                "bit": 0
+              }
+            ]
+          }
+        },
+        {
+          "id": "rotate_1",
+          "type": "instance",
+          "definition": "block-65c5b52bd6abef41df4c2cf9fe751c7a59688e424106ac1e054bf3c46f98872a",
+          "inputs": {
+            "a": [
+              {
+                "node": "rotate_0",
+                "port": "c",
+                "bit": 0
+              },
+              {
+                "node": "rotate_0",
+                "port": "c",
+                "bit": 1
+              },
+              {
+                "node": "rotate_0",
+                "port": "c",
+                "bit": 2
+              },
+              {
+                "node": "rotate_0",
+                "port": "c",
+                "bit": 3
+              }
+            ],
+            "sel": [
+              {
+                "input": "s",
+                "bit": 1
+              }
+            ]
+          }
+        }
+      ],
+      "outputs": {
+        "c": [
+          {
+            "node": "rotate_1",
+            "port": "c",
+            "bit": 0
+          },
+          {
+            "node": "rotate_1",
+            "port": "c",
+            "bit": 1
+          },
+          {
+            "node": "rotate_1",
+            "port": "c",
+            "bit": 2
+          },
+          {
+            "node": "rotate_1",
+            "port": "c",
+            "bit": 3
+          }
+        ]
+      }
+    }
+  }
+}
