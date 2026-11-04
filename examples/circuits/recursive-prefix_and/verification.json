@@ -1,0 +1,233 @@
+[
+  {
+    "name": "PREFIX_AND<1>",
+    "parameters": {
+      "t": 1
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 1,
+          "signed": false,
+          "offset": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 1,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 2,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 0,
+      "depth": 0
+    },
+    "hierarchy": {
+      "id": "block-4958c0bf739ceab75fb409d699f2068e3872077199b52d3a91bc6a21a0440637",
+      "name": "PREFIX_AND<1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 0,
+      "depth": 0,
+      "definitions": 1,
+      "instances": 0
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "prefix_and-1.block.json",
+      "circuit": "prefix_and-1.circuit.json",
+      "template": "prefix_and-1.template.json",
+      "vectors": "prefix_and-1.vectors.json",
+      "netlist": "prefix_and-1.nand.txt"
+    }
+  },
+  {
+    "name": "PREFIX_AND<2>",
+    "parameters": {
+      "t": 2
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 2,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 8,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 2,
+      "depth": 2
+    },
+    "hierarchy": {
+      "id": "block-8b9273579b3c8ea7e8e7099fd1dc5b8bc2a028d834b87d793dae32ce919afe4c",
+      "name": "PREFIX_AND<2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 2,
+      "depth": 2,
+      "definitions": 3,
+      "instances": 3
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "prefix_and-2.block.json",
+      "circuit": "prefix_and-2.circuit.json",
+      "template": "prefix_and-2.template.json",
+      "vectors": "prefix_and-2.vectors.json",
+      "netlist": "prefix_and-2.nand.txt"
+    }
+  },
+  {
+    "name": "PREFIX_AND<4>",
+    "parameters": {
+      "t": 4
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 64,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 8,
+      "depth": 4
+    },
+    "hierarchy": {
+      "id": "block-5acd94337c799cf242f8ffe3fa799e16c14275ea263b9d7ff64afb1bb58f020b",
+      "name": "PREFIX_AND<4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 8,
+      "depth": 4,
+      "definitions": 5,
+      "instances": 3
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "prefix_and-4.block.json",
+      "circuit": "prefix_and-4.circuit.json",
+      "template": "prefix_and-4.template.json",
+      "vectors": "prefix_and-4.vectors.json",
+      "netlist": "prefix_and-4.nand.txt"
+    }
+  }
+]

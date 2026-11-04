@@ -59,6 +59,13 @@ Rotations-Inversen und Breiten ohne Zweierpotenz sind ebenfalls geprüft.
 Beim nächsten Serverstart erscheinen die Beispiele unter **Beispiele →
 Rekursion → Rotationen**. Siehe [Rotieren und Breitenlimits](docs/ROTIEREN.md).
 
+`PREFIX_AND<t>(a)` und `PREFIX_XOR<t>(a)` bilden inklusive Präfixe ab Bit 0:
+`c[i]=AND(a[0],...,a[i])` bzw. `XOR(a[0],...,a[i])`. Präfix-XOR ist damit
+entgegengesetzt zur Gray-Dekodierung orientiert. GEN-06 ergänzt sechs rekursive
+F-Boxen und NAND-Netze für t=1,2,4, unabhängig vollständig geprüft für alle
+44 Eingabefälle. Beim nächsten Serverstart erscheinen sie unter **Beispiele →
+Rekursion → Präfix-AND & Präfix-XOR**. Siehe [Präfixnetze und Breitenlimits](docs/PRAEFIXNETZE.md).
+
 Die **Bibliothek** zeigt Templates und konkrete Funktionen in einem gemeinsamen
 Verzeichnisbaum. Ordner und Unterordner lassen sich anlegen, umbenennen,
 beschreiben und verschieben; Einträge können in jeden Ordner einsortiert werden.

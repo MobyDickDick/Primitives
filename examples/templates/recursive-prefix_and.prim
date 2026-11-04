@@ -1,0 +1,23 @@
+# Inklusive Praefixe ab Bit 0: c[i] = AND(a[0], ..., a[i]).
+# Die letzte untere Praefixstelle ergaenzt alle oberen Praefixe.
+
+def PrefixANDMerge<k>(a, sel):
+    assert k >= 1 and k <= 64
+    x = bits(a, k)
+    s = bits(sel, 1)[0]
+    for i in range(k):
+        x[i] = x[i] & s
+    return pack(x)
+
+def PREFIX_AND<t>(a):
+    assert t >= 1 and t <= 128 and (t & (t - 1)) == 0
+    if t == 1:
+        return a
+    x = bits(a, t)
+    k = t // 2
+    lo = bits(PREFIX_AND<k>(pack(x[:k])), k)
+    hi = PREFIX_AND<k>(pack(x[k:]))
+    return pack(lo + bits(PrefixANDMerge<k>(hi, lo[k - 1]), k))
+
+# Ergebnisport
+return PREFIX_AND<t>(a)

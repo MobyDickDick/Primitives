@@ -66,13 +66,16 @@ getrennt umsetzbar, sofern die genannten Abhängigkeiten verfügbar sind.
   968 Eingabefälle unabhängig vollständig geprüft. Inversen, Periodizität,
   grössere und andere als Zweierpotenzbreiten, Port-/Gatter-/Budgetgrenzen
   und einmalige Migration geprüft. Siehe [Rotieren](ROTIEREN.md).
-  Nächste offene Template-Aufgabe: GEN-06.
 
 ## Priorität 2: Rechnen und Präfixnetze
 
-- [ ] **GEN-06 – Präfix-AND / Präfix-XOR:** Ergänzung zum vorhandenen PREFIX_OR;
+- [x] **GEN-06 – Präfix-AND / Präfix-XOR:** Ergänzung zum vorhandenen PREFIX_OR;
   jeweils inklusive Präfixe ab Bit 0. Präfix-XOR ist damit anders orientiert
   als die Gray-Dekodierung. Prüfen: t=1,2,4 vollständig.
+  Umgesetzt: zwei editierbare Templates, sechs rekursive F-Boxen/NAND-Netze und
+  alle 44 kleinen Eingabefälle unabhängig vollständig geprüft. Grössere Referenzen
+  bis 128 Bit, Gattergrenzen, Orientierung und einmalige Migration geprüft.
+  Siehe [Präfixnetze](PRAEFIXNETZE.md). Nächste offene Template-Aufgabe: GEN-07.
 - [ ] **GEN-07 – Carry-Lookahead / Parallelpräfix-Addition:** Generate-/Propagate-
   Netz mit vollständiger Summe und Carry; Vergleich von Tiefe und NAND-Zahl
   mit dem Ripple-Carry-Standard. Prüfen: alle neun Operandenbreiten und jeden Carry.

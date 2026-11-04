@@ -1,0 +1,23 @@
+# Inklusive Praefixe ab Bit 0: c[i] = XOR(a[0], ..., a[i]).
+# Gray-Dekodierung verwendet dagegen die Bits a[i] bis a[t-1].
+
+def PrefixXORMerge<k>(a, sel):
+    assert k >= 1 and k <= 64
+    x = bits(a, k)
+    s = bits(sel, 1)[0]
+    for i in range(k):
+        x[i] = x[i] ^ s
+    return pack(x)
+
+def PREFIX_XOR<t>(a):
+    assert t >= 1 and t <= 128 and (t & (t - 1)) == 0
+    if t == 1:
+        return a
+    x = bits(a, t)
+    k = t // 2
+    lo = bits(PREFIX_XOR<k>(pack(x[:k])), k)
+    hi = PREFIX_XOR<k>(pack(x[k:]))
+    return pack(lo + bits(PrefixXORMerge<k>(hi, lo[k - 1]), k))
+
+# Ergebnisport
+return PREFIX_XOR<t>(a)

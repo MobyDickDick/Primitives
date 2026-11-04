@@ -17,6 +17,42 @@ ZERO_COUNT_EXAMPLES = ("clz", "ctz")
 ONEHOT_EXAMPLES = ("decoder", "onehot-encoder")
 BARREL_EXAMPLES = ("shl", "shr", "sar")
 ROTATION_EXAMPLES = ("rol", "ror")
+PREFIX_EXAMPLES = ("prefix_and", "prefix_xor")
+
+
+def install_prefix_examples(library):
+    """Install GEN-06 once, retaining user organization and better solutions."""
+    marker = library.root / "example-installations.json"
+    with library._lock:
+        installed = json.loads(marker.read_text(encoding="utf-8")) if marker.exists() else {}
+        if installed.get("prefixes-v1"):
+            return
+        organization = library._organization()
+        folders = [
+            {"id": "examples", "parent": None, "name": "Beispiele", "description": "Editierbare Beispiele."},
+            {"id": "recursion", "parent": "examples", "name": "Rekursion", "description": "Generative Bit-Templates."},
+            {"id": "prefixes", "parent": "recursion", "name": "Präfix-AND & Präfix-XOR",
+             "description": "Inklusive Präfixe ab Bit 0; t=1,2,4 vollständig geprüft."},
+        ]
+        existing = {f["id"] for f in organization["folders"]}
+        organization["folders"].extend(f for f in folders if f["id"] not in existing)
+        library._write_organization(organization)
+        source = Path(__file__).resolve().parents[1] / "examples"
+        for kind in PREFIX_EXAMPLES:
+            template = Template(json.loads((source / f"templates/recursive-{kind}.abstract.json").read_text(encoding="utf-8")))
+            key = library.save_template(template)
+            organization["entries"].setdefault(f"template:{key}", "prefixes")
+            for width in (1, 2, 4):
+                prefix = source / f"circuits/recursive-{kind}/{kind}-{width}"
+                library.save_block(BlockBundle(json.loads(prefix.with_suffix(".block.json").read_text(encoding="utf-8"))))
+                dataset = Dataset.from_dict(json.loads(prefix.with_suffix(".vectors.json").read_text(encoding="utf-8")))
+                circuit = json.loads(prefix.with_suffix(".circuit.json").read_text(encoding="utf-8"))
+                library.save_program({"circuit": circuit,
+                                      "synthesis": {"method": "hierarchy-expansion-and-simplification", "version": 1}}, dataset)
+                organization["entries"].setdefault(f"function:{function_id(dataset)}", "prefixes")
+        library._write_organization(organization)
+        installed["prefixes-v1"] = True
+        write_json(marker, installed)
 
 
 def install_rotation_examples(library):
@@ -346,6 +382,8 @@ def install_examples(library):
         source = Path(__file__).resolve().parents[1] / "examples" / "templates"
         recursive_checked = {"recursive-split-sub.abstract.json", "recursive-split-add-checked.abstract.json"}
         for path in sorted(source.glob("*.abstract.json")):
+            if path.name in {f"recursive-{kind}.abstract.json" for kind in PREFIX_EXAMPLES}:
+                continue  # GEN-06 has its own migration for existing libraries.
             if path.name in {f"rotate-{kind}.abstract.json" for kind in ROTATION_EXAMPLES}:
                 continue  # GEN-05 has its own migration for existing libraries.
             if path.name in {f"barrel-{kind}.abstract.json" for kind in BARREL_EXAMPLES}:

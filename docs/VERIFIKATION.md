@@ -1,5 +1,42 @@
 # Verifikation des ersten Prototyps
 
+## GEN-06: Präfix-AND und Präfix-XOR
+
+Geprüft am 4. November 2026:
+
+- `python -m tools.export_prefixes`: sechs Instanzen für `PREFIX_AND<t>` und
+  `PREFIX_XOR<t>` mit t=1,2,4; **44 Eingabefälle** vollständig gegen eine
+  unabhängige Ganzzahlreferenz geprüft. Quellprogramm, hierarchische Auswertung,
+  expandierte und vereinfachte NAND-Netze sowie direkte Synthese stimmen überein.
+  Jede Instanz enthält Vektoren, Quellprogramm, F-Box, flache Schaltung und NAND-Liste.
+- Alle **sieben neuen Python-Tests** bestehen einschliesslich HTTP-Integration.
+  Sie prüfen jede Vektorzeile gegen serielle Bitakkumulation, die Orientierung
+  ab Bit 0, De Morgan gegen das vorhandene `PREFIX_OR`, die XOR-Rückwandlung
+  und die entgegengesetzte Orientierung der Gray-Dekodierung.
+- Referenzprogramme bis 128 Bit sind mit gezielten Grenzfällen, jeder einzelnen
+  gesetzten/gelöschten Bitposition und reproduzierbaren Stichproben geprüft.
+  AND mit t=64 (384 NANDs, Tiefe 12) und XOR mit t=32 (320 NANDs, Tiefe 15)
+  sind auch als F-Boxen und direkte Synthese geprüft. AND mit t=128 sowie XOR
+  ab t=64 überschreiten bei beiden Wegen nachweislich die 512-Gattergrenze.
+- Die einmalige Migration `prefixes-v1` erhält eigene Ordner, Beschreibungen,
+  Benennungen, Zuordnungen und bessere Schaltungen; geprüft mit einer seriellen
+  6-NAND-AND-Lösung gegenüber dem rekursiven 8-NAND-Export. Gelöschte Beispiele
+  bleiben beim erneuten Start gelöscht. API-Katalog, Synthese, Auswertung und
+  Navigation in verschachtelte Präfix-Verknüpfungen sind geprüft.
+- Alle **45 JavaScript-Tests** mit `node --test tests/test_*.js` bestehen.
+- Die vollständige Python-Suite mit `PYTHONUTF8=1` und
+  `python -m unittest discover -s tests -v` umfasst **306 Tests**:
+  305 bestanden im Gesamtlauf, ein bestehender HTTP-Test zum Löschen einer
+  Funktion scheiterte an einem lokalen Windows-Verbindungsabbruch (10053).
+  Dieser Test bestand beim gezielten Wiederholungslauf. Der vollständige
+  Erstaufbau mit **42 Templates und 173 Datensätzen** ist erfolgreich geprüft.
+  HTTP-Tests wurden wegen der Socketbeschränkung der Sandbox mit lokalem
+  Netzwerkzugriff ausgeführt. Laufzeit des Gesamtlaufs: rund 14,5 Minuten.
+- `git diff --check` besteht. Alle neuen Exportdateien sind vollständig;
+  Dokumentationsverweise und die in Prüfberichten genannten Dateien existieren.
+
+Quellen, Exporte, Semantik und Grenzen: [Präfixnetze](PRAEFIXNETZE.md).
+
 ## GEN-05: Rotieren
 
 Geprüft am 3. und 4. November 2026:

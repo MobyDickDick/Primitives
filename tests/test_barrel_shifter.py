@@ -177,7 +177,7 @@ return pack(y)
 
     def test_server_upgrade_catalog_synthesis_and_stage_navigation(self):
         with tempfile.TemporaryDirectory(dir=ROOT / ".jobs") as directory:
-            previous = ("arithmetic", "recursive-checked", "recursive-mul", "number-of-ones",
+            previous = ("prefixes", "arithmetic", "recursive-checked", "recursive-mul", "number-of-ones",
                         "recursive-msb-div", "recursive-max-index", "recursive-equ", "recursive-gt",
                         "generative-logic", "routing", "structured-logic", "standard-arithmetic",
                         "arithmetic-comments", "zero-counts", "priority-encoder", "onehot", "rotations")

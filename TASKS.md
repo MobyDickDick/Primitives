@@ -37,7 +37,10 @@ vorausgesetzt; Signalverfolgung soll auch ohne Hierarchie helfen.
 - [x] GEN-05: ROL/ROR modulo Datenbreite über feste MUX-Stufen,
       18 F-Boxen/NAND-Netze und vollständige unabhängige Prüfung aller 968 kleinen
       Eingabefälle samt Rotations-Inversen; [Dokumentation](docs/ROTIEREN.md).
-      Nächste offene Template-Aufgabe: GEN-06 (Präfix-AND / Präfix-XOR).
+- [x] GEN-06: Präfix-AND / Präfix-XOR mit inklusiven Präfixen ab Bit 0,
+      sechs rekursiven F-Boxen/NAND-Netzen und vollständiger unabhängiger Prüfung
+      aller 44 kleinen Eingabefälle; [Dokumentation](docs/PRAEFIXNETZE.md).
+      Nächste offene Template-Aufgabe: GEN-07 (Carry-Lookahead / Parallelpräfix-Addition).
 
 Beschreibung und Erzeugung: [Standardarithmetik](docs/STANDARD-ARITHMETIK.md).
 
