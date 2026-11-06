@@ -1,0 +1,41 @@
+{
+  "version": 2,
+  "source": "# Parallelpraefix-Addition mit Generate/Propagate, LSB-first.\n# Die schmalere Zahl wird mit Nullen auf w=max(p,q) erweitert.\n# Der eingehende Carry ist 0; ausgegeben werden c[w] und carry[1].\n\ndef AddGP<p,q>(a, b):\n    assert p >= 1 and q >= 1 and p <= 64 and q <= 64\n    w = p if p >= q else q\n    x = bits(a, w)\n    y = bits(b, w)\n    prop = [0] * w\n    gen = [0] * w\n    for i in range(w):\n        prop[i] = x[i] ^ y[i]\n        gen[i] = x[i] & y[i]\n    return pack(prop + gen)\n\ndef AddPrefixStage<w,d>(prop, gen):\n    assert w >= 1 and w <= 64 and d >= 1 and d < w\n    # Alle Verknuepfungen lesen ausschliesslich die vorherige Stufe.\n    # (G_hi,P_hi) o (G_lo,P_lo) = (G_hi | P_hi&G_lo, P_hi&P_lo).\n    old_p = bits(prop, w)\n    old_g = bits(gen, w)\n    new_p = bits(prop, w)\n    new_g = bits(gen, w)\n    for i in range(d, w):\n        new_g[i] = old_g[i] | (old_p[i] & old_g[i - d])\n        new_p[i] = old_p[i] & old_p[i - d]\n    return pack(new_p + new_g)\n\ndef AddPrefixSum<w>(prop, gen):\n    assert w >= 1 and w <= 64\n    # Nach der letzten Stufe ist gen[i] der Carry aus Bit i.\n    original_p = bits(prop, w)\n    carries = bits(gen, w)\n    result = [0] * (w + 1)\n    result[0] = original_p[0]\n    for i in range(1, w):\n        result[i] = original_p[i] ^ carries[i - 1]\n    result[w] = carries[w - 1]\n    return pack(result)\n\ndef CLA<p,q>(a, b):\n    assert p >= 1 and q >= 1 and p <= 64 and q <= 64\n    w = p if p >= q else q\n    gp = bits(AddGP<p,q>(a, b), 2 * w)\n    original_p = pack(gp[:w])\n    d = 1\n    # Feste Abstaende 1,2,4,...: ceil(log2(w)) parallele Praefixstufen.\n    while d < w:\n        gp = bits(AddPrefixStage<w,d>(pack(gp[:w]), pack(gp[w:])), 2 * w)\n        d = d * 2\n    return AddPrefixSum<w>(original_p, pack(gp[w:]))\n\n# Ergebnisports: zusammen die vollstaendige unsigned Summe a+b.\nw = p if p >= q else q\nresult = bits(CLA<p,q>(a, b), w + 1)\nreturn pack(result[:w]), result[w]\n",
+  "limits": {
+    "steps": 100000,
+    "iterations": 10000,
+    "total_steps": 5000000
+  },
+  "conditions": [
+    "p >= 1",
+    "q >= 1",
+    "p <= 64",
+    "q <= 64"
+  ],
+  "parameters": {
+    "p": 2,
+    "q": 4
+  },
+  "interface": {
+    "inputs": [
+      {
+        "name": "a",
+        "bits": "p"
+      },
+      {
+        "name": "b",
+        "bits": "q"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "c",
+        "bits": "max(p,q)"
+      },
+      {
+        "name": "carry",
+        "bits": 1
+      }
+    ]
+  }
+}

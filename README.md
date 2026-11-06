@@ -66,6 +66,15 @@ F-Boxen und NAND-Netze für t=1,2,4, unabhängig vollständig geprüft für alle
 44 Eingabefälle. Beim nächsten Serverstart erscheinen sie unter **Beispiele →
 Rekursion → Präfix-AND & Präfix-XOR**. Siehe [Präfixnetze und Breitenlimits](docs/PRAEFIXNETZE.md).
 
+`CLA<p,q>(a,b)` addiert unsigned Eingänge über ein Generate-/Propagate-Präfixnetz
+mit festen Abständen 1,2,4,... und Carry-in 0. Die Ports `c[max(p,q)]` und
+`carry[1]` bilden zusammen die vollständige Summe. GEN-07 ergänzt alle neun
+Kombinationen p,q=1,2,4 als F-Boxen und NAND-Netze, unabhängig vollständig
+geprüft für alle 484 Eingabepaare und jeden internen Carry. Bei 8/8 Bit sinkt
+die NAND-Tiefe gegenüber Ripple-Carry von 18 auf 12, bei mehr Gattern.
+Beim nächsten Serverstart erscheinen sie unter **Beispiele → Grundrechenarten →
+Parallelpräfix-Addition**. Siehe [Kostenvergleich und Grenzen](docs/PARALLELPRAEFIX-ADDITION.md).
+
 Die **Bibliothek** zeigt Templates und konkrete Funktionen in einem gemeinsamen
 Verzeichnisbaum. Ordner und Unterordner lassen sich anlegen, umbenennen,
 beschreiben und verschieben; Einträge können in jeden Ordner einsortiert werden.

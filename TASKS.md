@@ -40,7 +40,11 @@ vorausgesetzt; Signalverfolgung soll auch ohne Hierarchie helfen.
 - [x] GEN-06: Präfix-AND / Präfix-XOR mit inklusiven Präfixen ab Bit 0,
       sechs rekursiven F-Boxen/NAND-Netzen und vollständiger unabhängiger Prüfung
       aller 44 kleinen Eingabefälle; [Dokumentation](docs/PRAEFIXNETZE.md).
-      Nächste offene Template-Aufgabe: GEN-07 (Carry-Lookahead / Parallelpräfix-Addition).
+- [x] GEN-07: Parallelpräfix-Addition mit Generate/Propagate, vollständiger Summe
+      und Carry, neun F-Boxen/NAND-Netzen und unabhängiger vollständiger Prüfung
+      aller 484 Eingabepaare samt internen Überträgen; Vergleich mit Ripple-Carry
+      und [Dokumentation](docs/PARALLELPRAEFIX-ADDITION.md).
+      Nächste offene Template-Aufgabe: GEN-08 (Sättigungsarithmetik).
 
 Beschreibung und Erzeugung: [Standardarithmetik](docs/STANDARD-ARITHMETIK.md).
 

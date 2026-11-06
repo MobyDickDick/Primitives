@@ -1,0 +1,1064 @@
+[
+  {
+    "name": "CLA<1,1>",
+    "parameters": {
+      "p": 1,
+      "q": 1
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 1,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 1,
+          "signed": false,
+          "offset": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 1,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "carry",
+          "bits": 1,
+          "signed": false,
+          "offset": 1,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 8,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 5,
+      "depth": 3
+    },
+    "hierarchy": {
+      "id": "block-7de6524834e3975097af362c82185a976fc047f75fdf3a344f0f428916933307",
+      "name": "CLA<1,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "carry",
+            "bits": 1,
+            "signed": false,
+            "offset": 1,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 5,
+      "depth": 3,
+      "definitions": 3,
+      "instances": 2
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "comparison": {
+      "parallel": {
+        "gates": 5,
+        "depth": 3
+      },
+      "ripple": {
+        "gates": 5,
+        "depth": 3
+      },
+      "delta": {
+        "gates": 0,
+        "depth": 0
+      }
+    },
+    "files": {
+      "block": "cla-1-1.block.json",
+      "circuit": "cla-1-1.circuit.json",
+      "template": "cla-1-1.template.json",
+      "vectors": "cla-1-1.vectors.json",
+      "netlist": "cla-1-1.nand.txt"
+    }
+  },
+  {
+    "name": "CLA<1,2>",
+    "parameters": {
+      "p": 1,
+      "q": 2
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 1,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 2,
+          "signed": false,
+          "offset": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 2,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "carry",
+          "bits": 1,
+          "signed": false,
+          "offset": 2,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 24,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 12,
+      "depth": 5
+    },
+    "hierarchy": {
+      "id": "block-6b9a52956b8636205ceda6257b1f8abec93be2d5cce1af9d49d6f1dd91fbc061",
+      "name": "CLA<1,2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 2,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "carry",
+            "bits": 1,
+            "signed": false,
+            "offset": 2,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 17,
+      "depth": 5,
+      "definitions": 4,
+      "instances": 3
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "comparison": {
+      "parallel": {
+        "gates": 12,
+        "depth": 5
+      },
+      "ripple": {
+        "gates": 10,
+        "depth": 5
+      },
+      "delta": {
+        "gates": 2,
+        "depth": 0
+      }
+    },
+    "files": {
+      "block": "cla-1-2.block.json",
+      "circuit": "cla-1-2.circuit.json",
+      "template": "cla-1-2.template.json",
+      "vectors": "cla-1-2.vectors.json",
+      "netlist": "cla-1-2.nand.txt"
+    }
+  },
+  {
+    "name": "CLA<1,4>",
+    "parameters": {
+      "p": 1,
+      "q": 4
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 1,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 4,
+          "signed": false,
+          "offset": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "carry",
+          "bits": 1,
+          "signed": false,
+          "offset": 4,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 160,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 35,
+      "depth": 10
+    },
+    "hierarchy": {
+      "id": "block-1887186656239878db756382310442379c6d417d8881e749318c25b7e92b4c00",
+      "name": "CLA<1,4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 4,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "carry",
+            "bits": 1,
+            "signed": false,
+            "offset": 4,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 45,
+      "depth": 10,
+      "definitions": 5,
+      "instances": 4
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "comparison": {
+      "parallel": {
+        "gates": 35,
+        "depth": 10
+      },
+      "ripple": {
+        "gates": 20,
+        "depth": 9
+      },
+      "delta": {
+        "gates": 15,
+        "depth": 1
+      }
+    },
+    "files": {
+      "block": "cla-1-4.block.json",
+      "circuit": "cla-1-4.circuit.json",
+      "template": "cla-1-4.template.json",
+      "vectors": "cla-1-4.vectors.json",
+      "netlist": "cla-1-4.nand.txt"
+    }
+  },
+  {
+    "name": "CLA<2,1>",
+    "parameters": {
+      "p": 2,
+      "q": 1
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 1,
+          "signed": false,
+          "offset": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 2,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "carry",
+          "bits": 1,
+          "signed": false,
+          "offset": 2,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 24,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 12,
+      "depth": 5
+    },
+    "hierarchy": {
+      "id": "block-8d5f06e43cd4c30b46467155516499be965da4de5d2786367b27e9bf54b1e530",
+      "name": "CLA<2,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "carry",
+            "bits": 1,
+            "signed": false,
+            "offset": 2,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 17,
+      "depth": 5,
+      "definitions": 4,
+      "instances": 3
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "comparison": {
+      "parallel": {
+        "gates": 12,
+        "depth": 5
+      },
+      "ripple": {
+        "gates": 10,
+        "depth": 5
+      },
+      "delta": {
+        "gates": 2,
+        "depth": 0
+      }
+    },
+    "files": {
+      "block": "cla-2-1.block.json",
+      "circuit": "cla-2-1.circuit.json",
+      "template": "cla-2-1.template.json",
+      "vectors": "cla-2-1.vectors.json",
+      "netlist": "cla-2-1.nand.txt"
+    }
+  },
+  {
+    "name": "CLA<2,2>",
+    "parameters": {
+      "p": 2,
+      "q": 2
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 2,
+          "signed": false,
+          "offset": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 2,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "carry",
+          "bits": 1,
+          "signed": false,
+          "offset": 2,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 48,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 14,
+      "depth": 6
+    },
+    "hierarchy": {
+      "id": "block-8af36780fae69a1fca04497412e26f7dfd6d8394e76fcb2799e85d163e4dca68",
+      "name": "CLA<2,2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 2,
+            "signed": false,
+            "offset": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "carry",
+            "bits": 1,
+            "signed": false,
+            "offset": 2,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 19,
+      "depth": 6,
+      "definitions": 4,
+      "instances": 3
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "comparison": {
+      "parallel": {
+        "gates": 14,
+        "depth": 6
+      },
+      "ripple": {
+        "gates": 14,
+        "depth": 6
+      },
+      "delta": {
+        "gates": 0,
+        "depth": 0
+      }
+    },
+    "files": {
+      "block": "cla-2-2.block.json",
+      "circuit": "cla-2-2.circuit.json",
+      "template": "cla-2-2.template.json",
+      "vectors": "cla-2-2.vectors.json",
+      "netlist": "cla-2-2.nand.txt"
+    }
+  },
+  {
+    "name": "CLA<2,4>",
+    "parameters": {
+      "p": 2,
+      "q": 4
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 4,
+          "signed": false,
+          "offset": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "carry",
+          "bits": 1,
+          "signed": false,
+          "offset": 4,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 320,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 40,
+      "depth": 10
+    },
+    "hierarchy": {
+      "id": "block-5f83e764fc565994e9d96562ed2eaa2b1ddabbee59b25221b988279fcef31456",
+      "name": "CLA<2,4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 4,
+            "signed": false,
+            "offset": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "carry",
+            "bits": 1,
+            "signed": false,
+            "offset": 4,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 50,
+      "depth": 10,
+      "definitions": 5,
+      "instances": 4
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "comparison": {
+      "parallel": {
+        "gates": 40,
+        "depth": 10
+      },
+      "ripple": {
+        "gates": 24,
+        "depth": 10
+      },
+      "delta": {
+        "gates": 16,
+        "depth": 0
+      }
+    },
+    "files": {
+      "block": "cla-2-4.block.json",
+      "circuit": "cla-2-4.circuit.json",
+      "template": "cla-2-4.template.json",
+      "vectors": "cla-2-4.vectors.json",
+      "netlist": "cla-2-4.nand.txt"
+    }
+  },
+  {
+    "name": "CLA<4,1>",
+    "parameters": {
+      "p": 4,
+      "q": 1
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 1,
+          "signed": false,
+          "offset": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "carry",
+          "bits": 1,
+          "signed": false,
+          "offset": 4,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 160,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 35,
+      "depth": 10
+    },
+    "hierarchy": {
+      "id": "block-f8b3d9f3e53da2e3b61c964e97316754b21b371fab87bbfc43fad406021e113b",
+      "name": "CLA<4,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "carry",
+            "bits": 1,
+            "signed": false,
+            "offset": 4,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 45,
+      "depth": 10,
+      "definitions": 5,
+      "instances": 4
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "comparison": {
+      "parallel": {
+        "gates": 35,
+        "depth": 10
+      },
+      "ripple": {
+        "gates": 20,
+        "depth": 9
+      },
+      "delta": {
+        "gates": 15,
+        "depth": 1
+      }
+    },
+    "files": {
+      "block": "cla-4-1.block.json",
+      "circuit": "cla-4-1.circuit.json",
+      "template": "cla-4-1.template.json",
+      "vectors": "cla-4-1.vectors.json",
+      "netlist": "cla-4-1.nand.txt"
+    }
+  },
+  {
+    "name": "CLA<4,2>",
+    "parameters": {
+      "p": 4,
+      "q": 2
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 2,
+          "signed": false,
+          "offset": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "carry",
+          "bits": 1,
+          "signed": false,
+          "offset": 4,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 320,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 40,
+      "depth": 10
+    },
+    "hierarchy": {
+      "id": "block-dcc71a42a6734da4a0c44e841ad71f43fc24289d3cc125a15ce6e936805a6ac1",
+      "name": "CLA<4,2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 2,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "carry",
+            "bits": 1,
+            "signed": false,
+            "offset": 4,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 50,
+      "depth": 10,
+      "definitions": 5,
+      "instances": 4
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "comparison": {
+      "parallel": {
+        "gates": 40,
+        "depth": 10
+      },
+      "ripple": {
+        "gates": 24,
+        "depth": 10
+      },
+      "delta": {
+        "gates": 16,
+        "depth": 0
+      }
+    },
+    "files": {
+      "block": "cla-4-2.block.json",
+      "circuit": "cla-4-2.circuit.json",
+      "template": "cla-4-2.template.json",
+      "vectors": "cla-4-2.vectors.json",
+      "netlist": "cla-4-2.nand.txt"
+    }
+  },
+  {
+    "name": "CLA<4,4>",
+    "parameters": {
+      "p": 4,
+      "q": 4
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 4,
+          "signed": false,
+          "offset": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "carry",
+          "bits": 1,
+          "signed": false,
+          "offset": 4,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 1280,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 46,
+      "depth": 10
+    },
+    "hierarchy": {
+      "id": "block-8f7174b9e2a0db581209ea656220e345b0ff7d4d2c8d22d8400b1b7899cc8573",
+      "name": "CLA<4,4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 4,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "carry",
+            "bits": 1,
+            "signed": false,
+            "offset": 4,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 57,
+      "depth": 10,
+      "definitions": 5,
+      "instances": 4
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "comparison": {
+      "parallel": {
+        "gates": 46,
+        "depth": 10
+      },
+      "ripple": {
+        "gates": 32,
+        "depth": 10
+      },
+      "delta": {
+        "gates": 14,
+        "depth": 0
+      }
+    },
+    "files": {
+      "block": "cla-4-4.block.json",
+      "circuit": "cla-4-4.circuit.json",
+      "template": "cla-4-4.template.json",
+      "vectors": "cla-4-4.vectors.json",
+      "netlist": "cla-4-4.nand.txt"
+    }
+  }
+]

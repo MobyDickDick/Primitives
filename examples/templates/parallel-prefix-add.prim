@@ -1,0 +1,57 @@
+# Parallelpraefix-Addition mit Generate/Propagate, LSB-first.
+# Die schmalere Zahl wird mit Nullen auf w=max(p,q) erweitert.
+# Der eingehende Carry ist 0; ausgegeben werden c[w] und carry[1].
+
+def AddGP<p,q>(a, b):
+    assert p >= 1 and q >= 1 and p <= 64 and q <= 64
+    w = p if p >= q else q
+    x = bits(a, w)
+    y = bits(b, w)
+    prop = [0] * w
+    gen = [0] * w
+    for i in range(w):
+        prop[i] = x[i] ^ y[i]
+        gen[i] = x[i] & y[i]
+    return pack(prop + gen)
+
+def AddPrefixStage<w,d>(prop, gen):
+    assert w >= 1 and w <= 64 and d >= 1 and d < w
+    # Alle Verknuepfungen lesen ausschliesslich die vorherige Stufe.
+    # (G_hi,P_hi) o (G_lo,P_lo) = (G_hi | P_hi&G_lo, P_hi&P_lo).
+    old_p = bits(prop, w)
+    old_g = bits(gen, w)
+    new_p = bits(prop, w)
+    new_g = bits(gen, w)
+    for i in range(d, w):
+        new_g[i] = old_g[i] | (old_p[i] & old_g[i - d])
+        new_p[i] = old_p[i] & old_p[i - d]
+    return pack(new_p + new_g)
+
+def AddPrefixSum<w>(prop, gen):
+    assert w >= 1 and w <= 64
+    # Nach der letzten Stufe ist gen[i] der Carry aus Bit i.
+    original_p = bits(prop, w)
+    carries = bits(gen, w)
+    result = [0] * (w + 1)
+    result[0] = original_p[0]
+    for i in range(1, w):
+        result[i] = original_p[i] ^ carries[i - 1]
+    result[w] = carries[w - 1]
+    return pack(result)
+
+def CLA<p,q>(a, b):
+    assert p >= 1 and q >= 1 and p <= 64 and q <= 64
+    w = p if p >= q else q
+    gp = bits(AddGP<p,q>(a, b), 2 * w)
+    original_p = pack(gp[:w])
+    d = 1
+    # Feste Abstaende 1,2,4,...: ceil(log2(w)) parallele Praefixstufen.
+    while d < w:
+        gp = bits(AddPrefixStage<w,d>(pack(gp[:w]), pack(gp[w:])), 2 * w)
+        d = d * 2
+    return AddPrefixSum<w>(original_p, pack(gp[w:]))
+
+# Ergebnisports: zusammen die vollstaendige unsigned Summe a+b.
+w = p if p >= q else q
+result = bits(CLA<p,q>(a, b), w + 1)
+return pack(result[:w]), result[w]

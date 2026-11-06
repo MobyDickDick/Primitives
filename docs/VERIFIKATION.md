@@ -832,3 +832,34 @@ Geprüft am 25. Oktober 2026:
   unveränderte Dezimalübertragung zum Quelldebugger. Syntaxprüfungen bestehen.
 - Eine erfolgreiche Stichprobe bleibt eine Stichprobe; das Vektorlimit ist
   weiterhin 65536, die Schaltungsgrenze weiterhin 512 NAND-Gatter.
+
+## GEN-07: Parallelpräfix-Addition
+
+Geprüft am 6. November 2026:
+
+- `python -m tools.export_parallel_add`: neun Kombinationen p,q=1,2,4,
+  **484 Eingabepaare vollständig unabhängig geprüft**. Quellprogramm,
+  F-Box, Expansion, vereinfachtes NAND-Netz und direkte Synthese stimmen
+  funktional überein. Alle 47 generierten Dateien sind bytegenau reproduzierbar.
+- Acht neue Tests prüfen zusätzlich alle internen Carry-Bits, beliebige
+  Generate-/Propagate-Stufeneingaben, gleichzeitiges Lesen der vorherigen Stufe,
+  ungleiche Breiten und Breiten ohne Zweierpotenz, grössere gezielte Carry-Ketten und
+  reproduzierbare Stichproben. Grössere Eingaberäume bleiben Stichproben.
+- Kostenvergleich mit derselben vollständigen Ripple-Carry-Summe: bei 4/4 Bit
+  46 statt 32 NANDs mit jeweils Tiefe 10; bei 8/8 Bit 130/12 statt 68/18;
+  bei 16/16 Bit 338/14 statt 140/34. Keine Minimalitäts- oder Laufzeitbehauptung.
+- Port-, Gatter- und Anweisungsgrenzen sind geprüft und in
+  [Parallelpräfix-Addition](PARALLELPRAEFIX-ADDITION.md) getrennt dokumentiert.
+  Unter anderem funktioniert 19/19 als F-Box, erreicht aber bei direkter
+  Synthese bereits die Konstruktionsgrenze von 512 NANDs.
+- Die einmalige Migration erhält eigene Ordner, Namen, Beschreibungen,
+  Zuordnungen und eine kleinere vorhandene Ripple-Lösung. Nachträglich
+  gelöschte Beispiele werden nicht erneut angelegt. HTTP-Katalog, Synthese,
+  Auswertung und Navigation in die Präfixstufen sind erfolgreich geprüft;
+  die lokalen Verbindungen liefen ausserhalb der Socket-Sperre der Sandbox.
+- `PYTHONUTF8=1 python -m unittest discover -s tests -v`:
+  **314 Tests erfolgreich**, einschliesslich der lokalen HTTP-Tests und echter
+  TinyLanguage-Läufe. Der vollständige Serverstart ergänzt den Katalog korrekt
+  auf 43 Templates und 182 Datensätze.
+- `node --test tests/test_*.js`: **45 Tests erfolgreich**;
+  `git diff --check` erfolgreich. Keine Änderungen an der Browseroberfläche.

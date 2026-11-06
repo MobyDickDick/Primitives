@@ -20,6 +20,41 @@ ROTATION_EXAMPLES = ("rol", "ror")
 PREFIX_EXAMPLES = ("prefix_and", "prefix_xor")
 
 
+def install_parallel_add_examples(library):
+    """Install GEN-07 once, retaining user organization and better solutions."""
+    marker = library.root / "example-installations.json"
+    with library._lock:
+        installed = json.loads(marker.read_text(encoding="utf-8")) if marker.exists() else {}
+        if installed.get("parallel-add-v1"):
+            return
+        organization = library._organization()
+        folders = [
+            {"id": "examples", "parent": None, "name": "Beispiele", "description": "Editierbare Beispiele."},
+            {"id": "arithmetic", "parent": "examples", "name": "Grundrechenarten", "description": "Generative Bit-Templates."},
+            {"id": "parallel-add", "parent": "arithmetic", "name": "Parallelpräfix-Addition",
+             "description": "Generate/Propagate-Netz mit vollständiger Summe und Carry; alle neun Kombinationen p,q=1,2,4 vollständig geprüft."},
+        ]
+        existing = {f["id"] for f in organization["folders"]}
+        organization["folders"].extend(f for f in folders if f["id"] not in existing)
+        library._write_organization(organization)
+        source = Path(__file__).resolve().parents[1] / "examples"
+        template = Template(json.loads((source / "templates/parallel-prefix-add.abstract.json").read_text(encoding="utf-8")))
+        key = library.save_template(template)
+        organization["entries"].setdefault(f"template:{key}", "parallel-add")
+        for p in (1, 2, 4):
+            for q in (1, 2, 4):
+                prefix = source / f"circuits/parallel-prefix-add/cla-{p}-{q}"
+                library.save_block(BlockBundle(json.loads(prefix.with_suffix(".block.json").read_text(encoding="utf-8"))))
+                dataset = Dataset.from_dict(json.loads(prefix.with_suffix(".vectors.json").read_text(encoding="utf-8")))
+                circuit = json.loads(prefix.with_suffix(".circuit.json").read_text(encoding="utf-8"))
+                library.save_program({"circuit": circuit,
+                                      "synthesis": {"method": "hierarchy-expansion-and-simplification", "version": 1}}, dataset)
+                organization["entries"].setdefault(f"function:{function_id(dataset)}", "parallel-add")
+        library._write_organization(organization)
+        installed["parallel-add-v1"] = True
+        write_json(marker, installed)
+
+
 def install_prefix_examples(library):
     """Install GEN-06 once, retaining user organization and better solutions."""
     marker = library.root / "example-installations.json"
@@ -382,6 +417,8 @@ def install_examples(library):
         source = Path(__file__).resolve().parents[1] / "examples" / "templates"
         recursive_checked = {"recursive-split-sub.abstract.json", "recursive-split-add-checked.abstract.json"}
         for path in sorted(source.glob("*.abstract.json")):
+            if path.name == "parallel-prefix-add.abstract.json":
+                continue  # GEN-07 has its own migration for existing libraries.
             if path.name in {f"recursive-{kind}.abstract.json" for kind in PREFIX_EXAMPLES}:
                 continue  # GEN-06 has its own migration for existing libraries.
             if path.name in {f"rotate-{kind}.abstract.json" for kind in ROTATION_EXAMPLES}:

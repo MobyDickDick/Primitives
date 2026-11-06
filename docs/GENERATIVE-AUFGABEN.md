@@ -75,10 +75,16 @@ getrennt umsetzbar, sofern die genannten Abhängigkeiten verfügbar sind.
   Umgesetzt: zwei editierbare Templates, sechs rekursive F-Boxen/NAND-Netze und
   alle 44 kleinen Eingabefälle unabhängig vollständig geprüft. Grössere Referenzen
   bis 128 Bit, Gattergrenzen, Orientierung und einmalige Migration geprüft.
-  Siehe [Präfixnetze](PRAEFIXNETZE.md). Nächste offene Template-Aufgabe: GEN-07.
-- [ ] **GEN-07 – Carry-Lookahead / Parallelpräfix-Addition:** Generate-/Propagate-
+  Siehe [Präfixnetze](PRAEFIXNETZE.md).
+- [x] **GEN-07 – Carry-Lookahead / Parallelpräfix-Addition:** Generate-/Propagate-
   Netz mit vollständiger Summe und Carry; Vergleich von Tiefe und NAND-Zahl
   mit dem Ripple-Carry-Standard. Prüfen: alle neun Operandenbreiten und jeden Carry.
+  Umgesetzt: `CLA<p,q>` mit getrennten Summen-/Carry-Ports und Carry-in 0,
+  neun F-Boxen/NAND-Netzen und allen 484 Eingabepaaren unabhängig vollständig
+  geprüft, einschliesslich aller internen Carry-Bits. Kostenvergleich, grössere
+  Stichproben, Grenzen und einmalige Migration dokumentiert unter
+  [Parallelpräfix-Addition](PARALLELPRAEFIX-ADDITION.md).
+  Nächste offene Template-Aufgabe: GEN-08.
 - [ ] **GEN-08 – Sättigungsarithmetik:** Unsigned SAT_ADD begrenzt auf
   `2**max(p,q)-1`, SAT_SUB auf 0; zusätzlich overflow bzw. underflow ausgeben.
   Prüfen: alle neun Breitenkombinationen einschliesslich exakter Grenze.

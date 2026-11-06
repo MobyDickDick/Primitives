@@ -1,0 +1,215 @@
+{
+  "schema": 1,
+  "root": "block-7de6524834e3975097af362c82185a976fc047f75fdf3a344f0f428916933307",
+  "definitions": {
+    "block-0eaa8b8105bc1a4d6b5b531289b9b45fcc704d40a1709cb419ba2224ca31715e": {
+      "name": "AddGP<1,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "prop",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "gen",
+            "bits": 1,
+            "signed": false,
+            "offset": 1,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 2,
+        "gates": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            3,
+            4
+          ],
+          [
+            2,
+            2
+          ]
+        ],
+        "outputs": [
+          5,
+          6
+        ]
+      }
+    },
+    "block-59a2d0d04be6d16aa53d1dabba8652256ce1606904008329df47da39dd83a7ac": {
+      "name": "AddPrefixSum<1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "prop",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "gen",
+            "bits": 1,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "carry",
+            "bits": 1,
+            "signed": false,
+            "offset": 1,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 2,
+        "gates": [],
+        "outputs": [
+          0,
+          1
+        ]
+      }
+    },
+    "block-7de6524834e3975097af362c82185a976fc047f75fdf3a344f0f428916933307": {
+      "name": "CLA<1,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "carry",
+            "bits": 1,
+            "signed": false,
+            "offset": 1,
+            "overflow": "error"
+          }
+        ]
+      },
+      "nodes": [
+        {
+          "id": "generate",
+          "type": "instance",
+          "definition": "block-0eaa8b8105bc1a4d6b5b531289b9b45fcc704d40a1709cb419ba2224ca31715e",
+          "inputs": {
+            "a": [
+              {
+                "input": "a",
+                "bit": 0
+              }
+            ],
+            "b": [
+              {
+                "input": "b",
+                "bit": 0
+              }
+            ]
+          }
+        },
+        {
+          "id": "sum",
+          "type": "instance",
+          "definition": "block-59a2d0d04be6d16aa53d1dabba8652256ce1606904008329df47da39dd83a7ac",
+          "inputs": {
+            "prop": [
+              {
+                "node": "generate",
+                "port": "prop",
+                "bit": 0
+              }
+            ],
+            "gen": [
+              {
+                "node": "generate",
+                "port": "gen",
+                "bit": 0
+              }
+            ]
+          }
+        }
+      ],
+      "outputs": {
+        "c": [
+          {
+            "node": "sum",
+            "port": "c",
+            "bit": 0
+          }
+        ],
+        "carry": [
+          {
+            "node": "sum",
+            "port": "carry",
+            "bit": 0
+          }
+        ]
+      }
+    }
+  }
+}
