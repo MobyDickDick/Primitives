@@ -1,0 +1,812 @@
+[
+  {
+    "name": "SAR<1,1>",
+    "parameters": {
+      "t": 1,
+      "s_bits": 1
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 1,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "s",
+          "bits": 1,
+          "signed": false,
+          "offset": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 1,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 4,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 0,
+      "depth": 0
+    },
+    "hierarchy": {
+      "id": "block-00b56c04d4ed562038429942af1a8395dd49ce4bf767b361f1e76b553e07ec62",
+      "name": "SAR<1,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "s",
+            "bits": 1,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 0,
+      "depth": 0,
+      "definitions": 2,
+      "instances": 1
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "sar-1-1.block.json",
+      "circuit": "sar-1-1.circuit.json",
+      "template": "sar-1-1.template.json",
+      "vectors": "sar-1-1.vectors.json",
+      "netlist": "sar-1-1.nand.txt"
+    }
+  },
+  {
+    "name": "SAR<1,2>",
+    "parameters": {
+      "t": 1,
+      "s_bits": 2
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 1,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "s",
+          "bits": 2,
+          "signed": false,
+          "offset": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 1,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 8,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 0,
+      "depth": 0
+    },
+    "hierarchy": {
+      "id": "block-52f9d569d9368b2abcf758c16a296178f352d1dfd21c31a72c2e5c8e6ff5bc1b",
+      "name": "SAR<1,2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "s",
+            "bits": 2,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 0,
+      "depth": 0,
+      "definitions": 2,
+      "instances": 2
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "sar-1-2.block.json",
+      "circuit": "sar-1-2.circuit.json",
+      "template": "sar-1-2.template.json",
+      "vectors": "sar-1-2.vectors.json",
+      "netlist": "sar-1-2.nand.txt"
+    }
+  },
+  {
+    "name": "SAR<1,4>",
+    "parameters": {
+      "t": 1,
+      "s_bits": 4
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 1,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "s",
+          "bits": 4,
+          "signed": false,
+          "offset": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 1,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 32,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 0,
+      "depth": 0
+    },
+    "hierarchy": {
+      "id": "block-258f92d49c942abf03460d803fbe7939b3bce75ebdf84e3f262e848f5d872916",
+      "name": "SAR<1,4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "s",
+            "bits": 4,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 0,
+      "depth": 0,
+      "definitions": 2,
+      "instances": 4
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "sar-1-4.block.json",
+      "circuit": "sar-1-4.circuit.json",
+      "template": "sar-1-4.template.json",
+      "vectors": "sar-1-4.vectors.json",
+      "netlist": "sar-1-4.nand.txt"
+    }
+  },
+  {
+    "name": "SAR<2,1>",
+    "parameters": {
+      "t": 2,
+      "s_bits": 1
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "s",
+          "bits": 1,
+          "signed": false,
+          "offset": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 2,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 16,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 4,
+      "depth": 3
+    },
+    "hierarchy": {
+      "id": "block-ca5ff188cade0eea6ace1827a79145cdf29e60d19106b6a06e3cc6c0c4c993b6",
+      "name": "SAR<2,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "s",
+            "bits": 1,
+            "signed": false,
+            "offset": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 4,
+      "depth": 3,
+      "definitions": 2,
+      "instances": 1
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "sar-2-1.block.json",
+      "circuit": "sar-2-1.circuit.json",
+      "template": "sar-2-1.template.json",
+      "vectors": "sar-2-1.vectors.json",
+      "netlist": "sar-2-1.nand.txt"
+    }
+  },
+  {
+    "name": "SAR<2,2>",
+    "parameters": {
+      "t": 2,
+      "s_bits": 2
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "s",
+          "bits": 2,
+          "signed": false,
+          "offset": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 2,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 32,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 8,
+      "depth": 5
+    },
+    "hierarchy": {
+      "id": "block-077a7168356e2489a1bdec9206f17a7e737a540f1a20a708d9df4eda694eae8f",
+      "name": "SAR<2,2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "s",
+            "bits": 2,
+            "signed": false,
+            "offset": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 8,
+      "depth": 5,
+      "definitions": 3,
+      "instances": 2
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "sar-2-2.block.json",
+      "circuit": "sar-2-2.circuit.json",
+      "template": "sar-2-2.template.json",
+      "vectors": "sar-2-2.vectors.json",
+      "netlist": "sar-2-2.nand.txt"
+    }
+  },
+  {
+    "name": "SAR<2,4>",
+    "parameters": {
+      "t": 2,
+      "s_bits": 4
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "s",
+          "bits": 4,
+          "signed": false,
+          "offset": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 2,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 128,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 16,
+      "depth": 9
+    },
+    "hierarchy": {
+      "id": "block-2e52faccb43f9367033f28612a0c3cae4825bc5824e34f881949cd08792ef6f7",
+      "name": "SAR<2,4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "s",
+            "bits": 4,
+            "signed": false,
+            "offset": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 16,
+      "depth": 9,
+      "definitions": 3,
+      "instances": 4
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "sar-2-4.block.json",
+      "circuit": "sar-2-4.circuit.json",
+      "template": "sar-2-4.template.json",
+      "vectors": "sar-2-4.vectors.json",
+      "netlist": "sar-2-4.nand.txt"
+    }
+  },
+  {
+    "name": "SAR<4,1>",
+    "parameters": {
+      "t": 4,
+      "s_bits": 1
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "s",
+          "bits": 1,
+          "signed": false,
+          "offset": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 128,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 10,
+      "depth": 3
+    },
+    "hierarchy": {
+      "id": "block-b5f1b89105b22b7dce12b52348624ada7ca192b103f83c2060efd4cbc9c14396",
+      "name": "SAR<4,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "s",
+            "bits": 1,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 10,
+      "depth": 3,
+      "definitions": 2,
+      "instances": 1
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "sar-4-1.block.json",
+      "circuit": "sar-4-1.circuit.json",
+      "template": "sar-4-1.template.json",
+      "vectors": "sar-4-1.vectors.json",
+      "netlist": "sar-4-1.nand.txt"
+    }
+  },
+  {
+    "name": "SAR<4,2>",
+    "parameters": {
+      "t": 4,
+      "s_bits": 2
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "s",
+          "bits": 2,
+          "signed": false,
+          "offset": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 256,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 19,
+      "depth": 5
+    },
+    "hierarchy": {
+      "id": "block-b48a0152a5b0c1e046cbadb1b1f589a64776fb5efc31eda7275d2a7a46e9cc8d",
+      "name": "SAR<4,2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "s",
+            "bits": 2,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 19,
+      "depth": 5,
+      "definitions": 3,
+      "instances": 2
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "sar-4-2.block.json",
+      "circuit": "sar-4-2.circuit.json",
+      "template": "sar-4-2.template.json",
+      "vectors": "sar-4-2.vectors.json",
+      "netlist": "sar-4-2.nand.txt"
+    }
+  },
+  {
+    "name": "SAR<4,4>",
+    "parameters": {
+      "t": 4,
+      "s_bits": 4
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "s",
+          "bits": 4,
+          "signed": false,
+          "offset": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 1024,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 35,
+      "depth": 9
+    },
+    "hierarchy": {
+      "id": "block-7f1b3fcc682242e74902fd62b629a83524689e3b24c24ba55089078a8e2bfaa8",
+      "name": "SAR<4,4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "s",
+            "bits": 4,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 35,
+      "depth": 9,
+      "definitions": 4,
+      "instances": 4
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "sar-4-4.block.json",
+      "circuit": "sar-4-4.circuit.json",
+      "template": "sar-4-4.template.json",
+      "vectors": "sar-4-4.vectors.json",
+      "netlist": "sar-4-4.nand.txt"
+    }
+  }
+]

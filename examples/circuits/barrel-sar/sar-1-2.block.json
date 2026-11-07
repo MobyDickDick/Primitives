@@ -1,0 +1,125 @@
+{
+  "schema": 1,
+  "root": "block-52f9d569d9368b2abcf758c16a296178f352d1dfd21c31a72c2e5c8e6ff5bc1b",
+  "definitions": {
+    "block-f7d938a74533961bc8c4577c91515fda8c90c45abb745c386be5df7255b593d0": {
+      "name": "SARStage<1,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "sel",
+            "bits": 1,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 2,
+        "gates": [],
+        "outputs": [
+          0
+        ]
+      }
+    },
+    "block-52f9d569d9368b2abcf758c16a296178f352d1dfd21c31a72c2e5c8e6ff5bc1b": {
+      "name": "SAR<1,2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "s",
+            "bits": 2,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "nodes": [
+        {
+          "id": "shift_0",
+          "type": "instance",
+          "definition": "block-f7d938a74533961bc8c4577c91515fda8c90c45abb745c386be5df7255b593d0",
+          "inputs": {
+            "a": [
+              {
+                "input": "a",
+                "bit": 0
+              }
+            ],
+            "sel": [
+              {
+                "input": "s",
+                "bit": 0
+              }
+            ]
+          }
+        },
+        {
+          "id": "shift_1",
+          "type": "instance",
+          "definition": "block-f7d938a74533961bc8c4577c91515fda8c90c45abb745c386be5df7255b593d0",
+          "inputs": {
+            "a": [
+              {
+                "node": "shift_0",
+                "port": "c",
+                "bit": 0
+              }
+            ],
+            "sel": [
+              {
+                "input": "s",
+                "bit": 1
+              }
+            ]
+          }
+        }
+      ],
+      "outputs": {
+        "c": [
+          {
+            "node": "shift_1",
+            "port": "c",
+            "bit": 0
+          }
+        ]
+      }
+    }
+  }
+}

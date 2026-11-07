@@ -1,0 +1,25 @@
+# SAR<4,2>: flat NAND netlist; bit 0 is the LSB.
+# Inputs: a0, a1, a2, a3, s0, s1
+g0 = NAND(s0, s0)
+g1 = NAND(a0, g0)
+g2 = NAND(a1, s0)
+g3 = NAND(g1, g2)
+g4 = NAND(a1, g0)
+g5 = NAND(a2, s0)
+g6 = NAND(g4, g5)
+g7 = NAND(a2, g0)
+g8 = NAND(a3, s0)
+g9 = NAND(g7, g8)
+g10 = NAND(s1, s1)
+g11 = NAND(g3, g10)
+g12 = NAND(s1, g9)
+g13 = NAND(g11, g12)
+g14 = NAND(g6, g10)
+g15 = NAND(a3, s1)
+g16 = NAND(g14, g15)
+g17 = NAND(g9, g10)
+g18 = NAND(g15, g17)
+c0 = g13
+c1 = g16
+c2 = g18
+c3 = a3

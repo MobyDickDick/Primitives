@@ -191,10 +191,10 @@ return pack([c0, c1]), l | h
 
     def test_server_upgrade_catalog_synthesis_and_fbox_evaluation(self):
         with tempfile.TemporaryDirectory(dir=ROOT / ".jobs") as directory:
-            previous = ("arithmetic", "recursive-checked", "recursive-mul", "number-of-ones",
+            previous = ("saturating", "parallel-add", "prefixes", "arithmetic", "recursive-checked", "recursive-mul", "number-of-ones",
                         "recursive-msb-div", "recursive-max-index", "recursive-equ", "recursive-gt",
                         "generative-logic", "routing", "structured-logic", "standard-arithmetic",
-                        "arithmetic-comments", "zero-counts", "onehot")
+                        "arithmetic-comments", "zero-counts", "onehot", "barrel-shifter", "rotations")
             (Path(directory) / "example-installations.json").write_text(
                 json.dumps({f"{key}-v1": True for key in previous}), encoding="utf-8")
             server = make_server(0, directory, background=False)

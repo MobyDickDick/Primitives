@@ -1,0 +1,42 @@
+{
+  "version": 2,
+  "source": "# Unsigned Saettigungssubtraktion, LSB-first. Schmale Operanden werden nullerweitert.\ndef SatSubRaw<p,q>(a, b):\n    assert p >= 1 and q >= 1 and p <= 127 and q <= 127 and p + q <= 128\n    w = p if p >= q else q\n    x = bits(a, w)\n    y = bits(b, w)\n    result = [0] * (w + 1)\n    borrow = 0\n    for i in range(w):\n        parity = x[i] ^ y[i]\n        result[i] = parity ^ borrow\n        borrow = ((1 ^ x[i]) & y[i]) | ((1 ^ parity) & borrow)\n    result[w] = borrow\n    return pack(result)\n\ndef SatSubClamp<w>(value, flag):\n    assert w >= 1 and w <= 127\n    underflow = bits(flag, 1)[0]\n    result = bits(value, w)\n    # Bei Unterlauf werden alle Ergebnisbits 0; das Leihbit bleibt sichtbar.\n    for i in range(w):\n        result[i] = result[i] & (1 ^ underflow)\n    return pack(result + [underflow])\n\ndef SAT_SUB<p,q>(a, b):\n    assert p >= 1 and q >= 1 and p <= 127 and q <= 127 and p + q <= 128\n    w = p if p >= q else q\n    raw = bits(SatSubRaw<p,q>(a, b), w + 1)\n    return SatSubClamp<w>(pack(raw[:w]), raw[w])\n\n# Ergebnisports: begrenzte Differenz und underflow=1 genau bei a<b.\nw = p if p >= q else q\nresult = bits(SAT_SUB<p,q>(a, b), w + 1)\nreturn pack(result[:w]), result[w]\n",
+  "limits": {
+    "steps": 100000,
+    "iterations": 10000,
+    "total_steps": 5000000
+  },
+  "conditions": [
+    "p >= 1",
+    "q >= 1",
+    "p <= 127",
+    "q <= 127",
+    "p + q <= 128"
+  ],
+  "parameters": {
+    "p": 2,
+    "q": 2
+  },
+  "interface": {
+    "inputs": [
+      {
+        "name": "a",
+        "bits": "p"
+      },
+      {
+        "name": "b",
+        "bits": "q"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "c",
+        "bits": "max(p,q)"
+      },
+      {
+        "name": "underflow",
+        "bits": 1
+      }
+    ]
+  }
+}

@@ -1,0 +1,305 @@
+{
+  "schema": 1,
+  "root": "block-1ebef94f1f99526bb89c720e48f716c11a26a9ebdc5b1f5bcdc706b6ccf95dda",
+  "definitions": {
+    "block-f8b90f85d3cb84e1014d6741a794c092ec32eed9ea5e32b8acce123fc68f0c52": {
+      "name": "SHLStage<4,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "sel",
+            "bits": 1,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 5,
+        "gates": [
+          [
+            4,
+            4
+          ],
+          [
+            0,
+            5
+          ],
+          [
+            6,
+            6
+          ],
+          [
+            1,
+            5
+          ],
+          [
+            0,
+            4
+          ],
+          [
+            8,
+            9
+          ],
+          [
+            2,
+            5
+          ],
+          [
+            1,
+            4
+          ],
+          [
+            11,
+            12
+          ],
+          [
+            3,
+            5
+          ],
+          [
+            2,
+            4
+          ],
+          [
+            14,
+            15
+          ]
+        ],
+        "outputs": [
+          7,
+          10,
+          13,
+          16
+        ]
+      }
+    },
+    "block-694f15602a1527356d27e7eeef208c14f94f236e8ad0244f6c5264314308728a": {
+      "name": "SHLStage<4,2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "sel",
+            "bits": 1,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 5,
+        "gates": [
+          [
+            4,
+            4
+          ],
+          [
+            0,
+            5
+          ],
+          [
+            6,
+            6
+          ],
+          [
+            1,
+            5
+          ],
+          [
+            8,
+            8
+          ],
+          [
+            2,
+            5
+          ],
+          [
+            0,
+            4
+          ],
+          [
+            10,
+            11
+          ],
+          [
+            3,
+            5
+          ],
+          [
+            1,
+            4
+          ],
+          [
+            13,
+            14
+          ]
+        ],
+        "outputs": [
+          7,
+          9,
+          12,
+          15
+        ]
+      }
+    },
+    "block-1ebef94f1f99526bb89c720e48f716c11a26a9ebdc5b1f5bcdc706b6ccf95dda": {
+      "name": "SHL<4,2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "s",
+            "bits": 2,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "nodes": [
+        {
+          "id": "shift_0",
+          "type": "instance",
+          "definition": "block-f8b90f85d3cb84e1014d6741a794c092ec32eed9ea5e32b8acce123fc68f0c52",
+          "inputs": {
+            "a": [
+              {
+                "input": "a",
+                "bit": 0
+              },
+              {
+                "input": "a",
+                "bit": 1
+              },
+              {
+                "input": "a",
+                "bit": 2
+              },
+              {
+                "input": "a",
+                "bit": 3
+              }
+            ],
+            "sel": [
+              {
+                "input": "s",
+                "bit": 0
+              }
+            ]
+          }
+        },
+        {
+          "id": "shift_1",
+          "type": "instance",
+          "definition": "block-694f15602a1527356d27e7eeef208c14f94f236e8ad0244f6c5264314308728a",
+          "inputs": {
+            "a": [
+              {
+                "node": "shift_0",
+                "port": "c",
+                "bit": 0
+              },
+              {
+                "node": "shift_0",
+                "port": "c",
+                "bit": 1
+              },
+              {
+                "node": "shift_0",
+                "port": "c",
+                "bit": 2
+              },
+              {
+                "node": "shift_0",
+                "port": "c",
+                "bit": 3
+              }
+            ],
+            "sel": [
+              {
+                "input": "s",
+                "bit": 1
+              }
+            ]
+          }
+        }
+      ],
+      "outputs": {
+        "c": [
+          {
+            "node": "shift_1",
+            "port": "c",
+            "bit": 0
+          },
+          {
+            "node": "shift_1",
+            "port": "c",
+            "bit": 1
+          },
+          {
+            "node": "shift_1",
+            "port": "c",
+            "bit": 2
+          },
+          {
+            "node": "shift_1",
+            "port": "c",
+            "bit": 3
+          }
+        ]
+      }
+    }
+  }
+}

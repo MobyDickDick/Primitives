@@ -51,26 +51,47 @@ getrennt umsetzbar, sofern die genannten Abhängigkeiten verfügbar sind.
   Eingabefälle für w=1,2,4 vollständig geprüft. Rekursive F-Boxen, NAND-Exporte,
   einmalige Migration und dokumentierte Port-/Gattergrenzen vorhanden.
   Siehe [Decoder und One-Hot-Encoder](DECODER-ONEHOT.md).
-  Nächste offene Template-Aufgabe: GEN-04.
-- [ ] **GEN-04 – Barrel-Shifter:** SHL, SHR und vorzeichenerweiterndes SAR mit
+- [x] **GEN-04 – Barrel-Shifter:** SHL, SHR und vorzeichenerweiterndes SAR mit
   variablem Schiebeeingang über feste MUX-Stufen. Bei s>=t wird SHL/SHR null,
   SAR wiederholt das Vorzeichenbit. Prüfen: Datenbreite t=1,2,4 und
   Schiebeportbreite s_bits=1,2,4; alle neun Kombinationen vollständig.
-- [ ] **GEN-05 – Rotieren:** ROL/ROR mit variablem Abstand modulo t;
+  Umgesetzt: drei editierbare Templates, 27 F-Boxen/NAND-Netze und alle
+  1452 Eingabefälle unabhängig vollständig geprüft. Einmalige Migration,
+  grössere Referenzen/Grenzfälle und dokumentierte Port-/Gatter-/Budgetgrenzen
+  vorhanden. Siehe [Barrel-Shifter](BARREL-SHIFTER.md).
+- [x] **GEN-05 – Rotieren:** ROL/ROR mit variablem Abstand modulo t;
   t=1 ist Identität. Gemeinsam nutzbare MUX-Stufen mit GEN-04 untersuchen.
   Prüfen: dieselben neun Breitenkombinationen und Rotations-Inversen.
+  Umgesetzt: zwei editierbare Templates, 18 F-Boxen/NAND-Netze und alle
+  968 Eingabefälle unabhängig vollständig geprüft. Inversen, Periodizität,
+  grössere und andere als Zweierpotenzbreiten, Port-/Gatter-/Budgetgrenzen
+  und einmalige Migration geprüft. Siehe [Rotieren](ROTIEREN.md).
 
 ## Priorität 2: Rechnen und Präfixnetze
 
-- [ ] **GEN-06 – Präfix-AND / Präfix-XOR:** Ergänzung zum vorhandenen PREFIX_OR;
+- [x] **GEN-06 – Präfix-AND / Präfix-XOR:** Ergänzung zum vorhandenen PREFIX_OR;
   jeweils inklusive Präfixe ab Bit 0. Präfix-XOR ist damit anders orientiert
   als die Gray-Dekodierung. Prüfen: t=1,2,4 vollständig.
-- [ ] **GEN-07 – Carry-Lookahead / Parallelpräfix-Addition:** Generate-/Propagate-
+  Umgesetzt: zwei editierbare Templates, sechs rekursive F-Boxen/NAND-Netze und
+  alle 44 kleinen Eingabefälle unabhängig vollständig geprüft. Grössere Referenzen
+  bis 128 Bit, Gattergrenzen, Orientierung und einmalige Migration geprüft.
+  Siehe [Präfixnetze](PRAEFIXNETZE.md).
+- [x] **GEN-07 – Carry-Lookahead / Parallelpräfix-Addition:** Generate-/Propagate-
   Netz mit vollständiger Summe und Carry; Vergleich von Tiefe und NAND-Zahl
   mit dem Ripple-Carry-Standard. Prüfen: alle neun Operandenbreiten und jeden Carry.
-- [ ] **GEN-08 – Sättigungsarithmetik:** Unsigned SAT_ADD begrenzt auf
+  Umgesetzt: `CLA<p,q>` mit getrennten Summen-/Carry-Ports und Carry-in 0,
+  neun F-Boxen/NAND-Netzen und allen 484 Eingabepaaren unabhängig vollständig
+  geprüft, einschliesslich aller internen Carry-Bits. Kostenvergleich, grössere
+  Stichproben, Grenzen und einmalige Migration dokumentiert unter
+  [Parallelpräfix-Addition](PARALLELPRAEFIX-ADDITION.md).
+- [x] **GEN-08 – Sättigungsarithmetik:** Unsigned SAT_ADD begrenzt auf
   `2**max(p,q)-1`, SAT_SUB auf 0; zusätzlich overflow bzw. underflow ausgeben.
   Prüfen: alle neun Breitenkombinationen einschliesslich exakter Grenze.
+  Umgesetzt: zwei editierbare Templates, 18 F-Boxen/NAND-Netze und alle
+  968 kleinen Eingabefälle unabhängig vollständig geprüft. Statusbits an
+  exakten Grenzen, grössere Referenzen, Port-/Gatter-/Budgetgrenzen und
+  einmalige Migration geprüft. Siehe [Sättigungsarithmetik](SAETTIGUNGSARITHMETIK.md).
+  Nächste offene Template-Aufgabe: GEN-09.
 - [ ] **GEN-09 – Vorzeichen, NEG und ABS:** Zweierkomplement-Negation und
   Absolutwert; beim kleinsten negativen Wert ein Overflowbit vorsehen und
   die Ergebnisdarstellung festlegen. Prüfen: t=1,2,4 vollständig.

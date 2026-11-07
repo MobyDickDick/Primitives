@@ -1,0 +1,28 @@
+# SHL: logische Linksverschiebung, LSB-first; hinausgeschobene Bits verfallen.
+# Jede feste Stufe waehlt per Bit-MUX zwischen Durchleitung und Verschiebung.
+
+def SHLStage<t,k>(a, sel):
+    assert t >= 1 and t <= 128 and k >= 1 and k <= t
+    x = bits(a, t)
+    en = bits(sel, 1)[0]
+    y = [0] * t
+    for i in range(t):
+        shifted = 0
+        if i >= k:
+            shifted = x[i - k]
+        y[i] = (x[i] & (1 ^ en)) | (shifted & en)
+    return pack(y)
+
+def SHL<t,s_bits>(a, s):
+    assert t >= 1 and s_bits >= 1 and t + s_bits <= 128
+    x = bits(a, t)
+    sh = bits(s, s_bits)
+    for j in range(s_bits):
+        k = 2 ** j
+        if k > t:
+            k = t
+        x = bits(SHLStage<t,k>(pack(x), sh[j]), t)
+    return pack(x)
+
+# Ergebnisport
+return SHL<t,s_bits>(a, s)

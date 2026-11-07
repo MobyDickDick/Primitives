@@ -1,0 +1,34 @@
+# Unsigned Saettigungsaddition, LSB-first. Schmale Operanden werden nullerweitert.
+def SatAddRaw<p,q>(a, b):
+    assert p >= 1 and q >= 1 and p <= 127 and q <= 127 and p + q <= 128
+    w = p if p >= q else q
+    x = bits(a, w)
+    y = bits(b, w)
+    result = [0] * (w + 1)
+    carry = 0
+    for i in range(w):
+        parity = x[i] ^ y[i]
+        result[i] = parity ^ carry
+        carry = (x[i] & y[i]) | (parity & carry)
+    result[w] = carry
+    return pack(result)
+
+def SatAddClamp<w>(value, flag):
+    assert w >= 1 and w <= 127
+    overflow = bits(flag, 1)[0]
+    result = bits(value, w)
+    # Bei Ueberlauf werden alle Ergebnisbits 1, sonst bleibt die Summe erhalten.
+    for i in range(w):
+        result[i] = result[i] | overflow
+    return pack(result + [overflow])
+
+def SAT_ADD<p,q>(a, b):
+    assert p >= 1 and q >= 1 and p <= 127 and q <= 127 and p + q <= 128
+    w = p if p >= q else q
+    raw = bits(SatAddRaw<p,q>(a, b), w + 1)
+    return SatAddClamp<w>(pack(raw[:w]), raw[w])
+
+# Ergebnisports: begrenzte Summe und overflow=1 genau bei a+b >= 2**w.
+w = p if p >= q else q
+result = bits(SAT_ADD<p,q>(a, b), w + 1)
+return pack(result[:w]), result[w]

@@ -1,0 +1,364 @@
+{
+  "schema": 1,
+  "root": "block-79687055645ade52fd77c771aec5294b52c969fd233f06449276a675731e6b14",
+  "definitions": {
+    "block-a986a0eb5d8d39edcf9bc2d23469518a1f3f50ba7c4371a2be2b8db6359cc9ff": {
+      "name": "PREFIX_XOR<1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 1,
+        "gates": [],
+        "outputs": [
+          0
+        ]
+      }
+    },
+    "block-f6a3466ffad204bc30be159181bc4d6a5c8e52d9109a4b648e5a62419a56858a": {
+      "name": "PREFIX_XOR_MERGE<1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "sel",
+            "bits": 1,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 2,
+        "gates": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            3,
+            4
+          ]
+        ],
+        "outputs": [
+          5
+        ]
+      }
+    },
+    "block-d03bcccf18482cfc772ffdd90233d3f67d2d59f89033f2d7ddd8b2b95066baa0": {
+      "name": "PREFIX_XOR<2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "nodes": [
+        {
+          "id": "lower",
+          "type": "instance",
+          "definition": "block-a986a0eb5d8d39edcf9bc2d23469518a1f3f50ba7c4371a2be2b8db6359cc9ff",
+          "inputs": {
+            "a": [
+              {
+                "input": "a",
+                "bit": 0
+              }
+            ]
+          }
+        },
+        {
+          "id": "upper",
+          "type": "instance",
+          "definition": "block-a986a0eb5d8d39edcf9bc2d23469518a1f3f50ba7c4371a2be2b8db6359cc9ff",
+          "inputs": {
+            "a": [
+              {
+                "input": "a",
+                "bit": 1
+              }
+            ]
+          }
+        },
+        {
+          "id": "prefix",
+          "type": "instance",
+          "definition": "block-f6a3466ffad204bc30be159181bc4d6a5c8e52d9109a4b648e5a62419a56858a",
+          "inputs": {
+            "a": [
+              {
+                "node": "upper",
+                "port": "c",
+                "bit": 0
+              }
+            ],
+            "sel": [
+              {
+                "node": "lower",
+                "port": "c",
+                "bit": 0
+              }
+            ]
+          }
+        }
+      ],
+      "outputs": {
+        "c": [
+          {
+            "node": "lower",
+            "port": "c",
+            "bit": 0
+          },
+          {
+            "node": "prefix",
+            "port": "c",
+            "bit": 0
+          }
+        ]
+      }
+    },
+    "block-62668da96eea03f0e239ae765c6db31fc011ec5ebdcc800f8258002ac8ce3868": {
+      "name": "PREFIX_XOR_MERGE<2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "sel",
+            "bits": 1,
+            "signed": false,
+            "offset": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 3,
+        "gates": [
+          [
+            0,
+            2
+          ],
+          [
+            0,
+            3
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            4,
+            5
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            1,
+            7
+          ],
+          [
+            2,
+            7
+          ],
+          [
+            8,
+            9
+          ]
+        ],
+        "outputs": [
+          6,
+          10
+        ]
+      }
+    },
+    "block-79687055645ade52fd77c771aec5294b52c969fd233f06449276a675731e6b14": {
+      "name": "PREFIX_XOR<4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "nodes": [
+        {
+          "id": "lower",
+          "type": "instance",
+          "definition": "block-d03bcccf18482cfc772ffdd90233d3f67d2d59f89033f2d7ddd8b2b95066baa0",
+          "inputs": {
+            "a": [
+              {
+                "input": "a",
+                "bit": 0
+              },
+              {
+                "input": "a",
+                "bit": 1
+              }
+            ]
+          }
+        },
+        {
+          "id": "upper",
+          "type": "instance",
+          "definition": "block-d03bcccf18482cfc772ffdd90233d3f67d2d59f89033f2d7ddd8b2b95066baa0",
+          "inputs": {
+            "a": [
+              {
+                "input": "a",
+                "bit": 2
+              },
+              {
+                "input": "a",
+                "bit": 3
+              }
+            ]
+          }
+        },
+        {
+          "id": "prefix",
+          "type": "instance",
+          "definition": "block-62668da96eea03f0e239ae765c6db31fc011ec5ebdcc800f8258002ac8ce3868",
+          "inputs": {
+            "a": [
+              {
+                "node": "upper",
+                "port": "c",
+                "bit": 0
+              },
+              {
+                "node": "upper",
+                "port": "c",
+                "bit": 1
+              }
+            ],
+            "sel": [
+              {
+                "node": "lower",
+                "port": "c",
+                "bit": 1
+              }
+            ]
+          }
+        }
+      ],
+      "outputs": {
+        "c": [
+          {
+            "node": "lower",
+            "port": "c",
+            "bit": 0
+          },
+          {
+            "node": "lower",
+            "port": "c",
+            "bit": 1
+          },
+          {
+            "node": "prefix",
+            "port": "c",
+            "bit": 0
+          },
+          {
+            "node": "prefix",
+            "port": "c",
+            "bit": 1
+          }
+        ]
+      }
+    }
+  }
+}

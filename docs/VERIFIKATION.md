@@ -1,5 +1,105 @@
 # Verifikation des ersten Prototyps
 
+## GEN-06: Präfix-AND und Präfix-XOR
+
+Geprüft am 4. November 2026:
+
+- `python -m tools.export_prefixes`: sechs Instanzen für `PREFIX_AND<t>` und
+  `PREFIX_XOR<t>` mit t=1,2,4; **44 Eingabefälle** vollständig gegen eine
+  unabhängige Ganzzahlreferenz geprüft. Quellprogramm, hierarchische Auswertung,
+  expandierte und vereinfachte NAND-Netze sowie direkte Synthese stimmen überein.
+  Jede Instanz enthält Vektoren, Quellprogramm, F-Box, flache Schaltung und NAND-Liste.
+- Alle **sieben neuen Python-Tests** bestehen einschliesslich HTTP-Integration.
+  Sie prüfen jede Vektorzeile gegen serielle Bitakkumulation, die Orientierung
+  ab Bit 0, De Morgan gegen das vorhandene `PREFIX_OR`, die XOR-Rückwandlung
+  und die entgegengesetzte Orientierung der Gray-Dekodierung.
+- Referenzprogramme bis 128 Bit sind mit gezielten Grenzfällen, jeder einzelnen
+  gesetzten/gelöschten Bitposition und reproduzierbaren Stichproben geprüft.
+  AND mit t=64 (384 NANDs, Tiefe 12) und XOR mit t=32 (320 NANDs, Tiefe 15)
+  sind auch als F-Boxen und direkte Synthese geprüft. AND mit t=128 sowie XOR
+  ab t=64 überschreiten bei beiden Wegen nachweislich die 512-Gattergrenze.
+- Die einmalige Migration `prefixes-v1` erhält eigene Ordner, Beschreibungen,
+  Benennungen, Zuordnungen und bessere Schaltungen; geprüft mit einer seriellen
+  6-NAND-AND-Lösung gegenüber dem rekursiven 8-NAND-Export. Gelöschte Beispiele
+  bleiben beim erneuten Start gelöscht. API-Katalog, Synthese, Auswertung und
+  Navigation in verschachtelte Präfix-Verknüpfungen sind geprüft.
+- Alle **45 JavaScript-Tests** mit `node --test tests/test_*.js` bestehen.
+- Die vollständige Python-Suite mit `PYTHONUTF8=1` und
+  `python -m unittest discover -s tests -v` umfasst **306 Tests**:
+  305 bestanden im Gesamtlauf, ein bestehender HTTP-Test zum Löschen einer
+  Funktion scheiterte an einem lokalen Windows-Verbindungsabbruch (10053).
+  Dieser Test bestand beim gezielten Wiederholungslauf. Der vollständige
+  Erstaufbau mit **42 Templates und 173 Datensätzen** ist erfolgreich geprüft.
+  HTTP-Tests wurden wegen der Socketbeschränkung der Sandbox mit lokalem
+  Netzwerkzugriff ausgeführt. Laufzeit des Gesamtlaufs: rund 14,5 Minuten.
+- `git diff --check` besteht. Alle neuen Exportdateien sind vollständig;
+  Dokumentationsverweise und die in Prüfberichten genannten Dateien existieren.
+
+Quellen, Exporte, Semantik und Grenzen: [Präfixnetze](PRAEFIXNETZE.md).
+
+## GEN-05: Rotieren
+
+Geprüft am 3. und 4. November 2026:
+
+- `python -m tools.export_rotations`: 18 Instanzen für ROL und ROR,
+  jeweils alle neun Kombinationen t,s_bits=1,2,4; **968 Eingabefälle**
+  vollständig gegen eine unabhängige Ganzzahlreferenz geprüft.
+- Quellprogramm, hierarchische Auswertung, expandierte und vereinfachte
+  NAND-Netze sowie direkte Quellsynthese stimmen auf allen kleinen Eingaben
+  überein. Jede Instanz enthält Vektoren, Quellprogramm, F-Box, flache Schaltung
+  und NAND-Gatterliste mit Gatterzahl und Tiefe.
+- Alle **sieben neuen Python-Tests** bestehen, einschliesslich HTTP-Integration:
+  unabhängige Bitpositionsreferenz, Rotations-Inversen, Periodizität und Erhalt
+  der Anzahl gesetzter Bits, grössere Breiten und Breiten ohne Zweierpotenz,
+  128-Bit-Portgrenzen, ungültige Parameter/Aufrufe und Ausführungsbudgets.
+  Die Migration erhält eigene Ordner, Beschreibungen, Benennungen, Zuordnungen
+  und vorhandene Schaltungen. Gelöschte Beispiele bleiben beim erneuten Start
+  gelöscht. API-Katalog, direkte Synthese, Bausteinauswertung und Navigation
+  in eine feste Rotationsstufe sind geprüft.
+- Der ergänzende Grenztest prüft die unterschiedlichen Syntheselimits:
+  t=32, s_bits=6 liefert über kompaktierte F-Box-Stufen 485 NANDs bei Tiefe 11,
+  während die direkte Quellsynthese bereits die temporäre Gattergrenze erreicht.
+  Bei t=64, s_bits=6 überschreiten beide Wege 512 Gatter; bei t=63, s_bits=65
+  begrenzt das Anweisungsbudget die Referenzausführung.
+- Alle **45 JavaScript-Tests** mit `node --test tests/test_*.js` bestehen.
+- Die vollständige Python-Suite mit `PYTHONUTF8=1` und
+  `python -m unittest discover -s tests -v` besteht mit **299 Tests**,
+  einschliesslich aller HTTP-Integrationstests. Lokale HTTP-Verbindungen
+  wurden wegen der WinError-10013-Sandboxgrenze freigegeben. Auch der
+  Erstaufbau der gesamten Bibliothek mit 40 Templates und 167 Datensätzen
+  ist geprüft. Der ergänzte Grenztest für 485 NANDs wurde separat erneut
+  erfolgreich ausgeführt.
+- `git diff --check` besteht; alle Verweise in der neuen Dokumentation
+  führen zu vorhandenen Quellen, Exporten oder Prüfberichten.
+
+Quellen, Exporte, Semantik und Grenzen: [Rotieren](ROTIEREN.md).
+
+## GEN-04: Barrel-Shifter
+
+Geprüft am 2. November 2026:
+
+- `python -m tools.export_barrel_shifter`: 27 Instanzen für SHL, SHR und SAR,
+  jeweils alle neun Kombinationen t,s_bits=1,2,4; **1452 Eingabefälle**
+  vollständig gegen eine unabhängige Ganzzahlreferenz geprüft.
+- Sechs neue Python-Tests prüfen alle exportierten Vektorzeilen mit einer
+  unabhängigen Bitpositionsreferenz, Quellprogramme, F-Boxen, expandierte
+  und vereinfachte NAND-Netze sowie direkte Quellsynthese. Zusätzlich:
+  grössere Breiten und Breiten ohne Zweierpotenz als Grenzfälle/Stichproben,
+  128-Bit-Portgrenzen, ungültige Parameter/Aufrufe, 512-Gattergrenze und
+  Ausführungsbudget. Alle sechs Tests bestehen einschliesslich HTTP-Integration.
+- Die Migration erhält bestehende Ordner, Beschreibungen, Zuordnungen,
+  Benennungen und bessere Schaltungen; gelöschte Beispiele bleiben beim
+  erneuten Start gelöscht. API-Katalog, direkte Synthese, Bausteinauswertung
+  und Navigation in eine feste Schiebestufe sind geprüft.
+- Alle **45 JavaScript-Tests** mit `node --test tests/test_*.js` bestehen.
+- Die vollständige Python-Suite mit `python -m unittest discover -s tests -v`
+  besteht mit **292 Tests**, einschliesslich aller HTTP-Integrationstests.
+  Der Lauf mit `PYTHONUTF8=1` dauerte rund 13 Minuten und wurde für lokale
+  HTTP-Verbindungen ausserhalb der Windows-Sandbox ausgeführt.
+- `git diff --check` besteht.
+
+Quellen, Exporte, Gatterzahlen und Grenzen: [Barrel-Shifter](BARREL-SHIFTER.md).
+
 ## Verdrahtungsübersicht (PRIM-09)
 
 Geprüft am 30. Oktober 2026:
@@ -732,3 +832,34 @@ Geprüft am 25. Oktober 2026:
   unveränderte Dezimalübertragung zum Quelldebugger. Syntaxprüfungen bestehen.
 - Eine erfolgreiche Stichprobe bleibt eine Stichprobe; das Vektorlimit ist
   weiterhin 65536, die Schaltungsgrenze weiterhin 512 NAND-Gatter.
+
+## GEN-07: Parallelpräfix-Addition
+
+Geprüft am 6. November 2026:
+
+- `python -m tools.export_parallel_add`: neun Kombinationen p,q=1,2,4,
+  **484 Eingabepaare vollständig unabhängig geprüft**. Quellprogramm,
+  F-Box, Expansion, vereinfachtes NAND-Netz und direkte Synthese stimmen
+  funktional überein. Alle 47 generierten Dateien sind bytegenau reproduzierbar.
+- Acht neue Tests prüfen zusätzlich alle internen Carry-Bits, beliebige
+  Generate-/Propagate-Stufeneingaben, gleichzeitiges Lesen der vorherigen Stufe,
+  ungleiche Breiten und Breiten ohne Zweierpotenz, grössere gezielte Carry-Ketten und
+  reproduzierbare Stichproben. Grössere Eingaberäume bleiben Stichproben.
+- Kostenvergleich mit derselben vollständigen Ripple-Carry-Summe: bei 4/4 Bit
+  46 statt 32 NANDs mit jeweils Tiefe 10; bei 8/8 Bit 130/12 statt 68/18;
+  bei 16/16 Bit 338/14 statt 140/34. Keine Minimalitäts- oder Laufzeitbehauptung.
+- Port-, Gatter- und Anweisungsgrenzen sind geprüft und in
+  [Parallelpräfix-Addition](PARALLELPRAEFIX-ADDITION.md) getrennt dokumentiert.
+  Unter anderem funktioniert 19/19 als F-Box, erreicht aber bei direkter
+  Synthese bereits die Konstruktionsgrenze von 512 NANDs.
+- Die einmalige Migration erhält eigene Ordner, Namen, Beschreibungen,
+  Zuordnungen und eine kleinere vorhandene Ripple-Lösung. Nachträglich
+  gelöschte Beispiele werden nicht erneut angelegt. HTTP-Katalog, Synthese,
+  Auswertung und Navigation in die Präfixstufen sind erfolgreich geprüft;
+  die lokalen Verbindungen liefen ausserhalb der Socket-Sperre der Sandbox.
+- `PYTHONUTF8=1 python -m unittest discover -s tests -v`:
+  **314 Tests erfolgreich**, einschliesslich der lokalen HTTP-Tests und echter
+  TinyLanguage-Läufe. Der vollständige Serverstart ergänzt den Katalog korrekt
+  auf 43 Templates und 182 Datensätze.
+- `node --test tests/test_*.js`: **45 Tests erfolgreich**;
+  `git diff --check` erfolgreich. Keine Änderungen an der Browseroberfläche.

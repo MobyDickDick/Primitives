@@ -31,7 +31,23 @@ vorausgesetzt; Signalverfolgung soll auch ohne Hierarchie helfen.
 - [x] GEN-03: Decoder mit enable und One-Hot-Encoder mit valid/multiple,
       sechs F-Boxen/NAND-Netze und vollständige Prüfung aller 65 600 kleinen
       Eingabefälle; [Dokumentation](docs/DECODER-ONEHOT.md).
-      Nächste offene Template-Aufgabe: GEN-04 (Barrel-Shifter).
+- [x] GEN-04: SHL/SHR/SAR als Barrel-Shifter mit festen MUX-Stufen,
+      27 F-Boxen/NAND-Netzen und vollständiger Prüfung aller 1452 kleinen
+      Eingabefälle; [Dokumentation](docs/BARREL-SHIFTER.md).
+- [x] GEN-05: ROL/ROR modulo Datenbreite über feste MUX-Stufen,
+      18 F-Boxen/NAND-Netze und vollständige unabhängige Prüfung aller 968 kleinen
+      Eingabefälle samt Rotations-Inversen; [Dokumentation](docs/ROTIEREN.md).
+- [x] GEN-06: Präfix-AND / Präfix-XOR mit inklusiven Präfixen ab Bit 0,
+      sechs rekursiven F-Boxen/NAND-Netzen und vollständiger unabhängiger Prüfung
+      aller 44 kleinen Eingabefälle; [Dokumentation](docs/PRAEFIXNETZE.md).
+- [x] GEN-07: Parallelpräfix-Addition mit Generate/Propagate, vollständiger Summe
+      und Carry, neun F-Boxen/NAND-Netzen und unabhängiger vollständiger Prüfung
+      aller 484 Eingabepaare samt internen Überträgen; Vergleich mit Ripple-Carry
+      und [Dokumentation](docs/PARALLELPRAEFIX-ADDITION.md).
+- [x] GEN-08: Unsigned SAT_ADD/SAT_SUB mit overflow/underflow,
+      18 F-Boxen/NAND-Netzen und unabhängiger vollständiger Prüfung aller
+      968 kleinen Eingabefälle; [Dokumentation](docs/SAETTIGUNGSARITHMETIK.md).
+      Nächste offene Template-Aufgabe: GEN-09 (Vorzeichen, NEG und ABS).
 
 Beschreibung und Erzeugung: [Standardarithmetik](docs/STANDARD-ARITHMETIK.md).
 

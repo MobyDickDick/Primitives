@@ -1,0 +1,812 @@
+[
+  {
+    "name": "ROR<1,1>",
+    "parameters": {
+      "t": 1,
+      "s_bits": 1
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 1,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "s",
+          "bits": 1,
+          "signed": false,
+          "offset": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 1,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 4,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 0,
+      "depth": 0
+    },
+    "hierarchy": {
+      "id": "block-d35c4b740ccf627c482d71bf99951f8653332be33376971a81037169f1ffc036",
+      "name": "ROR<1,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "s",
+            "bits": 1,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 0,
+      "depth": 0,
+      "definitions": 1,
+      "instances": 0
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "ror-1-1.block.json",
+      "circuit": "ror-1-1.circuit.json",
+      "template": "ror-1-1.template.json",
+      "vectors": "ror-1-1.vectors.json",
+      "netlist": "ror-1-1.nand.txt"
+    }
+  },
+  {
+    "name": "ROR<1,2>",
+    "parameters": {
+      "t": 1,
+      "s_bits": 2
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 1,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "s",
+          "bits": 2,
+          "signed": false,
+          "offset": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 1,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 8,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 0,
+      "depth": 0
+    },
+    "hierarchy": {
+      "id": "block-970b3fcc1c198ff007c73b1455e76dbcd52bbfb095d4653b67f89a4a4f5413cb",
+      "name": "ROR<1,2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "s",
+            "bits": 2,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 0,
+      "depth": 0,
+      "definitions": 1,
+      "instances": 0
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "ror-1-2.block.json",
+      "circuit": "ror-1-2.circuit.json",
+      "template": "ror-1-2.template.json",
+      "vectors": "ror-1-2.vectors.json",
+      "netlist": "ror-1-2.nand.txt"
+    }
+  },
+  {
+    "name": "ROR<1,4>",
+    "parameters": {
+      "t": 1,
+      "s_bits": 4
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 1,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "s",
+          "bits": 4,
+          "signed": false,
+          "offset": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 1,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 32,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 0,
+      "depth": 0
+    },
+    "hierarchy": {
+      "id": "block-fc8d0d8abdba7cabebb6690fc11da2399c28bb5dfd39c18d7c1fb0bc27800173",
+      "name": "ROR<1,4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "s",
+            "bits": 4,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 0,
+      "depth": 0,
+      "definitions": 1,
+      "instances": 0
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "ror-1-4.block.json",
+      "circuit": "ror-1-4.circuit.json",
+      "template": "ror-1-4.template.json",
+      "vectors": "ror-1-4.vectors.json",
+      "netlist": "ror-1-4.nand.txt"
+    }
+  },
+  {
+    "name": "ROR<2,1>",
+    "parameters": {
+      "t": 2,
+      "s_bits": 1
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "s",
+          "bits": 1,
+          "signed": false,
+          "offset": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 2,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 16,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 7,
+      "depth": 3
+    },
+    "hierarchy": {
+      "id": "block-267f6b1c232fe2885fb6d400fb747f43138fc10eed5cb492e3faac8018f89704",
+      "name": "ROR<2,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "s",
+            "bits": 1,
+            "signed": false,
+            "offset": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 7,
+      "depth": 3,
+      "definitions": 2,
+      "instances": 1
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "ror-2-1.block.json",
+      "circuit": "ror-2-1.circuit.json",
+      "template": "ror-2-1.template.json",
+      "vectors": "ror-2-1.vectors.json",
+      "netlist": "ror-2-1.nand.txt"
+    }
+  },
+  {
+    "name": "ROR<2,2>",
+    "parameters": {
+      "t": 2,
+      "s_bits": 2
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "s",
+          "bits": 2,
+          "signed": false,
+          "offset": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 2,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 32,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 7,
+      "depth": 3
+    },
+    "hierarchy": {
+      "id": "block-f5688217c7c17c43962538baefab9db3d81599c4779d75ce704f54cb215b0b38",
+      "name": "ROR<2,2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "s",
+            "bits": 2,
+            "signed": false,
+            "offset": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 7,
+      "depth": 3,
+      "definitions": 2,
+      "instances": 1
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "ror-2-2.block.json",
+      "circuit": "ror-2-2.circuit.json",
+      "template": "ror-2-2.template.json",
+      "vectors": "ror-2-2.vectors.json",
+      "netlist": "ror-2-2.nand.txt"
+    }
+  },
+  {
+    "name": "ROR<2,4>",
+    "parameters": {
+      "t": 2,
+      "s_bits": 4
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "s",
+          "bits": 4,
+          "signed": false,
+          "offset": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 2,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 128,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 7,
+      "depth": 3
+    },
+    "hierarchy": {
+      "id": "block-d6118ed542f9e9faaeff6dee9bf6420b44243671481b4c8bd6d11a73c15baf7c",
+      "name": "ROR<2,4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "s",
+            "bits": 4,
+            "signed": false,
+            "offset": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 7,
+      "depth": 3,
+      "definitions": 2,
+      "instances": 1
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "ror-2-4.block.json",
+      "circuit": "ror-2-4.circuit.json",
+      "template": "ror-2-4.template.json",
+      "vectors": "ror-2-4.vectors.json",
+      "netlist": "ror-2-4.nand.txt"
+    }
+  },
+  {
+    "name": "ROR<4,1>",
+    "parameters": {
+      "t": 4,
+      "s_bits": 1
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "s",
+          "bits": 1,
+          "signed": false,
+          "offset": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 128,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 13,
+      "depth": 3
+    },
+    "hierarchy": {
+      "id": "block-247fd9dada53c988b054635f8c89940ce297c78bf1db8d1c52f45e2ec877048a",
+      "name": "ROR<4,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "s",
+            "bits": 1,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 13,
+      "depth": 3,
+      "definitions": 2,
+      "instances": 1
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "ror-4-1.block.json",
+      "circuit": "ror-4-1.circuit.json",
+      "template": "ror-4-1.template.json",
+      "vectors": "ror-4-1.vectors.json",
+      "netlist": "ror-4-1.nand.txt"
+    }
+  },
+  {
+    "name": "ROR<4,2>",
+    "parameters": {
+      "t": 4,
+      "s_bits": 2
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "s",
+          "bits": 2,
+          "signed": false,
+          "offset": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 256,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 26,
+      "depth": 5
+    },
+    "hierarchy": {
+      "id": "block-818d4a507b015ddcdbc6947cd1cd44ab37d969f844969a95d1ff077c341dec82",
+      "name": "ROR<4,2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "s",
+            "bits": 2,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 26,
+      "depth": 5,
+      "definitions": 3,
+      "instances": 2
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "ror-4-2.block.json",
+      "circuit": "ror-4-2.circuit.json",
+      "template": "ror-4-2.template.json",
+      "vectors": "ror-4-2.vectors.json",
+      "netlist": "ror-4-2.nand.txt"
+    }
+  },
+  {
+    "name": "ROR<4,4>",
+    "parameters": {
+      "t": 4,
+      "s_bits": 4
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "s",
+          "bits": 4,
+          "signed": false,
+          "offset": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 1024,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 26,
+      "depth": 5
+    },
+    "hierarchy": {
+      "id": "block-7c5d85d6dc44e1134a2f0d7a3af00e7dcc6a65223cfdbb79d3ad1868f811509e",
+      "name": "ROR<4,4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "s",
+            "bits": 4,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 26,
+      "depth": 5,
+      "definitions": 3,
+      "instances": 2
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "ror-4-4.block.json",
+      "circuit": "ror-4-4.circuit.json",
+      "template": "ror-4-4.template.json",
+      "vectors": "ror-4-4.vectors.json",
+      "netlist": "ror-4-4.nand.txt"
+    }
+  }
+]

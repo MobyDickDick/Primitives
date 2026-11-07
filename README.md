@@ -42,6 +42,48 @@ einschliesslich aller 65 536 Muster des 16-Bit-One-Hot-Eingangs.
 Beim nächsten Serverstart erscheinen sie unter **Beispiele → Rekursion →
 Decoder & One-Hot**. Siehe [Decoder und One-Hot-Encoder](docs/DECODER-ONEHOT.md).
 
+`SHL<t,s_bits>(a,s)`, `SHR<t,s_bits>(a,s)` und `SAR<t,s_bits>(a,s)`
+verschieben über feste MUX-Stufen mit variablem unsigned Abstand.
+Ab s>=t liefern SHL/SHR null; SAR wiederholt das Vorzeichenbit.
+GEN-04 ergänzt alle neun Kombinationen t,s_bits=1,2,4 je Operation:
+27 F-Boxen und NAND-Netze, unabhängig vollständig geprüft für alle
+1452 Eingabefälle. Beim nächsten Serverstart erscheinen sie unter
+**Beispiele → Rekursion → Barrel-Shifter**.
+Siehe [Barrel-Shifter und Breitenlimits](docs/BARREL-SHIFTER.md).
+
+`ROL<t,s_bits>(a,s)` und `ROR<t,s_bits>(a,s)` rotieren um den unsigned Abstand
+**s modulo t**. Alle Bits bleiben erhalten; t=1 ist die Identität. GEN-05
+ergänzt alle neun Kombinationen t,s_bits=1,2,4 je Richtung: 18 F-Boxen und
+NAND-Netze, unabhängig vollständig geprüft für alle 968 Eingabefälle.
+Rotations-Inversen und Breiten ohne Zweierpotenz sind ebenfalls geprüft.
+Beim nächsten Serverstart erscheinen die Beispiele unter **Beispiele →
+Rekursion → Rotationen**. Siehe [Rotieren und Breitenlimits](docs/ROTIEREN.md).
+
+`PREFIX_AND<t>(a)` und `PREFIX_XOR<t>(a)` bilden inklusive Präfixe ab Bit 0:
+`c[i]=AND(a[0],...,a[i])` bzw. `XOR(a[0],...,a[i])`. Präfix-XOR ist damit
+entgegengesetzt zur Gray-Dekodierung orientiert. GEN-06 ergänzt sechs rekursive
+F-Boxen und NAND-Netze für t=1,2,4, unabhängig vollständig geprüft für alle
+44 Eingabefälle. Beim nächsten Serverstart erscheinen sie unter **Beispiele →
+Rekursion → Präfix-AND & Präfix-XOR**. Siehe [Präfixnetze und Breitenlimits](docs/PRAEFIXNETZE.md).
+
+`CLA<p,q>(a,b)` addiert unsigned Eingänge über ein Generate-/Propagate-Präfixnetz
+mit festen Abständen 1,2,4,... und Carry-in 0. Die Ports `c[max(p,q)]` und
+`carry[1]` bilden zusammen die vollständige Summe. GEN-07 ergänzt alle neun
+Kombinationen p,q=1,2,4 als F-Boxen und NAND-Netze, unabhängig vollständig
+geprüft für alle 484 Eingabepaare und jeden internen Carry. Bei 8/8 Bit sinkt
+die NAND-Tiefe gegenüber Ripple-Carry von 18 auf 12, bei mehr Gattern.
+Beim nächsten Serverstart erscheinen sie unter **Beispiele → Grundrechenarten →
+Parallelpräfix-Addition**. Siehe [Kostenvergleich und Grenzen](docs/PARALLELPRAEFIX-ADDITION.md).
+
+`SAT_ADD<p,q>(a,b)` begrenzt unsigned Summen auf `2**max(p,q)-1` und
+liefert `overflow`; `SAT_SUB<p,q>(a,b)` begrenzt Differenzen auf 0 und
+liefert `underflow`. Exakte Grenzergebnisse setzen kein Statusbit.
+GEN-08 ergänzt alle neun Kombinationen p,q=1,2,4 je Operation:
+18 F-Boxen/NAND-Netze und alle 968 Eingabefälle unabhängig vollständig geprüft.
+Beim nächsten Serverstart erscheinen die Beispiele unter **Beispiele →
+Grundrechenarten → Sättigungsarithmetik**.
+Siehe [Semantik, Quellen und Grenzen](docs/SAETTIGUNGSARITHMETIK.md).
+
 Die **Bibliothek** zeigt Templates und konkrete Funktionen in einem gemeinsamen
 Verzeichnisbaum. Ordner und Unterordner lassen sich anlegen, umbenennen,
 beschreiben und verschieben; Einträge können in jeden Ordner einsortiert werden.

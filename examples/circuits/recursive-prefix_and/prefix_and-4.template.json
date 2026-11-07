@@ -1,0 +1,31 @@
+{
+  "version": 2,
+  "source": "# Inklusive Praefixe ab Bit 0: c[i] = AND(a[0], ..., a[i]).\n# Die letzte untere Praefixstelle ergaenzt alle oberen Praefixe.\n\ndef PrefixANDMerge<k>(a, sel):\n    assert k >= 1 and k <= 64\n    x = bits(a, k)\n    s = bits(sel, 1)[0]\n    for i in range(k):\n        x[i] = x[i] & s\n    return pack(x)\n\ndef PREFIX_AND<t>(a):\n    assert t >= 1 and t <= 128 and (t & (t - 1)) == 0\n    if t == 1:\n        return a\n    x = bits(a, t)\n    k = t // 2\n    lo = bits(PREFIX_AND<k>(pack(x[:k])), k)\n    hi = PREFIX_AND<k>(pack(x[k:]))\n    return pack(lo + bits(PrefixANDMerge<k>(hi, lo[k - 1]), k))\n\n# Ergebnisport\nreturn PREFIX_AND<t>(a)\n",
+  "limits": {
+    "steps": 100000,
+    "iterations": 10000,
+    "total_steps": 5000000
+  },
+  "conditions": [
+    "t >= 1",
+    "t <= 128",
+    "is_power_of_two(t)"
+  ],
+  "parameters": {
+    "t": 4
+  },
+  "interface": {
+    "inputs": [
+      {
+        "name": "a",
+        "bits": "t"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "c",
+        "bits": "t"
+      }
+    ]
+  }
+}

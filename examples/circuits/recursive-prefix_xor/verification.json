@@ -1,0 +1,233 @@
+[
+  {
+    "name": "PREFIX_XOR<1>",
+    "parameters": {
+      "t": 1
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 1,
+          "signed": false,
+          "offset": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 1,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 2,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 0,
+      "depth": 0
+    },
+    "hierarchy": {
+      "id": "block-a986a0eb5d8d39edcf9bc2d23469518a1f3f50ba7c4371a2be2b8db6359cc9ff",
+      "name": "PREFIX_XOR<1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 0,
+      "depth": 0,
+      "definitions": 1,
+      "instances": 0
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "prefix_xor-1.block.json",
+      "circuit": "prefix_xor-1.circuit.json",
+      "template": "prefix_xor-1.template.json",
+      "vectors": "prefix_xor-1.vectors.json",
+      "netlist": "prefix_xor-1.nand.txt"
+    }
+  },
+  {
+    "name": "PREFIX_XOR<2>",
+    "parameters": {
+      "t": 2
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 2,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 8,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 4,
+      "depth": 3
+    },
+    "hierarchy": {
+      "id": "block-d03bcccf18482cfc772ffdd90233d3f67d2d59f89033f2d7ddd8b2b95066baa0",
+      "name": "PREFIX_XOR<2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 4,
+      "depth": 3,
+      "definitions": 3,
+      "instances": 3
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "prefix_xor-2.block.json",
+      "circuit": "prefix_xor-2.circuit.json",
+      "template": "prefix_xor-2.template.json",
+      "vectors": "prefix_xor-2.vectors.json",
+      "netlist": "prefix_xor-2.nand.txt"
+    }
+  },
+  {
+    "name": "PREFIX_XOR<4>",
+    "parameters": {
+      "t": 4
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 64,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 16,
+      "depth": 6
+    },
+    "hierarchy": {
+      "id": "block-79687055645ade52fd77c771aec5294b52c969fd233f06449276a675731e6b14",
+      "name": "PREFIX_XOR<4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 16,
+      "depth": 6,
+      "definitions": 5,
+      "instances": 3
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    },
+    "files": {
+      "block": "prefix_xor-4.block.json",
+      "circuit": "prefix_xor-4.circuit.json",
+      "template": "prefix_xor-4.template.json",
+      "vectors": "prefix_xor-4.vectors.json",
+      "netlist": "prefix_xor-4.nand.txt"
+    }
+  }
+]

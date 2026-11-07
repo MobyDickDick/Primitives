@@ -189,10 +189,10 @@ return pack([c0, c1, c2])
     def test_server_upgrade_exposes_templates_and_direct_synthesis(self):
         with tempfile.TemporaryDirectory(dir=ROOT / ".jobs") as directory:
             # Older examples have already been installed, then removed by their owner.
-            previous = ("arithmetic", "recursive-checked", "recursive-mul", "number-of-ones",
+            previous = ("saturating", "parallel-add", "prefixes", "arithmetic", "recursive-checked", "recursive-mul", "number-of-ones",
                         "recursive-msb-div", "recursive-max-index", "recursive-equ", "recursive-gt",
                         "generative-logic", "routing", "structured-logic", "standard-arithmetic",
-                        "arithmetic-comments", "priority-encoder", "onehot")
+                        "arithmetic-comments", "priority-encoder", "onehot", "barrel-shifter", "rotations")
             (Path(directory) / "example-installations.json").write_text(
                 json.dumps({f"{key}-v1": True for key in previous}), encoding="utf-8")
             server = make_server(0, directory, background=False)

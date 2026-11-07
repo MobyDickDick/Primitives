@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "root": "block-d35c4b740ccf627c482d71bf99951f8653332be33376971a81037169f1ffc036",
+  "definitions": {
+    "block-d35c4b740ccf627c482d71bf99951f8653332be33376971a81037169f1ffc036": {
+      "name": "ROR<1,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "s",
+            "bits": 1,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "nodes": [],
+      "outputs": {
+        "c": [
+          {
+            "input": "a",
+            "bit": 0
+          }
+        ]
+      }
+    }
+  }
+}

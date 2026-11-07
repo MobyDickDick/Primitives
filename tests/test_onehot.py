@@ -211,10 +211,10 @@ return pack([(x[1] | x[3]) & valid, hi & valid]), valid, multiple
 
     def test_server_upgrade_catalog_synthesis_and_block_evaluation(self):
         with tempfile.TemporaryDirectory(dir=ROOT / ".jobs") as directory:
-            previous = ("arithmetic", "recursive-checked", "recursive-mul", "number-of-ones",
+            previous = ("saturating", "parallel-add", "prefixes", "arithmetic", "recursive-checked", "recursive-mul", "number-of-ones",
                         "recursive-msb-div", "recursive-max-index", "recursive-equ", "recursive-gt",
                         "generative-logic", "routing", "structured-logic", "standard-arithmetic",
-                        "arithmetic-comments", "zero-counts", "priority-encoder")
+                        "arithmetic-comments", "zero-counts", "priority-encoder", "barrel-shifter", "rotations")
             (Path(directory) / "example-installations.json").write_text(
                 json.dumps({f"{key}-v1": True for key in previous}), encoding="utf-8")
             server = make_server(0, directory, background=False)
