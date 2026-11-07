@@ -211,7 +211,7 @@ return pack([(x[1] | x[3]) & valid, hi & valid]), valid, multiple
 
     def test_server_upgrade_catalog_synthesis_and_block_evaluation(self):
         with tempfile.TemporaryDirectory(dir=ROOT / ".jobs") as directory:
-            previous = ("parallel-add", "prefixes", "arithmetic", "recursive-checked", "recursive-mul", "number-of-ones",
+            previous = ("saturating", "parallel-add", "prefixes", "arithmetic", "recursive-checked", "recursive-mul", "number-of-ones",
                         "recursive-msb-div", "recursive-max-index", "recursive-equ", "recursive-gt",
                         "generative-logic", "routing", "structured-logic", "standard-arithmetic",
                         "arithmetic-comments", "zero-counts", "priority-encoder", "barrel-shifter", "rotations")

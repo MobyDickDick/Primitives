@@ -84,10 +84,14 @@ getrennt umsetzbar, sofern die genannten Abhängigkeiten verfügbar sind.
   geprüft, einschliesslich aller internen Carry-Bits. Kostenvergleich, grössere
   Stichproben, Grenzen und einmalige Migration dokumentiert unter
   [Parallelpräfix-Addition](PARALLELPRAEFIX-ADDITION.md).
-  Nächste offene Template-Aufgabe: GEN-08.
-- [ ] **GEN-08 – Sättigungsarithmetik:** Unsigned SAT_ADD begrenzt auf
+- [x] **GEN-08 – Sättigungsarithmetik:** Unsigned SAT_ADD begrenzt auf
   `2**max(p,q)-1`, SAT_SUB auf 0; zusätzlich overflow bzw. underflow ausgeben.
   Prüfen: alle neun Breitenkombinationen einschliesslich exakter Grenze.
+  Umgesetzt: zwei editierbare Templates, 18 F-Boxen/NAND-Netze und alle
+  968 kleinen Eingabefälle unabhängig vollständig geprüft. Statusbits an
+  exakten Grenzen, grössere Referenzen, Port-/Gatter-/Budgetgrenzen und
+  einmalige Migration geprüft. Siehe [Sättigungsarithmetik](SAETTIGUNGSARITHMETIK.md).
+  Nächste offene Template-Aufgabe: GEN-09.
 - [ ] **GEN-09 – Vorzeichen, NEG und ABS:** Zweierkomplement-Negation und
   Absolutwert; beim kleinsten negativen Wert ein Overflowbit vorsehen und
   die Ergebnisdarstellung festlegen. Prüfen: t=1,2,4 vollständig.

@@ -75,6 +75,15 @@ die NAND-Tiefe gegenüber Ripple-Carry von 18 auf 12, bei mehr Gattern.
 Beim nächsten Serverstart erscheinen sie unter **Beispiele → Grundrechenarten →
 Parallelpräfix-Addition**. Siehe [Kostenvergleich und Grenzen](docs/PARALLELPRAEFIX-ADDITION.md).
 
+`SAT_ADD<p,q>(a,b)` begrenzt unsigned Summen auf `2**max(p,q)-1` und
+liefert `overflow`; `SAT_SUB<p,q>(a,b)` begrenzt Differenzen auf 0 und
+liefert `underflow`. Exakte Grenzergebnisse setzen kein Statusbit.
+GEN-08 ergänzt alle neun Kombinationen p,q=1,2,4 je Operation:
+18 F-Boxen/NAND-Netze und alle 968 Eingabefälle unabhängig vollständig geprüft.
+Beim nächsten Serverstart erscheinen die Beispiele unter **Beispiele →
+Grundrechenarten → Sättigungsarithmetik**.
+Siehe [Semantik, Quellen und Grenzen](docs/SAETTIGUNGSARITHMETIK.md).
+
 Die **Bibliothek** zeigt Templates und konkrete Funktionen in einem gemeinsamen
 Verzeichnisbaum. Ordner und Unterordner lassen sich anlegen, umbenennen,
 beschreiben und verschieben; Einträge können in jeden Ordner einsortiert werden.

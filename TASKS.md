@@ -44,7 +44,10 @@ vorausgesetzt; Signalverfolgung soll auch ohne Hierarchie helfen.
       und Carry, neun F-Boxen/NAND-Netzen und unabhängiger vollständiger Prüfung
       aller 484 Eingabepaare samt internen Überträgen; Vergleich mit Ripple-Carry
       und [Dokumentation](docs/PARALLELPRAEFIX-ADDITION.md).
-      Nächste offene Template-Aufgabe: GEN-08 (Sättigungsarithmetik).
+- [x] GEN-08: Unsigned SAT_ADD/SAT_SUB mit overflow/underflow,
+      18 F-Boxen/NAND-Netzen und unabhängiger vollständiger Prüfung aller
+      968 kleinen Eingabefälle; [Dokumentation](docs/SAETTIGUNGSARITHMETIK.md).
+      Nächste offene Template-Aufgabe: GEN-09 (Vorzeichen, NEG und ABS).
 
 Beschreibung und Erzeugung: [Standardarithmetik](docs/STANDARD-ARITHMETIK.md).
 

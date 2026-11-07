@@ -1,0 +1,1766 @@
+[
+  {
+    "name": "SAT_ADD<1,1>",
+    "kind": "add",
+    "parameters": {
+      "p": 1,
+      "q": 1
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 1,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 1,
+          "signed": false,
+          "offset": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 1,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "overflow",
+          "bits": 1,
+          "signed": false,
+          "offset": 1,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 8,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 7,
+      "depth": 5
+    },
+    "hierarchy": {
+      "id": "block-110ace80aca7a711f1e8edb8f29bb7c6447af3b0ed65eded096fb0f0d8ccf13c",
+      "name": "SAT_ADD<1,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "overflow",
+            "bits": 1,
+            "signed": false,
+            "offset": 1,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 8,
+      "depth": 5,
+      "definitions": 3,
+      "instances": 2
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    }
+  },
+  {
+    "name": "SAT_ADD<1,2>",
+    "kind": "add",
+    "parameters": {
+      "p": 1,
+      "q": 2
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 1,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 2,
+          "signed": false,
+          "offset": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 2,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "overflow",
+          "bits": 1,
+          "signed": false,
+          "offset": 2,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 24,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 14,
+      "depth": 7
+    },
+    "hierarchy": {
+      "id": "block-405c78068d5a70916da5f20ea29877276d0ae946bfc6f6101603ee46a7e8aab8",
+      "name": "SAT_ADD<1,2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 2,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "overflow",
+            "bits": 1,
+            "signed": false,
+            "offset": 2,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 15,
+      "depth": 7,
+      "definitions": 3,
+      "instances": 2
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    }
+  },
+  {
+    "name": "SAT_ADD<1,4>",
+    "kind": "add",
+    "parameters": {
+      "p": 1,
+      "q": 4
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 1,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 4,
+          "signed": false,
+          "offset": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "overflow",
+          "bits": 1,
+          "signed": false,
+          "offset": 4,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 160,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 28,
+      "depth": 11
+    },
+    "hierarchy": {
+      "id": "block-5f490e40eafe051a2c1d4a9c8af777a49d1de55efbe59a88efc70168c0737ffc",
+      "name": "SAT_ADD<1,4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 4,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "overflow",
+            "bits": 1,
+            "signed": false,
+            "offset": 4,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 29,
+      "depth": 11,
+      "definitions": 3,
+      "instances": 2
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    }
+  },
+  {
+    "name": "SAT_ADD<2,1>",
+    "kind": "add",
+    "parameters": {
+      "p": 2,
+      "q": 1
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 1,
+          "signed": false,
+          "offset": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 2,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "overflow",
+          "bits": 1,
+          "signed": false,
+          "offset": 2,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 24,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 14,
+      "depth": 7
+    },
+    "hierarchy": {
+      "id": "block-dc761ed42a84c880d416bedd4f4a7f2c2bd5520880dd9c9e2a3d060beb580335",
+      "name": "SAT_ADD<2,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "overflow",
+            "bits": 1,
+            "signed": false,
+            "offset": 2,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 15,
+      "depth": 7,
+      "definitions": 3,
+      "instances": 2
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    }
+  },
+  {
+    "name": "SAT_ADD<2,2>",
+    "kind": "add",
+    "parameters": {
+      "p": 2,
+      "q": 2
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 2,
+          "signed": false,
+          "offset": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 2,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "overflow",
+          "bits": 1,
+          "signed": false,
+          "offset": 2,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 48,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 19,
+      "depth": 8
+    },
+    "hierarchy": {
+      "id": "block-90f269f5906247f700224fe2c8b836f9ab2468932683c940f8afe5a637dc7fd9",
+      "name": "SAT_ADD<2,2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 2,
+            "signed": false,
+            "offset": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "overflow",
+            "bits": 1,
+            "signed": false,
+            "offset": 2,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 19,
+      "depth": 8,
+      "definitions": 3,
+      "instances": 2
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    }
+  },
+  {
+    "name": "SAT_ADD<2,4>",
+    "kind": "add",
+    "parameters": {
+      "p": 2,
+      "q": 4
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 4,
+          "signed": false,
+          "offset": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "overflow",
+          "bits": 1,
+          "signed": false,
+          "offset": 4,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 320,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 32,
+      "depth": 12
+    },
+    "hierarchy": {
+      "id": "block-705af24848bfc8d2b27e66946b63754ed80e27b04f220f8554b0dbd434fa1696",
+      "name": "SAT_ADD<2,4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 4,
+            "signed": false,
+            "offset": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "overflow",
+            "bits": 1,
+            "signed": false,
+            "offset": 4,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 33,
+      "depth": 12,
+      "definitions": 3,
+      "instances": 2
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    }
+  },
+  {
+    "name": "SAT_ADD<4,1>",
+    "kind": "add",
+    "parameters": {
+      "p": 4,
+      "q": 1
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 1,
+          "signed": false,
+          "offset": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "overflow",
+          "bits": 1,
+          "signed": false,
+          "offset": 4,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 160,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 28,
+      "depth": 11
+    },
+    "hierarchy": {
+      "id": "block-acf998d383e4e829327dddc130f34af669fda7fdce908a9ff989d9a87af2b0cc",
+      "name": "SAT_ADD<4,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "overflow",
+            "bits": 1,
+            "signed": false,
+            "offset": 4,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 29,
+      "depth": 11,
+      "definitions": 3,
+      "instances": 2
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    }
+  },
+  {
+    "name": "SAT_ADD<4,2>",
+    "kind": "add",
+    "parameters": {
+      "p": 4,
+      "q": 2
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 2,
+          "signed": false,
+          "offset": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "overflow",
+          "bits": 1,
+          "signed": false,
+          "offset": 4,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 320,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 32,
+      "depth": 12
+    },
+    "hierarchy": {
+      "id": "block-26601e0a1a5f72e8d52fc34684d8f48d067c16b099269758a6113fc8a9d27c59",
+      "name": "SAT_ADD<4,2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 2,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "overflow",
+            "bits": 1,
+            "signed": false,
+            "offset": 4,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 33,
+      "depth": 12,
+      "definitions": 3,
+      "instances": 2
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    }
+  },
+  {
+    "name": "SAT_ADD<4,4>",
+    "kind": "add",
+    "parameters": {
+      "p": 4,
+      "q": 4
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 4,
+          "signed": false,
+          "offset": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "overflow",
+          "bits": 1,
+          "signed": false,
+          "offset": 4,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 1280,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 41,
+      "depth": 12
+    },
+    "hierarchy": {
+      "id": "block-e7b51cebd2b665ea651fba0bc52c45d21b5f152c7f236e6404f25ee7d8f06731",
+      "name": "SAT_ADD<4,4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 4,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "overflow",
+            "bits": 1,
+            "signed": false,
+            "offset": 4,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 41,
+      "depth": 12,
+      "definitions": 3,
+      "instances": 2
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    }
+  },
+  {
+    "name": "SAT_SUB<1,1>",
+    "kind": "sub",
+    "parameters": {
+      "p": 1,
+      "q": 1
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 1,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 1,
+          "signed": false,
+          "offset": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 1,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "underflow",
+          "bits": 1,
+          "signed": false,
+          "offset": 1,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 8,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 9,
+      "depth": 5
+    },
+    "hierarchy": {
+      "id": "block-ddcc5a2534e0e31119673f9967f6438eb136ba4ca27dabcb0b4fbf3d91717a4e",
+      "name": "SAT_SUB<1,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "underflow",
+            "bits": 1,
+            "signed": false,
+            "offset": 1,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 10,
+      "depth": 6,
+      "definitions": 3,
+      "instances": 2
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    }
+  },
+  {
+    "name": "SAT_SUB<1,2>",
+    "kind": "sub",
+    "parameters": {
+      "p": 1,
+      "q": 2
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 1,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 2,
+          "signed": false,
+          "offset": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 2,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "underflow",
+          "bits": 1,
+          "signed": false,
+          "offset": 2,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 24,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 19,
+      "depth": 8
+    },
+    "hierarchy": {
+      "id": "block-8fa5bfd6b144da089b3962abb67ed7083177b42832919e2a4951f2082ea80ff7",
+      "name": "SAT_SUB<1,2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 2,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "underflow",
+            "bits": 1,
+            "signed": false,
+            "offset": 2,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 19,
+      "depth": 8,
+      "definitions": 3,
+      "instances": 2
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    }
+  },
+  {
+    "name": "SAT_SUB<1,4>",
+    "kind": "sub",
+    "parameters": {
+      "p": 1,
+      "q": 4
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 1,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 4,
+          "signed": false,
+          "offset": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "underflow",
+          "bits": 1,
+          "signed": false,
+          "offset": 4,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 160,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 37,
+      "depth": 12
+    },
+    "hierarchy": {
+      "id": "block-ab423cc5f919b14ff20e95574b061dd59af5864779118f84614b8bc78b6fa93a",
+      "name": "SAT_SUB<1,4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 4,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "underflow",
+            "bits": 1,
+            "signed": false,
+            "offset": 4,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 37,
+      "depth": 12,
+      "definitions": 3,
+      "instances": 2
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    }
+  },
+  {
+    "name": "SAT_SUB<2,1>",
+    "kind": "sub",
+    "parameters": {
+      "p": 2,
+      "q": 1
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 1,
+          "signed": false,
+          "offset": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 2,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "underflow",
+          "bits": 1,
+          "signed": false,
+          "offset": 2,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 24,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 18,
+      "depth": 8
+    },
+    "hierarchy": {
+      "id": "block-7c23034bc5dac354f9b654211976dd8c15939db8a9c338351c93f5663476c02e",
+      "name": "SAT_SUB<2,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "underflow",
+            "bits": 1,
+            "signed": false,
+            "offset": 2,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 19,
+      "depth": 8,
+      "definitions": 3,
+      "instances": 2
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    }
+  },
+  {
+    "name": "SAT_SUB<2,2>",
+    "kind": "sub",
+    "parameters": {
+      "p": 2,
+      "q": 2
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 2,
+          "signed": false,
+          "offset": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 2,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "underflow",
+          "bits": 1,
+          "signed": false,
+          "offset": 2,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 48,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 25,
+      "depth": 9
+    },
+    "hierarchy": {
+      "id": "block-2bd56bcffbe0453400622e5e128ee10888db1d5d4005bc6cf89cb5b7ff3b8a70",
+      "name": "SAT_SUB<2,2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 2,
+            "signed": false,
+            "offset": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "underflow",
+            "bits": 1,
+            "signed": false,
+            "offset": 2,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 25,
+      "depth": 9,
+      "definitions": 3,
+      "instances": 2
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    }
+  },
+  {
+    "name": "SAT_SUB<2,4>",
+    "kind": "sub",
+    "parameters": {
+      "p": 2,
+      "q": 4
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 4,
+          "signed": false,
+          "offset": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "underflow",
+          "bits": 1,
+          "signed": false,
+          "offset": 4,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 320,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 43,
+      "depth": 13
+    },
+    "hierarchy": {
+      "id": "block-284649b00258ce01c225479a20cf1d6776f8096d389b5fd7dbf7526f9854b9e4",
+      "name": "SAT_SUB<2,4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 4,
+            "signed": false,
+            "offset": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "underflow",
+            "bits": 1,
+            "signed": false,
+            "offset": 4,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 43,
+      "depth": 13,
+      "definitions": 3,
+      "instances": 2
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    }
+  },
+  {
+    "name": "SAT_SUB<4,1>",
+    "kind": "sub",
+    "parameters": {
+      "p": 4,
+      "q": 1
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 1,
+          "signed": false,
+          "offset": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "underflow",
+          "bits": 1,
+          "signed": false,
+          "offset": 4,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 160,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 36,
+      "depth": 12
+    },
+    "hierarchy": {
+      "id": "block-2ac85a96ed38cf94a8185069c1d923626599bf40e2e97b3b9c507f466fa6e27b",
+      "name": "SAT_SUB<4,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "underflow",
+            "bits": 1,
+            "signed": false,
+            "offset": 4,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 37,
+      "depth": 12,
+      "definitions": 3,
+      "instances": 2
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    }
+  },
+  {
+    "name": "SAT_SUB<4,2>",
+    "kind": "sub",
+    "parameters": {
+      "p": 4,
+      "q": 2
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 2,
+          "signed": false,
+          "offset": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "underflow",
+          "bits": 1,
+          "signed": false,
+          "offset": 4,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 320,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 42,
+      "depth": 13
+    },
+    "hierarchy": {
+      "id": "block-baf2b24510944df5b3422661ea1a5c38a574f6f986bfea7060d8f7c7cf8ac0f1",
+      "name": "SAT_SUB<4,2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 2,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "underflow",
+            "bits": 1,
+            "signed": false,
+            "offset": 4,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 43,
+      "depth": 13,
+      "definitions": 3,
+      "instances": 2
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    }
+  },
+  {
+    "name": "SAT_SUB<4,4>",
+    "kind": "sub",
+    "parameters": {
+      "p": 4,
+      "q": 4
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 4,
+          "signed": false,
+          "offset": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "underflow",
+          "bits": 1,
+          "signed": false,
+          "offset": 4,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 1280,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 55,
+      "depth": 13
+    },
+    "hierarchy": {
+      "id": "block-250b8d6435c3c7640b9cff725e2e7117aa5de01843ec35685950c4f9ed22e3a7",
+      "name": "SAT_SUB<4,4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 4,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "underflow",
+            "bits": 1,
+            "signed": false,
+            "offset": 4,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 55,
+      "depth": 13,
+      "definitions": 3,
+      "instances": 2
+    },
+    "synthesis": {
+      "method": "hierarchy-expansion-and-simplification",
+      "version": 1
+    }
+  }
+]

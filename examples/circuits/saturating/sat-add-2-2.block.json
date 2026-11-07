@@ -1,0 +1,292 @@
+{
+  "schema": 1,
+  "root": "block-90f269f5906247f700224fe2c8b836f9ab2468932683c940f8afe5a637dc7fd9",
+  "definitions": {
+    "block-c1089718a68b0295ed80978743615d5eaaf80fa5538acbb7370911fdbd0cc5cc": {
+      "name": "SatAddRaw<2,2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 2,
+            "signed": false,
+            "offset": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "overflow",
+            "bits": 1,
+            "signed": false,
+            "offset": 2,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 4,
+        "gates": [
+          [
+            0,
+            2
+          ],
+          [
+            0,
+            4
+          ],
+          [
+            2,
+            4
+          ],
+          [
+            5,
+            6
+          ],
+          [
+            4,
+            4
+          ],
+          [
+            1,
+            3
+          ],
+          [
+            1,
+            9
+          ],
+          [
+            3,
+            9
+          ],
+          [
+            10,
+            11
+          ],
+          [
+            8,
+            12
+          ],
+          [
+            12,
+            13
+          ],
+          [
+            8,
+            13
+          ],
+          [
+            14,
+            15
+          ],
+          [
+            9,
+            13
+          ]
+        ],
+        "outputs": [
+          7,
+          16,
+          17
+        ]
+      }
+    },
+    "block-17b3331b411a8c06aed1ef66ca1e710ae67c398b0ee08046a4912fce644fcbe7": {
+      "name": "SatAddClamp<2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "value",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "flag",
+            "bits": 1,
+            "signed": false,
+            "offset": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "overflow",
+            "bits": 1,
+            "signed": false,
+            "offset": 2,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 3,
+        "gates": [
+          [
+            0,
+            0
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            3,
+            4
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            4,
+            6
+          ]
+        ],
+        "outputs": [
+          5,
+          7,
+          2
+        ]
+      }
+    },
+    "block-90f269f5906247f700224fe2c8b836f9ab2468932683c940f8afe5a637dc7fd9": {
+      "name": "SAT_ADD<2,2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 2,
+            "signed": false,
+            "offset": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "overflow",
+            "bits": 1,
+            "signed": false,
+            "offset": 2,
+            "overflow": "error"
+          }
+        ]
+      },
+      "nodes": [
+        {
+          "id": "arithmetic",
+          "type": "instance",
+          "definition": "block-c1089718a68b0295ed80978743615d5eaaf80fa5538acbb7370911fdbd0cc5cc",
+          "inputs": {
+            "a": [
+              {
+                "input": "a",
+                "bit": 0
+              },
+              {
+                "input": "a",
+                "bit": 1
+              }
+            ],
+            "b": [
+              {
+                "input": "b",
+                "bit": 0
+              },
+              {
+                "input": "b",
+                "bit": 1
+              }
+            ]
+          }
+        },
+        {
+          "id": "saturate",
+          "type": "instance",
+          "definition": "block-17b3331b411a8c06aed1ef66ca1e710ae67c398b0ee08046a4912fce644fcbe7",
+          "inputs": {
+            "value": [
+              {
+                "node": "arithmetic",
+                "port": "c",
+                "bit": 0
+              },
+              {
+                "node": "arithmetic",
+                "port": "c",
+                "bit": 1
+              }
+            ],
+            "flag": [
+              {
+                "node": "arithmetic",
+                "port": "overflow",
+                "bit": 0
+              }
+            ]
+          }
+        }
+      ],
+      "outputs": {
+        "c": [
+          {
+            "node": "saturate",
+            "port": "c",
+            "bit": 0
+          },
+          {
+            "node": "saturate",
+            "port": "c",
+            "bit": 1
+          }
+        ],
+        "overflow": [
+          {
+            "node": "saturate",
+            "port": "overflow",
+            "bit": 0
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,34 @@
+# Unsigned Saettigungssubtraktion, LSB-first. Schmale Operanden werden nullerweitert.
+def SatSubRaw<p,q>(a, b):
+    assert p >= 1 and q >= 1 and p <= 127 and q <= 127 and p + q <= 128
+    w = p if p >= q else q
+    x = bits(a, w)
+    y = bits(b, w)
+    result = [0] * (w + 1)
+    borrow = 0
+    for i in range(w):
+        parity = x[i] ^ y[i]
+        result[i] = parity ^ borrow
+        borrow = ((1 ^ x[i]) & y[i]) | ((1 ^ parity) & borrow)
+    result[w] = borrow
+    return pack(result)
+
+def SatSubClamp<w>(value, flag):
+    assert w >= 1 and w <= 127
+    underflow = bits(flag, 1)[0]
+    result = bits(value, w)
+    # Bei Unterlauf werden alle Ergebnisbits 0; das Leihbit bleibt sichtbar.
+    for i in range(w):
+        result[i] = result[i] & (1 ^ underflow)
+    return pack(result + [underflow])
+
+def SAT_SUB<p,q>(a, b):
+    assert p >= 1 and q >= 1 and p <= 127 and q <= 127 and p + q <= 128
+    w = p if p >= q else q
+    raw = bits(SatSubRaw<p,q>(a, b), w + 1)
+    return SatSubClamp<w>(pack(raw[:w]), raw[w])
+
+# Ergebnisports: begrenzte Differenz und underflow=1 genau bei a<b.
+w = p if p >= q else q
+result = bits(SAT_SUB<p,q>(a, b), w + 1)
+return pack(result[:w]), result[w]

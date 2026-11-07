@@ -1,0 +1,232 @@
+{
+  "schema": 1,
+  "name": "SAT_ADD<2,2>",
+  "inputs": 4,
+  "outputs": 3,
+  "rows": [
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      1,
+      0,
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      1,
+      1,
+      1,
+      1,
+      0
+    ],
+    [
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      1,
+      0,
+      1,
+      1,
+      1,
+      1
+    ],
+    [
+      0,
+      1,
+      1,
+      0,
+      1,
+      1,
+      0
+    ],
+    [
+      0,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    [
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0
+    ],
+    [
+      1,
+      0,
+      0,
+      1,
+      1,
+      1,
+      0
+    ],
+    [
+      1,
+      0,
+      1,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      1,
+      0,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    [
+      1,
+      1,
+      0,
+      0,
+      1,
+      1,
+      0
+    ],
+    [
+      1,
+      1,
+      0,
+      1,
+      1,
+      1,
+      1
+    ],
+    [
+      1,
+      1,
+      1,
+      0,
+      1,
+      1,
+      1
+    ],
+    [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ]
+  ],
+  "metadata": {
+    "program": {
+      "version": 2,
+      "source": "# Unsigned Saettigungsaddition, LSB-first. Schmale Operanden werden nullerweitert.\ndef SatAddRaw<p,q>(a, b):\n    assert p >= 1 and q >= 1 and p <= 127 and q <= 127 and p + q <= 128\n    w = p if p >= q else q\n    x = bits(a, w)\n    y = bits(b, w)\n    result = [0] * (w + 1)\n    carry = 0\n    for i in range(w):\n        parity = x[i] ^ y[i]\n        result[i] = parity ^ carry\n        carry = (x[i] & y[i]) | (parity & carry)\n    result[w] = carry\n    return pack(result)\n\ndef SatAddClamp<w>(value, flag):\n    assert w >= 1 and w <= 127\n    overflow = bits(flag, 1)[0]\n    result = bits(value, w)\n    # Bei Ueberlauf werden alle Ergebnisbits 1, sonst bleibt die Summe erhalten.\n    for i in range(w):\n        result[i] = result[i] | overflow\n    return pack(result + [overflow])\n\ndef SAT_ADD<p,q>(a, b):\n    assert p >= 1 and q >= 1 and p <= 127 and q <= 127 and p + q <= 128\n    w = p if p >= q else q\n    raw = bits(SatAddRaw<p,q>(a, b), w + 1)\n    return SatAddClamp<w>(pack(raw[:w]), raw[w])\n\n# Ergebnisports: begrenzte Summe und overflow=1 genau bei a+b >= 2**w.\nw = p if p >= q else q\nresult = bits(SAT_ADD<p,q>(a, b), w + 1)\nreturn pack(result[:w]), result[w]\n",
+      "limits": {
+        "steps": 100000,
+        "iterations": 10000,
+        "total_steps": 5000000
+      },
+      "conditions": [
+        "p >= 1",
+        "q >= 1",
+        "p <= 127",
+        "q <= 127",
+        "p + q <= 128"
+      ],
+      "parameters": {
+        "p": 2,
+        "q": 2
+      },
+      "interface": {
+        "inputs": [
+          {
+            "name": "a",
+            "bits": "p"
+          },
+          {
+            "name": "b",
+            "bits": "q"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": "max(p,q)"
+          },
+          {
+            "name": "overflow",
+            "bits": 1
+          }
+        ]
+      }
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 2,
+          "signed": false,
+          "offset": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 2,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "overflow",
+          "bits": 1,
+          "signed": false,
+          "offset": 2,
+          "overflow": "error"
+        }
+      ]
+    },
+    "description": "Unsigned Sättigungsarithmetik: c=min(a+b,2**max(p,q)-1), overflow=1 genau bei a+b>=2**max(p,q). a[p], b[q], c[max(p,q)], overflow[1]; Nullerweiterung, LSB-first. 1<=p,q<=127, p+q<=128; NAND-Netze/F-Boxen maximal 512 Gatter."
+  },
+  "exhaustive": true
+}
