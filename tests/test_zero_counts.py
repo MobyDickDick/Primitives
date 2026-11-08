@@ -189,7 +189,7 @@ return pack([c0, c1, c2])
     def test_server_upgrade_exposes_templates_and_direct_synthesis(self):
         with tempfile.TemporaryDirectory(dir=ROOT / ".jobs") as directory:
             # Older examples have already been installed, then removed by their owner.
-            previous = ("saturating", "parallel-add", "prefixes", "arithmetic", "recursive-checked", "recursive-mul", "number-of-ones",
+            previous = ("signed", "saturating", "parallel-add", "prefixes", "arithmetic", "recursive-checked", "recursive-mul", "number-of-ones",
                         "recursive-msb-div", "recursive-max-index", "recursive-equ", "recursive-gt",
                         "generative-logic", "routing", "structured-logic", "standard-arithmetic",
                         "arithmetic-comments", "priority-encoder", "onehot", "barrel-shifter", "rotations")

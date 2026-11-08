@@ -1,0 +1,30 @@
+# Zweierkomplement, LSB-first. Bedingtes Invertieren plus Carry-in flip.
+def FlipAddOne<t>(a, flip):
+    assert t >= 1 and t <= 127
+    x = bits(a, t)
+    carry = bits(flip, 1)[0]
+    invert = carry
+    result = [0] * t
+    for i in range(t):
+        value = x[i] ^ invert
+        result[i] = value ^ carry
+        carry = value & carry
+    return pack(result)
+
+def MinNegative<t>(a):
+    assert t >= 1 and t <= 127
+    x = bits(a, t)
+    nonzero = 0
+    for i in range(t - 1):
+        nonzero = nonzero | x[i]
+    return x[t - 1] & (1 ^ nonzero)
+
+def NEG<t>(a):
+    assert t >= 1 and t <= 127
+    result = bits(FlipAddOne<t>(a, 1), t)
+    # Der kleinste negative Wert bleibt modular erhalten; overflow ist 1.
+    return pack(result + [MinNegative<t>(a)])
+
+# Ergebnisports: t-Bit-Zweierkomplement-Ergebnis und overflow.
+result = bits(NEG<t>(a), t + 1)
+return pack(result[:t]), result[t]

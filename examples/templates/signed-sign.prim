@@ -1,0 +1,7 @@
+# Zweierkomplement, LSB-first: 1 fuer negative Werte, sonst 0 (auch bei null).
+def SIGN<t>(a):
+    assert t >= 1 and t <= 128
+    return bits(a, t)[t - 1]
+
+# Ergebnisports
+return SIGN<t>(a)

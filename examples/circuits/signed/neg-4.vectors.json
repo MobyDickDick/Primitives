@@ -1,0 +1,250 @@
+{
+  "schema": 1,
+  "name": "NEG<4>",
+  "inputs": 4,
+  "outputs": 5,
+  "rows": [
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      1
+    ],
+    [
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      1,
+      1,
+      0,
+      0,
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      0
+    ],
+    [
+      0,
+      1,
+      0,
+      1,
+      0,
+      1,
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      1,
+      0,
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      1,
+      1,
+      1,
+      0,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1,
+      0
+    ],
+    [
+      1,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0
+    ],
+    [
+      1,
+      0,
+      1,
+      0,
+      1,
+      1,
+      0,
+      1,
+      0
+    ],
+    [
+      1,
+      0,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      1,
+      0,
+      0,
+      1,
+      0,
+      1,
+      1,
+      0
+    ],
+    [
+      1,
+      1,
+      0,
+      1,
+      1,
+      0,
+      1,
+      0,
+      0
+    ],
+    [
+      1,
+      1,
+      1,
+      0,
+      1,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      1,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0
+    ]
+  ],
+  "metadata": {
+    "program": {
+      "version": 2,
+      "source": "# Zweierkomplement, LSB-first. Bedingtes Invertieren plus Carry-in flip.\ndef FlipAddOne<t>(a, flip):\n    assert t >= 1 and t <= 127\n    x = bits(a, t)\n    carry = bits(flip, 1)[0]\n    invert = carry\n    result = [0] * t\n    for i in range(t):\n        value = x[i] ^ invert\n        result[i] = value ^ carry\n        carry = value & carry\n    return pack(result)\n\ndef MinNegative<t>(a):\n    assert t >= 1 and t <= 127\n    x = bits(a, t)\n    nonzero = 0\n    for i in range(t - 1):\n        nonzero = nonzero | x[i]\n    return x[t - 1] & (1 ^ nonzero)\n\ndef NEG<t>(a):\n    assert t >= 1 and t <= 127\n    result = bits(FlipAddOne<t>(a, 1), t)\n    # Der kleinste negative Wert bleibt modular erhalten; overflow ist 1.\n    return pack(result + [MinNegative<t>(a)])\n\n# Ergebnisports: t-Bit-Zweierkomplement-Ergebnis und overflow.\nresult = bits(NEG<t>(a), t + 1)\nreturn pack(result[:t]), result[t]\n",
+      "limits": {
+        "steps": 100000,
+        "iterations": 10000,
+        "total_steps": 5000000
+      },
+      "conditions": [
+        "t >= 1",
+        "t <= 127"
+      ],
+      "parameters": {
+        "t": 4
+      },
+      "interface": {
+        "inputs": [
+          {
+            "name": "a",
+            "bits": "t"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": "t"
+          },
+          {
+            "name": "overflow",
+            "bits": 1
+          }
+        ]
+      }
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        },
+        {
+          "name": "overflow",
+          "bits": 1,
+          "signed": false,
+          "offset": 4,
+          "overflow": "error"
+        }
+      ]
+    },
+    "description": "Zweierkomplement, LSB-first. c=-signed(a) modulo 2**t; overflow=1 genau beim kleinsten negativen Wert. 1<=t<=127. NEG/ABS behalten beim Overflow das Eingangsbitmuster; c ist signed. NAND-Netze/F-Boxen maximal 512 Gatter."
+  },
+  "exhaustive": true
+}

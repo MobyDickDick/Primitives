@@ -91,10 +91,16 @@ getrennt umsetzbar, sofern die genannten Abhängigkeiten verfügbar sind.
   968 kleinen Eingabefälle unabhängig vollständig geprüft. Statusbits an
   exakten Grenzen, grössere Referenzen, Port-/Gatter-/Budgetgrenzen und
   einmalige Migration geprüft. Siehe [Sättigungsarithmetik](SAETTIGUNGSARITHMETIK.md).
-  Nächste offene Template-Aufgabe: GEN-09.
-- [ ] **GEN-09 – Vorzeichen, NEG und ABS:** Zweierkomplement-Negation und
+- [x] **GEN-09 – Vorzeichen, NEG und ABS:** Zweierkomplement-Negation und
   Absolutwert; beim kleinsten negativen Wert ein Overflowbit vorsehen und
   die Ergebnisdarstellung festlegen. Prüfen: t=1,2,4 vollständig.
+  Umgesetzt: `SIGN<t>` liefert das Vorzeichenbit, `NEG<t>` und `ABS<t>`
+  ein modulares t-Bit-Zweierkomplement-Ergebnis plus overflow; beim kleinsten
+  negativen Wert bleibt das Eingangsbitmuster erhalten. Drei editierbare
+  Templates, neun F-Boxen/NAND-Netze und alle 66 kleinen Eingabefälle unabhängig
+  vollständig geprüft. Grössere Referenzen, Port-/Gattergrenzen und einmalige
+  Migration geprüft. Siehe [Vorzeichen, NEG und ABS](VORZEICHEN-NEG-ABS.md).
+  Nächste offene Template-Aufgabe: GEN-10.
 - [ ] **GEN-10 – Signed Vergleiche und Grundrechenarten:** Vorzeichenbehandlung
   als explizite Bitlogik; Division gegen null und der Sonderfall
   kleinster negativer Wert / -1. Vor Implementierung Ausgangsbreiten und

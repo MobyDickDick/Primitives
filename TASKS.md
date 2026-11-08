@@ -47,7 +47,11 @@ vorausgesetzt; Signalverfolgung soll auch ohne Hierarchie helfen.
 - [x] GEN-08: Unsigned SAT_ADD/SAT_SUB mit overflow/underflow,
       18 F-Boxen/NAND-Netzen und unabhängiger vollständiger Prüfung aller
       968 kleinen Eingabefälle; [Dokumentation](docs/SAETTIGUNGSARITHMETIK.md).
-      Nächste offene Template-Aufgabe: GEN-09 (Vorzeichen, NEG und ABS).
+- [x] GEN-09: Zweierkomplement-SIGN/NEG/ABS mit modularer Ergebnisdarstellung
+      und Overflow beim kleinsten negativen Wert, neun F-Boxen/NAND-Netzen
+      und unabhängiger vollständiger Prüfung aller 66 kleinen Eingabefälle;
+      [Dokumentation](docs/VORZEICHEN-NEG-ABS.md).
+      Nächste offene Template-Aufgabe: GEN-10 (Signed Vergleiche und Grundrechenarten).
 
 Beschreibung und Erzeugung: [Standardarithmetik](docs/STANDARD-ARITHMETIK.md).
 

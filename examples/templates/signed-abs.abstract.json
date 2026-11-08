@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "kind": "template",
+  "name": "ABS<t>",
+  "description": "Zweierkomplement, LSB-first. c=abs(signed(a)) modulo 2**t; overflow=1 genau beim kleinsten negativen Wert. 1<=t<=127. NEG/ABS behalten beim Overflow das Eingangsbitmuster; c ist signed. NAND-Netze/F-Boxen maximal 512 Gatter.",
+  "parameters": [
+    "t"
+  ],
+  "interface": {
+    "inputs": [
+      {
+        "name": "a",
+        "bits": "t"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "c",
+        "bits": "t"
+      },
+      {
+        "name": "overflow",
+        "bits": 1
+      }
+    ]
+  },
+  "source": "# Zweierkomplement, LSB-first. Negative Werte bedingt invertieren und 1 addieren.\ndef FlipAddOne<t>(a, flip):\n    assert t >= 1 and t <= 127\n    x = bits(a, t)\n    carry = bits(flip, 1)[0]\n    invert = carry\n    result = [0] * t\n    for i in range(t):\n        value = x[i] ^ invert\n        result[i] = value ^ carry\n        carry = value & carry\n    return pack(result)\n\ndef MinNegative<t>(a):\n    assert t >= 1 and t <= 127\n    x = bits(a, t)\n    nonzero = 0\n    for i in range(t - 1):\n        nonzero = nonzero | x[i]\n    return x[t - 1] & (1 ^ nonzero)\n\ndef ABS<t>(a):\n    assert t >= 1 and t <= 127\n    negative = bits(a, t)[t - 1]\n    result = bits(FlipAddOne<t>(a, negative), t)\n    # Signed Ergebnis: abs(minimum) ist nicht darstellbar, Bitmuster bleibt erhalten.\n    return pack(result + [MinNegative<t>(a)])\n\n# Ergebnisports: t-Bit-Zweierkomplement-Ergebnis und overflow.\nresult = bits(ABS<t>(a), t + 1)\nreturn pack(result[:t]), result[t]\n",
+  "limits": {
+    "steps": 100000,
+    "iterations": 10000,
+    "total_steps": 5000000
+  },
+  "conditions": [
+    "t >= 1",
+    "t <= 127"
+  ]
+}

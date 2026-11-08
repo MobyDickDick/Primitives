@@ -1,0 +1,30 @@
+{
+  "version": 2,
+  "source": "# Zweierkomplement, LSB-first: 1 fuer negative Werte, sonst 0 (auch bei null).\ndef SIGN<t>(a):\n    assert t >= 1 and t <= 128\n    return bits(a, t)[t - 1]\n\n# Ergebnisports\nreturn SIGN<t>(a)\n",
+  "limits": {
+    "steps": 100000,
+    "iterations": 10000,
+    "total_steps": 5000000
+  },
+  "conditions": [
+    "t >= 1",
+    "t <= 128"
+  ],
+  "parameters": {
+    "t": 4
+  },
+  "interface": {
+    "inputs": [
+      {
+        "name": "a",
+        "bits": "t"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "negative",
+        "bits": 1
+      }
+    ]
+  }
+}

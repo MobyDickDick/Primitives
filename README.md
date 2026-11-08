@@ -84,6 +84,15 @@ Beim nächsten Serverstart erscheinen die Beispiele unter **Beispiele →
 Grundrechenarten → Sättigungsarithmetik**.
 Siehe [Semantik, Quellen und Grenzen](docs/SAETTIGUNGSARITHMETIK.md).
 
+`SIGN<t>(a)` liefert das Vorzeichenbit einer Zweierkomplementzahl.
+`NEG<t>(a)` und `ABS<t>(a)` liefern ein t-Bit-Zweierkomplement-Ergebnis plus
+`overflow`. Beim kleinsten negativen Wert bleibt das Bitmuster erhalten und
+overflow=1; für alle anderen Werte ist das Ergebnis exakt.
+GEN-09 ergänzt neun F-Boxen/NAND-Netze für t=1,2,4 und alle 66 Eingabefälle
+unabhängig vollständig geprüft. Beim nächsten Serverstart erscheinen sie unter
+**Beispiele → Grundrechenarten → Vorzeichen, NEG & ABS**.
+Siehe [Ergebnisdarstellung, Quellen und Grenzen](docs/VORZEICHEN-NEG-ABS.md).
+
 Die **Bibliothek** zeigt Templates und konkrete Funktionen in einem gemeinsamen
 Verzeichnisbaum. Ordner und Unterordner lassen sich anlegen, umbenennen,
 beschreiben und verschieben; Einträge können in jeden Ordner einsortiert werden.

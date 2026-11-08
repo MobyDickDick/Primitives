@@ -20,6 +20,43 @@ ROTATION_EXAMPLES = ("rol", "ror")
 PREFIX_EXAMPLES = ("prefix_and", "prefix_xor")
 
 
+def install_signed_examples(library):
+    """Install GEN-09 once, retaining user organization and better solutions."""
+    marker = library.root / "example-installations.json"
+    with library._lock:
+        installed = json.loads(marker.read_text(encoding="utf-8")) if marker.exists() else {}
+        if installed.get("signed-v1"):
+            return
+        organization = library._organization()
+        # Existing entries may still use an implicit default folder.
+        organization["entries"].update(library.tree()["entries"])
+        folders = [
+            {"id": "examples", "parent": None, "name": "Beispiele", "description": "Editierbare Beispiele."},
+            {"id": "arithmetic", "parent": "examples", "name": "Grundrechenarten", "description": "Generative Bit-Templates."},
+            {"id": "signed", "parent": "arithmetic", "name": "Vorzeichen, NEG & ABS",
+             "description": "Zweierkomplement: Vorzeichenbit, Negation und Absolutwert mit Overflow; t=1,2,4 vollständig geprüft."},
+        ]
+        existing = {f["id"] for f in organization["folders"]}
+        organization["folders"].extend(f for f in folders if f["id"] not in existing)
+        library._write_organization(organization)
+        source = Path(__file__).resolve().parents[1] / "examples"
+        for kind in ("sign", "neg", "abs"):
+            template = Template(json.loads((source / f"templates/signed-{kind}.abstract.json").read_text(encoding="utf-8")))
+            key = library.save_template(template)
+            organization["entries"].setdefault(f"template:{key}", "signed")
+            for width in (1, 2, 4):
+                prefix = source / f"circuits/signed/{kind}-{width}"
+                library.save_block(BlockBundle(json.loads(prefix.with_suffix(".block.json").read_text(encoding="utf-8"))))
+                dataset = Dataset.from_dict(json.loads(prefix.with_suffix(".vectors.json").read_text(encoding="utf-8")))
+                circuit = json.loads(prefix.with_suffix(".circuit.json").read_text(encoding="utf-8"))
+                library.save_program({"circuit": circuit,
+                                      "synthesis": {"method": "hierarchy-expansion-and-simplification", "version": 1}}, dataset)
+                organization["entries"].setdefault(f"function:{function_id(dataset)}", "signed")
+        library._write_organization(organization)
+        installed["signed-v1"] = True
+        write_json(marker, installed)
+
+
 def install_saturating_examples(library):
     """Install GEN-08 once, retaining user organization and better solutions."""
     marker = library.root / "example-installations.json"
@@ -453,6 +490,8 @@ def install_examples(library):
         source = Path(__file__).resolve().parents[1] / "examples" / "templates"
         recursive_checked = {"recursive-split-sub.abstract.json", "recursive-split-add-checked.abstract.json"}
         for path in sorted(source.glob("*.abstract.json")):
+            if path.name in {"signed-sign.abstract.json", "signed-neg.abstract.json", "signed-abs.abstract.json"}:
+                continue  # GEN-09 has its own migration for existing libraries.
             if path.name in {"sat-add.abstract.json", "sat-sub.abstract.json"}:
                 continue  # GEN-08 has its own migration for existing libraries.
             if path.name == "parallel-prefix-add.abstract.json":

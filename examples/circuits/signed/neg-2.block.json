@@ -1,0 +1,198 @@
+{
+  "schema": 1,
+  "root": "block-8742aea5f06f78acdefb3a916d2c094b88ee95b87ba78cd627dec40e1b43ec83",
+  "definitions": {
+    "block-b8bbfa9f6adcfc5119cd4e1e2cec39e9da67908bd3de5eaa8f98ffba2fdb5941": {
+      "name": "NEG_value<2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 2,
+        "gates": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            3,
+            4
+          ],
+          [
+            2,
+            4
+          ],
+          [
+            5,
+            6
+          ]
+        ],
+        "outputs": [
+          0,
+          7
+        ]
+      }
+    },
+    "block-f4161b8f3885531ed4b08b6e2bac65a210fd307e0dc74eabded45e54d1b6b64d": {
+      "name": "MinNegative<2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "overflow",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 2,
+        "gates": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            3,
+            3
+          ]
+        ],
+        "outputs": [
+          4
+        ]
+      }
+    },
+    "block-8742aea5f06f78acdefb3a916d2c094b88ee95b87ba78cd627dec40e1b43ec83": {
+      "name": "NEG<2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "overflow",
+            "bits": 1,
+            "signed": false,
+            "offset": 2,
+            "overflow": "error"
+          }
+        ]
+      },
+      "nodes": [
+        {
+          "id": "arithmetic",
+          "type": "instance",
+          "definition": "block-b8bbfa9f6adcfc5119cd4e1e2cec39e9da67908bd3de5eaa8f98ffba2fdb5941",
+          "inputs": {
+            "a": [
+              {
+                "input": "a",
+                "bit": 0
+              },
+              {
+                "input": "a",
+                "bit": 1
+              }
+            ]
+          }
+        },
+        {
+          "id": "overflow",
+          "type": "instance",
+          "definition": "block-f4161b8f3885531ed4b08b6e2bac65a210fd307e0dc74eabded45e54d1b6b64d",
+          "inputs": {
+            "a": [
+              {
+                "input": "a",
+                "bit": 0
+              },
+              {
+                "input": "a",
+                "bit": 1
+              }
+            ]
+          }
+        }
+      ],
+      "outputs": {
+        "c": [
+          {
+            "node": "arithmetic",
+            "port": "c",
+            "bit": 0
+          },
+          {
+            "node": "arithmetic",
+            "port": "c",
+            "bit": 1
+          }
+        ],
+        "overflow": [
+          {
+            "node": "overflow",
+            "port": "overflow",
+            "bit": 0
+          }
+        ]
+      }
+    }
+  }
+}

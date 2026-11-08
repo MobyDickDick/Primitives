@@ -1,5 +1,45 @@
 # Verifikation des ersten Prototyps
 
+## GEN-09: Vorzeichen, NEG und ABS
+
+Geprüft am 8. November 2026:
+
+- `python -m tools.export_signed`: neun Instanzen für SIGN, NEG und ABS
+  mit t=1,2,4; **66 Eingabefälle vollständig unabhängig geprüft**.
+  Quellprogramm, F-Box, Expansion, vereinfachtes NAND-Netz und direkte
+  Synthese stimmen überein. Alle 49 erzeugten Dateien sind bytegenau
+  reproduzierbar, einschliesslich der drei abstrakten Templates.
+- Alle **sieben neuen Python-Tests** bestehen einschliesslich HTTP-Integration.
+  Sie prüfen modulare Zweierkomplement-Ergebnisse, Overflow ausschliesslich
+  beim kleinsten negativen Wert, den signed Ein-Bit-Bereich {-1,0}, doppelte
+  Negation, ABS-Invarianten und beide Steuerwerte der bedingten Negation.
+- Reproduzierbare Stichproben und Grenzfälle für 3,5,8,16,32,64,127 Bit,
+  bei SIGN zusätzlich 128 Bit, sind geprüft. Port- und direkte
+  Funktionsbedingungen sowie die letzten zulässigen NAND-Breiten und ihre
+  jeweiligen Nachfolger sind geprüft. Diese grösseren Eingaberäume bleiben
+  ausdrücklich Stichproben. Semantik, Kosten und Grenzen stehen unter
+  [Vorzeichen, NEG und ABS](VORZEICHEN-NEG-ABS.md).
+- Die einmalige Migration erhält eigene Ordner, Namen, Beschreibungen,
+  explizite und implizite Zuordnungen sowie gleiche oder bessere Lösungen,
+  darunter eine vorhandene 7-NAND-Lösung für NEG<2>. Später gelöschte
+  Funktionen, Templates und F-Boxen bleiben gelöscht. HTTP-Katalog,
+  Synthese, alle 4-Bit-Eingaben und Navigation in arithmetic/overflow
+  sind erfolgreich geprüft. Die lokalen HTTP-Verbindungen benötigen
+  Zugriff ausserhalb der Socket-Sperre der Sandbox.
+- `node --test tests/test_*.js`: **45 Tests erfolgreich**.
+- Der vollständige Erstaufbau mit **48 Templates und 209 Datensätzen**
+  besteht. Der ursprüngliche Installer nimmt GEN-09 von seiner alten
+  n=4-Konkretisierung aus und überlässt die neuen Templates ihrer eigenen
+  Migration.
+- `PYTHONUTF8=1 python -m unittest discover -s tests -v` führte **327 Tests**
+  aus: 316 bestanden im Gesamtlauf; elf Migrationstests trafen dort auf die
+  noch geladene alte Installerfassung. Nach der Korrektur bestanden alle elf
+  bei gezielten Wiederholungen (zwei Erstaufbau-/Shiftertests und neun weitere
+  Migrationstests). Damit sind alle 327 Tests erfolgreich abgedeckt,
+  einschliesslich lokaler HTTP-Tests und tatsächlicher TinyLanguage-Läufe.
+  `git diff --check` besteht; alle 77 lokalen Verweise aus README,
+  Aufgabenlisten und neuer GEN-09-Dokumentation sind auflösbar.
+
 ## GEN-06: Präfix-AND und Präfix-XOR
 
 Geprüft am 4. November 2026:

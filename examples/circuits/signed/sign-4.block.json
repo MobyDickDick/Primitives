@@ -1,0 +1,38 @@
+{
+  "schema": 1,
+  "root": "block-659b04f59cf7c335cb38dd56ed265c19ae9b93bbad92e8e30118bec2a42a33ca",
+  "definitions": {
+    "block-659b04f59cf7c335cb38dd56ed265c19ae9b93bbad92e8e30118bec2a42a33ca": {
+      "name": "SIGN<4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "negative",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 4,
+        "gates": [],
+        "outputs": [
+          3
+        ]
+      }
+    }
+  }
+}
