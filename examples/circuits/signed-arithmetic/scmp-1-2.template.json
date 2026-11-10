@@ -1,0 +1,44 @@
+{
+  "version": 2,
+  "source": "# Zweierkomplement als Bitmuster; alle Arrays sind LSB-first.\ndef Extend<n,w>(a):\n    assert n >= 1 and n <= w and w <= 128\n    x = bits(a, n)\n    return pack(x + [x[n - 1]] * (w - n))\n\ndef SCMP<p,q>(a,b):\n    assert p >= 1 and q >= 1 and p + q <= 128\n    w = (p if p >= q else q)\n    x = bits(Extend<p,w>(a), w)\n    y = bits(Extend<q,w>(b), w)\n    # Das invertierte Vorzeichenbit bildet signed auf unsigned Ordnung ab.\n    x[w - 1] = 1 ^ x[w - 1]\n    y[w - 1] = 1 ^ y[w - 1]\n    equal = 1\n    less = 0\n    for i in range(w - 1, -1, -1):\n        less = less | (equal & (1 ^ x[i]) & y[i])\n        equal = equal & (1 ^ (x[i] ^ y[i]))\n    greater = (1 ^ less) & (1 ^ equal)\n    return pack([less,equal,greater])\n\n# Ergebnisports: genau eine der drei Relationen ist gesetzt.\nresult = bits(SCMP<p,q>(a,b), 3)\nreturn result[0], result[1], result[2]\n\n",
+  "limits": {
+    "steps": 100000,
+    "iterations": 10000,
+    "total_steps": 5000000
+  },
+  "conditions": [
+    "p >= 1",
+    "q >= 1",
+    "p + q <= 128"
+  ],
+  "parameters": {
+    "p": 1,
+    "q": 2
+  },
+  "interface": {
+    "inputs": [
+      {
+        "name": "a",
+        "bits": "p"
+      },
+      {
+        "name": "b",
+        "bits": "q"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "lt",
+        "bits": 1
+      },
+      {
+        "name": "eq",
+        "bits": 1
+      },
+      {
+        "name": "gt",
+        "bits": 1
+      }
+    ]
+  }
+}

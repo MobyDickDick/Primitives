@@ -206,7 +206,7 @@ class SaturatingTests(unittest.TestCase):
 
     def test_server_upgrade_synthesis_evaluation_and_hierarchy_navigation(self):
         with tempfile.TemporaryDirectory(dir=ROOT / ".jobs") as directory:
-            previous = ("signed", "arithmetic", "recursive-checked", "recursive-mul", "number-of-ones",
+            previous = ("signed-arithmetic", "signed", "arithmetic", "recursive-checked", "recursive-mul", "number-of-ones",
                         "recursive-msb-div", "recursive-max-index", "recursive-equ", "recursive-gt",
                         "generative-logic", "routing", "structured-logic", "standard-arithmetic",
                         "arithmetic-comments", "zero-counts", "priority-encoder", "onehot", "barrel-shifter",

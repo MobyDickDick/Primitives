@@ -1,0 +1,32 @@
+def Extend<n,w>(a):
+    assert n >= 1 and n <= w and w <= 128
+    x = bits(a, n)
+    return pack(x + [x[n - 1]] * (w - n))
+
+def SignedArithmetic<p,q>(a,b,subtract):
+    assert p >= 1 and q >= 1 and p + q <= 128
+    w = (p if p >= q else q)
+    x = bits(Extend<p,w>(a), w)
+    y = bits(Extend<q,w>(b), w)
+    result = [0] * w
+    # Subtraktion ist a + NOT(b) + 1, mit Vorzeichenerweiterung.
+    carry = bits(subtract,1)[0]
+    flip = carry
+    for i in range(w):
+        digit = y[i] ^ flip
+        parity = x[i] ^ digit
+        result[i] = parity ^ carry
+        carry = (x[i] & digit) | (parity & carry)
+    # ADD: gleiche Vorzeichen, anderes Ergebnisvorzeichen.
+    # SUB: verschiedene Vorzeichen, anderes Ergebnisvorzeichen als a.
+    overflow = (1 ^ (x[w - 1] ^ y[w - 1] ^ flip)) & (result[w - 1] ^ x[w - 1])
+    return pack(result + [overflow])
+
+def SADD<p,q>(a,b):
+    assert p >= 1 and q >= 1 and p + q <= 128
+    return SignedArithmetic<p,q>(a,b,0)
+
+# Ergebnisports: modulare Zweierkomplementsumme und overflow.
+result = bits(SADD<p,q>(a,b), (p if p >= q else q) + 1)
+return pack(result[:(p if p >= q else q)]), result[(p if p >= q else q)]
+

@@ -1,0 +1,134 @@
+{
+  "schema": 1,
+  "root": "block-4c8bb76480b251ec0cff95a512bbd36cf5cb1ac56ce150a7c763d87ba9c439f5",
+  "definitions": {
+    "block-4c8bb76480b251ec0cff95a512bbd36cf5cb1ac56ce150a7c763d87ba9c439f5": {
+      "name": "SADD<2,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "overflow",
+            "bits": 1,
+            "signed": false,
+            "offset": 2,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 3,
+        "gates": [
+          [
+            0,
+            2
+          ],
+          [
+            0,
+            3
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            4,
+            5
+          ],
+          [
+            3,
+            3
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            1,
+            8
+          ],
+          [
+            2,
+            8
+          ],
+          [
+            9,
+            10
+          ],
+          [
+            7,
+            11
+          ],
+          [
+            11,
+            12
+          ],
+          [
+            7,
+            12
+          ],
+          [
+            13,
+            14
+          ],
+          [
+            11,
+            11
+          ],
+          [
+            1,
+            15
+          ],
+          [
+            15,
+            17
+          ],
+          [
+            1,
+            17
+          ],
+          [
+            18,
+            19
+          ],
+          [
+            16,
+            20
+          ],
+          [
+            21,
+            21
+          ]
+        ],
+        "outputs": [
+          6,
+          15,
+          22
+        ]
+      }
+    }
+  }
+}

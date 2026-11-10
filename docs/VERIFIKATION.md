@@ -1,5 +1,45 @@
 # Verifikation des ersten Prototyps
 
+## GEN-10: Signed Vergleiche und Grundrechenarten
+
+Geprüft am 10. November 2026:
+
+- `python -m tools.export_signed_arithmetic`: fünf Templates und 45 Instanzen
+  für SCMP, SADD, SSUB, SMUL und SDIV, jeweils alle neun Kombinationen p,q=1,2,4.
+  **2420 Eingabefälle vollständig unabhängig geprüft**; Quellprogramm, F-Box,
+  Expansion, vereinfachtes Netz und direkte Synthese stimmen überein.
+  Alle 231 generierten Dateien einschliesslich der fünf abstrakten Templates
+  sind durch einen zweiten Export in ein separates Verzeichnis bytegenau
+  reproduzierbar.
+- Alle **sechs neuen Python-Tests** bestehen einschliesslich HTTP-Integration.
+  Sie prüfen Vorzeichenerweiterung bei ungleichen Breiten, signed Overflow,
+  vollständige Produkte, Division gegen null, Restidentität/-vorzeichen,
+  sämtliche Nullteiler und MIN/-1-Fälle sowie den Ein-Bit-Bereich {-1,0}.
+- Grössere Referenzen mit (3,5), (5,3), (8,8), (16,16), zusätzlich bei
+  SCMP/SADD/SSUB (64,64), (1,127), (127,1), sind mit Grenzfällen und
+  reproduzierbaren Stichproben geprüft. Diese Räume bleiben Stichproben.
+  Ungültige Parameter und direkte Aufrufe sowie die letzten gleichen
+  NAND-Breiten und ihre jeweiligen Nachfolger werden geprüft.
+- Die einmalige Migration `signed-arithmetic-v1` erhält eigene Ordner,
+  Benennungen, Beschreibungen, Zuordnungen und gleiche oder bessere Lösungen
+  (darunter SCMP<1,1> mit sieben NANDs). Gelöschte Funktionen, Templates und
+  F-Boxen bleiben nach dem nächsten Start gelöscht. Die HTTP-Tests prüfen
+  Katalog, direkte Synthese, Bausteinauswertung und Schaltungsansicht.
+  Lokale Socketverbindungen benötigen Zugriff ausserhalb der Netzwerksandbox.
+- Der vollständige Erstaufbau mit **53 Templates und 254 Datensätzen** besteht.
+  Die isolierten Migrationstests der bisherigen Pakete berücksichtigen den
+  zusätzlichen Marker, der ursprüngliche Installer überspringt GEN-10.
+- `node --test tests/test_*.js`: **45 Tests erfolgreich**.
+- Die vollständige Python-Regression umfasst **333 erfolgreiche Tests**,
+  einschliesslich lokaler HTTP-Integration und tatsächlicher TinyLanguage-Läufe.
+  Der erste Gesamtlauf endete durch die Ausführungsumgebung nach 110 bestandenen
+  Tests; die exakt 223 noch ausstehenden Tests bestanden im anschliessenden
+  separaten Prozess ohne Fehler oder übersprungene Tests (976 Sekunden).
+- `git diff --check` besteht; alle 82 geprüften lokalen Verweise aus README,
+  Aufgabenlisten und neuer GEN-10-Dokumentation sind auflösbar.
+
+Semantik, Quellen und Grenzen: [Signed Arithmetik](SIGNED-ARITHMETIK.md).
+
 ## GEN-09: Vorzeichen, NEG und ABS
 
 Geprüft am 8. November 2026:

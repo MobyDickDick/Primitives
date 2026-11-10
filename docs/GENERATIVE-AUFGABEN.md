@@ -100,11 +100,16 @@ getrennt umsetzbar, sofern die genannten Abhängigkeiten verfügbar sind.
   Templates, neun F-Boxen/NAND-Netze und alle 66 kleinen Eingabefälle unabhängig
   vollständig geprüft. Grössere Referenzen, Port-/Gattergrenzen und einmalige
   Migration geprüft. Siehe [Vorzeichen, NEG und ABS](VORZEICHEN-NEG-ABS.md).
-  Nächste offene Template-Aufgabe: GEN-10.
-- [ ] **GEN-10 – Signed Vergleiche und Grundrechenarten:** Vorzeichenbehandlung
+- [x] **GEN-10 – Signed Vergleiche und Grundrechenarten:** Vorzeichenbehandlung
   als explizite Bitlogik; Division gegen null und der Sonderfall
   kleinster negativer Wert / -1. Vor Implementierung Ausgangsbreiten und
   Fehlerflags festlegen. Prüfen: alle neun Kombinationen aus 1,2,4 Bit.
+  Umgesetzt: SCMP mit lt/eq/gt, SADD/SSUB mit modularen Ergebnissen und Overflow,
+  SMUL mit vollständigem Produkt und SDIV mit Rundung gegen null, signed Rest,
+  valid/div0/overflow. Fünf editierbare Templates, 45 F-Boxen/NAND-Netze und
+  alle 2420 kleinen Eingabefälle unabhängig vollständig geprüft. Grössere
+  Stichproben, Breiten-/Budget-/Gattergrenzen und einmalige Migration geprüft.
+  Siehe [Signed Arithmetik](SIGNED-ARITHMETIK.md). Nächste offene Aufgabe: GEN-11.
 - [ ] **GEN-11 – Andere Multiplikationsverfahren:** Array-/Wallace-Teilprodukt-
   Reduktion mit vollständigem Produkt; Gatterzahl und Tiefe gegen
   Schiebe-Addier-Standard und rekursive Multiplikation vergleichen.

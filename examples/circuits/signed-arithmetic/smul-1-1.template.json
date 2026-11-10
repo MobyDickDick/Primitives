@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "source": "def FlipAddOne<t>(a,flip):\n    assert t >= 1 and t <= 128\n    x = bits(a,t)\n    carry = bits(flip,1)[0]\n    invert = carry\n    result = [0] * t\n    for i in range(t):\n        value = x[i] ^ invert\n        result[i] = value ^ carry\n        carry = value & carry\n    return pack(result)\n\ndef SMUL<p,q>(a,b):\n    assert p >= 1 and q >= 1 and p <= 16 and q <= 16\n    x = bits(a,p)\n    y = bits(b,q)\n    negative = x[p - 1] ^ y[q - 1]\n    # Beträge bleiben unsigned: auch abs(MIN) passt in die Eingangsbreite.\n    x = bits(FlipAddOne<p>(a,x[p - 1]),p)\n    y = bits(FlipAddOne<q>(b,y[q - 1]),q)\n    result = [0] * (p + q)\n    for i in range(q):\n        carry = 0\n        for j in range(p):\n            partial = x[j] & y[i]\n            parity = result[i + j] ^ partial\n            digit = parity ^ carry\n            carry = (result[i + j] & partial) | (parity & carry)\n            result[i + j] = digit\n        result[i + p] = carry\n    # Vollständiges signed Produkt: p+q Bits reichen immer aus.\n    return FlipAddOne<p+q>(pack(result),negative)\n\n# Ergebnisport: vollständiges Produkt, kein Overflow möglich.\nreturn SMUL<p,q>(a,b)\n",
+  "limits": {
+    "steps": 100000,
+    "iterations": 10000,
+    "total_steps": 5000000
+  },
+  "conditions": [
+    "p >= 1",
+    "q >= 1",
+    "p + q <= 128",
+    "p <= 16",
+    "q <= 16"
+  ],
+  "parameters": {
+    "p": 1,
+    "q": 1
+  },
+  "interface": {
+    "inputs": [
+      {
+        "name": "a",
+        "bits": "p"
+      },
+      {
+        "name": "b",
+        "bits": "q"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "c",
+        "bits": "p+q"
+      }
+    ]
+  }
+}

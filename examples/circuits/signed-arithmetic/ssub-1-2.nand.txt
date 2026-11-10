@@ -1,0 +1,31 @@
+# SSUB<1,2>: flat NAND netlist; bit 0 is the LSB.
+# Inputs: a0, b0, b1
+g0 = NAND(b0, b0)
+g1 = NAND(a0, g0)
+g2 = NAND(a0, g1)
+g3 = NAND(g0, g1)
+g4 = NAND(g2, g3)
+g5 = NAND(g4, g4)
+g6 = NAND(g1, g5)
+g7 = NAND(b1, b1)
+g8 = NAND(a0, g7)
+g9 = NAND(a0, g8)
+g10 = NAND(g7, g8)
+g11 = NAND(g9, g10)
+g12 = NAND(g6, g11)
+g13 = NAND(g11, g12)
+g14 = NAND(g6, g12)
+g15 = NAND(g13, g14)
+g16 = NAND(a0, b1)
+g17 = NAND(a0, g16)
+g18 = NAND(b1, g16)
+g19 = NAND(g17, g18)
+g20 = NAND(a0, g15)
+g21 = NAND(g15, g20)
+g22 = NAND(a0, g20)
+g23 = NAND(g21, g22)
+g24 = NAND(g19, g23)
+g25 = NAND(g24, g24)
+c0 = g5
+c1 = g15
+c2 = g25

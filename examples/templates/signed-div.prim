@@ -1,0 +1,61 @@
+def FlipAddOne<t>(a,flip):
+    assert t >= 1 and t <= 128
+    x = bits(a,t)
+    carry = bits(flip,1)[0]
+    invert = carry
+    result = [0] * t
+    for i in range(t):
+        value = x[i] ^ invert
+        result[i] = value ^ carry
+        carry = value & carry
+    return pack(result)
+
+def Subtract<w>(a,b):
+    assert w >= 1 and w <= 127
+    x = bits(a,w)
+    y = bits(b,w)
+    result = [0] * (w + 1)
+    borrow = 0
+    for i in range(w):
+        parity = x[i] ^ y[i]
+        result[i] = parity ^ borrow
+        borrow = ((1 ^ x[i]) & y[i]) | ((1 ^ parity) & borrow)
+    result[w] = borrow
+    return pack(result)
+
+def SDIV<p,q>(a,b):
+    assert p >= 1 and q >= 1 and p <= 16 and q <= 16
+    x = bits(a,p)
+    y = bits(b,q)
+    a_sign = x[p - 1]
+    negative = a_sign ^ y[q - 1]
+    x = bits(FlipAddOne<p>(a,a_sign),p)
+    divisor = FlipAddOne<q>(b,y[q - 1])
+    quotient = [0] * p
+    remainder = [0] * (q + 1)
+    # Restoring-Division der unsigned Beträge in p festen Stufen.
+    for i in range(p - 1,-1,-1):
+        remainder = [x[i]] + remainder[:q]
+        difference = bits(Subtract<q+1>(pack(remainder),divisor),q + 2)
+        take = 1 ^ difference[q + 1]
+        for j in range(q + 1):
+            remainder[j] = (difference[j] & take) | (remainder[j] & (1 ^ take))
+        quotient[i] = take
+    nonzero = 0
+    for i in range(q):
+        nonzero = nonzero | y[i]
+    # Nur ein positiver Quotient mit gesetztem höchstem Bit läuft über:
+    # MIN_p / -1. Bei b=0 hat div0 Vorrang, overflow bleibt 0.
+    overflow = quotient[p - 1] & (1 ^ negative) & nonzero
+    c = bits(FlipAddOne<p>(pack(quotient),negative),p)
+    rest = bits(FlipAddOne<q>(pack(remainder[:q]),a_sign),q)
+    for i in range(p):
+        c[i] = c[i] & nonzero
+    for i in range(q):
+        rest[i] = rest[i] & nonzero
+    # Beim Overflow bleibt der modulare Quotient MIN_p erhalten, Rest ist 0.
+    return pack(c + rest + [nonzero & (1 ^ overflow),1 ^ nonzero,overflow])
+
+# Ergebnisports: Quotient p Bits, Rest q Bits, valid, div0, overflow.
+result = bits(SDIV<p,q>(a,b),p + q + 3)
+return pack(result[:p]), pack(result[p:p+q]), result[p+q], result[p+q+1], result[p+q+2]

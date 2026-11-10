@@ -1,0 +1,97 @@
+{
+  "schema": 1,
+  "root": "block-95f41eab2b2413686eb6e357b0dfe17753829b8125b9154cb6f1f5326ee92b22",
+  "definitions": {
+    "block-95f41eab2b2413686eb6e357b0dfe17753829b8125b9154cb6f1f5326ee92b22": {
+      "name": "SADD<1,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 1,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          },
+          {
+            "name": "overflow",
+            "bits": 1,
+            "signed": false,
+            "offset": 1,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 2,
+        "gates": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            3,
+            4
+          ],
+          [
+            5,
+            5
+          ],
+          [
+            0,
+            5
+          ],
+          [
+            5,
+            7
+          ],
+          [
+            0,
+            7
+          ],
+          [
+            8,
+            9
+          ],
+          [
+            6,
+            10
+          ],
+          [
+            11,
+            11
+          ]
+        ],
+        "outputs": [
+          5,
+          12
+        ]
+      }
+    }
+  }
+}

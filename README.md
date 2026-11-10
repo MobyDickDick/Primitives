@@ -93,6 +93,16 @@ unabhängig vollständig geprüft. Beim nächsten Serverstart erscheinen sie unt
 **Beispiele → Grundrechenarten → Vorzeichen, NEG & ABS**.
 Siehe [Ergebnisdarstellung, Quellen und Grenzen](docs/VORZEICHEN-NEG-ABS.md).
 
+`SCMP<p,q>`, `SADD<p,q>`, `SSUB<p,q>`, `SMUL<p,q>` und `SDIV<p,q>`
+ergänzen signed Vergleiche und Grundrechenarten mit expliziter Vorzeichen-Bitlogik.
+Addition/Subtraktion liefern modulare Ergebnisse plus Overflow, Multiplikation
+das vollständige p+q-Bit-Produkt. Division rundet gegen null und liefert einen
+signed Rest sowie getrennte Flags für Nullteiler und MIN/-1-Overflow.
+GEN-10 ergänzt 45 F-Boxen/NAND-Netze für alle Kombinationen p,q=1,2,4 und
+alle 2420 Eingabefälle unabhängig vollständig geprüft. Beim nächsten Serverstart
+erscheinen sie unter **Beispiele → Grundrechenarten → Signed Vergleiche &
+Grundrechenarten**. Siehe [Semantik, Quellen und Grenzen](docs/SIGNED-ARITHMETIK.md).
+
 Die **Bibliothek** zeigt Templates und konkrete Funktionen in einem gemeinsamen
 Verzeichnisbaum. Ordner und Unterordner lassen sich anlegen, umbenennen,
 beschreiben und verschieben; Einträge können in jeden Ordner einsortiert werden.

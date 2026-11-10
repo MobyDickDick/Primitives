@@ -1,0 +1,40 @@
+{
+  "version": 2,
+  "source": "def Extend<n,w>(a):\n    assert n >= 1 and n <= w and w <= 128\n    x = bits(a, n)\n    return pack(x + [x[n - 1]] * (w - n))\n\ndef SignedArithmetic<p,q>(a,b,subtract):\n    assert p >= 1 and q >= 1 and p + q <= 128\n    w = (p if p >= q else q)\n    x = bits(Extend<p,w>(a), w)\n    y = bits(Extend<q,w>(b), w)\n    result = [0] * w\n    # Subtraktion ist a + NOT(b) + 1, mit Vorzeichenerweiterung.\n    carry = bits(subtract,1)[0]\n    flip = carry\n    for i in range(w):\n        digit = y[i] ^ flip\n        parity = x[i] ^ digit\n        result[i] = parity ^ carry\n        carry = (x[i] & digit) | (parity & carry)\n    # ADD: gleiche Vorzeichen, anderes Ergebnisvorzeichen.\n    # SUB: verschiedene Vorzeichen, anderes Ergebnisvorzeichen als a.\n    overflow = (1 ^ (x[w - 1] ^ y[w - 1] ^ flip)) & (result[w - 1] ^ x[w - 1])\n    return pack(result + [overflow])\n\ndef SSUB<p,q>(a,b):\n    assert p >= 1 and q >= 1 and p + q <= 128\n    return SignedArithmetic<p,q>(a,b,1)\n\n# Ergebnisports: modulare Zweierkomplementdifferenz und overflow.\nresult = bits(SSUB<p,q>(a,b), (p if p >= q else q) + 1)\nreturn pack(result[:(p if p >= q else q)]), result[(p if p >= q else q)]\n\n\n",
+  "limits": {
+    "steps": 100000,
+    "iterations": 10000,
+    "total_steps": 5000000
+  },
+  "conditions": [
+    "p >= 1",
+    "q >= 1",
+    "p + q <= 128"
+  ],
+  "parameters": {
+    "p": 4,
+    "q": 1
+  },
+  "interface": {
+    "inputs": [
+      {
+        "name": "a",
+        "bits": "p"
+      },
+      {
+        "name": "b",
+        "bits": "q"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "c",
+        "bits": "max(p,q)"
+      },
+      {
+        "name": "overflow",
+        "bits": 1
+      }
+    ]
+  }
+}

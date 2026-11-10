@@ -51,7 +51,11 @@ vorausgesetzt; Signalverfolgung soll auch ohne Hierarchie helfen.
       und Overflow beim kleinsten negativen Wert, neun F-Boxen/NAND-Netzen
       und unabhängiger vollständiger Prüfung aller 66 kleinen Eingabefälle;
       [Dokumentation](docs/VORZEICHEN-NEG-ABS.md).
-      Nächste offene Template-Aufgabe: GEN-10 (Signed Vergleiche und Grundrechenarten).
+- [x] GEN-10: SCMP/SADD/SSUB/SMUL/SDIV mit expliziter Vorzeichen-Bitlogik,
+      festgelegten Ergebnisbreiten, Overflow und Division gegen null;
+      45 F-Boxen/NAND-Netze und unabhängige vollständige Prüfung aller
+      2420 kleinen Eingabefälle; [Dokumentation](docs/SIGNED-ARITHMETIK.md).
+      Nächste offene Template-Aufgabe: GEN-11 (Andere Multiplikationsverfahren).
 
 Beschreibung und Erzeugung: [Standardarithmetik](docs/STANDARD-ARITHMETIK.md).
 
