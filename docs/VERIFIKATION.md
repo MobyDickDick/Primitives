@@ -1,5 +1,42 @@
 # Verifikation des ersten Prototyps
 
+## GEN-12: Bitonisches Sortiernetz
+
+Geprüft am 11. November 2026:
+
+- `python -m tools.export_sort_network`: ein editierbares Template und fünf
+  Instanzen für zwei Kanäle à 1/2/4 Bits und vier Kanäle à 1/2 Bits.
+  **548 Eingabefälle vollständig unabhängig geprüft** gegen Python-`sorted`.
+  Quelle, hierarchische SORT2-F-Boxen, Expansion, vereinfachte NAND-Netze und
+  direkte Synthese stimmen überein; die Multiset-Prüfung erhält auch Duplikate.
+- Alle **27 erzeugten Artefakte** einschliesslich des abstrakten Templates
+  sind durch einen zweiten Export in ein separates Verzeichnis bytegenau
+  reproduzierbar. Der Bericht enthält Vergleichsstufen, Vergleichszahl,
+  Gatterzahl und Tiefe ohne Minimalitätsbehauptung.
+- Alle **sieben neuen Python-Tests** bestehen einschliesslich lokaler
+  HTTP-Integration: Katalog mit einem Template und fünf Instanzen, Synthese,
+  Bausteinauswertung und Navigation in eine SORT2-Unterbox.
+  Die lokalen Socketverbindungen benötigen Zugriff ausserhalb der Netzwerksandbox.
+- Acht binäre Kanäle sind zusätzlich vollständig geprüft (256 Fälle).
+  Grössere Referenzen bis 32 Kanäle und 32 Bits pro Wort werden als Grenzfälle
+  und reproduzierbare Stichproben geprüft, ausdrücklich ohne vollständigen
+  Prüfstatus. Identität bei k=0, höchstes Wortbit, Duplikate, auf-/absteigende
+  Reihenfolgen, Template-/Aufrufbedingungen und Gatter-/Anweisungsgrenzen sind geprüft.
+- Die einmalige Migration `sort-network-v1` erhält eigene Ordner, Namen,
+  Beschreibungen, Zuordnungen und bessere Lösungen, darunter binäres
+  Minimum/Maximum mit fünf statt neun NANDs. Gelöschte Funktionen, Templates
+  und F-Boxen bleiben gelöscht. Der ursprüngliche Installer überspringt das
+  Template, bisherige isolierte HTTP-Migrationstests kennen den neuen Marker.
+- `node --test tests/test_*.js`: **45 Tests erfolgreich**.
+- `python -m unittest discover -s tests -v`: **346 Tests erfolgreich**, ohne
+  Fehler oder übersprungene Tests (813 Sekunden), einschliesslich lokaler
+  HTTP-Integration und tatsächlicher TinyLanguage-Läufe. Der vollständige
+  Erstaufbau mit **56 Templates und 277 Datensätzen** besteht ebenfalls.
+- `git diff --check` besteht; alle 85 lokalen Verweise aus README,
+  Aufgabenlisten und neuer Sortiernetz-Dokumentation sind auflösbar.
+
+Semantik, Kanalbelegung, Kosten und Grenzen: [Sortiernetz](SORTIERNETZ.md).
+
 ## GEN-11: Andere Multiplikationsverfahren
 
 Geprüft am 11. November 2026:

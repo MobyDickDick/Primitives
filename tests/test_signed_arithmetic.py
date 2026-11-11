@@ -202,7 +202,7 @@ class SignedArithmeticTests(unittest.TestCase):
 
     def test_http_upgrade_catalog_synthesis_and_blocks(self):
         with tempfile.TemporaryDirectory(dir=ROOT / ".jobs") as directory:
-            previous = ("multipliers", "signed", "saturating", "parallel-add", "prefixes", "arithmetic", "recursive-checked",
+            previous = ("sort-network", "multipliers", "signed", "saturating", "parallel-add", "prefixes", "arithmetic", "recursive-checked",
                         "recursive-mul", "number-of-ones", "recursive-msb-div", "recursive-max-index", "recursive-equ",
                         "recursive-gt", "generative-logic", "routing", "structured-logic", "standard-arithmetic",
                         "arithmetic-comments", "zero-counts", "priority-encoder", "onehot", "barrel-shifter", "rotations")

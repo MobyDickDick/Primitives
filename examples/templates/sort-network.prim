@@ -1,0 +1,86 @@
+# GT<t> (GreaterThan): unsigned t-bit inputs, one result bit, LSB-first.
+# t = 2**w, integer w >= 0. Upper/Lower take the full input width.
+
+def Upper<t>(a):
+    assert t >= 2 and (t & (t - 1)) == 0
+    x = bits(a, t)
+    return pack(x[t // 2:])
+
+def Lower<t>(a):
+    assert t >= 2 and (t & (t - 1)) == 0
+    x = bits(a, t)
+    return pack(x[:t // 2])
+
+def Equal<t>(a, b):
+    assert t >= 1 and (t & (t - 1)) == 0
+    if t == 1:
+        x = bits(a, 1)
+        y = bits(b, 1)
+        return 1 ^ (x[0] ^ y[0])
+    half = t // 2
+    hi = Equal<half>(Upper<t>(a), Upper<t>(b))
+    lo = Equal<half>(Lower<t>(a), Lower<t>(b))
+    return hi & lo
+
+def GT<t>(a, b):
+    assert t >= 1 and (t & (t - 1)) == 0
+    if t == 1:
+        x = bits(a, 1)
+        y = bits(b, 1)
+        return x[0] & (1 ^ y[0])
+    half = t // 2
+    hi = GT<half>(Upper<t>(a), Upper<t>(b))
+    eq = Equal<half>(Upper<t>(a), Upper<t>(b))
+    lo = GT<half>(Lower<t>(a), Lower<t>(b))
+    return hi | (eq & lo)
+
+def GreaterThan<t>(a, b):
+    return GT<t>(a, b)
+
+# sel=0 selects a, sel=1 selects b; selection uses only bit operations.
+def MUX<t>(a, b, sel):
+    assert t >= 1 and (t & (t - 1)) == 0
+    if t == 1:
+        x = bits(a, 1)
+        y = bits(b, 1)
+        s = bits(sel, 1)
+        return (x[0] & (1 ^ s[0])) | (y[0] & s[0])
+    x = bits(a, t)
+    y = bits(b, t)
+    half = t // 2
+    lo = bits(MUX<half>(pack(x[:half]), pack(y[:half]), sel), half)
+    hi = bits(MUX<half>(pack(x[half:]), pack(y[half:]), sel), half)
+    return pack(lo + hi)
+
+def SORT2<t>(a, b):
+    assert t >= 1 and (t & (t - 1)) == 0
+    sel = GT<t>(a, b)
+    return pack(bits(MUX<t>(a, b, sel), t) + bits(MUX<t>(b, a, sel), t))
+
+
+# Bitonisches Netz: 2**k unsigned Kanaele, Kanal 0 in den untersten n Bits.
+def SORT_NET<k,n>(a):
+    assert k >= 0 and k <= 7 and n >= 1 and n <= 64
+    assert (n & (n - 1)) == 0 and n * 2**k <= 128
+    channels = 2**k
+    data = bits(a, n * channels)
+    # Jede Stufe verbindet disjunkte Paare; Richtung und Abstand sind statisch.
+    for level in range(1,k+1):
+        size = 2**level
+        for step in range(level):
+            distance = 2**(level-step-1)
+            for i in range(channels):
+                j = i ^ distance
+                if i < j:
+                    pair = bits(SORT2<n>(pack(data[i*n:(i+1)*n]),pack(data[j*n:(j+1)*n])),2*n)
+                    for bit in range(n):
+                        if (i & size) == 0:
+                            data[i*n+bit] = pair[bit]
+                            data[j*n+bit] = pair[n+bit]
+                        else:
+                            data[i*n+bit] = pair[n+bit]
+                            data[j*n+bit] = pair[bit]
+    return pack(data)
+
+# Ergebnisport: gleiche Kanalreihenfolge, aufsteigend nach unsigned Wert.
+return SORT_NET<k,n>(a)

@@ -1,0 +1,35 @@
+{
+  "version": 2,
+  "source": "# GT<t> (GreaterThan): unsigned t-bit inputs, one result bit, LSB-first.\n# t = 2**w, integer w >= 0. Upper/Lower take the full input width.\n\ndef Upper<t>(a):\n    assert t >= 2 and (t & (t - 1)) == 0\n    x = bits(a, t)\n    return pack(x[t // 2:])\n\ndef Lower<t>(a):\n    assert t >= 2 and (t & (t - 1)) == 0\n    x = bits(a, t)\n    return pack(x[:t // 2])\n\ndef Equal<t>(a, b):\n    assert t >= 1 and (t & (t - 1)) == 0\n    if t == 1:\n        x = bits(a, 1)\n        y = bits(b, 1)\n        return 1 ^ (x[0] ^ y[0])\n    half = t // 2\n    hi = Equal<half>(Upper<t>(a), Upper<t>(b))\n    lo = Equal<half>(Lower<t>(a), Lower<t>(b))\n    return hi & lo\n\ndef GT<t>(a, b):\n    assert t >= 1 and (t & (t - 1)) == 0\n    if t == 1:\n        x = bits(a, 1)\n        y = bits(b, 1)\n        return x[0] & (1 ^ y[0])\n    half = t // 2\n    hi = GT<half>(Upper<t>(a), Upper<t>(b))\n    eq = Equal<half>(Upper<t>(a), Upper<t>(b))\n    lo = GT<half>(Lower<t>(a), Lower<t>(b))\n    return hi | (eq & lo)\n\ndef GreaterThan<t>(a, b):\n    return GT<t>(a, b)\n\n# sel=0 selects a, sel=1 selects b; selection uses only bit operations.\ndef MUX<t>(a, b, sel):\n    assert t >= 1 and (t & (t - 1)) == 0\n    if t == 1:\n        x = bits(a, 1)\n        y = bits(b, 1)\n        s = bits(sel, 1)\n        return (x[0] & (1 ^ s[0])) | (y[0] & s[0])\n    x = bits(a, t)\n    y = bits(b, t)\n    half = t // 2\n    lo = bits(MUX<half>(pack(x[:half]), pack(y[:half]), sel), half)\n    hi = bits(MUX<half>(pack(x[half:]), pack(y[half:]), sel), half)\n    return pack(lo + hi)\n\ndef SORT2<t>(a, b):\n    assert t >= 1 and (t & (t - 1)) == 0\n    sel = GT<t>(a, b)\n    return pack(bits(MUX<t>(a, b, sel), t) + bits(MUX<t>(b, a, sel), t))\n\n\n# Bitonisches Netz: 2**k unsigned Kanaele, Kanal 0 in den untersten n Bits.\ndef SORT_NET<k,n>(a):\n    assert k >= 0 and k <= 7 and n >= 1 and n <= 64\n    assert (n & (n - 1)) == 0 and n * 2**k <= 128\n    channels = 2**k\n    data = bits(a, n * channels)\n    # Jede Stufe verbindet disjunkte Paare; Richtung und Abstand sind statisch.\n    for level in range(1,k+1):\n        size = 2**level\n        for step in range(level):\n            distance = 2**(level-step-1)\n            for i in range(channels):\n                j = i ^ distance\n                if i < j:\n                    pair = bits(SORT2<n>(pack(data[i*n:(i+1)*n]),pack(data[j*n:(j+1)*n])),2*n)\n                    for bit in range(n):\n                        if (i & size) == 0:\n                            data[i*n+bit] = pair[bit]\n                            data[j*n+bit] = pair[n+bit]\n                        else:\n                            data[i*n+bit] = pair[n+bit]\n                            data[j*n+bit] = pair[bit]\n    return pack(data)\n\n# Ergebnisport: gleiche Kanalreihenfolge, aufsteigend nach unsigned Wert.\nreturn SORT_NET<k,n>(a)\n",
+  "limits": {
+    "steps": 100000,
+    "iterations": 10000,
+    "total_steps": 5000000
+  },
+  "conditions": [
+    "k >= 0",
+    "k <= 7",
+    "n >= 1",
+    "n <= 64",
+    "is_power_of_two(n)",
+    "n * 2**k <= 128"
+  ],
+  "parameters": {
+    "k": 1,
+    "n": 2
+  },
+  "interface": {
+    "inputs": [
+      {
+        "name": "a",
+        "bits": "n*2**k"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "c",
+        "bits": "n*2**k"
+      }
+    ]
+  }
+}

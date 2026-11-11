@@ -20,6 +20,41 @@ ROTATION_EXAMPLES = ("rol", "ror")
 PREFIX_EXAMPLES = ("prefix_and", "prefix_xor")
 
 
+def install_sort_network_examples(library):
+    """Install GEN-12 once, preserving existing labels, folders and winners."""
+    marker = library.root / "example-installations.json"
+    with library._lock:
+        installed = json.loads(marker.read_text(encoding="utf-8")) if marker.exists() else {}
+        if installed.get("sort-network-v1"):
+            return
+        organization = library._organization()
+        organization["entries"].update(library.tree()["entries"])
+        folders = [
+            {"id": "examples", "parent": None, "name": "Beispiele", "description": "Editierbare Beispiele."},
+            {"id": "recursion", "parent": "examples", "name": "Rekursion", "description": "Generative Bit-Templates."},
+            {"id": "sort-network", "parent": "recursion", "name": "Sortiernetze",
+             "description": "Aufsteigende bitonische Netze aus SORT2; fünf kleine Kombinationen vollständig geprüft."},
+        ]
+        existing = {f["id"] for f in organization["folders"]}
+        organization["folders"].extend(f for f in folders if f["id"] not in existing)
+        library._write_organization(organization)
+        source = Path(__file__).resolve().parents[1] / "examples"
+        template = Template(json.loads((source / "templates/sort-network.abstract.json").read_text(encoding="utf-8")))
+        key = library.save_template(template)
+        organization["entries"].setdefault(f"template:{key}", "sort-network")
+        for k, n in ((1, 1), (1, 2), (1, 4), (2, 1), (2, 2)):
+            prefix = source / f"circuits/sort-network/sort-{k}-{n}"
+            library.save_block(BlockBundle(json.loads(prefix.with_suffix(".block.json").read_text(encoding="utf-8"))))
+            dataset = Dataset.from_dict(json.loads(prefix.with_suffix(".vectors.json").read_text(encoding="utf-8")))
+            circuit = json.loads(prefix.with_suffix(".circuit.json").read_text(encoding="utf-8"))
+            library.save_program({"circuit": circuit,
+                                  "synthesis": {"method": "structural-bitonic-sort", "version": 1}}, dataset)
+            organization["entries"].setdefault(f"function:{function_id(dataset)}", "sort-network")
+        library._write_organization(organization)
+        installed["sort-network-v1"] = True
+        write_json(marker, installed)
+
+
 def install_multiplier_examples(library):
     """Install GEN-11 once, preserving existing labels, folders and winners."""
     marker = library.root / "example-installations.json"
@@ -564,6 +599,8 @@ def install_examples(library):
         source = Path(__file__).resolve().parents[1] / "examples" / "templates"
         recursive_checked = {"recursive-split-sub.abstract.json", "recursive-split-add-checked.abstract.json"}
         for path in sorted(source.glob("*.abstract.json")):
+            if path.name == "sort-network.abstract.json":
+                continue  # GEN-12 has its own migration for existing libraries.
             if path.name in {"array-mul.abstract.json", "wallace-mul.abstract.json"}:
                 continue  # GEN-11 has its own migration for existing libraries.
             if path.name in {f"signed-{kind}.abstract.json" for kind in ("cmp", "add", "sub", "mul", "div")}:

@@ -112,6 +112,15 @@ gegenüber Tiefe 28 beim Schiebe-Addier-Standard. Beim nächsten Serverstart
 erscheinen sie unter **Beispiele → Grundrechenarten → Array- & Wallace-Multiplikation**.
 Siehe [Kostenvergleich, Semantik und Grenzen](docs/MULTIPLIKATIONSVERFAHREN.md).
 
+`SORT_NET<k,n>(a)` sortiert 2**k unsigned Kanäle à n Bits aufsteigend über
+ein festes bitonisches Netz aus SORT2. Kanal 0 liegt in den untersten n Bits;
+alle Werte einschliesslich Duplikaten bleiben erhalten. GEN-12 ergänzt fünf
+F-Boxen mit sichtbaren SORT2-Unterboxen und flache NAND-Netze: zwei Kanäle
+mit n=1,2,4 und vier Kanäle mit n=1,2. Alle 548 Eingabefälle sind unabhängig
+vollständig geprüft. Beim nächsten Serverstart erscheinen sie unter
+**Beispiele → Rekursion → Sortiernetze**.
+Siehe [Quelle, Kanalbelegung und Grenzen](docs/SORTIERNETZ.md).
+
 Die **Bibliothek** zeigt Templates und konkrete Funktionen in einem gemeinsamen
 Verzeichnisbaum. Ordner und Unterordner lassen sich anlegen, umbenennen,
 beschreiben und verschieben; Einträge können in jeden Ordner einsortiert werden.

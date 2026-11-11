@@ -165,7 +165,7 @@ class MultiplierTests(unittest.TestCase):
 
     def test_http_upgrade_synthesis_evaluation_and_block_view(self):
         with tempfile.TemporaryDirectory(dir=ROOT / ".jobs") as directory:
-            previous = ("signed-arithmetic", "signed", "saturating", "parallel-add", "prefixes", "arithmetic",
+            previous = ("sort-network", "signed-arithmetic", "signed", "saturating", "parallel-add", "prefixes", "arithmetic",
                         "recursive-checked", "recursive-mul", "number-of-ones", "recursive-msb-div", "recursive-max-index",
                         "recursive-equ", "recursive-gt", "generative-logic", "routing", "structured-logic",
                         "standard-arithmetic", "arithmetic-comments", "zero-counts", "priority-encoder", "onehot",

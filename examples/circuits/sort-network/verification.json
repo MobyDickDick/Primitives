@@ -1,0 +1,267 @@
+[
+  {
+    "name": "SORT_NET<1,1>",
+    "parameters": {
+      "k": 1,
+      "n": 1
+    },
+    "channels": 2,
+    "comparators": 1,
+    "stages": 1,
+    "fitness": {
+      "errors": 0,
+      "total_bits": 8,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 9,
+      "depth": 5
+    },
+    "hierarchy": {
+      "id": "block-ac1cc647dbff13af9cd096fee4827ff10e9ab226ece5cb6cbde045d82de93ec1",
+      "name": "SORT_NET<1,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 11,
+      "depth": 6,
+      "definitions": 4,
+      "instances": 1
+    },
+    "synthesis": {
+      "method": "structural-bitonic-sort",
+      "version": 1
+    }
+  },
+  {
+    "name": "SORT_NET<1,2>",
+    "parameters": {
+      "k": 1,
+      "n": 2
+    },
+    "channels": 2,
+    "comparators": 1,
+    "stages": 1,
+    "fitness": {
+      "errors": 0,
+      "total_bits": 64,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 25,
+      "depth": 9
+    },
+    "hierarchy": {
+      "id": "block-dcb90243cf0d632e0aae8255baa2382a4ea8bc501442143279ffe38d2bdb0286",
+      "name": "SORT_NET<1,2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 30,
+      "depth": 9,
+      "definitions": 7,
+      "instances": 1
+    },
+    "synthesis": {
+      "method": "structural-bitonic-sort",
+      "version": 1
+    }
+  },
+  {
+    "name": "SORT_NET<1,4>",
+    "parameters": {
+      "k": 1,
+      "n": 4
+    },
+    "channels": 2,
+    "comparators": 1,
+    "stages": 1,
+    "fitness": {
+      "errors": 0,
+      "total_bits": 2048,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 59,
+      "depth": 11
+    },
+    "hierarchy": {
+      "id": "block-66ee0ea991dc6756ee84f12d84dc560059a084ba9f1cbf89085675bf7456d38e",
+      "name": "SORT_NET<1,4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 8,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 8,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 75,
+      "depth": 11,
+      "definitions": 11,
+      "instances": 1
+    },
+    "synthesis": {
+      "method": "structural-bitonic-sort",
+      "version": 1
+    }
+  },
+  {
+    "name": "SORT_NET<2,1>",
+    "parameters": {
+      "k": 2,
+      "n": 1
+    },
+    "channels": 4,
+    "comparators": 6,
+    "stages": 3,
+    "fitness": {
+      "errors": 0,
+      "total_bits": 64,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 54,
+      "depth": 15
+    },
+    "hierarchy": {
+      "id": "block-36c9065f3cf75c28d02f44716c4879f3ea61332b4bf179e0703728368f4966c9",
+      "name": "SORT_NET<2,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 66,
+      "depth": 18,
+      "definitions": 4,
+      "instances": 6
+    },
+    "synthesis": {
+      "method": "structural-bitonic-sort",
+      "version": 1
+    }
+  },
+  {
+    "name": "SORT_NET<2,2>",
+    "parameters": {
+      "k": 2,
+      "n": 2
+    },
+    "channels": 4,
+    "comparators": 6,
+    "stages": 3,
+    "fitness": {
+      "errors": 0,
+      "total_bits": 2048,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 150,
+      "depth": 27
+    },
+    "hierarchy": {
+      "id": "block-162b484aca03dde69e3af5526829290b8d5d8916fc1e9ff4d8793af00ce1361e",
+      "name": "SORT_NET<2,2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 8,
+            "signed": false,
+            "offset": 0
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 8,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 180,
+      "depth": 27,
+      "definitions": 7,
+      "instances": 6
+    },
+    "synthesis": {
+      "method": "structural-bitonic-sort",
+      "version": 1
+    }
+  }
+]

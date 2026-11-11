@@ -59,7 +59,11 @@ vorausgesetzt; Signalverfolgung soll auch ohne Hierarchie helfen.
       18 F-Boxen/NAND-Netzen und unabhängiger vollständiger Prüfung aller
       968 kleinen Eingabefälle; Kostenvergleich mit Standard und rekursivem
       Vollproduktkern; [Dokumentation](docs/MULTIPLIKATIONSVERFAHREN.md).
-      Nächste offene Template-Aufgabe: GEN-12 (Sortiernetz).
+- [x] GEN-12: Aufsteigendes bitonisches Sortiernetz für 2**k unsigned Kanäle,
+      fünf F-Boxen mit sichtbaren SORT2-Unterboxen und flache NAND-Netze;
+      alle 548 kleinen Eingabefälle unabhängig vollständig geprüft, einschliesslich
+      Multiset-Erhaltung; [Dokumentation](docs/SORTIERNETZ.md).
+      Nächste offene Template-Aufgabe: GEN-13 (Hamming-Distanz).
 
 Beschreibung und Erzeugung: [Standardarithmetik](docs/STANDARD-ARITHMETIK.md).
 

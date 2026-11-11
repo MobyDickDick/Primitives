@@ -119,15 +119,20 @@ getrennt umsetzbar, sofern die genannten Abhängigkeiten verfügbar sind.
   Eingabefällen unabhängig vollständig geprüft. Vergleich mit Schiebe-Addier-
   Standard und rekursivem Vollproduktkern, grössere Stichproben, Grenzen und
   einmalige Migration dokumentiert unter [Multiplikationsverfahren](MULTIPLIKATIONSVERFAHREN.md).
-  Nächste offene Template-Aufgabe: GEN-12.
 
 ## Priorität 3: Komposition und Codes
 
-- [ ] **GEN-12 – Sortiernetz:** Zweiwert-Sortierer zu einem Bitonic- oder
+- [x] **GEN-12 – Sortiernetz:** Zweiwert-Sortierer zu einem Bitonic- oder
   Odd-Even-Netz für 2**k Kanäle à n Bits zusammensetzen. Kleine Kombinationen
   vollständig prüfen, etwa zwei Kanäle mit n=1,2,4 und vier Kanäle mit n=1,2;
   grössere Eingaberäume als Stichprobe kennzeichnen. Aufsteigende Ausgabe
   und Erhaltung des Eingabemultisets prüfen. Abhängigkeit: SORT2.
+  Umgesetzt: `SORT_NET<k,n>` als bitonisches Netz, fünf F-Boxen mit sichtbaren
+  SORT2-Unterboxen und flache NAND-Netze; alle 548 kleinen Eingabefälle
+  unabhängig vollständig geprüft. Acht binäre Kanäle zusätzlich vollständig,
+  grössere Referenzen als Stichproben, Port-/Gatter-/Budgetgrenzen und einmalige
+  Migration geprüft. Siehe [Sortiernetz](SORTIERNETZ.md).
+  Nächste offene Template-Aufgabe: GEN-13.
 - [ ] **GEN-13 – Hamming-Distanz:** XOR zweier gleich breiter Datenwörter und
   NumberOfOnes; bei ungleichen Breiten Nullerweiterung auf max(p,q).
   Prüfen: alle neun Breitenkombinationen, Symmetrie und Abstand null.
