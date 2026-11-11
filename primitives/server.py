@@ -41,7 +41,7 @@ def make_server(port=8765, data_dir=None, *, background=True, seed_examples=True
                                install_arithmetic_comments, install_zero_count_examples, install_priority_encoder_examples,
                                install_onehot_examples, install_barrel_shifter_examples, install_rotation_examples,
                                install_prefix_examples, install_parallel_add_examples, install_saturating_examples,
-                               install_signed_examples, install_signed_arithmetic_examples)
+                               install_signed_examples, install_signed_arithmetic_examples, install_multiplier_examples)
         install_examples(library)
         install_structured_examples(library)
         install_standard_arithmetic_examples(library)
@@ -55,6 +55,7 @@ def make_server(port=8765, data_dir=None, *, background=True, seed_examples=True
         install_saturating_examples(library)
         install_signed_examples(library)
         install_signed_arithmetic_examples(library)
+        install_multiplier_examples(library)
         install_arithmetic_comments(library)
     jobs, cancellations, lock = {}, {}, threading.Lock()
     debuggers = {}

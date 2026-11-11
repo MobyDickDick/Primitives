@@ -1,0 +1,459 @@
+{
+  "schema": 1,
+  "name": "ARRAY_MUL<4,1>",
+  "inputs": 5,
+  "outputs": 5,
+  "rows": [
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      1,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      1,
+      0,
+      1,
+      0,
+      0,
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      1,
+      1,
+      1,
+      0,
+      0,
+      1,
+      1,
+      0
+    ],
+    [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0,
+      0,
+      1,
+      0,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0,
+      1,
+      1,
+      0,
+      1,
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      1,
+      0,
+      1,
+      0,
+      1,
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      1,
+      1,
+      1,
+      0,
+      1,
+      1,
+      1,
+      0
+    ],
+    [
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      0,
+      0,
+      0,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      0,
+      0,
+      1,
+      1,
+      1,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      1,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      0,
+      1,
+      0,
+      1,
+      1,
+      0,
+      1,
+      0,
+      0
+    ],
+    [
+      1,
+      0,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      0,
+      1,
+      1,
+      1,
+      1,
+      0,
+      1,
+      1,
+      0
+    ],
+    [
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      1,
+      0,
+      0,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      1,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      1,
+      0,
+      1,
+      1,
+      1,
+      1,
+      0,
+      1,
+      0
+    ],
+    [
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      1,
+      1,
+      0,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0
+    ],
+    [
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0
+    ]
+  ],
+  "metadata": {
+    "program": {
+      "version": 2,
+      "source": "# Unsigned Carry-Save-Array: vollständiges Produkt, LSB-first.\ndef MulRow<p,q,i>(a,b):\n    assert p >= 1 and q >= 1 and p + q <= 64 and i >= 0 and i < q\n    x = bits(a,p)\n    y = bits(b,q)\n    row = [0] * (p + q)\n    for j in range(p):\n        row[i+j] = x[j] & y[i]\n    return pack(row)\n\ndef MulCSA<w>(a,b,c):\n    assert w >= 1 and w <= 64\n    x = bits(a,w)\n    y = bits(b,w)\n    z = bits(c,w)\n    total = [0] * w\n    carry = [0] * w\n    for i in range(w):\n        parity = x[i] ^ y[i]\n        total[i] = parity ^ z[i]\n        if i + 1 < w:\n            # Kein Carry läuft innerhalb dieser Stufe zur nächsten Stelle.\n            carry[i+1] = (x[i] & y[i]) | (parity & z[i])\n    # Summe modulo 2**w; bei Teilprodukten passt die ganze Summe in w Bits.\n    return pack(total + carry)\n\ndef MulFinish<w>(a,b):\n    assert w >= 1 and w <= 64\n    x = bits(a,w)\n    y = bits(b,w)\n    result = [0] * w\n    carry = 0\n    for i in range(w):\n        parity = x[i] ^ y[i]\n        result[i] = parity ^ carry\n        carry = (x[i] & y[i]) | (parity & carry)\n    return pack(result)\n\ndef ARRAY_MUL<p,q>(a,b):\n    assert p >= 1 and q >= 1 and p + q <= 64\n    # Der schmalere Operand bestimmt die Zahl der Teilproduktzeilen.\n    if p < q:\n        return ARRAY_MUL<q,p>(b,a)\n    w = p + q\n    total = MulRow<p,q,0>(a,b)\n    if q == 1:\n        return total\n    carry = MulRow<p,q,1>(a,b)\n    # Regelmässige Kaskade von 3:2-Kompressoren; erst am Ende Carry-Propagation.\n    for i in range(2,q):\n        pair = bits(MulCSA<w>(total,carry,MulRow<p,q,i>(a,b)),2*w)\n        total = pack(pair[:w])\n        carry = pack(pair[w:])\n    return MulFinish<w>(total,carry)\n\n# Ergebnisport: p+q Bits, keine Sättigung und kein Fehlerflag.\nreturn ARRAY_MUL<p,q>(a,b)\n",
+      "limits": {
+        "steps": 100000,
+        "iterations": 10000,
+        "total_steps": 5000000
+      },
+      "conditions": [
+        "p >= 1",
+        "q >= 1",
+        "p + q <= 64"
+      ],
+      "parameters": {
+        "p": 4,
+        "q": 1
+      },
+      "interface": {
+        "inputs": [
+          {
+            "name": "a",
+            "bits": "p"
+          },
+          {
+            "name": "b",
+            "bits": "q"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": "p+q"
+          }
+        ]
+      }
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 1,
+          "signed": false,
+          "offset": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 5,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "description": "Carry-Save-Array-Kaskade: unsigned a[p], b[q], vollständiges Produkt c[p+q], LSB-first. Schmalerer Operand bestimmt die Zeilenzahl; abschliessender Ripple-Carry-Addierer. Keine Sättigung, kein Fehlerflag, kein Minimalitätsnachweis. Interne Bitarrays maximal 128 Bits; NAND-Netze/F-Boxen maximal 512 Gatter."
+  },
+  "exhaustive": true
+}

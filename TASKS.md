@@ -55,7 +55,11 @@ vorausgesetzt; Signalverfolgung soll auch ohne Hierarchie helfen.
       festgelegten Ergebnisbreiten, Overflow und Division gegen null;
       45 F-Boxen/NAND-Netze und unabhängige vollständige Prüfung aller
       2420 kleinen Eingabefälle; [Dokumentation](docs/SIGNED-ARITHMETIK.md).
-      Nächste offene Template-Aufgabe: GEN-11 (Andere Multiplikationsverfahren).
+- [x] GEN-11: Array- und Wallace-Multiplikation mit vollständigem unsigned Produkt,
+      18 F-Boxen/NAND-Netzen und unabhängiger vollständiger Prüfung aller
+      968 kleinen Eingabefälle; Kostenvergleich mit Standard und rekursivem
+      Vollproduktkern; [Dokumentation](docs/MULTIPLIKATIONSVERFAHREN.md).
+      Nächste offene Template-Aufgabe: GEN-12 (Sortiernetz).
 
 Beschreibung und Erzeugung: [Standardarithmetik](docs/STANDARD-ARITHMETIK.md).
 

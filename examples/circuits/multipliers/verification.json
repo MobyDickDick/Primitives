@@ -1,0 +1,1838 @@
+[
+  {
+    "name": "ARRAY_MUL<1,1>",
+    "kind": "array",
+    "parameters": {
+      "p": 1,
+      "q": 1
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 1,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 1,
+          "signed": false,
+          "offset": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 2,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 8,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 5,
+      "depth": 3
+    },
+    "hierarchy": {
+      "id": "block-008be8fe086107703505e0913a5cb31e7381d156e05f167fe42c1e492dde2f58",
+      "name": "ARRAY_MUL<1,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 5,
+      "depth": 3,
+      "definitions": 1,
+      "instances": 0
+    },
+    "synthesis": {
+      "method": "structural-carry-save",
+      "version": 1
+    },
+    "comparison": {
+      "array": {
+        "gates": 5,
+        "depth": 3
+      },
+      "wallace": {
+        "gates": 5,
+        "depth": 3
+      },
+      "shift_add": {
+        "gates": 5,
+        "depth": 3
+      },
+      "recursive_full": {
+        "gates": 5,
+        "depth": 3
+      }
+    }
+  },
+  {
+    "name": "ARRAY_MUL<1,2>",
+    "kind": "array",
+    "parameters": {
+      "p": 1,
+      "q": 2
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 1,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 2,
+          "signed": false,
+          "offset": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 3,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 24,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 7,
+      "depth": 3
+    },
+    "hierarchy": {
+      "id": "block-cc7e156ebedcd6eb36812752817360ab9cdbdd6b927e17380441e4e8349db4a1",
+      "name": "ARRAY_MUL<1,2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 2,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 3,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 7,
+      "depth": 3,
+      "definitions": 1,
+      "instances": 0
+    },
+    "synthesis": {
+      "method": "structural-carry-save",
+      "version": 1
+    },
+    "comparison": {
+      "array": {
+        "gates": 7,
+        "depth": 3
+      },
+      "wallace": {
+        "gates": 7,
+        "depth": 3
+      },
+      "shift_add": {
+        "gates": 7,
+        "depth": 3
+      },
+      "recursive_full": {
+        "gates": 7,
+        "depth": 3
+      }
+    }
+  },
+  {
+    "name": "ARRAY_MUL<1,4>",
+    "kind": "array",
+    "parameters": {
+      "p": 1,
+      "q": 4
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 1,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 4,
+          "signed": false,
+          "offset": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 5,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 160,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 11,
+      "depth": 3
+    },
+    "hierarchy": {
+      "id": "block-57250319356809ff4468227f67500ba3225c55d9127464792506e0964dd05a9e",
+      "name": "ARRAY_MUL<1,4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 4,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 5,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 11,
+      "depth": 3,
+      "definitions": 1,
+      "instances": 0
+    },
+    "synthesis": {
+      "method": "structural-carry-save",
+      "version": 1
+    },
+    "comparison": {
+      "array": {
+        "gates": 11,
+        "depth": 3
+      },
+      "wallace": {
+        "gates": 11,
+        "depth": 3
+      },
+      "shift_add": {
+        "gates": 11,
+        "depth": 3
+      },
+      "recursive_full": {
+        "gates": 11,
+        "depth": 3
+      }
+    }
+  },
+  {
+    "name": "ARRAY_MUL<2,1>",
+    "kind": "array",
+    "parameters": {
+      "p": 2,
+      "q": 1
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 1,
+          "signed": false,
+          "offset": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 3,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 24,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 7,
+      "depth": 3
+    },
+    "hierarchy": {
+      "id": "block-7920e744e5deef4ed2525460de478a0531cd1d07a5f3046307b5db5ea99a2a08",
+      "name": "ARRAY_MUL<2,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 3,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 7,
+      "depth": 3,
+      "definitions": 1,
+      "instances": 0
+    },
+    "synthesis": {
+      "method": "structural-carry-save",
+      "version": 1
+    },
+    "comparison": {
+      "array": {
+        "gates": 7,
+        "depth": 3
+      },
+      "wallace": {
+        "gates": 7,
+        "depth": 3
+      },
+      "shift_add": {
+        "gates": 7,
+        "depth": 3
+      },
+      "recursive_full": {
+        "gates": 7,
+        "depth": 3
+      }
+    }
+  },
+  {
+    "name": "ARRAY_MUL<2,2>",
+    "kind": "array",
+    "parameters": {
+      "p": 2,
+      "q": 2
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 2,
+          "signed": false,
+          "offset": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 64,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 18,
+      "depth": 7
+    },
+    "hierarchy": {
+      "id": "block-8ff7a8039ddae83beed7e84555618ebcad20bfdfe5f4b2cc3ceee1cc55b26a02",
+      "name": "ARRAY_MUL<2,2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 2,
+            "signed": false,
+            "offset": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 18,
+      "depth": 7,
+      "definitions": 1,
+      "instances": 0
+    },
+    "synthesis": {
+      "method": "structural-carry-save",
+      "version": 1
+    },
+    "comparison": {
+      "array": {
+        "gates": 18,
+        "depth": 7
+      },
+      "wallace": {
+        "gates": 18,
+        "depth": 7
+      },
+      "shift_add": {
+        "gates": 18,
+        "depth": 7
+      },
+      "recursive_full": {
+        "gates": 18,
+        "depth": 7
+      }
+    }
+  },
+  {
+    "name": "ARRAY_MUL<2,4>",
+    "kind": "array",
+    "parameters": {
+      "p": 2,
+      "q": 4
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 4,
+          "signed": false,
+          "offset": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 6,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 384,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 44,
+      "depth": 12
+    },
+    "hierarchy": {
+      "id": "block-93a742473b79e8d11f4f4366c9cfbf6e87bc30861ef7f053d1d603d2470985ed",
+      "name": "ARRAY_MUL<2,4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 4,
+            "signed": false,
+            "offset": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 6,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 44,
+      "depth": 12,
+      "definitions": 1,
+      "instances": 0
+    },
+    "synthesis": {
+      "method": "structural-carry-save",
+      "version": 1
+    },
+    "comparison": {
+      "array": {
+        "gates": 44,
+        "depth": 12
+      },
+      "wallace": {
+        "gates": 44,
+        "depth": 12
+      },
+      "shift_add": {
+        "gates": 54,
+        "depth": 17
+      },
+      "recursive_full": {
+        "gates": 64,
+        "depth": 19
+      }
+    }
+  },
+  {
+    "name": "ARRAY_MUL<4,1>",
+    "kind": "array",
+    "parameters": {
+      "p": 4,
+      "q": 1
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 1,
+          "signed": false,
+          "offset": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 5,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 160,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 11,
+      "depth": 3
+    },
+    "hierarchy": {
+      "id": "block-27b1f82ae8e343de9033dc235c1b64e54dc767650e0c47ee99c667e4f4df7552",
+      "name": "ARRAY_MUL<4,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 5,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 11,
+      "depth": 3,
+      "definitions": 1,
+      "instances": 0
+    },
+    "synthesis": {
+      "method": "structural-carry-save",
+      "version": 1
+    },
+    "comparison": {
+      "array": {
+        "gates": 11,
+        "depth": 3
+      },
+      "wallace": {
+        "gates": 11,
+        "depth": 3
+      },
+      "shift_add": {
+        "gates": 11,
+        "depth": 3
+      },
+      "recursive_full": {
+        "gates": 11,
+        "depth": 3
+      }
+    }
+  },
+  {
+    "name": "ARRAY_MUL<4,2>",
+    "kind": "array",
+    "parameters": {
+      "p": 4,
+      "q": 2
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 2,
+          "signed": false,
+          "offset": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 6,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 384,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 44,
+      "depth": 12
+    },
+    "hierarchy": {
+      "id": "block-726ec0b760ffa5c03e43f6b5f17e1f4cb8776697bde97761fd1f2ceb3ce7a806",
+      "name": "ARRAY_MUL<4,2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 2,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 6,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 44,
+      "depth": 12,
+      "definitions": 1,
+      "instances": 0
+    },
+    "synthesis": {
+      "method": "structural-carry-save",
+      "version": 1
+    },
+    "comparison": {
+      "array": {
+        "gates": 44,
+        "depth": 12
+      },
+      "wallace": {
+        "gates": 44,
+        "depth": 12
+      },
+      "shift_add": {
+        "gates": 44,
+        "depth": 12
+      },
+      "recursive_full": {
+        "gates": 64,
+        "depth": 19
+      }
+    }
+  },
+  {
+    "name": "ARRAY_MUL<4,4>",
+    "kind": "array",
+    "parameters": {
+      "p": 4,
+      "q": 4
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 4,
+          "signed": false,
+          "offset": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 8,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 2048,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 124,
+      "depth": 23
+    },
+    "hierarchy": {
+      "id": "block-35593fd3411717edce97e376047ee83dba42a1b73598f2ddeddadc39a4efa64e",
+      "name": "ARRAY_MUL<4,4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 4,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 8,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 124,
+      "depth": 23,
+      "definitions": 1,
+      "instances": 0
+    },
+    "synthesis": {
+      "method": "structural-carry-save",
+      "version": 1
+    },
+    "comparison": {
+      "array": {
+        "gates": 124,
+        "depth": 23
+      },
+      "wallace": {
+        "gates": 124,
+        "depth": 23
+      },
+      "shift_add": {
+        "gates": 124,
+        "depth": 28
+      },
+      "recursive_full": {
+        "gates": 199,
+        "depth": 34
+      }
+    }
+  },
+  {
+    "name": "WALLACE_MUL<1,1>",
+    "kind": "wallace",
+    "parameters": {
+      "p": 1,
+      "q": 1
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 1,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 1,
+          "signed": false,
+          "offset": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 2,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 8,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 5,
+      "depth": 3
+    },
+    "hierarchy": {
+      "id": "block-a178d09946027959f6db4b2732406812d8d21170f71abd682f282c82719233ea",
+      "name": "WALLACE_MUL<1,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 2,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 5,
+      "depth": 3,
+      "definitions": 1,
+      "instances": 0
+    },
+    "synthesis": {
+      "method": "structural-carry-save",
+      "version": 1
+    },
+    "comparison": {
+      "array": {
+        "gates": 5,
+        "depth": 3
+      },
+      "wallace": {
+        "gates": 5,
+        "depth": 3
+      },
+      "shift_add": {
+        "gates": 5,
+        "depth": 3
+      },
+      "recursive_full": {
+        "gates": 5,
+        "depth": 3
+      }
+    }
+  },
+  {
+    "name": "WALLACE_MUL<1,2>",
+    "kind": "wallace",
+    "parameters": {
+      "p": 1,
+      "q": 2
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 1,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 2,
+          "signed": false,
+          "offset": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 3,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 24,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 7,
+      "depth": 3
+    },
+    "hierarchy": {
+      "id": "block-c096edc9990464781dec36ee58e27825f90728e57748335dbb3791b6029e2697",
+      "name": "WALLACE_MUL<1,2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 2,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 3,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 7,
+      "depth": 3,
+      "definitions": 1,
+      "instances": 0
+    },
+    "synthesis": {
+      "method": "structural-carry-save",
+      "version": 1
+    },
+    "comparison": {
+      "array": {
+        "gates": 7,
+        "depth": 3
+      },
+      "wallace": {
+        "gates": 7,
+        "depth": 3
+      },
+      "shift_add": {
+        "gates": 7,
+        "depth": 3
+      },
+      "recursive_full": {
+        "gates": 7,
+        "depth": 3
+      }
+    }
+  },
+  {
+    "name": "WALLACE_MUL<1,4>",
+    "kind": "wallace",
+    "parameters": {
+      "p": 1,
+      "q": 4
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 1,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 4,
+          "signed": false,
+          "offset": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 5,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 160,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 11,
+      "depth": 3
+    },
+    "hierarchy": {
+      "id": "block-98ee7c93717c8e26b5dcecb128d4d67bafe392b75790236a8839de3f9782a90a",
+      "name": "WALLACE_MUL<1,4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 1,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 4,
+            "signed": false,
+            "offset": 1
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 5,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 11,
+      "depth": 3,
+      "definitions": 1,
+      "instances": 0
+    },
+    "synthesis": {
+      "method": "structural-carry-save",
+      "version": 1
+    },
+    "comparison": {
+      "array": {
+        "gates": 11,
+        "depth": 3
+      },
+      "wallace": {
+        "gates": 11,
+        "depth": 3
+      },
+      "shift_add": {
+        "gates": 11,
+        "depth": 3
+      },
+      "recursive_full": {
+        "gates": 11,
+        "depth": 3
+      }
+    }
+  },
+  {
+    "name": "WALLACE_MUL<2,1>",
+    "kind": "wallace",
+    "parameters": {
+      "p": 2,
+      "q": 1
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 1,
+          "signed": false,
+          "offset": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 3,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 24,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 7,
+      "depth": 3
+    },
+    "hierarchy": {
+      "id": "block-fbefea195ed6804bf6e3d5498d8c21a3e9387449e6b5e27234223ee56c894171",
+      "name": "WALLACE_MUL<2,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 3,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 7,
+      "depth": 3,
+      "definitions": 1,
+      "instances": 0
+    },
+    "synthesis": {
+      "method": "structural-carry-save",
+      "version": 1
+    },
+    "comparison": {
+      "array": {
+        "gates": 7,
+        "depth": 3
+      },
+      "wallace": {
+        "gates": 7,
+        "depth": 3
+      },
+      "shift_add": {
+        "gates": 7,
+        "depth": 3
+      },
+      "recursive_full": {
+        "gates": 7,
+        "depth": 3
+      }
+    }
+  },
+  {
+    "name": "WALLACE_MUL<2,2>",
+    "kind": "wallace",
+    "parameters": {
+      "p": 2,
+      "q": 2
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 2,
+          "signed": false,
+          "offset": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 4,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 64,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 18,
+      "depth": 7
+    },
+    "hierarchy": {
+      "id": "block-c66862bbd6bef70365958da631418144ac2a4d3748e9334f46b30d0c8fd8c8e9",
+      "name": "WALLACE_MUL<2,2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 2,
+            "signed": false,
+            "offset": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 4,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 18,
+      "depth": 7,
+      "definitions": 1,
+      "instances": 0
+    },
+    "synthesis": {
+      "method": "structural-carry-save",
+      "version": 1
+    },
+    "comparison": {
+      "array": {
+        "gates": 18,
+        "depth": 7
+      },
+      "wallace": {
+        "gates": 18,
+        "depth": 7
+      },
+      "shift_add": {
+        "gates": 18,
+        "depth": 7
+      },
+      "recursive_full": {
+        "gates": 18,
+        "depth": 7
+      }
+    }
+  },
+  {
+    "name": "WALLACE_MUL<2,4>",
+    "kind": "wallace",
+    "parameters": {
+      "p": 2,
+      "q": 4
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 2,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 4,
+          "signed": false,
+          "offset": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 6,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 384,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 44,
+      "depth": 12
+    },
+    "hierarchy": {
+      "id": "block-3fc65daca449247e18c6480a700fac9867278bbd610caf882a3b569eaef162ce",
+      "name": "WALLACE_MUL<2,4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 2,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 4,
+            "signed": false,
+            "offset": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 6,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 44,
+      "depth": 12,
+      "definitions": 1,
+      "instances": 0
+    },
+    "synthesis": {
+      "method": "structural-carry-save",
+      "version": 1
+    },
+    "comparison": {
+      "array": {
+        "gates": 44,
+        "depth": 12
+      },
+      "wallace": {
+        "gates": 44,
+        "depth": 12
+      },
+      "shift_add": {
+        "gates": 54,
+        "depth": 17
+      },
+      "recursive_full": {
+        "gates": 64,
+        "depth": 19
+      }
+    }
+  },
+  {
+    "name": "WALLACE_MUL<4,1>",
+    "kind": "wallace",
+    "parameters": {
+      "p": 4,
+      "q": 1
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 1,
+          "signed": false,
+          "offset": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 5,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 160,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 11,
+      "depth": 3
+    },
+    "hierarchy": {
+      "id": "block-9ee51e854ba2951a5e86a5b54173ef6a286d0a244e08d058d08c4d87d8507ac3",
+      "name": "WALLACE_MUL<4,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 5,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 11,
+      "depth": 3,
+      "definitions": 1,
+      "instances": 0
+    },
+    "synthesis": {
+      "method": "structural-carry-save",
+      "version": 1
+    },
+    "comparison": {
+      "array": {
+        "gates": 11,
+        "depth": 3
+      },
+      "wallace": {
+        "gates": 11,
+        "depth": 3
+      },
+      "shift_add": {
+        "gates": 11,
+        "depth": 3
+      },
+      "recursive_full": {
+        "gates": 11,
+        "depth": 3
+      }
+    }
+  },
+  {
+    "name": "WALLACE_MUL<4,2>",
+    "kind": "wallace",
+    "parameters": {
+      "p": 4,
+      "q": 2
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 2,
+          "signed": false,
+          "offset": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 6,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 384,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 44,
+      "depth": 12
+    },
+    "hierarchy": {
+      "id": "block-be7985185183d14764a166e236b34e4691827c9dca1f5e5862670e8f6d7de7b2",
+      "name": "WALLACE_MUL<4,2>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 2,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 6,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 44,
+      "depth": 12,
+      "definitions": 1,
+      "instances": 0
+    },
+    "synthesis": {
+      "method": "structural-carry-save",
+      "version": 1
+    },
+    "comparison": {
+      "array": {
+        "gates": 44,
+        "depth": 12
+      },
+      "wallace": {
+        "gates": 44,
+        "depth": 12
+      },
+      "shift_add": {
+        "gates": 44,
+        "depth": 12
+      },
+      "recursive_full": {
+        "gates": 64,
+        "depth": 19
+      }
+    }
+  },
+  {
+    "name": "WALLACE_MUL<4,4>",
+    "kind": "wallace",
+    "parameters": {
+      "p": 4,
+      "q": 4
+    },
+    "interface": {
+      "schema": 1,
+      "bit_order": "LSB-first",
+      "inputs": [
+        {
+          "name": "a",
+          "bits": 4,
+          "signed": false,
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "bits": 4,
+          "signed": false,
+          "offset": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "c",
+          "bits": 8,
+          "signed": false,
+          "offset": 0,
+          "overflow": "error"
+        }
+      ]
+    },
+    "fitness": {
+      "errors": 0,
+      "total_bits": 2048,
+      "accuracy": 1.0,
+      "exact_on_dataset": true,
+      "verified_truth_table": true,
+      "gates": 124,
+      "depth": 23
+    },
+    "hierarchy": {
+      "id": "block-c752f18563c24cc7294735ef29fbd9be447ec1a00c8c5c88031b9f85a5006b2b",
+      "name": "WALLACE_MUL<4,4>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 4,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 8,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "gates": 124,
+      "depth": 23,
+      "definitions": 1,
+      "instances": 0
+    },
+    "synthesis": {
+      "method": "structural-carry-save",
+      "version": 1
+    },
+    "comparison": {
+      "array": {
+        "gates": 124,
+        "depth": 23
+      },
+      "wallace": {
+        "gates": 124,
+        "depth": 23
+      },
+      "shift_add": {
+        "gates": 124,
+        "depth": 28
+      },
+      "recursive_full": {
+        "gates": 199,
+        "depth": 34
+      }
+    }
+  }
+]

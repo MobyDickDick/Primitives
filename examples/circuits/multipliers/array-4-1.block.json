@@ -1,0 +1,93 @@
+{
+  "schema": 1,
+  "root": "block-27b1f82ae8e343de9033dc235c1b64e54dc767650e0c47ee99c667e4f4df7552",
+  "definitions": {
+    "block-27b1f82ae8e343de9033dc235c1b64e54dc767650e0c47ee99c667e4f4df7552": {
+      "name": "ARRAY_MUL<4,1>",
+      "version": 1,
+      "interface": {
+        "schema": 1,
+        "bit_order": "LSB-first",
+        "inputs": [
+          {
+            "name": "a",
+            "bits": 4,
+            "signed": false,
+            "offset": 0
+          },
+          {
+            "name": "b",
+            "bits": 1,
+            "signed": false,
+            "offset": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "c",
+            "bits": 5,
+            "signed": false,
+            "offset": 0,
+            "overflow": "error"
+          }
+        ]
+      },
+      "circuit": {
+        "inputs": 5,
+        "gates": [
+          [
+            0,
+            4
+          ],
+          [
+            5,
+            5
+          ],
+          [
+            1,
+            4
+          ],
+          [
+            7,
+            7
+          ],
+          [
+            2,
+            4
+          ],
+          [
+            9,
+            9
+          ],
+          [
+            3,
+            4
+          ],
+          [
+            11,
+            11
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            13
+          ],
+          [
+            14,
+            14
+          ]
+        ],
+        "outputs": [
+          6,
+          8,
+          10,
+          12,
+          15
+        ]
+      }
+    }
+  }
+}

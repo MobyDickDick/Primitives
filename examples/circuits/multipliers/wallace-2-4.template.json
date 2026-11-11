@@ -1,0 +1,37 @@
+{
+  "version": 2,
+  "source": "# Unsigned Wallace-Baum mit zeilenweiser 3:2-Reduktion, LSB-first.\ndef MulRow<p,q,i>(a,b):\n    assert p >= 1 and q >= 1 and p + q <= 64 and i >= 0 and i < q\n    x = bits(a,p)\n    y = bits(b,q)\n    row = [0] * (p + q)\n    for j in range(p):\n        row[i+j] = x[j] & y[i]\n    return pack(row)\n\ndef MulCSA<w>(a,b,c):\n    assert w >= 1 and w <= 64\n    x = bits(a,w)\n    y = bits(b,w)\n    z = bits(c,w)\n    total = [0] * w\n    carry = [0] * w\n    for i in range(w):\n        parity = x[i] ^ y[i]\n        total[i] = parity ^ z[i]\n        if i + 1 < w:\n            carry[i+1] = (x[i] & y[i]) | (parity & z[i])\n    return pack(total + carry)\n\ndef MulFinish<w>(a,b):\n    assert w >= 1 and w <= 64\n    x = bits(a,w)\n    y = bits(b,w)\n    result = [0] * w\n    carry = 0\n    for i in range(w):\n        parity = x[i] ^ y[i]\n        result[i] = parity ^ carry\n        carry = (x[i] & y[i]) | (parity & carry)\n    return pack(result)\n\ndef MulTree<w,n>(rows):\n    assert w >= 1 and w <= 64 and n >= 1 and n*w <= 128\n    current = bits(rows,n*w)\n    if n == 1:\n        return pack(current)\n    if n == 2:\n        return MulFinish<w>(pack(current[:w]),pack(current[w:]))\n    count = 2*(n//3) + n%3\n    following = [0] * (count*w)\n    # Jede Dreiergruppe liest nur die vorherige Ebene. Die Überträge werden\n    # erst in der nächsten Ebene benutzt, niemals innerhalb derselben Ebene.\n    for group in range(n//3):\n        start = 3*group*w\n        pair = bits(MulCSA<w>(pack(current[start:start+w]),pack(current[start+w:start+2*w]),pack(current[start+2*w:start+3*w])),2*w)\n        for j in range(2*w):\n            following[2*group*w+j] = pair[j]\n    # Eine oder zwei übrige Zeilen unverändert weiterreichen.\n    for j in range((n%3)*w):\n        following[2*(n//3)*w+j] = current[3*(n//3)*w+j]\n    return MulTree<w,count>(pack(following))\n\ndef WALLACE_MUL<p,q>(a,b):\n    assert p >= 1 and q >= 1 and p + q <= 64 and (p if p < q else q)*(p+q) <= 128\n    if p < q:\n        return WALLACE_MUL<q,p>(b,a)\n    w = p + q\n    rows = [0] * (q*w)\n    for i in range(q):\n        row = bits(MulRow<p,q,i>(a,b),w)\n        for j in range(w):\n            rows[i*w+j] = row[j]\n    return MulTree<w,q>(pack(rows))\n\n# Ergebnisport: vollständiges Produkt mit p+q Bits.\nreturn WALLACE_MUL<p,q>(a,b)\n",
+  "limits": {
+    "steps": 100000,
+    "iterations": 10000,
+    "total_steps": 5000000
+  },
+  "conditions": [
+    "p >= 1",
+    "q >= 1",
+    "p + q <= 64",
+    "min(p,q)*(p+q) <= 128"
+  ],
+  "parameters": {
+    "p": 2,
+    "q": 4
+  },
+  "interface": {
+    "inputs": [
+      {
+        "name": "a",
+        "bits": "p"
+      },
+      {
+        "name": "b",
+        "bits": "q"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "c",
+        "bits": "p+q"
+      }
+    ]
+  }
+}

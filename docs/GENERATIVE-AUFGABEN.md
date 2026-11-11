@@ -109,11 +109,17 @@ getrennt umsetzbar, sofern die genannten Abhängigkeiten verfügbar sind.
   valid/div0/overflow. Fünf editierbare Templates, 45 F-Boxen/NAND-Netze und
   alle 2420 kleinen Eingabefälle unabhängig vollständig geprüft. Grössere
   Stichproben, Breiten-/Budget-/Gattergrenzen und einmalige Migration geprüft.
-  Siehe [Signed Arithmetik](SIGNED-ARITHMETIK.md). Nächste offene Aufgabe: GEN-11.
-- [ ] **GEN-11 – Andere Multiplikationsverfahren:** Array-/Wallace-Teilprodukt-
+  Siehe [Signed Arithmetik](SIGNED-ARITHMETIK.md).
+- [x] **GEN-11 – Andere Multiplikationsverfahren:** Array-/Wallace-Teilprodukt-
   Reduktion mit vollständigem Produkt; Gatterzahl und Tiefe gegen
   Schiebe-Addier-Standard und rekursive Multiplikation vergleichen.
   Prüfen: alle neun kleinen Breitenkombinationen, keine Minimalitätsbehauptung.
+  Umgesetzt: ARRAY_MUL und WALLACE_MUL mit zeilenweiser Carry-Save-Reduktion,
+  zwei editierbaren Templates, 18 F-Boxen/NAND-Netzen und allen 968 kleinen
+  Eingabefällen unabhängig vollständig geprüft. Vergleich mit Schiebe-Addier-
+  Standard und rekursivem Vollproduktkern, grössere Stichproben, Grenzen und
+  einmalige Migration dokumentiert unter [Multiplikationsverfahren](MULTIPLIKATIONSVERFAHREN.md).
+  Nächste offene Template-Aufgabe: GEN-12.
 
 ## Priorität 3: Komposition und Codes
 

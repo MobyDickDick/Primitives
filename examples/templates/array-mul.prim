@@ -1,0 +1,57 @@
+# Unsigned Carry-Save-Array: vollständiges Produkt, LSB-first.
+def MulRow<p,q,i>(a,b):
+    assert p >= 1 and q >= 1 and p + q <= 64 and i >= 0 and i < q
+    x = bits(a,p)
+    y = bits(b,q)
+    row = [0] * (p + q)
+    for j in range(p):
+        row[i+j] = x[j] & y[i]
+    return pack(row)
+
+def MulCSA<w>(a,b,c):
+    assert w >= 1 and w <= 64
+    x = bits(a,w)
+    y = bits(b,w)
+    z = bits(c,w)
+    total = [0] * w
+    carry = [0] * w
+    for i in range(w):
+        parity = x[i] ^ y[i]
+        total[i] = parity ^ z[i]
+        if i + 1 < w:
+            # Kein Carry läuft innerhalb dieser Stufe zur nächsten Stelle.
+            carry[i+1] = (x[i] & y[i]) | (parity & z[i])
+    # Summe modulo 2**w; bei Teilprodukten passt die ganze Summe in w Bits.
+    return pack(total + carry)
+
+def MulFinish<w>(a,b):
+    assert w >= 1 and w <= 64
+    x = bits(a,w)
+    y = bits(b,w)
+    result = [0] * w
+    carry = 0
+    for i in range(w):
+        parity = x[i] ^ y[i]
+        result[i] = parity ^ carry
+        carry = (x[i] & y[i]) | (parity & carry)
+    return pack(result)
+
+def ARRAY_MUL<p,q>(a,b):
+    assert p >= 1 and q >= 1 and p + q <= 64
+    # Der schmalere Operand bestimmt die Zahl der Teilproduktzeilen.
+    if p < q:
+        return ARRAY_MUL<q,p>(b,a)
+    w = p + q
+    total = MulRow<p,q,0>(a,b)
+    if q == 1:
+        return total
+    carry = MulRow<p,q,1>(a,b)
+    # Regelmässige Kaskade von 3:2-Kompressoren; erst am Ende Carry-Propagation.
+    for i in range(2,q):
+        pair = bits(MulCSA<w>(total,carry,MulRow<p,q,i>(a,b)),2*w)
+        total = pack(pair[:w])
+        carry = pack(pair[w:])
+    return MulFinish<w>(total,carry)
+
+# Ergebnisport: p+q Bits, keine Sättigung und kein Fehlerflag.
+return ARRAY_MUL<p,q>(a,b)

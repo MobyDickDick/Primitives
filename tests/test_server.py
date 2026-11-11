@@ -118,8 +118,8 @@ class ServerTests(unittest.TestCase):
         self.thread.start()
         self.base = f"http://127.0.0.1:{self.server.server_port}"
         catalog = self.request("/api/catalog")
-        self.assertEqual(len(catalog["templates"]), 53)
-        self.assertEqual(len(catalog["datasets"]), 254)
+        self.assertEqual(len(catalog["templates"]), 55)
+        self.assertEqual(len(catalog["datasets"]), 272)
         self.assertTrue({"DIV<1> MSB", "DIV<2> MSB", "DIV<3> MSB", "DIV<4> MSB"}
                         <= {p["dataset_name"] for p in catalog["programs"]})
         self.assertTrue(all(p["fitness"]["exact_on_dataset"] for p in catalog["programs"]))
@@ -127,7 +127,7 @@ class ServerTests(unittest.TestCase):
                          {"MUX<1,4>", "MUX<2,4>", "MUX<4,2>", "MUX<4,4>"})
         self.assertEqual({catalog["tree"]["entries"][f"function:{d['function_id']}"] for d in catalog["datasets"]},
                          {"arithmetic-functions", "recursion", "routing", "structured-logic", "zero-counts", "priority-encoder", "onehot", "barrel-shifter", "rotations", "prefixes", "parallel-add", "saturating", "signed", "signed-arithmetic",
-                          "standard-add", "standard-sub", "standard-mul", "standard-div"})
+                          "standard-add", "standard-sub", "standard-mul", "standard-div", "multipliers"})
         self.assertEqual({b["name"] for b in catalog["blocks"]},
                          {"MUL<1>", "MUL<2>", "MUL<4>", "NumberOfOnes<1>", "NumberOfOnes<2>", "NumberOfOnes<4>",
                           "m<1>", "m<2>", "m<4>", "EQU<1>", "EQU<2>", "EQU<4>",
@@ -145,6 +145,7 @@ class ServerTests(unittest.TestCase):
                          | {f"{kind}<{p},{q}>" for kind in ("SAT_ADD", "SAT_SUB") for p in (1, 2, 4) for q in (1, 2, 4)}
                          | {f"{kind}<{t}>" for kind in ("SIGN", "NEG", "ABS") for t in (1, 2, 4)}
                          | {f"S{kind}<{p},{q}>" for kind in ("CMP", "ADD", "SUB", "MUL", "DIV") for p in (1, 2, 4) for q in (1, 2, 4)}
+                         | {f"{kind}_MUL<{p},{q}>" for kind in ("ARRAY", "WALLACE") for p in (1, 2, 4) for q in (1, 2, 4)}
                          | {f"{name} ({p}/{q} Bit)" for name in ("Standardaddition", "Standardsubtraktion",
                                                                "Standardmultiplikation", "Standarddivision")
                             for p in (1, 2, 4) for q in (1, 2, 4)})

@@ -186,7 +186,7 @@ class PrefixTests(unittest.TestCase):
 
     def test_server_upgrade_catalog_synthesis_and_nested_navigation(self):
         with tempfile.TemporaryDirectory(dir=ROOT / ".jobs") as directory:
-            previous = ("signed-arithmetic", "signed", "saturating", "parallel-add", "arithmetic", "recursive-checked", "recursive-mul", "number-of-ones",
+            previous = ("multipliers", "signed-arithmetic", "signed", "saturating", "parallel-add", "arithmetic", "recursive-checked", "recursive-mul", "number-of-ones",
                         "recursive-msb-div", "recursive-max-index", "recursive-equ", "recursive-gt",
                         "generative-logic", "routing", "structured-logic", "standard-arithmetic",
                         "arithmetic-comments", "zero-counts", "priority-encoder", "onehot", "barrel-shifter", "rotations")

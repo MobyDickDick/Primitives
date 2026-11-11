@@ -1,5 +1,47 @@
 # Verifikation des ersten Prototyps
 
+## GEN-11: Andere Multiplikationsverfahren
+
+Geprüft am 11. November 2026:
+
+- `python -m tools.export_multipliers`: zwei Templates für ARRAY_MUL und
+  WALLACE_MUL mit vollständigem unsigned Produkt und je neun Instanzen
+  p,q=1,2,4. **968 Eingabefälle vollständig unabhängig geprüft**;
+  Quellprogramm, F-Box, Expansion, vereinfachtes Netz und direkte Synthese
+  stimmen mit Ganzzahlmultiplikation überein. Auch der Schiebe-Addier-Standard
+  und der rekursive Vollproduktkern werden für alle kleinen Eingaben geprüft.
+- Alle **93 erzeugten Dateien** einschliesslich der zwei abstrakten Templates
+  sind durch einen zweiten Export in ein separates Verzeichnis bytegenau
+  reproduzierbar. Der Prüfbericht enthält NAND-Zahl und Tiefe aller vier
+  Konstruktionen, ohne Minimalitätsbehauptung.
+- Grenzfälle und reproduzierbare Stichproben prüfen 3/5, 5/3, 5/5, 6/6,
+  7/7, 8/8, 16/4, 1/63 und 63/1. Mehrere Baumebenen, beide Restzeilenfälle
+  und alle 4096 Eingaben eines 4-Bit-3:2-Kompressors werden geprüft.
+  Die grösseren Produkt-Eingaberäume bleiben ausdrücklich Stichproben.
+  Die letzten gleichen NAND-Breiten 6/6 und die Ablehnung von 7/7 und 8/8
+  sowie Template-/Aufrufbedingungen und interne 128-Bit-Grenzen sind geprüft.
+- Die Migration `multipliers-v1` erhält eigene Ordner, Namen, Beschreibungen,
+  Zuordnungen und gleiche oder bessere Lösungen, darunter eine vorhandene
+  4-NAND-Lösung für 1/1. Gelöschte Funktionen, Templates und F-Boxen werden
+  nicht erneut angelegt. Der ursprüngliche Beispielinstaller überspringt
+  die beiden neuen Templates. Die bisherigen isolierten HTTP-Migrationstests
+  berücksichtigen den zusätzlichen Marker.
+- `node --test tests/test_*.js`: **45 Tests erfolgreich**.
+- Alle **sechs neuen Python-Tests** bestehen einschliesslich HTTP-Integration:
+  Katalog mit zwei Templates und 18 Instanzen, direkte 4/4-Bit-Synthese,
+  Bausteinauswertung und Schaltungsansicht.
+- Der vollständige Erstaufbau mit **55 Templates und 272 Datensätzen**
+  besteht einschliesslich der gemeinsamen Katalog- und Bibliotheksprüfung.
+- `PYTHONUTF8=1 python -m unittest discover -s tests -v`: **339 Tests
+  erfolgreich**, ohne Fehler oder übersprungene Tests (1356 Sekunden),
+  einschliesslich lokaler HTTP-Integration und tatsächlicher TinyLanguage-Läufe.
+  Die lokalen Socketverbindungen benötigen Zugriff ausserhalb der Netzwerksandbox.
+- `git diff --check` besteht; alle 109 lokalen Verweise aus README,
+  Aufgabenlisten, Verifikationsprotokoll und neuer GEN-11-Dokumentation sind auflösbar.
+
+Semantik, Kostenvergleich und Grenzen:
+[Array- und Wallace-Multiplikation](MULTIPLIKATIONSVERFAHREN.md).
+
 ## GEN-10: Signed Vergleiche und Grundrechenarten
 
 Geprüft am 10. November 2026:

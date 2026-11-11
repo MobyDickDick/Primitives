@@ -103,6 +103,15 @@ alle 2420 Eingabefälle unabhängig vollständig geprüft. Beim nächsten Server
 erscheinen sie unter **Beispiele → Grundrechenarten → Signed Vergleiche &
 Grundrechenarten**. Siehe [Semantik, Quellen und Grenzen](docs/SIGNED-ARITHMETIK.md).
 
+`ARRAY_MUL<p,q>` und `WALLACE_MUL<p,q>` bilden vollständige unsigned Produkte
+mit p+q Bits über Carry-Save-Teilproduktreduktion und einen abschliessenden
+Ripple-Carry-Addierer. GEN-11 ergänzt 18 F-Boxen/NAND-Netze für alle neun
+Kombinationen p,q=1,2,4 je Verfahren; alle 968 Eingabefälle sind unabhängig
+vollständig geprüft. Bei 4/4 Bit benötigen beide 124 NANDs und Tiefe 23,
+gegenüber Tiefe 28 beim Schiebe-Addier-Standard. Beim nächsten Serverstart
+erscheinen sie unter **Beispiele → Grundrechenarten → Array- & Wallace-Multiplikation**.
+Siehe [Kostenvergleich, Semantik und Grenzen](docs/MULTIPLIKATIONSVERFAHREN.md).
+
 Die **Bibliothek** zeigt Templates und konkrete Funktionen in einem gemeinsamen
 Verzeichnisbaum. Ordner und Unterordner lassen sich anlegen, umbenennen,
 beschreiben und verschieben; Einträge können in jeden Ordner einsortiert werden.
